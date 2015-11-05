@@ -1,0 +1,111 @@
+import random
+
+class Agent:
+  def __init__(self, location):
+    self.health = 1
+
+    self.injured = 0
+
+    self.age = 35
+    self.location = location
+    self.location.numAgents += 1
+
+  def evolve(self):
+    movechance = self.location.movechance
+    outcome = random.random()
+    if outcome < movechance:
+      # determine here which route to take?
+      chosenRoute = 0
+
+      # update location to link endpoint
+      self.location.numAgents -= 1
+      self.location = self.location.links[chosenRoute].endpoint
+      self.location.numAgents += 1
+      
+
+class Location:
+  def __init__(self, name, x=0.0, y=0.0, movechance=0.1):
+    self.name = name
+    self.x = x
+    self.y = y
+    self.movechance = movechance
+    self.links = []
+    self.numAgents = 0
+
+
+class Link:
+  def __init__(self, endpoint, distance):
+
+    self.distance = distance
+    #links for now always connect two endpoints
+    self.endpoint = endpoint
+
+class Ecosystem:
+  def __init__(self):
+    self.locations = []
+    self.locationNames = []
+    self.agents = []
+    self.time = 0
+
+  def evolve(self):
+    #update agent locations
+    for a in self.agents:
+      a.evolve()
+
+    #update link properties
+
+    self.time += 1
+
+  def addLocation(self, name, x="0.0", y="0.0"):
+    l = Location(name,x,y)
+    self.locations.append(l)
+    self.locationNames.append(l.name)
+    return l
+   
+
+  def addAgent(self, location):
+    self.agents.append(Agent(location))
+
+  def linkUp(self, endpoint1, endpoint2, distance="1.0"):
+    """ Creates a link between two endpoint locations
+    """
+    endpoint1_index = 0
+    endpoint2_index = 0
+    for i in xrange(0, len(self.locationNames)):
+      if(self.locationNames[i] == endpoint1):
+        endpoint1_index = i
+      if(self.locationNames[i] == endpoint2):
+        endpoint2_index = i
+
+
+    self.locations[endpoint1_index].links.append( Link(self.locations[endpoint2_index], distance) )
+    self.locations[endpoint2_index].links.append( Link(self.locations[endpoint1_index], distance) )
+
+
+  def printInfo(self):
+
+    print "Time: ", self.time, ", # of agents: ", len(self.agents)
+    for l in self.locations:
+      print l.name, l.numAgents
+
+
+if __name__ == "__main__":
+  print "Flee, prototype version."
+
+  end_time = 50
+  e = Ecosystem()
+
+  l1 = e.addLocation("Source")
+  l2 = e.addLocation("Sink1")
+  l3 = e.addLocation("Sink2")
+
+  e.linkUp("Source","Sink1","10.0")
+  e.linkUp("Source","Sink2","5.0")
+
+  for i in xrange(0,100):
+    e.addAgent(location=l1)
+
+  for t in xrange(0,end_time):
+    e.evolve()
+    e.printInfo()
+    
