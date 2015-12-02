@@ -15,16 +15,28 @@ class Agent:
     outcome = random.random()
     if outcome < movechance:
       # determine here which route to take?
-      chosenRoute = 0
+      chosenRoute = self.selectRoute()
 
       # update location to link endpoint
       self.location.numAgents -= 1
       self.location = self.location.links[chosenRoute].endpoint
       self.location.numAgents += 1
       
+  def selectRoute(self):
+    total_score = 0.0
+    for i in xrange(0,len(self.location.links)):
+      total_score += 40000.0 / (10.0 + self.location.links[i].distance)
+
+    selected_value = random.random() * total_score
+
+    checked_score = 0.0
+    for i in xrange(0,len(self.location.links)):
+      checked_score += 40000.0 / (10.0 + self.location.links[i].distance)
+      if selected_value < checked_score:
+        return i
 
 class Location:
-  def __init__(self, name, x=0.0, y=0.0, movechance=0.1):
+  def __init__(self, name, x=0.0, y=0.0, movechance=0.001):
     self.name = name
     self.x = x
     self.y = y
@@ -36,7 +48,9 @@ class Location:
 class Link:
   def __init__(self, endpoint, distance):
 
-    self.distance = distance
+    # distance in km.
+    self.distance = float(distance)
+
     #links for now always connect two endpoints
     self.endpoint = endpoint
 
@@ -56,8 +70,8 @@ class Ecosystem:
 
     self.time += 1
 
-  def addLocation(self, name, x="0.0", y="0.0"):
-    l = Location(name,x,y)
+  def addLocation(self, name, x="0.0", y="0.0", movechance=0.1):
+    l = Location(name, x, y, movechance)
     self.locations.append(l)
     self.locationNames.append(l.name)
     return l
