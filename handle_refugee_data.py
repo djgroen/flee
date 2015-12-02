@@ -11,11 +11,14 @@ class DataTable:
   
       """
       self.data_table = validation_data
-      self.header = ["date","days","Niger","Burkina Faso","Mauritania","Togo","Guinea","total","internally displaced"] 
+      # first field ("date") is omitted.
+      self.header = ["days","Niger","Burkina Faso","Mauritania","Togo","Guinea","total","internally displaced"] 
       self.total_refugee_column = 0
       self.days_column = 1
 
-  def get_new_refugees(self, day, format="mali", Debug=True):
+
+
+  def get_new_refugees(self, day, format="mali", Debug=False):
     """
     Function to extrapolate count of new refugees at a given time point, based on input data.
     """
@@ -46,24 +49,42 @@ class DataTable:
     # If the day exceeds the validation data table, then we return 0
     return 0
 
-  def get_interpolated_data(column, day):
+
+
+  def get_interpolated_data(self, column, day):
     """
     Gets in a given column for a given day. Interpolates between days as needed.
     """
 
     old_val = self.data_table[0][column]
-    old_day = self.data_table[0][days_column]
+    old_day = self.data_table[0][self.days_column]
+    if day == 0:
+      return old_val
 
     for i in xrange(1, len(self.data_table)):
-       if day > self.data_table[i][days_column]:
-         old_val = self.data_table[i][column]
-         old_day = self.data_table[i][days_column]
-       else:
-         fraction = float(day - old_day) / float(self.data_table[i][days_column] - old_day)
-         return fraction * float(self.data_table[i][column] - old_val)
+       #print day, self.data_table[i][self.days_column]
+       if day < self.data_table[i][self.days_column]:
+
+         old_val = self.data_table[i-1][column]
+         old_day = self.data_table[i-1][self.days_column]
+
+         fraction = float(day - old_day) / float(self.data_table[i][self.days_column] - old_day)
+ 
+         if fraction > 1.0:
+           print "Error with days_column: ", self.data_table[i][self.days_column]
+           return -1
+
+         return int(old_val + fraction * float(self.data_table[i][column] - old_val))
+
+    return self.data_table[-1][column]
 
 
-  def get_field(name,day):
+
+  def get_field(self, name, day):
+    """
+    Gets in a given named column for a given day. Interpolates between days as needed.
+    """
+
     for i in xrange(0,len(self.header)):
-      if h[i] == "name":
+      if self.header[i] == name:
         return self.get_interpolated_data(i, day)
