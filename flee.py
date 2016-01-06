@@ -5,21 +5,33 @@ class Agent:
     self.health = 1
 
     self.injured = 0
-
+    
     self.age = 35
     self.location = location
     self.location.numAgents += 1
 
+    # Set to true when an agent resides on a link.
+    self.travelling = False
+
   def evolve(self):
     movechance = self.location.movechance
     outcome = random.random()
+    self.travelling = False
     if outcome < movechance:
       # determine here which route to take?
       chosenRoute = self.selectRoute()
 
       # update location to link endpoint
       self.location.numAgents -= 1
-      self.location = self.location.links[chosenRoute].endpoint
+      self.location = self.location.links[chosenRoute]
+      self.location.numAgents += 1
+      self.travelling = True
+
+  def finish_travel(self):
+    if self.travelling:
+      # update location (which is on a link) to link endpoint
+      self.location.numAgents -= 1
+      self.location = self.location.endpoint
       self.location.numAgents += 1
       
   def selectRoute(self):
@@ -44,15 +56,18 @@ class Location:
     self.links = []
     self.numAgents = 0
 
-
 class Link:
   def __init__(self, endpoint, distance):
 
     # distance in km.
     self.distance = float(distance)
 
-    #links for now always connect two endpoints
+    # links for now always connect two endpoints
     self.endpoint = endpoint
+
+    # number of agents that are in transit.
+    self.numAgents = 0
+
 
 class Ecosystem:
   def __init__(self):
@@ -65,6 +80,9 @@ class Ecosystem:
     #update agent locations
     for a in self.agents:
       a.evolve()
+
+    for a in self.agents:
+      a.finish_travel()
 
     #update link properties
 
