@@ -28,7 +28,7 @@ if __name__ == "__main__":
   e.linkUp("Bamako","Niamey","1368.0")
   e.linkUp("Bamako","Bobo-Dioulasso","536.0")
 
-  d = handle_refugee_data.DataTable("source-data-unhcr.txt")
+  d = handle_refugee_data.DataTable("source-data-unhcr.txt", csvformat="mali-pdf")
 
   for t in xrange(0,end_time):
     new_refs = d.get_new_refugees(t)
@@ -47,3 +47,10 @@ if __name__ == "__main__":
     print "Niamey: ", l3.numAgents, ", data: ", l3_data, ", error: ", errors[1]
     print "Bobo-Dioulasso: ", l4.numAgents,", data: ", l4_data, ", error: ", errors[2]
     print "Cumulative error: ", np.sum(errors), ", Squared error: ", np.sqrt(np.sum(np.power(errors,2)))
+
+  if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
+    print "TEST FAILED."
+  if np.sqrt(np.sum(np.power(errors,2))) > 0.33+0.03:
+    print "TEST FAILED."
+  else:
+    print "TEST SUCCESSFUL."
