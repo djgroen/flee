@@ -79,19 +79,35 @@ if __name__ == "__main__":
           e.addAgent(location=o3) #Add refugee to Timbuktu
 
     e.evolve()
-    e.printInfo()
+
+    # Basic output
+    # e.printInfo()
 
     print t
 
-"""
-    l2_data = d.get_field("Mauritania", t) - d.get_field("Mauritania", 0)
-    l3_data = d.get_field("Niger", t) - d.get_field("Niger", 0)
-    l4_data = d.get_field("Burkina Faso", t) - d.get_field("Burkina Faso", 0)
+    # Validation / data comparison
 
-    errors = [a.rel_error(l2.numAgents,l2_data), a.rel_error(l3.numAgents,l3_data), a.rel_error(l4.numAgents,l4_data)]
+    m1_data = d.get_field("Mbera", t) - d.get_field("Mbera", 0)
+    b1_data = d.get_field("Mentao", t) - d.get_field("Mentao", 0)
+    b2_data = d.get_field("Bobo-Dioulasso", t) - d.get_field("Bobo-Dioulasso", 0)
+    n1_data = d.get_field("Abala", t) - d.get_field("Abala", 0)
+    n2_data = d.get_field("Mangaize", t) - d.get_field("Mangaize", 0)
 
-    print "Kiffa: ", l2.numAgents, ", data: ", l2_data, ", error: ", errors[0]
-    print "Niamey: ", l3.numAgents, ", data: ", l3_data, ", error: ", errors[1]
-    print "Bobo-Dioulasso: ", l4.numAgents,", data: ", l4_data, ", error: ", errors[2]
-    print "Cumulative error: ", np.sum(errors), ", Squared error: ", np.sqrt(np.sum(np.power(errors,2)))
-"""
+    errors = [a.rel_error(m1.numAgents,m1_data), a.rel_error(b1.numAgents,b1_data), a.rel_error(b2.numAgents,b2_data), a.rel_error(n1.numAgents,n1_data), a.rel_error(n2.numAgents,n2_data)]
+    abs_errors = [a.abs_error(m1.numAgents,m1_data), a.abs_error(b1.numAgents,b1_data), a.abs_error(b2.numAgents,b2_data), a.abs_error(n1.numAgents,n1_data), a.abs_error(n2.numAgents,n2_data)]
+
+    print "Mbera: ", m1.numAgents, ", data: ", m1_data, ", error: ", errors[0]
+    print "Mentao: ", b1.numAgents, ", data: ", b1_data, ", error: ", errors[1]
+    print "Bobo-Dioulasso: ", b2.numAgents,", data: ", b2_data, ", error: ", errors[2]
+    print "Abala: ", n1.numAgents,", data: ", n1_data, ", error: ", errors[3]
+    print "Mengaize: ", n2.numAgents,", data: ", n2_data, ", error: ", errors[4]
+    if e.numAgents()>0:
+      print "Total error: ", float(np.sum(abs_errors))/float(e.numAgents())
+
+  if np.abs(np.sum(errors) - 116.8) > 5.0:
+    print "TEST FAILED."
+  if np.sqrt(np.sum(np.power(errors,2))) > 90.6*1.1:
+    print "TEST FAILED."
+  else:
+    print "TEST SUCCESSFUL."
+

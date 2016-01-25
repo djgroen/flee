@@ -38,6 +38,8 @@ class DataTable:
     read in TSV data files containing refugee data.
     """
     self.csvformat = csvformat
+    self.total_refugee_column = 0
+    self.days_column = 1
 
     if self.csvformat=="mali-pdf":
       validation_data = np.loadtxt(name, dtype=np.int32,delimiter='\t', usecols=(1,2,3,4,5,6,7,8))
@@ -47,23 +49,20 @@ class DataTable:
       self.data_table = validation_data
       # first field ("date") is omitted.
       self.header = ["days","Niger","Burkina Faso","Mauritania","Togo","Guinea","total","internally displaced"] 
-      self.total_refugee_column = 0
-      self.days_column = 1
 
     if self.csvformat=="mali-portal":
-      self.header = ["total","Bobo-Dioulasso","Mentao","Mbera"]
+      self.header = ["total","Bobo-Dioulasso","Mentao","Mbera","Abala","Mangaize"]
 
       self.data_table = [date_num_csv_to_table('mali2012/refugees.csv'),
       date_num_csv_to_table('mali2012/bf-bobo.csv'),
       date_num_csv_to_table('mali2012/bf-mentao.csv'),
-      date_num_csv_to_table('mali2012/mau-mbera.csv')]
-
-      #date_num_csv_to_table('mali2012/nig-abala.csv')
-      #date_num_csv_to_table('mali2012/nig-mangaize.csv')
-
+      date_num_csv_to_table('mali2012/mau-mbera.csv'),
+      date_num_csv_to_table('mali2012/nig-abala.csv'),
+      date_num_csv_to_table('mali2012/nig-mangaize.csv')]
 
 
-  def get_new_refugees(self, day, format="mali", Debug=False):
+
+  def get_new_refugees(self, day, format="mali-portal", Debug=False):
     """
     Function to extrapolate count of new refugees at a given time point, based on input data.
     """
@@ -107,28 +106,56 @@ class DataTable:
     Gets in a given column for a given day. Interpolates between days as needed.
     """
 
-    old_val = self.data_table[0][column]
-    old_day = self.data_table[0][self.days_column]
-    if day == 0:
-      return old_val
+    if self.csvformat == "mali-pdf":
 
-    for i in xrange(1, len(self.data_table)):
-       #print day, self.data_table[i][self.days_column]
-       if day < self.data_table[i][self.days_column]:
+      old_val = self.data_table[0][column]
+      old_day = self.data_table[0][self.days_column]
+      if day == 0:
+        return old_val
 
-         old_val = self.data_table[i-1][column]
-         old_day = self.data_table[i-1][self.days_column]
+      for i in xrange(1, len(self.data_table)):
+         #print day, self.data_table[i][self.days_column]
+         if day < self.data_table[i][self.days_column]:
 
-         fraction = float(day - old_day) / float(self.data_table[i][self.days_column] - old_day)
+           old_val = self.data_table[i-1][column]
+           old_day = self.data_table[i-1][self.days_column]
+
+           fraction = float(day - old_day) / float(self.data_table[i][self.days_column] - old_day)
  
-         if fraction > 1.0:
-           print "Error with days_column: ", self.data_table[i][self.days_column]
-           return -1
+           if fraction > 1.0:
+             print "Error with days_column: ", self.data_table[i][self.days_column]
+             return -1
 
-         return int(old_val + fraction * float(self.data_table[i][column] - old_val))
+           return int(old_val + fraction * float(self.data_table[i][column] - old_val))
 
-    return self.data_table[-1][column]
+      return self.data_table[-1][column]
 
+
+    if self.csvformat == "mali-portal":
+
+      ref_table = self.data_table[column]
+
+      old_val = ref_table[0][self.total_refugee_column]
+      old_day = ref_table[0][self.days_column]
+      if day == 0:
+        return old_val
+
+      for i in xrange(1, len(self.data_table)):
+         #print day, ref_table[i][self.days_column]
+         if day < ref_table[i][self.days_column]:
+
+           old_val = ref_table[i-1][self.total_refugee_column]
+           old_day = ref_table[i-1][self.days_column]
+
+           fraction = float(day - old_day) / float(ref_table[i][self.days_column] - old_day)
+
+           if fraction > 1.0:
+             print "Error with days_column: ", ref_table[i][self.days_column]
+             return -1
+
+           return int(old_val + fraction * float(ref_table[i][self.total_refugee_column] - old_val))
+
+      return ref_table[-1][self.total_refugee_column]
 
 
   def get_field(self, name, day):
@@ -138,4 +165,5 @@ class DataTable:
 
     for i in xrange(0,len(self.header)):
       if self.header[i] == name:
-        return self.get_interpolated_data(i, day)
+          return self.get_interpolated_data(i, day)
+

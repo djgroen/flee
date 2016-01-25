@@ -98,6 +98,9 @@ class Ecosystem:
   def addAgent(self, location):
     self.agents.append(Agent(location))
 
+  def numAgents(self):
+    return len(self.agents)
+
   def linkUp(self, endpoint1, endpoint2, distance="1.0"):
     """ Creates a link between two endpoint locations
     """
