@@ -109,8 +109,15 @@ if __name__ == "__main__":
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
 
-  print "Day,Mbera sim,Mbera data,Mbera error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Total error"
+  print "Day,Mbera sim,Mbera data,Mbera error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Total error,numAgents,numAgents sim,raw refugee total"
 
+  # Kidal has fallen. All refugees want to leave this place.
+  o1.movechance = 1.0
+
+  # Set up a mechanism to incorporate temporary decreases in refugees 
+  refugee_debt = 0
+  refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
+ 
   for t in xrange(0,end_time):
 
     # Close/open borders here.
@@ -120,13 +127,21 @@ if __name__ == "__main__":
       linkNiger(e)
 
 
-    new_refs = d.get_new_refugees(t)
+    new_refs = d.get_new_refugees(t, FullInterpolation=True) - refugee_debt
+    refugees_raw += d.get_new_refugees(t, FullInterpolation=False)
+    if new_refs < 0:
+      refugee_debt = -new_refs
+      new_refs = 0
+
     for i in xrange(0, new_refs):
 
       if(t<31): #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
         e.addAgent(location=o1)
 
       else: #All three cities have fallen
+        o2.movechance = 1.0 # Refugees now want to leave Gao.
+        o3.movechance = 1.0 # Refugees now want to leave Timbuktu.
+
         # Population numbers source: UNHCR (2009 Mali census)
         pop_kidal_region = 68000
         pop_gao_region = 544000
@@ -173,7 +188,7 @@ if __name__ == "__main__":
       output += ",%s,%s,%s" % (locations[i].numAgents, loc_data[i], errors[i])
 
     if e.numAgents()>0:
-      output += ",%s" % (float(np.sum(abs_errors))/float(e.numAgents()))
+      output += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(sum(loc_data)), int(sum(loc_data)), e.numAgents(), refugees_raw)
     else:
       output += ",0"
 

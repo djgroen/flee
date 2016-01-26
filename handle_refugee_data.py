@@ -51,18 +51,19 @@ class DataTable:
       self.header = ["days","Niger","Burkina Faso","Mauritania","Togo","Guinea","total","internally displaced"] 
 
     if self.csvformat=="mali-portal":
-      self.header = ["total","Bobo-Dioulasso","Mentao","Mbera","Abala","Mangaize"]
+      self.header = ["total","Bobo-Dioulasso","Mentao","Mbera","Abala","Mangaize","Tabareybarey","Niamey"]
 
       self.data_table = [date_num_csv_to_table('mali2012/refugees.csv'),
       date_num_csv_to_table('mali2012/bf-bobo.csv'),
       date_num_csv_to_table('mali2012/bf-mentao.csv'),
       date_num_csv_to_table('mali2012/mau-mbera.csv'),
       date_num_csv_to_table('mali2012/nig-abala.csv'),
-      date_num_csv_to_table('mali2012/nig-mangaize.csv')]
+      date_num_csv_to_table('mali2012/nig-mangaize.csv'),
+      date_num_csv_to_table('mali2012/nig-tabareybarey.csv'),
+      date_num_csv_to_table('mali2012/nig-niamey.csv')]
 
 
-
-  def get_new_refugees(self, day, format="mali-portal", Debug=False):
+  def get_new_refugees(self, day, format="mali-portal", Debug=False, FullInterpolation=False):
     """
     Function to extrapolate count of new refugees at a given time point, based on input data.
     """
@@ -80,6 +81,15 @@ class DataTable:
       self.total_refugee_column = 1
       self.days_column = 0
       ref_table = self.data_table[0]
+
+      if FullInterpolation:
+        new_refugees = 0
+        for i in self.header[1:]:
+           new_refugees += self.get_field(i, day) - self.get_field(i, day-1)
+
+        #print self.get_field("Mbera", day), self.get_field("Mbera", day-1)
+        return int(new_refugees)
+
 
     old_refugees = ref_table[0][self.days_column] #set to initial value in table.
     old_day = 0
@@ -140,7 +150,7 @@ class DataTable:
       if day == 0:
         return old_val
 
-      for i in xrange(1, len(self.data_table)):
+      for i in xrange(1, len(ref_table)):
          #print day, ref_table[i][self.days_column]
          if day < ref_table[i][self.days_column]:
 
@@ -155,6 +165,7 @@ class DataTable:
 
            return int(old_val + fraction * float(ref_table[i][self.total_refugee_column] - old_val))
 
+      print "warning: ref_table length exceeded."
       return ref_table[-1][self.total_refugee_column]
 
 
