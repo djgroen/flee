@@ -100,6 +100,7 @@ if __name__ == "__main__":
 
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
+  total_error = 0.0
 
   for t in xrange(0,end_time):
     new_refs = d.get_new_refugees(t)
@@ -145,7 +146,11 @@ if __name__ == "__main__":
     print "Abala: ", n1.numAgents,", data: ", n1_data, ", error: ", errors[3]
     print "Mengaize: ", n2.numAgents,", data: ", n2_data, ", error: ", errors[4]
     if e.numAgents()>0:
-      print "Total error: ", float(np.sum(abs_errors))/float(e.numAgents())
+      total_error = float(np.sum(abs_errors))/float(e.numAgents())
+      print "Total error: ", total_error
 
 #    print "Cumulative error: ", np.sum(errors), ", Squared error: ", np.sqrt(np.sum(np.power(errors,2)))
-
+  if total_error > 1.4:
+    print "TEST FAILED"
+  else:
+    print "TEST SUCCESSFUL"

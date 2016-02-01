@@ -104,10 +104,10 @@ if __name__ == "__main__":
     if e.numAgents()>0:
       print "Total error: ", float(np.sum(abs_errors))/float(e.numAgents())
 
-  if np.abs(np.sum(errors) - 116.8) > 5.0:
-    print "TEST FAILED."
-  if np.sqrt(np.sum(np.power(errors,2))) > 90.6*1.1:
-    print "TEST FAILED."
+  if np.abs(np.sum(errors) - 34) > 5.0:
+    print "TEST FAILED: ",np.sum(errors)
+  elif np.sqrt(np.sum(np.power(errors,2))) > 24.8*1.1:
+    print "TEST FAILED: ", np.sqrt(np.sum(np.power(errors,2)))
   else:
     print "TEST SUCCESSFUL."
 
