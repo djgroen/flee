@@ -38,8 +38,8 @@ class DataTable:
     read in TSV data files containing refugee data.
     """
     self.csvformat = csvformat
-    self.total_refugee_column = 0
-    self.days_column = 1
+    self.total_refugee_column = 1
+    self.days_column = 0
 
     if self.csvformat=="mali-pdf":
       validation_data = np.loadtxt(name, dtype=np.int32,delimiter='\t', usecols=(1,2,3,4,5,6,7,8))
@@ -176,5 +176,19 @@ class DataTable:
 
     for i in xrange(0,len(self.header)):
       if self.header[i] == name:
-          return self.get_interpolated_data(i, day)
+        return self.get_interpolated_data(i, day)
 
+  def is_interpolated(self, name, day):
+    """
+    Checks if data for a given day is inter/extrapolated or not.
+    """
+    for i in xrange(0,len(self.header)):
+      if self.header[i] == name:
+        ref_table = self.data_table[i]
+        for j in xrange(0, len(ref_table)):
+          if int(day) == int(ref_table[j][self.days_column]):
+            return False
+          if int(day) < int(ref_table[j][self.days_column]):
+            return True
+
+    return True

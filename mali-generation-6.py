@@ -6,7 +6,7 @@ import sys
 
 def linkBF(e):
   # bing based
-  #e.linkUp("Kidal","Mentao","1285.0")
+  e.linkUp("Kidal","Mentao","1285.0")
   e.linkUp("Gao","Mentao","883.0")
   e.linkUp("Timbuktu","Mentao","733.0")
 
@@ -16,7 +16,7 @@ def linkBF(e):
   #e.linkUp("Timbuktu","Mentao","339.0")
 
   # bing based
-  #e.linkUp("Kidal","Bobo-Dioulasso","1430.0")
+  e.linkUp("Kidal","Bobo-Dioulasso","1430.0")
   e.linkUp("Gao","Bobo-Dioulasso","1029.0")
   e.linkUp("Timbuktu","Bobo-Dioulasso","830.0")
 
@@ -29,9 +29,9 @@ def linkBF(e):
 
 def linkNiger(e):
   # bing based
-  #e.linkUp("Kidal","Abala","1099.0")
+  e.linkUp("Kidal","Abala","1099.0")
   e.linkUp("Gao","Abala","696.0")
-  #e.linkUp("Timbuktu","Abala","1108.0")
+  e.linkUp("Timbuktu","Abala","1108.0")
 
   # birds flight
   #e.linkUp("Kidal","Abala","445.0")
@@ -39,28 +39,16 @@ def linkNiger(e):
   #e.linkUp("Timbuktu","Abala","719.0")
 
   # bing based
-  #e.linkUp("Kidal","Mangaize","858.0")
+  e.linkUp("Kidal","Mangaize","858.0")
   e.linkUp("Gao","Mangaize","455.0")
-  #e.linkUp("Timbuktu","Mangaize","867.0")
+  e.linkUp("Timbuktu","Mangaize","867.0")
 
   # birds flight
   #e.linkUp("Kidal","Mangaize","419.0")
   #e.linkUp("Gao","Mangaize","271.0")
   #e.linkUp("Timbuktu","Mangaize","572.0")
 
-  #e.linkUp("Kidal","Niamey","846.0")
-  e.linkUp("Gao","Niamey","444.0")
-  #e.linkUp("Timbuktu","Niamey",".0")
-
-  # All distances here are Bing-based.
-  e.linkUp("Gao","Tabareybarey","245.0")
-
   e.linkUp("Abala","Mangaize","256.0")
-  e.linkUp("Abala","Niamey","253.0")
-  e.linkUp("Abala","Tabareybarey","412.0")
-  e.linkUp("Mangaize","Niamey","159.0")
-  e.linkUp("Mangaize","Tabareybarey","217.0")
-  e.linkUp("Niamey","Tabareybarey","205.0")
 
 
 if __name__ == "__main__":
@@ -99,8 +87,8 @@ if __name__ == "__main__":
   # GPS 15.639012 -5.751422
 
   # bing based
-  #e.linkUp("Kidal","Mbera","1049.0")
-  #e.linkUp("Gao","Mbera","839.0")
+  e.linkUp("Kidal","Mbera","1049.0")
+  e.linkUp("Gao","Mbera","839.0")
   e.linkUp("Timbuktu","Mbera","428.0")
   
   # birds flight
@@ -125,11 +113,10 @@ if __name__ == "__main__":
   n3 = e.addLocation("Niamey", movechance=0.001)
 
   n4 = e.addLocation("Tabareybarey", movechance=0.001)
-  # GPS 14.754761 0.944773
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
 
-  print "Day,Mbera sim,Mbera data,Mbera error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,numAgents,numAgents sim,raw refugee total"
+  print "Day,Mbera sim,Mbera data,Mbera error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Total error,numAgents,numAgents sim,raw refugee total"
 
   # Kidal has fallen. All refugees want to leave this place.
   o1.movechance = 1.0
@@ -188,13 +175,11 @@ if __name__ == "__main__":
     b2_data = d.get_field("Bobo-Dioulasso", t) - d.get_field("Bobo-Dioulasso", 0)
     n1_data = d.get_field("Abala", t) - d.get_field("Abala", 0)
     n2_data = d.get_field("Mangaize", t) - d.get_field("Mangaize", 0)
-    n3_data = d.get_field("Niamey", t) - d.get_field("Niamey", 0)
-    n4_data = d.get_field("Tabareybarey", t) - d.get_field("Tabareybarey", 0)
 
-    errors = [a.rel_error(m1.numAgents,m1_data), a.rel_error(b1.numAgents,b1_data), a.rel_error(b2.numAgents,b2_data), a.rel_error(n1.numAgents,n1_data), a.rel_error(n2.numAgents,n2_data), a.rel_error(n3.numAgents,n3_data), a.rel_error(n4.numAgents,n4_data)]
-    abs_errors = [a.abs_error(m1.numAgents,m1_data), a.abs_error(b1.numAgents,b1_data), a.abs_error(b2.numAgents,b2_data), a.abs_error(n1.numAgents,n1_data), a.abs_error(n2.numAgents,n2_data), a.abs_error(n3.numAgents,n3_data), a.abs_error(n4.numAgents,n4_data)]
-    locations = [m1,b1,b2,n1,n2,n3,n4]
-    loc_data = [m1_data,b1_data,b2_data,n1_data,n2_data,n3_data,n4_data]
+    errors = [a.rel_error(m1.numAgents,m1_data), a.rel_error(b1.numAgents,b1_data), a.rel_error(b2.numAgents,b2_data), a.rel_error(n1.numAgents,n1_data), a.rel_error(n2.numAgents,n2_data)]
+    abs_errors = [a.abs_error(m1.numAgents,m1_data), a.abs_error(b1.numAgents,b1_data), a.abs_error(b2.numAgents,b2_data), a.abs_error(n1.numAgents,n1_data), a.abs_error(n2.numAgents,n2_data)]
+    locations = [m1,b1,b2,n1,n2]
+    loc_data = [m1_data,b1_data,b2_data,n1_data,n2_data]
    
 
     #print "Mbera: ", m1.numAgents, ", data: ", m1_data, ", error: ", errors[0]
