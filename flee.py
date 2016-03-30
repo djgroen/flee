@@ -25,11 +25,13 @@ class Person:
       # determine here which route to take?
       chosenRoute = self.selectRoute()
 
-      # update location to link endpoint
-      self.location.numAgents -= 1
-      self.location = self.location.links[chosenRoute]
-      self.location.numAgents += 1
-      self.travelling = True
+      # if there is a viable route to a different location.
+      if chosenRoute >= 0:
+        # update location to link endpoint
+        self.location.numAgents -= 1
+        self.location = self.location.links[chosenRoute]
+        self.location.numAgents += 1
+        self.travelling = True
 
   def finish_travel(self):
     if self.travelling:
@@ -41,7 +43,7 @@ class Person:
   def selectRoute(self):
     total_score = 0.0
     for i in xrange(0,len(self.location.links)):
-      if(self.location.links[i].endpoint.isFull()):
+      if(self.location.links[i].endpoint.isFull(self.location.links[i].numAgents)):
         total_score += 0
       else:
         total_score += 1.0 / (SimulationSettings.softening + self.location.links[i].distance)
@@ -50,12 +52,14 @@ class Person:
 
     checked_score = 0.0
     for i in xrange(0,len(self.location.links)):
-      if(self.location.links[i].endpoint.isFull()):
+      if(self.location.links[i].endpoint.isFull(self.location.links[i].numAgents)):
         checked_score += 0
       else:
         checked_score += 1.0 / (SimulationSettings.softening + self.location.links[i].distance)
         if selected_value < checked_score:
           return i
+
+    return -1
 
 class Location:
   def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1):
@@ -67,11 +71,11 @@ class Location:
     self.numAgents = 0
     self.capacity = capacity
 
-  def isFull(self):
+  def isFull(self, numOnLink):
     """ Checks whether a given location has reached full capacity. In this case it will no longer admit persons."""
     if self.capacity < 0:
       return False
-    elif self.numAgents>=self.capacity:
+    elif self.numAgents + numOnLink >= self.capacity:
       return True
     return False
 
@@ -107,8 +111,8 @@ class Ecosystem:
 
     self.time += 1
 
-  def addLocation(self, name, x="0.0", y="0.0", movechance=0.1):
-    l = Location(name, x, y, movechance)
+  def addLocation(self, name, x="0.0", y="0.0", movechance=0.1, capacity=-1):
+    l = Location(name, x, y, movechance, capacity)
     self.locations.append(l)
     self.locationNames.append(l.name)
     return l

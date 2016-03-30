@@ -165,7 +165,7 @@ class DataTable:
 
            return int(old_val + fraction * float(ref_table[i][self.total_refugee_column] - old_val))
 
-      print "warning: ref_table length exceeded."
+      print "warning: ref_table length exceeded for column: ",column,"."
       return ref_table[-1][self.total_refugee_column]
 
 
