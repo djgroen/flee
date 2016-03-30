@@ -1,5 +1,8 @@
 import random
 
+class SimulationSettings:
+  softening = 10.0
+
 class Person:
   def __init__(self, location):
     self.health = 1
@@ -41,7 +44,7 @@ class Person:
       if(self.location.links[i].endpoint.isFull()):
         total_score += 0
       else:
-        total_score += 40000.0 / (10.0 + self.location.links[i].distance)
+        total_score += 1.0 / (SimulationSettings.softening + self.location.links[i].distance)
 
     selected_value = random.random() * total_score
 
@@ -50,7 +53,7 @@ class Person:
       if(self.location.links[i].endpoint.isFull()):
         checked_score += 0
       else:
-        checked_score += 40000.0 / (10.0 + self.location.links[i].distance)
+        checked_score += 1.0 / (SimulationSettings.softening + self.location.links[i].distance)
         if selected_value < checked_score:
           return i
 
@@ -64,11 +67,11 @@ class Location:
     self.numAgents = 0
     self.capacity = capacity
 
-  def isFull():
-  """ Checks whether a given location has reached full capacity. In this case it will no longer admit persons."""
-    if capacity < 0:
+  def isFull(self):
+    """ Checks whether a given location has reached full capacity. In this case it will no longer admit persons."""
+    if self.capacity < 0:
       return False
-    else if numAgents>=capacity:
+    elif self.numAgents>=self.capacity:
       return True
     return False
 
