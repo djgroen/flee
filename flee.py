@@ -1,6 +1,6 @@
 import random
 
-class Agent:
+class Person:
   def __init__(self, location):
     self.health = 1
 
@@ -96,7 +96,7 @@ class Ecosystem:
    
 
   def addAgent(self, location):
-    self.agents.append(Agent(location))
+    self.agents.append(Person(location))
 
   def numAgents(self):
     return len(self.agents)
