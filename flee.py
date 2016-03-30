@@ -8,6 +8,7 @@ class Person:
     
     self.age = 35
     self.location = location
+    self.home_location = location
     self.location.numAgents += 1
 
     # Set to true when an agent resides on a link.
@@ -37,24 +38,39 @@ class Person:
   def selectRoute(self):
     total_score = 0.0
     for i in xrange(0,len(self.location.links)):
-      total_score += 40000.0 / (10.0 + self.location.links[i].distance)
+      if(self.location.links[i].endpoint.isFull()):
+        total_score += 0
+      else:
+        total_score += 40000.0 / (10.0 + self.location.links[i].distance)
 
     selected_value = random.random() * total_score
 
     checked_score = 0.0
     for i in xrange(0,len(self.location.links)):
-      checked_score += 40000.0 / (10.0 + self.location.links[i].distance)
-      if selected_value < checked_score:
-        return i
+      if(self.location.links[i].endpoint.isFull()):
+        checked_score += 0
+      else:
+        checked_score += 40000.0 / (10.0 + self.location.links[i].distance)
+        if selected_value < checked_score:
+          return i
 
 class Location:
-  def __init__(self, name, x=0.0, y=0.0, movechance=0.001):
+  def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1):
     self.name = name
     self.x = x
     self.y = y
     self.movechance = movechance
     self.links = []
     self.numAgents = 0
+    self.capacity = capacity
+
+  def isFull():
+  """ Checks whether a given location has reached full capacity. In this case it will no longer admit persons."""
+    if capacity < 0:
+      return False
+    else if numAgents>=capacity:
+      return True
+    return False
 
 class Link:
   def __init__(self, endpoint, distance):
