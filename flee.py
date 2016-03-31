@@ -1,7 +1,8 @@
 import random
 
 class SimulationSettings:
-  softening = 10.0
+  Softening = 0.0
+  UseForeign = False
 
 class Person:
   def __init__(self, location):
@@ -43,10 +44,18 @@ class Person:
   def selectRoute(self):
     total_score = 0.0
     for i in xrange(0,len(self.location.links)):
+      # forced redirection: if this is true for a link, return its value immediately.
+      if self.location.links[i].forced_redirection == True:
+        return i
+
+      # else, use the normal algorithm.
       if(self.location.links[i].endpoint.isFull(self.location.links[i].numAgents)):
         total_score += 0
       else:
-        total_score += 1.0 / (SimulationSettings.softening + self.location.links[i].distance)
+        weight = 1.0
+        if SimulationSettings.UseForeign == True and self.location.links[i].endpoint.foreign == True:
+          weight = 2.0
+        total_score += weight / (SimulationSettings.Softening + self.location.links[i].distance)
 
     selected_value = random.random() * total_score
 
@@ -55,14 +64,17 @@ class Person:
       if(self.location.links[i].endpoint.isFull(self.location.links[i].numAgents)):
         checked_score += 0
       else:
-        checked_score += 1.0 / (SimulationSettings.softening + self.location.links[i].distance)
+        weight = 1.0
+        if SimulationSettings.UseForeign == True and self.location.links[i].endpoint.foreign == True:
+          weight = 2.0
+        checked_score += weight / (SimulationSettings.Softening + self.location.links[i].distance)
         if selected_value < checked_score:
           return i
 
     return -1
 
 class Location:
-  def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1):
+  def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, foreign=False):
     self.name = name
     self.x = x
     self.y = y
@@ -70,6 +82,7 @@ class Location:
     self.links = []
     self.numAgents = 0
     self.capacity = capacity
+    self.foreign = foreign
 
   def isFull(self, numOnLink):
     """ Checks whether a given location has reached full capacity. In this case it will no longer admit persons."""
@@ -80,7 +93,7 @@ class Location:
     return False
 
 class Link:
-  def __init__(self, endpoint, distance):
+  def __init__(self, endpoint, distance, forced_redirection=False):
 
     # distance in km.
     self.distance = float(distance)
@@ -91,6 +104,8 @@ class Link:
     # number of agents that are in transit.
     self.numAgents = 0
 
+    # if True, then all Persons will go down this link.
+    self.forced_redirection = forced_redirection
 
 class Ecosystem:
   def __init__(self):
@@ -111,8 +126,8 @@ class Ecosystem:
 
     self.time += 1
 
-  def addLocation(self, name, x="0.0", y="0.0", movechance=0.1, capacity=-1):
-    l = Location(name, x, y, movechance, capacity)
+  def addLocation(self, name, x="0.0", y="0.0", movechance=0.1, capacity=-1, foreign=False):
+    l = Location(name, x, y, movechance, capacity, foreign)
     self.locations.append(l)
     self.locationNames.append(l.name)
     return l
@@ -124,7 +139,7 @@ class Ecosystem:
   def numAgents(self):
     return len(self.agents)
 
-  def linkUp(self, endpoint1, endpoint2, distance="1.0"):
+  def linkUp(self, endpoint1, endpoint2, distance="1.0", forced_redirection=False):
     """ Creates a link between two endpoint locations
     """
     endpoint1_index = 0
@@ -136,7 +151,7 @@ class Ecosystem:
         endpoint2_index = i
 
 
-    self.locations[endpoint1_index].links.append( Link(self.locations[endpoint2_index], distance) )
+    self.locations[endpoint1_index].links.append( Link(self.locations[endpoint2_index], distance, forced_redirection) )
     self.locations[endpoint2_index].links.append( Link(self.locations[endpoint1_index], distance) )
 
 

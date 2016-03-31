@@ -51,12 +51,13 @@ class DataTable:
       self.header = ["days","Niger","Burkina Faso","Mauritania","Togo","Guinea","total","internally displaced"] 
 
     if self.csvformat=="mali-portal":
-      self.header = ["total","Bobo-Dioulasso","Mentao","Mbera","Abala","Mangaize","Tabareybarey","Niamey"]
+      self.header = ["total","Bobo-Dioulasso","Mentao","Mbera","Fassala","Abala","Mangaize","Tabareybarey","Niamey"]
 
       self.data_table = [date_num_csv_to_table('mali2012/refugees.csv'),
       date_num_csv_to_table('mali2012/bf-bobo.csv'),
       date_num_csv_to_table('mali2012/bf-mentao.csv'),
       date_num_csv_to_table('mali2012/mau-mbera.csv'),
+      date_num_csv_to_table('mali2012/mau-fassala.csv'),
       date_num_csv_to_table('mali2012/nig-abala.csv'),
       date_num_csv_to_table('mali2012/nig-mangaize.csv'),
       date_num_csv_to_table('mali2012/nig-tabareybarey.csv'),

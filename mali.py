@@ -6,8 +6,8 @@ import sys
 
 def linkBF(e):
   # bing based
-  e.linkUp("Gao","Mentao","883.0")
-  e.linkUp("Timbuktu","Mentao","733.0")
+  e.linkUp("Douentza","Mentao","487.0")
+  e.linkUp("Mopti","Mentao","360.0")
   e.linkUp("Mopti","Bobo-Dioulasso","462.0")
   e.linkUp("Mentao","Bobo-Dioulasso","475.0")
 
@@ -18,10 +18,10 @@ def linkNiger(e):
   e.linkUp("Menaka","Mangaize","305.0")
   e.linkUp("Gao","Niamey","444.0")
   e.linkUp("Menaka","Niamey","559.0")
-
-  # All distances here are Bing-based.
   e.linkUp("Gao","Tabareybarey","245.0")
   e.linkUp("Menaka","Tabareybarey","361.0")
+
+  # All distances here are Bing-based.
   e.linkUp("Abala","Mangaize","256.0")
   e.linkUp("Abala","Niamey","253.0")
   e.linkUp("Abala","Tabareybarey","412.0")
@@ -50,23 +50,23 @@ if __name__ == "__main__":
 
 # Mali
   
-  o1 = e.addLocation("Kidal", movechance=0.3)
+  o1 = e.addLocation("Kidal", movechance=0.5)
   # pop. 25,617. GPS 18.444305 1.401523
-  o2 = e.addLocation("Gao", movechance=0.3)
+  o2 = e.addLocation("Gao", movechance=0.5)
   # pop. 86,633. GPS 16.270910 -0.040210
-  o3 = e.addLocation("Timbuktu", movechance=0.3)
+  o3 = e.addLocation("Timbuktu", movechance=0.5)
   # pop. 54,453. GPS 16.780260 -3.001590
-  o4 = e.addLocation("Mopti", movechance=0.3)
+  o4 = e.addLocation("Mopti", movechance=0.5)
   # pop. 108,456 (2009 census)
-  o5 = e.addLocation("Douentza", movechance=0.3)
+  o5 = e.addLocation("Douentza", movechance=0.5)
   # pop. 28,005 (2009 census), fell on 5th of April 2012.
-  o6 = e.addLocation("Konna", movechance=0.3)
+  o6 = e.addLocation("Konna", movechance=0.5)
   # pop. 36,767 (2009 census), captured in January 2013 by the Islamists.
   o6 = e.addLocation("Menaka", movechance=1.0)
   # pop. 20,702 (2009 census), captured in January 2012 by the Islamists.
   o7 = e.addLocation("Niafounke", movechance=1.0)
   # pop. negligible. Added because it's a junction point, move chance set to 1.0 for that reason.
-  o8 = e.addLocation("Bourem", movechance=0.3)
+  o8 = e.addLocation("Bourem", movechance=0.5)
   # pop. 27,486. GPS 16.968122, -0.358435. No information about capture yet, but it's a sizeable town at a junction point.
 
   # bing based
@@ -86,34 +86,36 @@ if __name__ == "__main__":
 
 # Mauritania
 
-  m1 = e.addLocation("Mbera", movechance=0.001, capacity=103731)
+  m1 = e.addLocation("Mbera", movechance=0.001, capacity=103731, foreign=True)
   # GPS 15.639012,-5.751422
+  m2 = e.addLocation("Fassala", movechance=0.08, foreign=True)
 
   # bing based
-  e.linkUp("Niafounke","Mbera","266.0")
+  e.linkUp("Niafounke","Fassala","241.0")
+  e.linkUp("Fassala","Mbera","25.0", forced_redirection=True)
 
 # Burkina Faso
 
-  b1 = e.addLocation("Mentao", movechance=0.001, capacity=10038)
-  # GPS 13.999700 -1.680371
-  b2 = e.addLocation("Bobo-Dioulasso", movechance=0.001, capacity=1926)
-  # GPS 11.178103 -4.291773
+  b1 = e.addLocation("Mentao", movechance=0.001, capacity=10038, foreign=True)
+  # GPS 13.999700,-1.680371
+  b2 = e.addLocation("Bobo-Dioulasso", movechance=0.001, capacity=1926, foreign=True)
+  # GPS 11.178103,-4.291773
 
   # No linking up yet, as BF border was shut prior to March 21st 2012.
 
 # Niger
-  n1 = e.addLocation("Abala", movechance=0.001, capacity=18573)
+  n1 = e.addLocation("Abala", movechance=0.001, capacity=18573, foreign=True)
   # GPS 14.927683 3.433727
-  n2 = e.addLocation("Mangaize", movechance=0.001, capacity=4356)
+  n2 = e.addLocation("Mangaize", movechance=0.001, capacity=4356, foreign=True)
   # GPS 14.684030 1.882720
-  n3 = e.addLocation("Niamey", movechance=0.001, capacity=6327)
+  n3 = e.addLocation("Niamey", movechance=0.001, capacity=6327, foreign=True)
 
-  n4 = e.addLocation("Tabareybarey", movechance=0.001, capacity=9189)
+  n4 = e.addLocation("Tabareybarey", movechance=0.001, capacity=9189, foreign=True)
   # GPS 14.754761 0.944773
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
 
-  print "Day,Mbera sim,Mbera data,Mbera error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,numAgents,numAgents sim,raw refugee total"
+  print "Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,numAgents,numAgents sim,raw refugee total"
 
   # Kidal has fallen. All refugees want to leave this place.
   o1.movechance = 1.0
@@ -124,6 +126,7 @@ if __name__ == "__main__":
  
   # Add initial refugees to the destinations. 
   AddInitialRefugees(e,d,m1)
+  AddInitialRefugees(e,d,m2)
   AddInitialRefugees(e,d,b1)
   AddInitialRefugees(e,d,b2)
   AddInitialRefugees(e,d,n1)
@@ -134,9 +137,11 @@ if __name__ == "__main__":
   for t in xrange(0,end_time):
 
     # Close/open borders here.
-    if(t==22): #On the 21st of March, Burkina Faso opens its borders (see PDF report 3).
-      linkBF(e)
-    if(t==31): #Starting from April, refugees appear to enter Niger again (on foot, report 4).
+    if t==20: #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
+      m2.movechance = 1.0
+    if t==22: #On the 21st of March, Burkina Faso opens its borders (see PDF report 3).
+      linkBF(e)   
+    if t==31: #Starting from April, refugees appear to enter Niger again (on foot, report 4).
       linkNiger(e)
 
 
@@ -177,6 +182,7 @@ if __name__ == "__main__":
     
     # Validation / data comparison
     m1_data = d.get_field("Mbera", t) #- d.get_field("Mbera", 0)
+    m2_data = d.get_field("Fassala", t) #- d.get_field("Mbera", 0)
     b1_data = d.get_field("Mentao", t) #- d.get_field("Mentao", 0)
     b2_data = d.get_field("Bobo-Dioulasso", t) #- d.get_field("Bobo-Dioulasso", 0)
     n1_data = d.get_field("Abala", t) #- d.get_field("Abala", 0)
@@ -184,10 +190,10 @@ if __name__ == "__main__":
     n3_data = d.get_field("Niamey", t) #- d.get_field("Niamey", 0)
     n4_data = d.get_field("Tabareybarey", t) #- d.get_field("Tabareybarey", 0)
 
-    errors = [a.rel_error(m1.numAgents,m1_data), a.rel_error(b1.numAgents,b1_data), a.rel_error(b2.numAgents,b2_data), a.rel_error(n1.numAgents,n1_data), a.rel_error(n2.numAgents,n2_data), a.rel_error(n3.numAgents,n3_data), a.rel_error(n4.numAgents,n4_data)]
-    abs_errors = [a.abs_error(m1.numAgents,m1_data), a.abs_error(b1.numAgents,b1_data), a.abs_error(b2.numAgents,b2_data), a.abs_error(n1.numAgents,n1_data), a.abs_error(n2.numAgents,n2_data), a.abs_error(n3.numAgents,n3_data), a.abs_error(n4.numAgents,n4_data)]
-    locations = [m1,b1,b2,n1,n2,n3,n4]
-    loc_data = [m1_data,b1_data,b2_data,n1_data,n2_data,n3_data,n4_data]
+    errors = [a.rel_error(m1.numAgents,m1_data), a.rel_error(m2.numAgents,m2_data), a.rel_error(b1.numAgents,b1_data), a.rel_error(b2.numAgents,b2_data), a.rel_error(n1.numAgents,n1_data), a.rel_error(n2.numAgents,n2_data), a.rel_error(n3.numAgents,n3_data), a.rel_error(n4.numAgents,n4_data)]
+    abs_errors = [a.abs_error(m1.numAgents,m1_data), a.abs_error(m2.numAgents,m2_data), a.abs_error(b1.numAgents,b1_data), a.abs_error(b2.numAgents,b2_data), a.abs_error(n1.numAgents,n1_data), a.abs_error(n2.numAgents,n2_data), a.abs_error(n3.numAgents,n3_data), a.abs_error(n4.numAgents,n4_data)]
+    locations = [m1,m2,b1,b2,n1,n2,n3,n4]
+    loc_data = [m1_data,m2_data,b1_data,b2_data,n1_data,n2_data,n3_data,n4_data]
    
 
     #print "Mbera: ", m1.numAgents, ", data: ", m1_data, ", error: ", errors[0]
