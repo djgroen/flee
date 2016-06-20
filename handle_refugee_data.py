@@ -19,7 +19,7 @@ def date_num_csv_to_table(csv_name):
   """
   table = np.zeros([0,2])
 
-  with open(csv_name, 'rb') as csvfile:
+  with open(csv_name, newline='') as csvfile:
     values = csv.reader(csvfile)
     first_line = True
     for row in values:
@@ -94,7 +94,7 @@ class DataTable:
 
     old_refugees = ref_table[0][self.days_column] #set to initial value in table.
     old_day = 0
-    for i in xrange (0,len(ref_table)):
+    for i in range (0,len(ref_table)):
       if day > ref_table[i][self.days_column]:
         old_refugees = ref_table[i][self.total_refugee_column]
         old_day = ref_table[i][self.days_column]
@@ -104,7 +104,7 @@ class DataTable:
         # We calculate the number of new refugees using simple extrapolation
         new_refugees = int(time_fraction * (ref_table[i][self.total_refugee_column] - old_refugees))
         if Debug:
-          print new_refugees, time_fraction, i, ref_table[i][self.total_refugee_column], old_refugees
+          print(new_refugees, time_fraction, i, ref_table[i][self.total_refugee_column], old_refugees)
         return new_refugees
 
     # If the day exceeds the validation data table, then we return 0
@@ -124,7 +124,7 @@ class DataTable:
       if day == 0:
         return old_val
 
-      for i in xrange(1, len(self.data_table)):
+      for i in range(1, len(self.data_table)):
          #print day, self.data_table[i][self.days_column]
          if day < self.data_table[i][self.days_column]:
 
@@ -134,7 +134,7 @@ class DataTable:
            fraction = float(day - old_day) / float(self.data_table[i][self.days_column] - old_day)
  
            if fraction > 1.0:
-             print "Error with days_column: ", self.data_table[i][self.days_column]
+             print("Error with days_column: ", self.data_table[i][self.days_column])
              return -1
 
            return int(old_val + fraction * float(self.data_table[i][column] - old_val))
@@ -151,7 +151,7 @@ class DataTable:
       if day == 0:
         return old_val
 
-      for i in xrange(1, len(ref_table)):
+      for i in range(1, len(ref_table)):
          #print day, ref_table[i][self.days_column]
          if day < ref_table[i][self.days_column]:
 
@@ -161,12 +161,12 @@ class DataTable:
            fraction = float(day - old_day) / float(ref_table[i][self.days_column] - old_day)
 
            if fraction > 1.0:
-             print "Error with days_column: ", ref_table[i][self.days_column]
+             print("Error with days_column: ", ref_table[i][self.days_column])
              return -1
 
            return int(old_val + fraction * float(ref_table[i][self.total_refugee_column] - old_val))
 
-      print "warning: ref_table length exceeded for column: ",column,"."
+      print("warning: ref_table length exceeded for column: ",column,".")
       return ref_table[-1][self.total_refugee_column]
 
 
@@ -175,7 +175,7 @@ class DataTable:
     Gets in a given named column for a given day. Interpolates between days as needed.
     """
 
-    for i in xrange(0,len(self.header)):
+    for i in range(0,len(self.header)):
       if self.header[i] == name:
         return self.get_interpolated_data(i, day)
 
@@ -183,10 +183,10 @@ class DataTable:
     """
     Checks if data for a given day is inter/extrapolated or not.
     """
-    for i in xrange(0,len(self.header)):
+    for i in range(0,len(self.header)):
       if self.header[i] == name:
         ref_table = self.data_table[i]
-        for j in xrange(0, len(ref_table)):
+        for j in range(0, len(ref_table)):
           if int(day) == int(ref_table[j][self.days_column]):
             return False
           if int(day) < int(ref_table[j][self.days_column]):

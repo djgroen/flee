@@ -2,7 +2,7 @@ import random
 
 class SimulationSettings:
   Softening = 0.0
-  UseForeign = False
+  UseForeign = True
 
 class Person:
   def __init__(self, location):
@@ -43,7 +43,7 @@ class Person:
       
   def selectRoute(self):
     total_score = 0.0
-    for i in xrange(0,len(self.location.links)):
+    for i in range(0,len(self.location.links)):
       # forced redirection: if this is true for a link, return its value immediately.
       if self.location.links[i].forced_redirection == True:
         return i
@@ -60,7 +60,7 @@ class Person:
     selected_value = random.random() * total_score
 
     checked_score = 0.0
-    for i in xrange(0,len(self.location.links)):
+    for i in range(0,len(self.location.links)):
       if(self.location.links[i].endpoint.isFull(self.location.links[i].numAgents)):
         checked_score += 0
       else:
@@ -144,7 +144,7 @@ class Ecosystem:
     """
     endpoint1_index = 0
     endpoint2_index = 0
-    for i in xrange(0, len(self.locationNames)):
+    for i in range(0, len(self.locationNames)):
       if(self.locationNames[i] == endpoint1):
         endpoint1_index = i
       if(self.locationNames[i] == endpoint2):
@@ -157,13 +157,13 @@ class Ecosystem:
 
   def printInfo(self):
 
-    print "Time: ", self.time, ", # of agents: ", len(self.agents)
+    print("Time: ", self.time, ", # of agents: ", len(self.agents))
     for l in self.locations:
-      print l.name, l.numAgents
+      print(l.name, l.numAgents)
 
 
 if __name__ == "__main__":
-  print "Flee, prototype version."
+  print("Flee, prototype version.")
 
   end_time = 50
   e = Ecosystem()
@@ -175,10 +175,10 @@ if __name__ == "__main__":
   e.linkUp("Source","Sink1","10.0")
   e.linkUp("Source","Sink2","5.0")
 
-  for i in xrange(0,100):
+  for i in range(0,100):
     e.addAgent(location=l1)
 
-  for t in xrange(0,end_time):
+  for t in range(0,end_time):
     e.evolve()
     e.printInfo()
     

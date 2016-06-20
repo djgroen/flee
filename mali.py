@@ -14,10 +14,10 @@ def linkBF(e):
 def linkNiger(e):
   # bing based
   e.linkUp("Menaka","Abala","172.0")
-  e.linkUp("Gao","Mangaize","455.0")
+  #e.linkUp("Gao","Mangaize","455.0")
   e.linkUp("Menaka","Mangaize","305.0")
-  e.linkUp("Gao","Niamey","444.0")
-  e.linkUp("Menaka","Niamey","559.0")
+  #e.linkUp("Gao","Niamey","444.0")
+  #e.linkUp("Menaka","Niamey","559.0")
   e.linkUp("Gao","Tabareybarey","245.0")
   e.linkUp("Menaka","Tabareybarey","361.0")
 
@@ -33,7 +33,7 @@ def linkNiger(e):
 def AddInitialRefugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
   num_refugees = int(d.get_field(loc.name, 0))
-  for i in xrange(0, num_refugees):
+  for i in range(0, num_refugees):
     e.addAgent(location=loc)
 
 
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
 
-  print "Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,numAgents,numAgents sim,raw refugee total"
+  print("Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),refugees in camps (simulation),raw UNHCR refugee count")
 
   # Kidal has fallen. All refugees want to leave this place.
   o1.movechance = 1.0
@@ -134,7 +134,7 @@ if __name__ == "__main__":
   AddInitialRefugees(e,d,n3)
   AddInitialRefugees(e,d,n4)
 
-  for t in xrange(0,end_time):
+  for t in range(0,end_time):
 
     # Close/open borders here.
     if t==20: #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
@@ -151,7 +151,7 @@ if __name__ == "__main__":
       refugee_debt = -new_refs
       new_refs = 0
 
-    for i in xrange(0, new_refs):
+    for i in range(0, new_refs):
 
       if(t<31): #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
         e.addAgent(location=o1)
@@ -205,7 +205,7 @@ if __name__ == "__main__":
     #  print "Total error: ", float(np.sum(abs_errors))/float(e.numAgents())
 
     output = "%s" % (t)
-    for i in xrange(0,len(errors)):
+    for i in range(0,len(errors)):
       output += ",%s,%s,%s" % (locations[i].numAgents, loc_data[i], errors[i])
 
     if e.numAgents()>0:
@@ -213,4 +213,4 @@ if __name__ == "__main__":
     else:
       output += ",0"
 
-    print output
+    print(output)
