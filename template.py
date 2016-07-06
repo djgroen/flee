@@ -13,30 +13,32 @@ if __name__ == "__main__":
   end_time = 80
   e = flee.Ecosystem()
 
-  l1 = e.addLocation("Bamako", movechance=0.3)
+  l1 = e.addLocation("A", movechance=0.3)
 
-# Mauritania
+  l2 = e.addLocation("B", movechance=0.0)
+  l3 = e.addLocation("C", movechance=0.0)
+  l4 = e.addLocation("D", movechance=0.0)
 
-# Burkina Faso
-
-# Niger
-  l2 = e.addLocation("Kiffa", movechance=0.0)
-  l3 = e.addLocation("Niamey", movechance=0.0)
-  l4 = e.addLocation("Bobo-Dioulasso", movechance=0.0)
-
-  e.linkUp("Bamako","Kiffa","834.0")
-  e.linkUp("Bamako","Niamey","1368.0")
-  e.linkUp("Bamako","Bobo-Dioulasso","536.0")
+  e.linkUp("A","B","834.0")
+  e.linkUp("A","C","1368.0")
+  e.linkUp("A","D","536.0")
 
   d = handle_refugee_data.DataTable("source-data-unhcr.txt", csvformat="mali-pdf")
 
   for t in range(0,end_time):
     new_refs = d.get_new_refugees(t)
+
+    # Insert refugee agents
     for i in range(0, new_refs):
       e.addAgent(location=l1)
+
+    # Propagate the model by one time step.
     e.evolve()
-#    e.printInfo()
-    print t
+
+    e.printInfo()
+    print t, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents
+
+    """
     l2_data = d.get_field("Mauritania", t) - d.get_field("Mauritania", 0)
     l3_data = d.get_field("Niger", t) - d.get_field("Niger", 0)
     l4_data = d.get_field("Burkina Faso", t) - d.get_field("Burkina Faso", 0)
@@ -54,3 +56,4 @@ if __name__ == "__main__":
     print "TEST FAILED."
   else:
     print "TEST SUCCESSFUL."
+    """
