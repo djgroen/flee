@@ -9,7 +9,7 @@ def subtract_dates(date1, date2):
   delta = a - b
   return delta.days 
 
-def date_num_csv_to_table(csv_name):
+def date_num_csv_to_table(csv_name, start_date="2012-02-29"):
   """
   Converts a CSV file to a table with date offsets from 29 feb 2012.
   CSV format for each line is:
@@ -28,7 +28,7 @@ def date_num_csv_to_table(csv_name):
         first_line = False
         continue
 
-      table = np.vstack([table,[subtract_dates(row[0],"2012-02-29"), int(row[1])]])
+      table = np.vstack([table,[subtract_dates(row[0],start_date), int(row[1])]])
   return table
 
 
