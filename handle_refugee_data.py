@@ -9,7 +9,7 @@ def subtract_dates(date1, date2):
   delta = a - b
   return delta.days 
 
-def date_num_csv_to_table(csv_name, start_date="2012-02-29"):
+def ConvertCsvFileToNumPyTable(csv_name, start_date="2012-02-29"):
   """
   Converts a CSV file to a table with date offsets from 29 feb 2012.
   CSV format for each line is:
@@ -33,7 +33,7 @@ def date_num_csv_to_table(csv_name, start_date="2012-02-29"):
 
 
 class DataTable:
-  def __init__(self, name, csvformat="mali-pdf"):
+  def __init__(self, name="", csvformat="mali-pdf", data_directory="mali2012"):
     """
     read in TSV data files containing refugee data.
     """
@@ -50,18 +50,33 @@ class DataTable:
       # first field ("date") is omitted.
       self.header = ["days","Niger","Burkina Faso","Mauritania","Togo","Guinea","total","internally displaced"] 
 
+
+    # Example of loading in data from the mali2012 directory.
     if self.csvformat=="mali-portal":
       self.header = ["total","Bobo-Dioulasso","Mentao","Mbera","Fassala","Abala","Mangaize","Tabareybarey","Niamey"]
 
-      self.data_table = [date_num_csv_to_table('mali2012/refugees.csv'),
-      date_num_csv_to_table('mali2012/bf-bobo.csv'),
-      date_num_csv_to_table('mali2012/bf-mentao.csv'),
-      date_num_csv_to_table('mali2012/mau-mbera.csv'),
-      date_num_csv_to_table('mali2012/mau-fassala.csv'),
-      date_num_csv_to_table('mali2012/nig-abala.csv'),
-      date_num_csv_to_table('mali2012/nig-mangaize.csv'),
-      date_num_csv_to_table('mali2012/nig-tabareybarey.csv'),
-      date_num_csv_to_table('mali2012/nig-niamey.csv')]
+      self.data_table = [ConvertCsvFileToNumPyTable('mali2012/refugees.csv'),
+      ConvertCsvFileToNumPyTable('mali2012/bf-bobo.csv'),
+      ConvertCsvFileToNumPyTable('mali2012/bf-mentao.csv'),
+      ConvertCsvFileToNumPyTable('mali2012/mau-mbera.csv'),
+      ConvertCsvFileToNumPyTable('mali2012/mau-fassala.csv'),
+      ConvertCsvFileToNumPyTable('mali2012/nig-abala.csv'),
+      ConvertCsvFileToNumPyTable('mali2012/nig-mangaize.csv'),
+      ConvertCsvFileToNumPyTable('mali2012/nig-tabareybarey.csv'),
+      ConvertCsvFileToNumPyTable('mali2012/nig-niamey.csv')]
+
+    if self.csvformat=="generic":
+      self.header = []
+      self.data_table = []
+      with open("%s/data_layout.csv" % (data_directory), newline='') as csvfile:
+        values = csv.reader(csvfile)
+        first_line = True
+        for row in values:
+          if(len(row)==2):
+            self.header.append(row[0])
+            print("%s/%s" % (data_directory, row[1]))
+
+            self.data_table.append(ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, row[1])))
 
 
   def get_new_refugees(self, day, format="mali-portal", Debug=False, FullInterpolation=False):
