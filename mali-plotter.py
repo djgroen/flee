@@ -20,7 +20,7 @@ def plotme(out_dir, data, name):
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
 
-  for day in xrange(0, len(data["%s data" % name])):
+  for day in range(0, len(data["%s data" % name])):
     if d.is_interpolated(name, day) == False:
       #draw a point
       data_x.append(day)
@@ -63,7 +63,7 @@ def plotme_minimal(out_dir, data, name):
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
 
-  for day in xrange(0, len(data["%s data" % name])):
+  for day in range(0, len(data["%s data" % name])):
     if d.is_interpolated(name, day) == False:
       #draw a point
       data_x.append(day)
