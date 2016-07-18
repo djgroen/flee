@@ -93,7 +93,7 @@ class DataTable:
       self.days_column = 0
       ref_table = self.data_table
 
-    if self.csvformat=="mali-portal":
+    else:
       self.total_refugee_column = 1
       self.days_column = 0
       ref_table = self.data_table[0]
@@ -157,7 +157,7 @@ class DataTable:
       return self.data_table[-1][column]
 
 
-    if self.csvformat == "mali-portal":
+    else:
 
       ref_table = self.data_table[column]
 
