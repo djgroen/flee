@@ -33,7 +33,7 @@ def ConvertCsvFileToNumPyTable(csv_name, start_date="2012-02-29"):
 
 
 class DataTable:
-  def __init__(self, name="", csvformat="mali-pdf", data_directory="mali2012"):
+  def __init__(self, name="", csvformat="mali-pdf", data_directory="mali2012", data_layout="data_layout_refugee.csv"):
     """
     read in TSV data files containing refugee data.
     """
@@ -68,13 +68,13 @@ class DataTable:
     if self.csvformat=="generic":
       self.header = []
       self.data_table = []
-      with open("%s/data_layout.csv" % (data_directory), newline='') as csvfile:
+      with open("%s/%s" % (data_directory, data_layout), newline='') as csvfile:
         values = csv.reader(csvfile)
         first_line = True
         for row in values:
           if(len(row)==2):
             self.header.append(row[0])
-            print("%s/%s" % (data_directory, row[1]))
+            #print("%s/%s" % (data_directory, row[1]))
 
             self.data_table.append(ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, row[1])))
 
