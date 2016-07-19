@@ -9,13 +9,15 @@ def subtract_dates(date1, date2):
   delta = a - b
   return delta.days 
 
-def ConvertCsvFileToNumPyTable(csv_name, start_date="2012-02-29"):
+def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, start_date="2012-02-29"):
   """
   Converts a CSV file to a table with date offsets from 29 feb 2012.
   CSV format for each line is:
   yyyy-mm-dd,number
 
-  (the first line is skipped)
+  Default settings:
+  - the first line is skipped.
+  - subtract_dates is used on column 0.
   """
   table = np.zeros([0,2])
 
@@ -23,47 +25,28 @@ def ConvertCsvFileToNumPyTable(csv_name, start_date="2012-02-29"):
     values = csv.reader(csvfile)
     first_line = True
     for row in values:
+      # Make sure the date column becomes an integer, which contains the offset in days relative to the start date.
+      row[date_column] = subtract_dates(row[date_column], start_date)
 
       if first_line == True:
         first_line = False
         continue
 
-      table = np.vstack([table,[subtract_dates(row[0],start_date), int(row[1])]])
+      if data_type == "int":
+        table = np.vstack([table,[int(row[0]), int(row[1])]])
+      else:
+        table = np.vstack([table,[float(row[0]), float(row[1])]])
   return table
 
 
 class DataTable:
-  def __init__(self, name="", csvformat="mali-pdf", data_directory="mali2012", data_layout="data_layout_refugee.csv"):
+  def __init__(self, data_directory="mali2012", data_layout="data_layout_refugee.csv"):
     """
     read in TSV data files containing refugee data.
     """
     self.csvformat = csvformat
     self.total_refugee_column = 1
     self.days_column = 0
-
-    if self.csvformat=="mali-pdf":
-      validation_data = np.loadtxt(name, dtype=np.int32,delimiter='\t', usecols=(1,2,3,4,5,6,7,8))
-      """ validation_data[*][6] is the total number of refugees.
-  
-      """
-      self.data_table = validation_data
-      # first field ("date") is omitted.
-      self.header = ["days","Niger","Burkina Faso","Mauritania","Togo","Guinea","total","internally displaced"] 
-
-
-    # Example of loading in data from the mali2012 directory.
-    if self.csvformat=="mali-portal":
-      self.header = ["total","Bobo-Dioulasso","Mentao","Mbera","Fassala","Abala","Mangaize","Tabareybarey","Niamey"]
-
-      self.data_table = [ConvertCsvFileToNumPyTable('mali2012/refugees.csv'),
-      ConvertCsvFileToNumPyTable('mali2012/bf-bobo.csv'),
-      ConvertCsvFileToNumPyTable('mali2012/bf-mentao.csv'),
-      ConvertCsvFileToNumPyTable('mali2012/mau-mbera.csv'),
-      ConvertCsvFileToNumPyTable('mali2012/mau-fassala.csv'),
-      ConvertCsvFileToNumPyTable('mali2012/nig-abala.csv'),
-      ConvertCsvFileToNumPyTable('mali2012/nig-mangaize.csv'),
-      ConvertCsvFileToNumPyTable('mali2012/nig-tabareybarey.csv'),
-      ConvertCsvFileToNumPyTable('mali2012/nig-niamey.csv')]
 
     if self.csvformat=="generic":
       self.header = []
