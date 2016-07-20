@@ -81,8 +81,9 @@ if __name__ == "__main__":
     """
     l2_data = d.get_field("Mahama", t) - d.get_field("Mahama", 0)
     l3_data = d.get_field("Nduta", t) - d.get_field("Nduta", 0)
-    l4_data = d.get_field("Nakivale", t) - d.get_field("Nakivale", 0)
-    l5_data = d.get_field("Lusenda", t) - d.get_field("Lusenda", 0)
+    l4_data = d.get_field("Nyarugusu", t) - d.get_field("Nyarugusu", 0)
+    l5_data = d.get_field("Nakivale", t) - d.get_field("Nakivale", 0)
+    l6_data = d.get_field("Lusenda", t) - d.get_field("Lusenda", 0)
 
     errors = [a.rel_error(l2.numAgents,l2_data), a.rel_error(l3.numAgents,l3_data), a.rel_error(l4.numAgents,l4_data), a.rel_error(l5.numAgents,l5_data)]
 
