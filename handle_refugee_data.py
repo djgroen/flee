@@ -33,7 +33,7 @@ def ConvertCsvFileToNumPyTable(csv_name, start_date="2012-02-29"):
 
 
 class DataTable:
-  def __init__(self, name="", csvformat="mali-pdf", data_directory="mali2012", data_layout="data_layout_refugee.csv"):
+  def __init__(self, name="", csvformat="mali-pdf", data_directory="mali2012", data_layout="data_layout_refugee.csv", start_date="2012-02-29"):
     """
     read in TSV data files containing refugee data.
     """
@@ -41,6 +41,9 @@ class DataTable:
     self.total_refugee_column = 1
     self.days_column = 0
 
+    """
+    Obsolete code used for backwards compatibility
+    """
     if self.csvformat=="mali-pdf":
       validation_data = np.loadtxt(name, dtype=np.int32,delimiter='\t', usecols=(1,2,3,4,5,6,7,8))
       """ validation_data[*][6] is the total number of refugees.
@@ -64,6 +67,10 @@ class DataTable:
       ConvertCsvFileToNumPyTable('mali2012/nig-mangaize.csv'),
       ConvertCsvFileToNumPyTable('mali2012/nig-tabareybarey.csv'),
       ConvertCsvFileToNumPyTable('mali2012/nig-niamey.csv')]
+    """
+    END OF OBSOLETE CODE FOR BACKWARDS COMPATIBILITY.
+    """
+
 
     if self.csvformat=="generic":
       self.header = []
@@ -76,7 +83,7 @@ class DataTable:
             self.header.append(row[0])
             #print("%s/%s" % (data_directory, row[1]))
 
-            self.data_table.append(ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, row[1])))
+            self.data_table.append(ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, row[1]), start_date))
 
 
   def get_new_refugees(self, day, format="mali-portal", Debug=False, FullInterpolation=False):

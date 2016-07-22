@@ -13,28 +13,29 @@ if __name__ == "__main__":
   end_time = 396
   e = flee.Ecosystem()
 
-  l1 = e.addLocation("Bujumbura", movechance=1.0)
+  locations = []
 
-  l2 = e.addLocation("Bubanza", movechance=0.3)
-  l3 = e.addLocation("Cibitoke", movechance=0.3)
-  l4 = e.addLocation("Isale", movechance=0.3)
-  l5 = e.addLocation("Muramvya", movechance=0.3)
-  l6 = e.addLocation("Kayanza", movechance=0.3)
-  l7 = e.addLocation("Mwaro", movechance=0.3)
-  l8 = e.addLocation("Rumonge", movechance=0.3)
-  l9 = e.addLocation("Bururi", movechance=0.3)
-  l10 = e.addLocation("Rutana", movechance=0.3)
-  l11 = e.addLocation("Makamba", movechance=0.3)
-  l12 = e.addLocation("Gitega", movechance=0.3)
-  l13 = e.addLocation("Karuzi", movechance=0.3)
-  l14 = e.addLocation("Ruyigi", movechance=0.3)
-  l15 = e.addLocation("Cankuzo", movechance=0.3)
-  l16 = e.addLocation("Muyinga", movechance=0.3)
-  l17 = e.addLocation("Kirundo", movechance=0.3)
-  l18 = e.addLocation("Ngozi", movechance=0.3)
-  l19 = e.addLocation("Gashoho", movechance=0.3)
-  l20 = e.addLocation("Gitega-Ruyigi", movechance=0.3)
-  l21 = e.addLocation("Makebuko", movechance=0.3)
+  locations.append(e.addLocation("Bujumbura", movechance=1.0))
+  locations.append(e.addLocation("Bubanza", movechance=0.3))
+  locations.append(e.addLocation("Cibitoke", movechance=0.3))
+  locations.append(e.addLocation("Isale", movechance=0.3))
+  locations.append(e.addLocation("Muramvya", movechance=0.3))
+  locations.append(e.addLocation("Kayanza", movechance=0.3))
+  locations.append(e.addLocation("Mwaro", movechance=0.3))
+  locations.append(e.addLocation("Rumonge", movechance=0.3))
+  locations.append(e.addLocation("Bururi", movechance=0.3))
+  locations.append(e.addLocation("Rutana", movechance=0.3))
+  locations.append(e.addLocation("Makamba", movechance=0.3))
+  locations.append(e.addLocation("Gitega", movechance=0.3))
+  locations.append(e.addLocation("Karuzi", movechance=0.3))
+  locations.append(e.addLocation("Ruyigi", movechance=0.3))
+  locations.append(e.addLocation("Cankuzo", movechance=0.3))
+  locations.append(e.addLocation("Muyinga", movechance=0.3))
+  locations.append(e.addLocation("Kirundo", movechance=0.3))
+  locations.append(e.addLocation("Ngozi", movechance=0.3))
+  locations.append(e.addLocation("Gashoho", movechance=0.3))
+  locations.append(e.addLocation("Gitega-Ruyigi", movechance=0.3))
+  locations.append(e.addLocation("Makebuko", movechance=0.3))
 
   e.linkUp("Bujumbura","Bubanza","48.0")
   e.linkUp("Bujumbura","Cibitoke","64.0")
@@ -59,27 +60,35 @@ if __name__ == "__main__":
   e.linkUp("Makamba","Rutana","50.0")
   e.linkUp("Rutana","Makebuko","46.0")
   e.linkUp("Makebuko","Gitega","24.0")
-  e,linkUp("Makebuko","Ruyigi","40.0")
+  e.linkUp("Makebuko","Ruyigi","40.0")
   e.linkUp("Ruyigi","Cankuzo","51.0")
   e.linkUp("Cankuzo","Muyinga","63.0")
 
-  d = handle_refugee_data.DataTable("source-data-unhcr.txt", csvformat="burundi-pdf")
+  d = handle_refugee_data.DataTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
 
   for t in range(0,end_time):
     new_refs = d.get_new_refugees(t)
 
     # Insert refugee agents
     for i in range(0, new_refs):
-      e.addAgent(location=l1)
+      e.addAgent(location=locations[0])
 
     # Propagate the model by one time step.
     e.evolve()
 
     e.printInfo()
-    print("t, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents, l5.numAgents, l6.numAgents, l7.numAgents, l8.numAgents, l9.numAgents, l10.numAgents, l11.numAgents, l12.numAgents, l13.numAgents, l14.numAgents, l15.numAgents, l16.numAgents, l17.numAgents, l18.numAgents, l19.numAgents, l20.numAgents, l21.numAgents")
+
+    output_string = "%s" % t
+
+    for l in locations:
+      output_string = "%s,%s" % (output_string, l.numAgents)
+
+    print("output:", output_string)
+    
+    mahama_data = d.get_field("Mahama", t) - d.get_field("Mahama", 0)
+    print(mahama_data) 
 
     """
-    l2_data = d.get_field("Mahama", t) - d.get_field("Mahama", 0)
     l3_data = d.get_field("Nduta", t) - d.get_field("Nduta", 0)
     l4_data = d.get_field("Nyarugusu", t) - d.get_field("Nyarugusu", 0)
     l5_data = d.get_field("Nakivale", t) - d.get_field("Nakivale", 0)
