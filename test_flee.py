@@ -8,7 +8,7 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
 if __name__ == "__main__":
-  print("Simulating Mali.")
+  print("Testing basic data handling and simulation kernel.")
 
   end_time = 80
   e = flee.Ecosystem()
@@ -23,7 +23,7 @@ if __name__ == "__main__":
   e.linkUp("A","C","1368.0")
   e.linkUp("A","D","536.0")
 
-  d = handle_refugee_data.DataTable("source-data-unhcr.txt", csvformat="mali-pdf")
+  d = handle_refugee_data.DataTable(csvformat="generic", data_directory="mali2012")
 
   for t in range(0,end_time):
     new_refs = d.get_new_refugees(t)
@@ -38,7 +38,15 @@ if __name__ == "__main__":
     e.printInfo()
     print(t, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents)
 
-    """
+
+  assert t==79
+  assert l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents==78319
+  assert abs(l1.numAgents-746)<250
+  #79 746 24601 14784 38188
+
+  print("Test successful!")
+
+  """
     l2_data = d.get_field("Mauritania", t) - d.get_field("Mauritania", 0)
     l3_data = d.get_field("Niger", t) - d.get_field("Niger", 0)
     l4_data = d.get_field("Burkina Faso", t) - d.get_field("Burkina Faso", 0)
@@ -56,4 +64,4 @@ if __name__ == "__main__":
     print "TEST FAILED."
   else:
     print "TEST SUCCESSFUL."
-    """
+  """
