@@ -40,7 +40,7 @@ def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, start_d
 
 
 class DataTable:
-  def __init__(self, data_directory="mali2012", data_layout="data_layout_refugee.csv", start_date="2012-02-29"):
+  def __init__(self, data_directory="mali2012", data_layout="data_layout_refugee.csv", start_date="2012-02-29", csvformat="generic"):
     """
     read in CSV data files containing refugee data.
     """
@@ -53,9 +53,10 @@ class DataTable:
       self.data_table = []
       with open("%s/%s" % (data_directory, data_layout), newline='') as csvfile:
         values = csv.reader(csvfile)
-        first_line = True
         for row in values:
           if(len(row)==2):
+            if(row[0][0] == "#"):
+              continue
             self.header.append(row[0])
             #print("%s/%s" % (data_directory, row[1]))
 
