@@ -36,7 +36,7 @@ if __name__ == "__main__":
     e.evolve()
 
     e.printInfo()
-    print t, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents
+    print(t, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents)
 
     """
     l2_data = d.get_field("Mauritania", t) - d.get_field("Mauritania", 0)
