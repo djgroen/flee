@@ -40,9 +40,9 @@ def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, start_d
 
 
 class DataTable:
-  def __init__(self, data_directory="mali2012", data_layout="data_layout_refugee.csv"):
+  def __init__(self, data_directory="mali2012", data_layout="data_layout_refugee.csv", start_date="2012-02-29"):
     """
-    read in TSV data files containing refugee data.
+    read in CSV data files containing refugee data.
     """
     self.csvformat = csvformat
     self.total_refugee_column = 1
@@ -59,7 +59,7 @@ class DataTable:
             self.header.append(row[0])
             #print("%s/%s" % (data_directory, row[1]))
 
-            self.data_table.append(ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, row[1])))
+            self.data_table.append(ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, row[1]), start_date=start_date))
 
 
   def get_daily_difference(self, day, day_column=0, count_column=1, Debug=False, FullInterpolation=False):
