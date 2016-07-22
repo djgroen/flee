@@ -15,7 +15,9 @@ if __name__ == "__main__":
 
   locations = []
 
+  #Burundi
   locations.append(e.addLocation("Bujumbura", movechance=1.0))
+
   locations.append(e.addLocation("Bubanza", movechance=0.3))
   locations.append(e.addLocation("Cibitoke", movechance=0.3))
   locations.append(e.addLocation("Isale", movechance=0.3))
@@ -36,7 +38,17 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Gashoho", movechance=0.3))
   locations.append(e.addLocation("Gitega-Ruyigi", movechance=0.3))
   locations.append(e.addLocation("Makebuko", movechance=0.3))
+  locations.append(e.addLocation("Commune of Mabanda", movechance=0.3))
 
+  #Rwanda, Tanzania, Uganda and Congo camps
+  locations.append(e.addLocation("Mahama", movechance=0.01))
+  locations.append(e.addLocation("Nduta", movechance=0.01))
+  locations.append(e.addLocation("Nyarugusu", movechance=0.01))
+  locations.append(e.addLocation("Nakivale", movechance=0.01))
+  locations.append(e.addLocation("Kigali", movechance=0.01))
+  locations.append(e.addLocation("Lusenda", movechance=0.01))
+
+  #Within Burundi
   e.linkUp("Bujumbura","Bubanza","48.0")
   e.linkUp("Bujumbura","Cibitoke","64.0")
   e.linkUp("Bujumbura","Isale","11.0")
@@ -64,6 +76,17 @@ if __name__ == "__main__":
   e.linkUp("Ruyigi","Cankuzo","51.0")
   e.linkUp("Cankuzo","Muyinga","63.0")
 
+  #Camps
+  e.linkUp("Muyinga","Mahama","135.0")
+  e.linkUp("Ruyigi","Nduta","90.0")
+  e.linkUp("Bujumbura","Commune of Mabanda","150.0")
+  e.linkUp("Commune of Mabanda","Nyarugusu","71.0")
+  e.linkUp("Kirundo","Nakivale","307.0")
+  e.linkUp("Kirundo","Kigali","88.0")
+  e.linkUp("Kigali","Nakivale","247.0")
+  e.linkUp("Kayanza","Nakivale","426.0")
+  e.linkUp("Bujumbura","Lusenda","53.0")
+
   d = handle_refugee_data.DataTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
 
   for t in range(0,end_time):
@@ -84,16 +107,16 @@ if __name__ == "__main__":
       output_string = "%s,%s" % (output_string, l.numAgents)
 
     print("output:", output_string)
-    
+
     mahama_data = d.get_field("Mahama", t) - d.get_field("Mahama", 0)
-    print(mahama_data) 
+    nduta_data = d.get_field("Nduta", t) - d.get_field("Nduta", 0)
+    nyarugusu_data = d.get_field("Nyarugusu", t) - d.get_field("Nyarugusu", 0)
+    nakivale_data = d.get_field("Nakivale", t) - d.get_field("Nakivale", 0)
+    lusenda_data = d.get_field("Lusenda", t) - d.get_field("Lusenda", 0)
+
+    print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
 
     """
-    l3_data = d.get_field("Nduta", t) - d.get_field("Nduta", 0)
-    l4_data = d.get_field("Nyarugusu", t) - d.get_field("Nyarugusu", 0)
-    l5_data = d.get_field("Nakivale", t) - d.get_field("Nakivale", 0)
-    l6_data = d.get_field("Lusenda", t) - d.get_field("Lusenda", 0)
-
     errors = [a.rel_error(l2.numAgents,l2_data), a.rel_error(l3.numAgents,l3_data), a.rel_error(l4.numAgents,l4_data), a.rel_error(l5.numAgents,l5_data)]
 
     print "Bubanza: ", l2.numAgents, ", data: ", l2_data, ", error: ", errors[0]
@@ -102,9 +125,6 @@ if __name__ == "__main__":
     print "Muramvya: ", l5.numAgents, ", data: ", l5_data, ", error: ", errors[3]
     print "Kayanza: ", l6.numAgenta, ", data: ", l6_data, ", error: ", errors[4]
     print "Mwaro:
-
-
-
 
 
 
