@@ -143,7 +143,7 @@ class DataTable:
 
       old_val = self.data_table[0][column]
       old_day = self.data_table[0][self.days_column]
-      if day == 0:
+      if day <= old_day:
         return old_val
 
       for i in range(1, len(self.data_table)):

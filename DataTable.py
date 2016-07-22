@@ -7,6 +7,7 @@ def subtract_dates(date1, date2):
   a = datetime.strptime(date1, date_format)
   b = datetime.strptime(date2, date_format)
   delta = a - b
+  #print(date1,"-",date2,"=",delta.days)
   return delta.days 
 
 def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, start_date="2012-02-29"):
@@ -16,8 +17,8 @@ def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, start_d
   yyyy-mm-dd,number
 
   Default settings:
-  - the first line is skipped.
   - subtract_dates is used on column 0.
+  - Use # sign to comment out lines. (first line is NOT ignored by default)
   """
   table = np.zeros([0,2])
 
@@ -25,17 +26,18 @@ def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, start_d
     values = csv.reader(csvfile)
     first_line = True
     for row in values:
+
+      if(row[0][0] == "#"):
+        continue
+
       # Make sure the date column becomes an integer, which contains the offset in days relative to the start date.
       row[date_column] = subtract_dates(row[date_column], start_date)
-
-      if first_line == True:
-        first_line = False
-        continue
 
       if data_type == "int":
         table = np.vstack([table,[int(row[0]), int(row[1])]])
       else:
         table = np.vstack([table,[float(row[0]), float(row[1])]])
+  #print(table)
   return table
 
 
@@ -116,11 +118,11 @@ class DataTable:
 
     old_val = ref_table[0][self.total_refugee_column]
     old_day = ref_table[0][self.days_column]
-    if day == 0:
+    if day <= old_day:
       return old_val
 
     for i in range(1, len(ref_table)):
-      #print day, ref_table[i][self.days_column]
+      #print(day, ref_table[i][self.days_column])
       if day < ref_table[i][self.days_column]:
 
         old_val = ref_table[i-1][self.total_refugee_column]
@@ -132,6 +134,7 @@ class DataTable:
           print("Error with days_column: ", ref_table[i][self.days_column])
           return -1
 
+        #print(day, old_day, ref_table[i][self.total_refugee_column], old_val)
         return int(old_val + fraction * float(ref_table[i][self.total_refugee_column] - old_val))
 
     print("warning: ref_table length exceeded for column: ",column,".")
