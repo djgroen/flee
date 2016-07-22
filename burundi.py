@@ -45,6 +45,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Nduta", movechance=0.01))
   locations.append(e.addLocation("Nyarugusu", movechance=0.01))
   locations.append(e.addLocation("Nakivale", movechance=0.01))
+  locations.append(e.addLocation("Kigali", movechance=0.01))
   locations.append(e.addLocation("Lusenda", movechance=0.01))
 
   #Within Burundi
