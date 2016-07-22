@@ -99,12 +99,13 @@ if __name__ == "__main__":
     # Propagate the model by one time step.
     e.evolve()
 
-    e.printInfo()
+    #e.printInfo()
 
     output_string = "%s" % t
 
     for l in locations:
       output_string = "%s,%s" % (output_string, l.numAgents)
+
 
     print("output:", output_string)
 
@@ -114,26 +115,26 @@ if __name__ == "__main__":
     nakivale_data = d.get_field("Nakivale", t) - d.get_field("Nakivale", 0)
     lusenda_data = d.get_field("Lusenda", t) - d.get_field("Lusenda", 0)
 
-    print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
-
-    """
-    errors = [a.rel_error(l2.numAgents,l2_data), a.rel_error(l3.numAgents,l3_data), a.rel_error(l4.numAgents,l4_data), a.rel_error(l5.numAgents,l5_data)]
-
-    print "Bubanza: ", l2.numAgents, ", data: ", l2_data, ", error: ", errors[0]
-    print "Cibitoke: ", l3.numAgents, ", data: ", l3_data, ", error: ", errors[1]
-    print "Isale: ", l4.numAgents, ", data: ", l4_data, ", error: ", errors[2]
-    print "Muramvya: ", l5.numAgents, ", data: ", l5_data, ", error: ", errors[3]
-    print "Kayanza: ", l6.numAgenta, ", data: ", l6_data, ", error: ", errors[4]
-    print "Mwaro:
+    # print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
 
 
+    errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
 
-    print "Cumulative error: ", np.sum(errors), ", Squared error: ", np.sqrt(np.sum(np.power(errors,2)))
+    #print("location: ", l.numAgents, ", data: ", mahama_data, ", error: ", errors[0])
+    #print("location: ", l.numAgents, ", data: ", nduta_data, ", error: ", errors[1])
+    #print("location: ", l.numAgents, ", data: ", nyarugusu_data, ", error: ", errors[2])
+    #print("location: ", l.numAgents, ", data: ", nakivale_data, ", error: ", errors[3])
+    #print("location: ", l.numAgents, ", data: ", lusenda_data, ", error: ", errors[4])
+
+
+  """
+    print("Cumulative error: ", np.sum(errors), ", Squared error: ", np.sqrt(np.sum(np.power(errors,2))))
 
   if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
-    print "TEST FAILED."
+    print("TEST FAILED.")
   if np.sqrt(np.sum(np.power(errors,2))) > 0.33+0.03:
-    print "TEST FAILED."
+    print("TEST FAILED.")
   else:
-    print "TEST SUCCESSFUL."
-    """
+    print("TEST SUCCESSFUL.")
+
+  """
