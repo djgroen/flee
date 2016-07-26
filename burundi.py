@@ -8,7 +8,7 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
 if __name__ == "__main__":
-  print("Simulating Burundi.")
+  #print("Simulating Burundi.")
 
   end_time = 396
   e = flee.Ecosystem()
@@ -76,7 +76,7 @@ if __name__ == "__main__":
   e.linkUp("Ruyigi","Cankuzo","51.0")
   e.linkUp("Cankuzo","Muyinga","63.0")
 
-  #Camps
+  #Camps, starting at index locations[22] (at time of writing).
   e.linkUp("Muyinga","Mahama","135.0")
   e.linkUp("Ruyigi","Nduta","90.0")
   e.linkUp("Bujumbura","Commune of Mabanda","150.0")
@@ -88,6 +88,12 @@ if __name__ == "__main__":
   e.linkUp("Bujumbura","Lusenda","53.0")
 
   d = handle_refugee_data.DataTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
+
+  list_of_cities = "Time"
+  for l in locations:
+    list_of_cities = "%s,%s" % (list_of_cities, l.name)
+
+  print(list_of_cities)
 
   for t in range(0,end_time):
     new_refs = d.get_new_refugees(t)
@@ -103,11 +109,11 @@ if __name__ == "__main__":
 
     output_string = "%s" % t
 
-    for l in locations:
+    for l in locations[22:]:
       output_string = "%s,%s" % (output_string, l.numAgents)
 
 
-    print("output:", output_string)
+    print(output_string)
 
     mahama_data = d.get_field("Mahama", t) - d.get_field("Mahama", 0)
     nduta_data = d.get_field("Nduta", t) - d.get_field("Nduta", 0)
@@ -117,8 +123,9 @@ if __name__ == "__main__":
 
     # print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
 
+    #print("Mahama comparison: ", locations[22].numAgents, mahama_data, a.rel_error(locations[22].numAgents,mahama_data))
 
-    errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
+    #errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
 
     #print("location: ", l.numAgents, ", data: ", mahama_data, ", error: ", errors[0])
     #print("location: ", l.numAgents, ", data: ", nduta_data, ", error: ", errors[1])
