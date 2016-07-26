@@ -93,16 +93,17 @@ if __name__ == "__main__":
   for l in locations:
     list_of_cities = "%s,%s" % (list_of_cities, l.name)
 
-  print(list_of_cities)
+  #print(list_of_cities)
+  print("Time,",list_of_cities[192:])
 
   for t in range(0,end_time):
     new_refs = d.get_new_refugees(t)
 
-    # Insert refugee agents
+  # Insert refugee agents
     for i in range(0, new_refs):
       e.addAgent(location=locations[0])
 
-    # Propagate the model by one time step.
+  # Propagate the model by one time step.
     e.evolve()
 
     #e.printInfo()
@@ -121,9 +122,13 @@ if __name__ == "__main__":
     nakivale_data = d.get_field("Nakivale", t) - d.get_field("Nakivale", 0)
     lusenda_data = d.get_field("Lusenda", t) - d.get_field("Lusenda", 0)
 
-    # print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
+    #print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
 
-    #print("Mahama comparison: ", locations[22].numAgents, mahama_data, a.rel_error(locations[22].numAgents,mahama_data))
+    #print("Mahama comparison: ", locations[22].numAgents, mahama_data, a.rel_error(locations[22].numAgents, mahama_data))
+    #print("Nduta comparison: ", locations[23].numAgents, nduta_data, a.rel_error(locations[23].numAgents, nduta_data))
+    #print("Nyarugusu comparison: ", locations[24].numAgents, nyarugusu_data, a.rel_error(locations[24].numAgents, nyarugusu_data))
+    #print("Nakivale comparison: ", locations[25].numAgents, nakivale_data, a.rel_error(locations[25].numAgents, nakivale_data))
+    #print("Lusenda comparison: ", locations[26].numAgents, lusenda_data, a.rel_error(locations[26].numAgents, lusenda_data))
 
     #errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
 
