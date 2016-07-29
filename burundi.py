@@ -94,7 +94,8 @@ if __name__ == "__main__":
     list_of_cities = "%s,%s" % (list_of_cities, l.name)
 
   #print(list_of_cities)
-  print("Time,",list_of_cities[192:])
+  #print("Time,",list_of_cities[192:])
+  print("Time ", "Lusenda comparison", "Error")
 
   for t in range(0,end_time):
     new_refs = d.get_new_refugees(t)
@@ -113,8 +114,7 @@ if __name__ == "__main__":
     for l in locations[22:]:
       output_string = "%s,%s" % (output_string, l.numAgents)
 
-
-    print(output_string)
+    #print(output_string)
 
     mahama_data = d.get_field("Mahama", t) - d.get_field("Mahama", 0)
     nduta_data = d.get_field("Nduta", t) - d.get_field("Nduta", 0)
@@ -124,11 +124,11 @@ if __name__ == "__main__":
 
     #print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
 
-    #print("Mahama comparison: ", locations[22].numAgents, mahama_data, a.rel_error(locations[22].numAgents, mahama_data))
-    #print("Nduta comparison: ", locations[23].numAgents, nduta_data, a.rel_error(locations[23].numAgents, nduta_data))
-    #print("Nyarugusu comparison: ", locations[24].numAgents, nyarugusu_data, a.rel_error(locations[24].numAgents, nyarugusu_data))
-    #print("Nakivale comparison: ", locations[25].numAgents, nakivale_data, a.rel_error(locations[25].numAgents, nakivale_data))
-    #print("Lusenda comparison: ", locations[26].numAgents, lusenda_data, a.rel_error(locations[26].numAgents, lusenda_data))
+    #print(t, locations[22].numAgents, mahama_data, a.rel_error(locations[22].numAgents, mahama_data))
+    #print(t, locations[23].numAgents, nduta_data, a.rel_error(locations[23].numAgents, nduta_data))
+    #print(t, locations[24].numAgents, nyarugusu_data, a.rel_error(locations[24].numAgents, nyarugusu_data))
+    #print(t, locations[25].numAgents, nakivale_data, a.rel_error(locations[25].numAgents, nakivale_data))
+    print(t, locations[27].numAgents, lusenda_data, a.rel_error(locations[27].numAgents, lusenda_data))
 
     #errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
 

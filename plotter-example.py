@@ -13,17 +13,18 @@ data = read_datafile('a.csv')
 
 x = data[:,0] # time
 y = data[:,1] # camp 22 (Mahama)
+z = data[:,2] # third column for comparison
 
 fig = plt.figure()
 
 ax1 = fig.add_subplot(111)
 
-ax1.set_title("Mains power stability")    
-ax1.set_xlabel('time')
-ax1.set_ylabel('Mains voltage')
+ax1.set_title("Title")
+ax1.set_xlabel('name')
+ax1.set_ylabel('name')
 
-ax1.plot(x,y, c='r', label='the data')
-ax1.plot(x,y*1.5, c='b', label='the data')
+ax1.plot(x, y, c='r', label='a')
+ax1.plot(x, z, c='b', label='b')
 
 leg = ax1.legend()
 
