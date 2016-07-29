@@ -97,12 +97,23 @@ if __name__ == "__main__":
   #print("Time,",list_of_cities[192:])
   print("Time ", "Lusenda comparison", "Error")
 
+  conflict_zones = ["Bujumbura"]
+  conflict_weights = []
+
   for t in range(0,end_time):
+ 
+    if t == 10:
+      # Append conflict_zone and weight to list.
+    elif t == 20:
+      # Append conflict_zone and weight to list.
+
     new_refs = d.get_new_refugees(t)
 
-  # Insert refugee agents
+    chosen_location = locations[0]
+
+    # Insert refugee agents
     for i in range(0, new_refs):
-      e.addAgent(location=locations[0])
+      e.addAgent(location=chosen_location)
 
   # Propagate the model by one time step.
     e.evolve()
