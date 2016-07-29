@@ -134,6 +134,10 @@ if __name__ == "__main__":
   AddInitialRefugees(e,d,n3)
   AddInitialRefugees(e,d,n4)
 
+  conflict_zones = [o1]
+  conflict_weights = np.array([68000])
+
+
   for t in range(0,end_time):
 
     # Close/open borders here.
@@ -151,28 +155,18 @@ if __name__ == "__main__":
       refugee_debt = -new_refs
       new_refs = 0
 
+    if t==31: #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
+      o2.movechance = 1.0 # Refugees now want to leave Gao.
+      o3.movechance = 1.0 # Refugees now want to leave Timbuktu.
+    
+      # This is used to append two locations to the list of conflict zones (a Python List).
+      conflict_zones += [o2,o3]
+      # And this is used to append two weights to the weights array (a NumPy array).
+      conflict_weights = np.append(conflict_weights, [544000,682000])      
+ 
+    # Here we use the random choice to make a weighted choice between the 1-3 source locations.
     for i in range(0, new_refs):
-
-      if(t<31): #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
-        e.addAgent(location=o1)
-
-      else: #All three cities have fallen
-        o2.movechance = 1.0 # Refugees now want to leave Gao.
-        o3.movechance = 1.0 # Refugees now want to leave Timbuktu.
-
-        # Population numbers source: UNHCR (2009 Mali census)
-        pop_kidal_region = 68000
-        pop_gao_region = 544000
-        pop_timbuktu_region = 682000
-        pop_total = pop_kidal_region + pop_gao_region + pop_timbuktu_region
-        dice_roll = np.random.randint(pop_total)
-
-        if dice_roll < pop_kidal_region:
-          e.addAgent(location=o1) #Add refugee to Kidal
-        elif dice_roll < pop_kidal_region + pop_gao_region:
-          e.addAgent(location=o2) #Add refugee to Gao
-        else:
-          e.addAgent(location=o3) #Add refugee to Timbuktu
+      e.addAgent(np.random.choice(conflict_zones, p=conflict_weights/sum(conflict_weights)))
 
     e.evolve()
 
