@@ -101,45 +101,30 @@ print(list_of_cities)
 
 for t in range(0,end_time):
 
-  # Append conflict_zone and weight to list.
+  #Append conflict_zone and weight to list.
 if t == 70: #Intense fighting between military & multineer military forces
-     conflict_zones.append(Kayanza)
-     conflict_weights.append(585412)
-     movechance = 1.0
-
-  elif t==71: #Intense fighting between military & mulineer military forces
-     conflict_zones.append(Cibitoke)
-     conflict_weights.append(460435)
-
-  elif t==145 #Clashes between police & unidentified groups
-     conflict_zones.append(Bujumbura)
-     conflict_weights.append(497166)
-     movechance = 1.0
-
-  elif t==224 #Clashes, armed groups coordinately attacked military barracks, API Unit of police executed civilians
-     conflict_zones.append(Bujumbura)
-     conflict_weights.append(497166)
-     movechance = 1.0
-
-  elif t==224 #Clashes, armed groups coordinately attacked military barracks
-     conflict_zones.append(Gitega)
-     conflict_weights.append(725223)
-     movechance = 1.0
-
-  elif t==224 #Military & police forces retaliate with violent raids
-     conflict_zones.append(Kirundo)
-     conflict_weights.append(628256)
-     movechance = 1.0
-
-  elif t==224 #Military & police forces retaliate with violent raids
-     conflict_zones.append(Bubanza)
-     conflict_weights.append(338023)
-     movechance = 1.0
-
-  elif t==269 #Clashes between RED-Tabara & government forces
-     conflict_zones.append(Bururi)
-     conflict_weights.append(313102)
-     movechance = 1.0
+     #conflict_zones.append(Kayanza), conflict_weights.append(585412)
+     Kayanza.movechance = 1.0
+  if t==71: #Intense fighting between military & mulineer military forces
+     #conflict_zones.append(Cibitoke)
+     #conflict_weights.append(460435)
+     Cibitoke.movechance = 1.0
+  if t==145 #Clashes between police & unidentified groups
+     #conflict_zones.append(Bujumbura)
+     #conflict_weights.append(497166)
+     Bujumbura.movechance = 1.0
+  if t==224 #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
+     #conflict_zones.append(Bujumbura) #conflict_weights.append(497166)
+     Bujumbura.movechance = 1.0
+     #conflict_zones.append(Gitega) #conflict_weights.append(725223)
+     Gitega.movechance = 1.0
+     #conflict_zones.append(Kirundo) #conflict_weights.append(628256)
+     Kirundo.movechance = 1.0
+     #conflict_zones.append(Bubanza) #conflict_weights.append(338023)
+     Bubanza.movechance = 1.0
+  if t==269 #Clashes between RED-Tabara & government forces
+     #conflict_zones.append(Bururi) #conflict_weights.append(313102)
+     Bururi.movechance = 1.0
 
   new_refs = d.get_new_refugees(t)
   chosen_location = locations[0]
