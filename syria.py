@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
 #cities in syria
   locations.append(e.addLocation("Aleppo", movechance=1.0)
-locations.append(e.addLocation("Damascus", movechance=0.0)
+  locations.append(e.addLocation("Damascus", movechance=0.0)
   locations.append(e.addLocation("Homs", movechance=1.0)
   locations.append(e.addLocation("Hama", movechance=1.0)
   locations.append(e.addLocation("Latakia", movechance=0.3)
@@ -26,32 +26,32 @@ locations.append(e.addLocation("Damascus", movechance=0.0)
   locations.append(e.addLocation("Ar-Raqqah", movechance=1.0)
   
   #Camps in Iraq
-locations.append(e.addLocation("Arbat", movechance=0.001)
+  locations.append(e.addLocation("Arbat", movechance=0.001)
   locations.append(e.addLocation("Duhok", movechance=0.001)
   locations.append(e.addLocation("Akre", movechance=0.001)
-locations.append(e.addLocation("Al-Obaidi", movechance=0.001)
+  locations.append(e.addLocation("Al-Obaidi", movechance=0.001)
   locations.append(e.addLocation("Anbar", movechance=0.001)
-locations.append(e.addLocation("Kawergosk", movechance=0.001)
-locations.append(e.addLocation("Basirma", movechance=0.001)
-locations.append(e.addLocation("Darashakran", movechance=0.001)
-locations.append(e.addLocation("Domiz1", movechance=0.001)
+  locations.append(e.addLocation("Kawergosk", movechance=0.001)
+  locations.append(e.addLocation("Basirma", movechance=0.001)
+  locations.append(e.addLocation("Darashakran", movechance=0.001)
+  locations.append(e.addLocation("Domiz1", movechance=0.001)
   locations.append(e.addLocation("Domiz2", movechance=0.001)
   locations.append(e.addLocation("Erbil", movechance=0.001)
-locations.append(e.addLocation("Gawilan", movechance=0.001)
-locations.append(e.addLocation("Qushtapa", movechance=0.001)
-locations.append(e.addLocation("Sulaymaniyah", movechance=0.001)
+  locations.append(e.addLocation("Gawilan", movechance=0.001)
+  locations.append(e.addLocation("Qushtapa", movechance=0.001)
+  locations.append(e.addLocation("Sulaymaniyah", movechance=0.001)
   
   #Destiations in jordan
   locations.append(e.addLocation("Irbid", movechance=0.001)
- locations.append(e.addLocation("Mafraq", movechance=0.001)
+  locations.append(e.addLocation("Mafraq", movechance=0.001)
   locations.append(e.addLocation("Zarqa", movechance=0.001)
- locations.append(e.addLocation("Zaatari", movechance=0.001)
+  locations.append(e.addLocation("Zaatari", movechance=0.001)
   
   #Destiations in Lebanon
-locations.append(e.addLocation("Beirut", movechance=0.001)
-locations.append(e.addLocation("North", movechance=0.001)
-locations.append(e.addLocation("South", movechance=0.001)
-locations.append(e.addLocation("Bekaa", movechance=0.001)
+  locations.append(e.addLocation("Beirut", movechance=0.001)
+  locations.append(e.addLocation("North", movechance=0.001)
+  locations.append(e.addLocation("South", movechance=0.001)
+  locations.append(e.addLocation("Bekaa", movechance=0.001)
   
   
   
