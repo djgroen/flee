@@ -58,7 +58,14 @@ if __name__ == "__main__":
   e.linkUp("A","B","834.0")
   e.linkUp("A","C","1368.0")
   e.linkUp("A","D","536.0")
-
+  e.linkUp("A","B","834.0")
+  e.linkUp("A","C","1368.0")
+  e.linkUp("A","D","536.0")
+  
+  
+  
+  
+  
   d = handle_refugee_data.DataTable("source-data-unhcr.txt", csvformat="syria-pdf")
   
   list_of_cities= "Time"
