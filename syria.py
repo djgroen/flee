@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
 #cities in syria
   locations.append(e.addLocation("Aleppo", movechance=1.0)
-  locations.append(e.addLocation("Damascus", movechance=0.0)
+  locations.append(e.addLocation("Damascus", movechance=0.3)
   locations.append(e.addLocation("Homs", movechance=1.0)
   locations.append(e.addLocation("Hama", movechance=1.0)
   locations.append(e.addLocation("Latakia", movechance=0.3)
