@@ -41,12 +41,12 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Commune of Mabanda", movechance=0.3))
 
   #Rwanda, Tanzania, Uganda and Congo camps
-  locations.append(e.addLocation("Mahama", movechance=0.01))
-  locations.append(e.addLocation("Nduta", movechance=0.01))
-  locations.append(e.addLocation("Nyarugusu", movechance=0.01))
-  locations.append(e.addLocation("Nakivale", movechance=0.01))
-  locations.append(e.addLocation("Kigali", movechance=0.01))
-  locations.append(e.addLocation("Lusenda", movechance=0.01))
+  locations.append(e.addLocation("Mahama", movechance=0.001))
+  locations.append(e.addLocation("Nduta", movechance=0.001))
+  locations.append(e.addLocation("Nyarugusu", movechance=0.001))
+  locations.append(e.addLocation("Nakivale", movechance=0.001))
+  locations.append(e.addLocation("Kigali", movechance=0.001))
+  locations.append(e.addLocation("Lusenda", movechance=0.001))
 
   #Within Burundi
   e.linkUp("Bujumbura","Bubanza","48.0")
@@ -101,49 +101,23 @@ print(list_of_cities)
 
 for t in range(0,end_time):
 
-  # Append conflict_zone and weight to list.
-if t == 70: #Intense fighting between military & multineer military forces
-     conflict_zones.append(Kayanza)
-     conflict_weights.append(585412)
-     movechance = 1.0
-
-  elif t==71: #Intense fighting between military & mulineer military forces
-     conflict_zones.append(Cibitoke)
-     conflict_weights.append(460435)
-
-  elif t==145 #Clashes between police & unidentified groups
-     conflict_zones.append(Bujumbura)
-     conflict_weights.append(497166)
-     movechance = 1.0
-
-  elif t==224 #Clashes, armed groups coordinately attacked military barracks, API Unit of police executed civilians
-     conflict_zones.append(Bujumbura)
-     conflict_weights.append(497166)
-     movechance = 1.0
-
-  elif t==224 #Clashes, armed groups coordinately attacked military barracks
-     conflict_zones.append(Gitega)
-     conflict_weights.append(725223)
-     movechance = 1.0
-
-  elif t==224 #Military & police forces retaliate with violent raids
-     conflict_zones.append(Kirundo)
-     conflict_weights.append(628256)
-     movechance = 1.0
-
-  elif t==224 #Military & police forces retaliate with violent raids
-     conflict_zones.append(Bubanza)
-     conflict_weights.append(338023)
-     movechance = 1.0
-
-  elif t==269 #Clashes between RED-Tabara & government forces
-     conflict_zones.append(Bururi)
-     conflict_weights.append(313102)
-     movechance = 1.0
+  #Append conflict_zone and weight to list.
+  if t == 70: #Intense fighting between military & multineer military forces
+     Kayanza.movechance = 1.0 #conflict_zones.append(Kayanza), conflict_weights.append(585412)
+  if t==71: #Intense fighting between military & mulineer military forces
+     Cibitoke.movechance = 1.0  #conflict_zones.append(Cibitoke), conflict_weights.append(460435)
+  if t==145 #Clashes between police & unidentified groups
+     Bujumbura.movechance = 1.0 #conflict_zones.append(Bujumbura), conflict_weights.append(497166)
+  if t==224 #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
+     Bujumbura.movechance = 1.0 #conflict_zones.append(Bujumbura), conflict_weights.append(497166)
+     Gitega.movechance = 1.0 #conflict_zones.append(Gitega), conflict_weights.append(725223)
+     Kirundo.movechance = 1.0 #conflict_zones.append(Kirundo), conflict_weights.append(628256)
+     Bubanza.movechance = 1.0 #conflict_zones.append(Bubanza), conflict_weights.append(338023)
+  if t==269 #Clashes between RED-Tabara & government forces
+     Bururi.movechance = 1.0  #conflict_zones.append(Bururi), conflict_weights.append(313102)
 
   new_refs = d.get_new_refugees(t)
   chosen_location = locations[0]
-
 
   conflict_zones += ["Bujumburu, Cibitoke, Bubanza, Kayanza, Kirundo, Gitega, Bururi"]
   conflict_weights = np.append(conflict_weights, [497166, 460435, 338023, 585412, 628256, 725223, 313102])
@@ -152,10 +126,8 @@ if t == 70: #Intense fighting between military & multineer military forces
 
   # Insert refugee agents
 for i in range(0, new_refs):
-    e.addAgent(location = chosen_location])
-
-
-  #e.addAgent(location=chosen_location)
+    e.addAgent(location = chosen_location)
+    e.addAgent(np.random.choice(conflict_zones, p=conflict_weights/sum(conflict_weights)))
 
   # Propagate the model by one time step.
   e.evolve()
