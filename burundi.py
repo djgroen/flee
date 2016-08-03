@@ -90,18 +90,18 @@ if __name__ == "__main__":
 
   d = handle_refugee_data.DataTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
 
-
   list_of_cities = "Time"
 
-  for l in location:
+ for l in location:
    list_of_cities = "%s,%s" % (list_of_cities, l.name)
 
-  #print(list_of_cities)
+  print(list_of_cities)
   print("Time,",list_of_cities)
 
 
   conflict_zones = [locations[0]]
   conflict_weights = np.array([497166])
+
 
   for t in range(0,end_time):
 
@@ -111,24 +111,24 @@ if __name__ == "__main__":
 
      conflict_zones += [locations[5]]
      conflict_weights = np.append(conflict_weights, [585412])
-  elif t==71: #Intense fighting between military & mulineer military forces
-       locations[2].movechance = 1.0
 
-       conflict_zones += [locations[2]]
-       conflict_weights = np.append(conflict_weights, [460435])
-  elif t==224 #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
-       locations[11].movechance = 1.0
-       locations[16].movechance = 1.0
-       locations[1].movechance = 1.0
+  else:
+      t==71: #Intense fighting between military & mulineer military forces
+      locations[2].movechance = 1.0
+      conflict_zones += [locations[2]]
+      conflict_weights = np.append(conflict_weights, [460435])
 
-       conflict_zones += [locations[11], locations[16], locations[1]]
-       conflict_weights = np.append(conflict_weights, [725223,628256,338023])
+      t==224 #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
+      locations[11].movechance = 1.0
+      locations[16].movechance = 1.0
+      locations[1].movechance = 1.0
+      conflict_zones += [locations[11], locations[16], locations[1]]
+      conflict_weights = np.append(conflict_weights, [725223,628256,338023])
 
-  elif t==269 #Clashes between RED-Tabara & government forces
-       location[8].movechance = 1.0
-
-       conflict_zones += [location[8]]
-       conflict_weights = np.append(conflict_weights, [313102])
+      t==269 #Clashes between RED-Tabara & government forces
+      location[8].movechance = 1.0
+      conflict_zones += [location[8]]
+      conflict_weights = np.append(conflict_weights, [313102])
 
 
      new_refs = d.get_new_refugees(t)
