@@ -1,0 +1,8 @@
+(c) 2016 Brunel University
+This code is currently private, and only contributors of the djgroen/flee GitHub repository, as well as those specifically authorized by the owner (Derek Groen), are allowed to use or modify it.
+
+The primary reason for this is that the code is relatively simple, and other researchers could use it to perform the research we 
+are doing on a faster timescale if they have more people available.
+
+In the near future, when the code has matured and when we've written a few fundamental papers, we will however release the code to the wider public.
+When we do so, we will distribute it under a permissive BSD 3-clause license.
