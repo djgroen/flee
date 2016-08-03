@@ -25,6 +25,13 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Sayyidah Zaynab", movechance=0.3)
   locations.append(e.addLocation("Ar-Raqqah", movechance=1.0)
   
+  locations.append(e.addLocation("Saraqib", movechance=0.3)
+  locations.append(e.addLocation("Salamiyah", movechance=0.3)
+  locations.append(e.addLocation("Harasta al Bas", movechance=0.3)
+ 
+  
+  
+  
   #Camps in Iraq
   locations.append(e.addLocation("Arbat", movechance=0.001)
   locations.append(e.addLocation("Duhok", movechance=0.001)
@@ -41,7 +48,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Qushtapa", movechance=0.001)
   locations.append(e.addLocation("Sulaymaniyah", movechance=0.001)
   
-  #Destiations in jordan
+  #Camps and cities in jordan
   locations.append(e.addLocation("Irbid", movechance=0.001)
   locations.append(e.addLocation("Mafraq", movechance=0.001)
   locations.append(e.addLocation("Zarqa", movechance=0.001)
