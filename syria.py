@@ -10,7 +10,7 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 if __name__ == "__main__":
   print("SYRIA SIMULATION")
 
-  end_time = 80
+  end_time = 365
   e = flee.Ecosystem()
 
 #cities in syria
@@ -32,44 +32,63 @@ if __name__ == "__main__":
   
   
   
-  #Camps in Iraq
-  locations.append(e.addLocation("Arbat", movechance=0.001)
-  locations.append(e.addLocation("Duhok", movechance=0.001)
-  locations.append(e.addLocation("Akre", movechance=0.001)
-  locations.append(e.addLocation("Al-Obaidi", movechance=0.001)
-  locations.append(e.addLocation("Anbar", movechance=0.001)
-  locations.append(e.addLocation("Kawergosk", movechance=0.001)
-  locations.append(e.addLocation("Basirma", movechance=0.001)
-  locations.append(e.addLocation("Darashakran", movechance=0.001)
-  locations.append(e.addLocation("Domiz1", movechance=0.001)
-  locations.append(e.addLocation("Domiz2", movechance=0.001)
-  locations.append(e.addLocation("Erbil", movechance=0.001)
-  locations.append(e.addLocation("Gawilan", movechance=0.001)
-  locations.append(e.addLocation("Qushtapa", movechance=0.001)
+  #Camps and links Iraq
+ 
   locations.append(e.addLocation("Sulaymaniyah", movechance=0.001)
+  locations.append(e.addLocation("Duhok", movechance=0.001)
+  locations.append(e.addLocation("Erbil", movechance=0.001)
+  locations.append(e.addLocation("Anbar", movechance=0.001)
+  locations.append(e.addLocation("Mosul", movechance=1.0)
   
-  #Camps and cities in jordan
+  
+    
+  
+  
+  
+  #Camps and links in jordan
   locations.append(e.addLocation("Irbid", movechance=0.001)
   locations.append(e.addLocation("Mafraq", movechance=0.001)
   locations.append(e.addLocation("Zarqa", movechance=0.001)
   locations.append(e.addLocation("Zaatari", movechance=0.001)
   
-  #Destiations in Lebanon
+  #Destiations and links in Lebanon
   locations.append(e.addLocation("Beirut", movechance=0.001)
   locations.append(e.addLocation("North", movechance=0.001)
   locations.append(e.addLocation("South", movechance=0.001)
   locations.append(e.addLocation("Bekaa", movechance=0.001)
+  locations.append(e.addLocation("Tripoli", movechance=0.001)
+  locations.append(e.addLocation("Chekka", movechance=0.001)
+  locations.append(e.addLocation("Mqaitaa", movechance=0.001)
   
   
   
-  e.linkUp("A","B","834.0")
-  e.linkUp("A","C","1368.0")
-  e.linkUp("A","D","536.0")
-  e.linkUp("A","B","834.0")
-  e.linkUp("A","C","1368.0")
-  e.linkUp("A","D","536.0")
   
+  #distances obtained from bing maps annd rounded
   
+  e.linkUp("Homs","Salamiyah","45.0")
+  e.linkUp("Hama","Homs","46.0")
+  e.linkUp("Salamiyah","Homs","45.0")
+  e.linkUp("Irbid","Zaatari","834.0")
+  e.linkUp("Dayr az Zawr ","Dahuk","426.0")
+  e.linkUp("Damascus ","South Lebanon","140.0")
+  e.linkUp("Damascus ","Bekka Valley","81.0")
+  e.linkUp("Dayr az Zawr ","Erbil","419.0")
+  e.linkUp("Aleppo","Saraqib","53.0")
+  e.linkUp("Saraqib","Latakia","124.0")
+  e.linkUp("Ar Raqqah","Deir ez-Zor","137.0")
+  e.linkUp("Sayyidah Zaynab ","Zarqa","185.0")
+  e.linkUp("Sayyidah Zaynab ","Zaatari Camp","152.0")
+  e.linkUp("Hama","Saraqib","86.0")
+  e.linkUp("Mosul","D","536.0")
+  e.linkUp("Damascus","Salamiyah","23.0")
+  e.linkUp("Tripoli","Homs","46.0")
+  e.linkUp("Salamiyah","Homs","45.0")
+  e.linkUp("Irbid","Zaatari","834.0")
+  e.linkUp("Dayr az Zawr ","As Sulaymanah","612.0")
+  e.linkUp("Sayyidah Zaynab ","Amman","202.0")
+  e.linkUp("Sayyidah Zaynab ","Irbid","133.0")
+  e.linkUp("Damascus ","Beirut","105.0")
+  e.linkUp("Damascus ","North Lebanon","161.0")
   
   
   
