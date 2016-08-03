@@ -13,7 +13,7 @@ if __name__ == "__main__":
   end_time = 365
   e = flee.Ecosystem()
 
-#cities in syria
+  #cities in syria
   locations.append(e.addLocation("Aleppo", movechance=1.0)
   locations.append(e.addLocation("Damascus", movechance=0.3)
   locations.append(e.addLocation("Homs", movechance=1.0)
@@ -24,34 +24,25 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Qamishli", movechance=0.3)
   locations.append(e.addLocation("Sayyidah Zaynab", movechance=0.3)
   locations.append(e.addLocation("Ar-Raqqah", movechance=1.0)
-  
   locations.append(e.addLocation("Saraqib", movechance=0.3)
   locations.append(e.addLocation("Salamiyah", movechance=0.3)
   locations.append(e.addLocation("Harasta al Bas", movechance=0.3)
+  
+  #Camps and cities Iraq
  
-  
-  
-  
-  #Camps and links Iraq
- 
+  locations.append(e.addLocation("Mosul", movechance=1.0)
   locations.append(e.addLocation("Sulaymaniyah", movechance=0.001)
   locations.append(e.addLocation("Duhok", movechance=0.001)
   locations.append(e.addLocation("Erbil", movechance=0.001)
   locations.append(e.addLocation("Anbar", movechance=0.001)
-  locations.append(e.addLocation("Mosul", movechance=1.0)
-  
-  
-    
-  
-  
-  
-  #Camps and links in jordan
+ 
+  #Camps and cities in jordan
   locations.append(e.addLocation("Irbid", movechance=0.001)
   locations.append(e.addLocation("Mafraq", movechance=0.001)
   locations.append(e.addLocation("Zarqa", movechance=0.001)
   locations.append(e.addLocation("Zaatari", movechance=0.001)
   
-  #Destiations and links in Lebanon
+  #Camps and cities in Lebanon
   locations.append(e.addLocation("Beirut", movechance=0.001)
   locations.append(e.addLocation("North", movechance=0.001)
   locations.append(e.addLocation("South", movechance=0.001)
@@ -64,6 +55,7 @@ if __name__ == "__main__":
   
   
   #distances obtained from bing maps annd rounded
+  #still under costruction
   
   e.linkUp("Homs","Salamiyah","45.0")
   e.linkUp("Hama","Homs","46.0")
