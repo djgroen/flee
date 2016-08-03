@@ -90,56 +90,66 @@ if __name__ == "__main__":
 
   d = handle_refugee_data.DataTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
 
+
   list_of_cities = "Time"
 
-for l in locations:
-    list_of_cities = "%s,%s" % (list_of_cities, l.name)
+  for l in location:
+   list_of_cities = "%s,%s" % (list_of_cities, l.name)
 
-print(list_of_cities)
-  #print("Time,",list_of_cities[192:])
+  #print(list_of_cities)
+  print("Time,",list_of_cities)
 
-conflict_zones = [locations[0]]
-conflict_weights = np.array([497166])
- #, 460435, 338023, 585412, 628256, 725223, 313102])
 
-for t in range(0,end_time):
+  conflict_zones = [locations[0]]
+  conflict_weights = np.array([497166])
+
+  for t in range(0,end_time):
 
   #Append conflict_zone and weight to list.
   if t == 70: #Intense fighting between military & multineer military forces
-     locations[5].movechance = 1.0 
-     conflict_zones += [locations[5]] 
-     np.append(conflict_weights,[585412])
-  if t==71: #Intense fighting between military & mulineer military forces
-     Cibitoke.movechance = 1.0  #conflict_zones.append(Cibitoke), conflict_weights.append(460435)
-  if t==145 #Clashes between police & unidentified groups
-     Bujumbura.movechance = 1.0 #conflict_zones.append(Bujumbura), conflict_weights.append(497166)
-  if t==224 #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
-     Bujumbura.movechance = 1.0 #conflict_zones.append(Bujumbura), conflict_weights.append(497166)
-     Gitega.movechance = 1.0 #conflict_zones.append(Gitega), conflict_weights.append(725223)
-     Kirundo.movechance = 1.0 #conflict_zones.append(Kirundo), conflict_weights.append(628256)
-     Bubanza.movechance = 1.0 #conflict_zones.append(Bubanza), conflict_weights.append(338023)
-  if t==269 #Clashes between RED-Tabara & government forces
-     Bururi.movechance = 1.0  #conflict_zones.append(Bururi), conflict_weights.append(313102)
+     locations[5].movechance = 1.0
 
-  new_refs = d.get_new_refugees(t)
-  chosen_location = locations[0]
-  
-  # Insert refugee agents
-  for i in range(0, new_refs):
-    e.addAgent(location = chosen_location)
-    e.addAgent(np.random.choice(conflict_zones, p=conflict_weights/sum(conflict_weights)))
+     conflict_zones += [locations[5]]
+     conflict_weights = np.append(conflict_weights, [585412])
+  elif t==71: #Intense fighting between military & mulineer military forces
+       locations[2].movechance = 1.0
 
-  # Propagate the model by one time step.
-  e.evolve()
+       conflict_zones += [locations[2]]
+       conflict_weights = np.append(conflict_weights, [460435])
+  elif t==224 #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
+       locations[11].movechance = 1.0
+       locations[16].movechance = 1.0
+       locations[1].movechance = 1.0
 
-  e.printInfo()
+       conflict_zones += [locations[11], locations[16], locations[1]]
+       conflict_weights = np.append(conflict_weights, [725223,628256,338023])
 
-  output_string = "%s" % t
+  elif t==269 #Clashes between RED-Tabara & government forces
+       location[8].movechance = 1.0
 
-for l in locations[0]:
-  output_string = "%s,%s" % (output_string, l.numAgents)
+       conflict_zones += [location[8]]
+       conflict_weights = np.append(conflict_weights, [313102])
 
-print(output_string)
+
+     new_refs = d.get_new_refugees(t)
+     chosen_location = locations[0]
+
+    #Insert refugee agents
+    for i in range(0, new_refs):
+     e.addAgent(location = chosen_location)
+     e.addAgent(np.random.choice(conflict_zones, p=conflict_weights/sum(conflict_weights)))
+
+    #Propagate the model by one time step.
+    e.evolve()
+
+    e.printInfo()
+
+    output_string = "%s" % t
+
+    for l in locations[0]:
+    output_string = "%s,%s" % (output_string, l.numAgents)
+
+    print(output_string)
 
     mahama_data = d.get_field("Mahama", t) - d.get_field("Mahama", 0)
     nduta_data = d.get_field("Nduta", t) - d.get_field("Nduta", 0)
@@ -147,7 +157,7 @@ print(output_string)
     nakivale_data = d.get_field("Nakivale", t) - d.get_field("Nakivale", 0)
     lusenda_data = d.get_field("Lusenda", t) - d.get_field("Lusenda", 0)
 
-print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
+    print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
 
     #print(t, locations[22].numAgents, mahama_data, a.rel_error(locations[22].numAgents, mahama_data))
     #print(t, locations[23].numAgents, nduta_data, a.rel_error(locations[23].numAgents, nduta_data))
@@ -155,7 +165,7 @@ print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
     #print(t, locations[25].numAgents, nakivale_data, a.rel_error(locations[25].numAgents, nakivale_data))
     #print(t, locations[27].numAgents, lusenda_data, a.rel_error(locations[27].numAgents, lusenda_data))
 
-  errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
+   errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
 
     #print("location: ", l.numAgents, ", data: ", mahama_data, ", error: ", errors[0])
     #print("location: ", l.numAgents, ", data: ", nduta_data, ", error: ", errors[1])
@@ -164,12 +174,12 @@ print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
     #print("location: ", l.numAgents, ", data: ", lusenda_data, ", error: ", errors[4])
 
 
-print("Cumulative error: ", np.sum(errors), "Squared error: ", np.sqrt(np.sum(np.power(errors,2))))
+   print("Cumulative error: ", np.sum(errors), "Squared error: ", np.sqrt(np.sum(np.power(errors,2))))
 
-if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
-  print("TEST FAILED.")
-if np.sqrt(np.sum(np.power(errors,2))) > 0.33+0.03:
-  print("TEST FAILED.")
-else:
-  print("TEST SUCCESSFUL.")
+   if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
+     print("TEST FAILED.")
+   if np.sqrt(np.sum(np.power(errors,2))) > 0.33+0.03:
+      print("TEST FAILED.")
+   else:
+      print("TEST SUCCESSFUL.")
 
