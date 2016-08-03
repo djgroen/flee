@@ -13,7 +13,7 @@ if __name__ == "__main__":
   end_time = 365
   e = flee.Ecosystem()
 
-  #cities in syria
+  #cities in syria under construction
   locations.append(e.addLocation("Aleppo", movechance=1.0)
   locations.append(e.addLocation("Damascus", movechance=0.3)
   locations.append(e.addLocation("Homs", movechance=1.0)
@@ -28,7 +28,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Salamiyah", movechance=0.3)
   locations.append(e.addLocation("Harasta al Bas", movechance=0.3)
   
-  #Camps and cities Iraq
+  #Camps and cities Iraq under construction
  
   locations.append(e.addLocation("Mosul", movechance=1.0)
   locations.append(e.addLocation("Sulaymaniyah", movechance=0.001)
@@ -36,13 +36,13 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Erbil", movechance=0.001)
   locations.append(e.addLocation("Anbar", movechance=0.001)
  
-  #Camps and cities in jordan
+  #Camps and cities in jordan under construction
   locations.append(e.addLocation("Irbid", movechance=0.001)
   locations.append(e.addLocation("Mafraq", movechance=0.001)
   locations.append(e.addLocation("Zarqa", movechance=0.001)
   locations.append(e.addLocation("Zaatari", movechance=0.001)
   
-  #Camps and cities in Lebanon
+  #Camps and cities in Lebanon under construction
   locations.append(e.addLocation("Beirut", movechance=0.001)
   locations.append(e.addLocation("North", movechance=0.001)
   locations.append(e.addLocation("South", movechance=0.001)
