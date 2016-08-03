@@ -99,7 +99,7 @@ print(list_of_cities)
   #print("Time,",list_of_cities[192:])
 
 conflict_zones = [locations[0]]
-conflict_weights = [497166]
+conflict_weights = np.array([497166])
  #, 460435, 338023, 585412, 628256, 725223, 313102])
 
 for t in range(0,end_time):
@@ -107,8 +107,8 @@ for t in range(0,end_time):
   #Append conflict_zone and weight to list.
   if t == 70: #Intense fighting between military & multineer military forces
      locations[5].movechance = 1.0 
-     conflict_zones.append(locations[5]) 
-     conflict_weights.append(585412)
+     conflict_zones += [locations[5]] 
+     np.append(conflict_weights,[585412])
   if t==71: #Intense fighting between military & mulineer military forces
      Cibitoke.movechance = 1.0  #conflict_zones.append(Cibitoke), conflict_weights.append(460435)
   if t==145 #Clashes between police & unidentified groups
