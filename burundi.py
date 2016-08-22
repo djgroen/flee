@@ -90,13 +90,15 @@ if __name__ == "__main__":
 
   d = handle_refugee_data.DataTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
 
+  print("Time, Bujumbura, Bubanza, Cibitoke, Isale, Muramvya, Kayanza, Mwaro, Rumonge, Bururi, Rutana, Makamba, Gitega, Karuzi, Ruyigi, Cankuzo, Muyinga, Kirundo, Ngozi, Gashoho, Gitega-Ruyigi, Makebuko, Commune of Mabanda, Mahama, Nduta, Nyarugusu, Nakivale, Kigali, Lusenda")
+  #print("Time, Campname")
 
   list_of_cities = "Time"
 
   for l in locations:
     list_of_cities = "%s,%s" % (list_of_cities, l.name)
 
-  print(list_of_cities)
+  #print(list_of_cities)
   #print("Time,",list_of_cities)
 
 
@@ -158,7 +160,7 @@ if __name__ == "__main__":
     nakivale_data = d.get_field("Nakivale", t) - d.get_field("Nakivale", 0)
     lusenda_data = d.get_field("Lusenda", t) - d.get_field("Lusenda", 0)
 
-    print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
+    #print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
 
     #print(t, locations[22].numAgents, mahama_data, a.rel_error(locations[22].numAgents, mahama_data))
     #print(t, locations[23].numAgents, nduta_data, a.rel_error(locations[23].numAgents, nduta_data))
@@ -175,7 +177,7 @@ if __name__ == "__main__":
     #print("location: ", l.numAgents, ", data: ", lusenda_data, ", error: ", errors[4])
 
 
-    print("Cumulative error: ", np.sum(errors), "Squared error: ", np.sqrt(np.sum(np.power(errors,2))))
+    #print("Cumulative error: ", np.sum(errors), "Squared error: ", np.sqrt(np.sum(np.power(errors,2))))
 
   if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
     print("TEST FAILED.")

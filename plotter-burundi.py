@@ -3,29 +3,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 
+
 def read_datafile(file_name):
   # the skiprows keyword is for heading, but I don't know if trailing lines
   # can be specified
   data = np.loadtxt(file_name, delimiter=',', skiprows=1)
   return data
 
-  data = read_datafile('mahama2.csv')
+data = read_datafile("name.csv")
 
-  x = data[:,0] # time
-  y = data[:,1] # camp 22 (Mahama)
-  z = data[:,2] # third column for comparison
+x = data[:,0] # time
+y = data[:,1] # camp 22 (Mahama)
+z = data[:,2] # third column for comparison
 
-  fig = plt.figure()
+fig = plt.figure()
+ax1 = fig.add_subplot(111)
 
-  ax1 = fig.add_subplot(111)
+ax1.set_title("Title")
+ax1.set_xlabel('Time')
+ax1.set_ylabel('No. of Refugees')
 
-  ax1.set_title("Title")
-  ax1.set_xlabel('name')
-  ax1.set_ylabel('name')
+ax1.plot(x,y, c='r')
+ax1.plot(x,z, c='b')
 
-  ax1.plot(x, y, c='r', label='a')
-  ax1.plot(x, z, c='b', label='b')
+leg = ax1.legend()
 
-  leg = ax1.legend()
+plt.show()
 
-  plt.show()
+
+# no text should be in csv file except the first row (title)
