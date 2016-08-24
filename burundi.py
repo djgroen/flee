@@ -41,12 +41,12 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Commune of Mabanda", movechance=0.3))
 
   #Rwanda, Tanzania, Uganda and Congo camps
-  locations.append(e.addLocation("Mahama", movechance=0.001))
-  locations.append(e.addLocation("Nduta", movechance=0.001))
-  locations.append(e.addLocation("Nyarugusu", movechance=0.001))
-  locations.append(e.addLocation("Nakivale", movechance=0.001))
+  locations.append(e.addLocation("Mahama", movechance=0.001, capacity=49105, foreign=True))
+  locations.append(e.addLocation("Nduta", movechance=0.001, capacity=55320, foreign=True))
+  locations.append(e.addLocation("Nyarugusu", movechance=0.001, capacity=64198, foreign=True))
+  locations.append(e.addLocation("Nakivale", movechance=0.001, capacity=18374, foreign=True))
   locations.append(e.addLocation("Kigali", movechance=0.001))
-  locations.append(e.addLocation("Lusenda", movechance=0.001))
+  locations.append(e.addLocation("Lusenda", movechance=0.001, capacity=17210, foreign=True))
 
   #Within Burundi
   e.linkUp("Bujumbura","Bubanza","48.0")
@@ -91,7 +91,7 @@ if __name__ == "__main__":
   d = handle_refugee_data.DataTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
 
   print("Time, Bujumbura, Bubanza, Cibitoke, Isale, Muramvya, Kayanza, Mwaro, Rumonge, Bururi, Rutana, Makamba, Gitega, Karuzi, Ruyigi, Cankuzo, Muyinga, Kirundo, Ngozi, Gashoho, Gitega-Ruyigi, Makebuko, Commune of Mabanda, Mahama, Nduta, Nyarugusu, Nakivale, Kigali, Lusenda")
-  #print("Time, Campname")
+  #print("Time, Lusenda")
 
   list_of_cities = "Time"
 

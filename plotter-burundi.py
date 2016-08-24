@@ -10,7 +10,7 @@ def read_datafile(file_name):
   data = np.loadtxt(file_name, delimiter=',', skiprows=1)
   return data
 
-data = read_datafile("name.csv")
+data = read_datafile("filename.csv")
 
 x = data[:,0] # time
 y = data[:,1] # camp 22 (Mahama)
@@ -32,3 +32,4 @@ plt.show()
 
 
 # no text should be in csv file except the first row (title)
+# change filename.csv & Title to specific one
