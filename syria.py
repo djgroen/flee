@@ -49,12 +49,13 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Zaatari", movechance=0.001))
   locations.append(e.addLocation("Mafraq", movechance=0.001))
   locations.append(e.addLocation("Irbid", movechance=0.001))
-  
+
+"""  
   #Refugee destinatios in Turkey
   locations.append(e.addLocation("Kilis", movechance=0.001))
   locations.append(e.addLocation("Yayladagi", movechance=0.001))
   locations.append(e.addLocation("Akcakale", movechance=0.001))
- 
+"""
   
   #Refugee destinatios in Iraq
   locations.append(e.addLocation("Duhok", movechance=0.001))
@@ -63,7 +64,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Sulaymaniyah", movechance=0.001))
   locations.append(e.addLocation("Telafar", movechance=0.001))
   locations.append(e.addLocation("Tishta", movechance=0.001))
-  locations.append(e.addLocation("Makhmur", movechance=0.001))
+x  locations.append(e.addLocation("Makhmur", movechance=0.001))
 
   #Distances obtained from bing maps and rounded
   
@@ -109,11 +110,12 @@ if __name__ == "__main__":
   e.linkUp("Beirut","Tal Dar Zeinoun","52.0")
   e.linkUp("South","Tal Dar Zeinoun","100.0")
   
+""" 
   #Turkey distances
   e.linkUp("Aleppo","Kilis","65.0")
   e.linkUp("Latakia","Yayladagi","56.0")
   e.linkUp("Ar-Raqqah","Akcakale","93.0")
-  
+"""
   #Iraq distances
   e.linkUp("Duhok","Telafar","120.0")
   e.linkUp("Qamishli","Telafar","87.0")
@@ -195,13 +197,14 @@ if __name__ == "__main__":
     bekaa_data = d.get_field("Bekaa", t) - d.get_field("Bekaa", 0)  
     north_data = d.get_field("North", t) - d.get_field("North", 0)  
     south_data = d.get_field("South", t) - d.get_field("South", 0)  
-   
+  
+""" 
     kilis_data = d.get_field("Turkey", t) - d.get_field("Turkey", 0)    
     yayladagi_data = d.get_field("Turkey", t) - d.get_field("Turkey", 0)  
     akcakale_data = d.get_field("Turkey", t) - d.get_field("Turkey", 0)  
-   
+"""
 
-    errors = [a.rel_error(l.numAgents,duhok_data), a.rel_error(l.numAgents,erbil_data), a.rel_error(l.numAgents,anbar_data), a.rel_error(l.numAgents,sulaymaniyah_data), a.rel_error(l.numAgents,irbid_data), a.rel_error(l.numAgents,mafraq_data), a.rel_error(l.numAgents,zaatari_data), a.rel_error(l.numAgents,zarqa_data), a.rel_error(l.numAgents,beirut_data), a.rel_error(l.numAgents,bekaa_data), a.rel_error(l.numAgents,north_data), a.rel_error(l.numAgents,south_data), a.rel_error(l.numAgents,kilis_data), a.rel_error(l.numAgents,yayladagi_data), a.rel_error(l.numAgents,akcakale_data)]
+    errors = [a.rel_error(l.numAgents,duhok_data), a.rel_error(l.numAgents,erbil_data), a.rel_error(l.numAgents,anbar_data), a.rel_error(l.numAgents,sulaymaniyah_data), a.rel_error(l.numAgents,irbid_data), a.rel_error(l.numAgents,mafraq_data), a.rel_error(l.numAgents,zaatari_data), a.rel_error(l.numAgents,zarqa_data), a.rel_error(l.numAgents,beirut_data), a.rel_error(l.numAgents,bekaa_data), a.rel_error(l.numAgents,north_data), a.rel_error(l.numAgents,south_data)]
 
     #print("location: ", l.numAgents, ", data: ", duhok_data, ", error: ", errors[0])
     
