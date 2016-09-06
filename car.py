@@ -48,19 +48,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Gamboula", movechance=0.3))
   locations.append(e.addLocation("Baboua", movechance=0.3))
 
-  #Chad, Cameroon and Demotratic R.of Congo & R. of Congo camps
-  locations.append(e.addLocation("Belom", movechance=0.001))
-  locations.append(e.addLocation("Dosseye", movechance=0.001))
-  locations.append(e.addLocation("East", movechance=0.001))
-  locations.append(e.addLocation("Adamaoua", movechance=0.001))
-  locations.append(e.addLocation("Monga", movechance=0.001))
-  locations.append(e.addLocation("Mole", movechance=0.001))
-  locations.append(e.addLocation("Gbadolite", movechance=0.001))
-  locations.append(e.addLocation("Inke", movechance=0.001))
-  locations.append(e.addLocation("Betou", movechance=0.001))
-  locations.append(e.addLocation("Brazaville", movechance=0.001))
-
-  """#Chad, Cameroon and Demotratic R.of Congo & R. of Congo camps
+  #Chad, Cameroon & Demotratic R.of Congo & R. of Congo camps
   locations.append(e.addLocation("Belom", movechance=0.001, capacity=19172, foreign=True))
   locations.append(e.addLocation("Dosseye", movechance=0.001, capacity=12449, foreign=True))
   locations.append(e.addLocation("East", movechance=0.001, capacity=180485, foreign=True))
@@ -70,8 +58,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Gbadolite", movechance=0.001))
   locations.append(e.addLocation("Inke", movechance=0.001, capacity=20365, foreign=True))
   locations.append(e.addLocation("Betou", movechance=0.001, capacity=9825, foreign=True))
-  locations.append(e.addLocation("Brazaville", movechance=0.001, capacity=8295, foreign=True)) 
-  """
+  locations.append(e.addLocation("Brazaville", movechance=0.001, capacity=8295, foreign=True))
 
   #Within CAR
   e.linkUp("Mobaye","Melego","67.0")
@@ -110,7 +97,7 @@ if __name__ == "__main__":
   e.linkUp("Bozoum","Bouar","110.0")
 
   #Camps, starting at index locations[30] (at time of writing).
-  e.linkUp("Kaga Bandoro","Yapara","49.0")  
+  e.linkUp("Kaga Bandoro","Yapara","49.0")
   e.linkUp("Yapara","Kago","56.0")
   e.linkUp("Bossangoa","Kago","205.0")
   e.linkUp("Kago","Belom","89.0")
@@ -122,7 +109,7 @@ if __name__ == "__main__":
   e.linkUp("Berberati","Gamboula","83.0")
   e.linkUp("Gamboula","East","135.0")
   e.linkUp("Bouar","Baboua","98.0")
-  e.linkUp("Baboua","East","241.0")  
+  e.linkUp("Baboua","East","241.0")
   e.linkUp("Baboua","Adamaoua","311.0")
   e.linkUp("Bangassou","Monga","87.0")
   e.linkUp("Mobaye","Monga","205.0")
@@ -141,7 +128,7 @@ if __name__ == "__main__":
 
   #print("Time,",list_of_cities)
   print(list_of_cities)
-  #print("Time, Belom")
+  #print("Time, Campname")
 
   conflict_zones = [locations[0]]
   conflict_weights = np.array([734350])
@@ -149,20 +136,47 @@ if __name__ == "__main__":
   for t in range(0,end_time):
 
     #Append conflict_zone and weight to list.
-    if t==10: #Clashes between Seleka & Anti-Balaka, 100s of people died
+    if t==5: #Clashes between Seleka & Anti-Balaka, 100s of people died
       locations[0].movechance = 1.0
 
       conflict_zones += [locations[0]]
       conflict_weights = np.append(conflict_weights, [734350])
 
     elif t==31: #A wave of reprisal attacks & escalating cycle of violence
+      locations[4].movechance = 1.0
       locations[5].movechance = 1.0
       locations[8].movechance = 1.0
       locations[9].movechance = 1.0
       locations[11].movechance = 1.0
 
-      conflict_zones += [locations[5], locations[8], locations[9], locations[11]]
-      conflict_weights = np.append(conflict_weights, [38451,267859,22284,41486])
+      conflict_zones += [locations[4], locations[5], locations[8], locations[9], locations[11]]
+      conflict_weights = np.append(conflict_weights, [233666,369220,356725,430506,276710])
+
+    elif t==627: #Fighting between ex-Seleka & Anti-balaka (deaths & thousnads displaced)
+      locations[11].movechance = 1.0
+
+      conflict_zones += [locations[0]]
+      conflict_weights = np.append(conflict_weights, [276710])
+
+    elif t==665: #Violence between Muslims & Anti-Balaka, more than 70 deaths & 40000 people displaced
+      locations[0].movechance = 1.0
+
+      conflict_zones += [locations[0]]
+      conflict_weights = np.append(conflict_weights, [734350])
+
+    elif t==714: #Violence left more than 100 dead people
+      locations[0].movechance = 1.0
+
+      conflict_zones += [locations[0]]
+      conflict_weights = np.append(conflict_weights, [734350])
+
+    elif t==742: #Violence & death during the constitutional referendum vote
+      locations[0].movechance = 1.0
+      locations[12].movechance = 1.0
+
+      conflict_zones += [locations[0], locations[12]]
+      conflict_weights = np.append(conflict_weights, [734350,90316])
+
 
 
     new_refs = d.get_new_refugees(t)
@@ -192,7 +206,7 @@ if __name__ == "__main__":
     mole_data = d.get_field("Mole", t) - d.get_field("Mole", 0)
     inke_data = d.get_field("Inke", t) - d.get_field("Inke", 0)
     betou_data = d.get_field("Betou", t) - d.get_field("Betou", 0)
-    brazaville_data = d.get_field("Brazaville", t) - d.get_field("Brazaville", 0)  
+    brazaville_data = d.get_field("Brazaville", t) - d.get_field("Brazaville", 0)
 
 
     #print(belom_data, dosseye_data, east_data, adamaoua_data, mole_data, inke_data, betou_data, brazaville_data)
@@ -205,7 +219,7 @@ if __name__ == "__main__":
     #print(t, locations[37].numAgents, inke_data, a.rel_error(locations[37].numAgents, inke_data))
     #print(t, locations[38].numAgents, betou_data, a.rel_error(locations[38].numAgents, betou_data))
     #print(t, locations[39].numAgents, brazaville_data, a.rel_error(locations[39].numAgents, brazaville_data))
-    
+
     errors = [a.rel_error(l.numAgents,belom_data), a.rel_error(l.numAgents,dosseye_data), a.rel_error(l.numAgents,east_data), a.rel_error(l.numAgents,adamaoua_data), a.rel_error(l.numAgents,mole_data), a.rel_error(l.numAgents,inke_data)]
 
     #print("location: ", l.numAgents, ", data: ", belom_data, ", error: ", errors[0])
