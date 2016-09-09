@@ -43,9 +43,10 @@ if __name__ == "__main__":
   #Rwanda, Tanzania, Uganda and Congo camps
   locations.append(e.addLocation("Mahama", movechance=0.001, capacity=49105, foreign=True))
   locations.append(e.addLocation("Nduta", movechance=0.001, capacity=55320, foreign=True))
+  locations.append(e.addLocation("Kagunga", movechance=0.001, foreign=True))
   locations.append(e.addLocation("Nyarugusu", movechance=0.001, capacity=64198, foreign=True))
   locations.append(e.addLocation("Nakivale", movechance=0.001, capacity=18374, foreign=True))
-  locations.append(e.addLocation("Kigali", movechance=0.001))
+  locations.append(e.addLocation("Kigali", movechance=0.001, foreign=True))
   locations.append(e.addLocation("Lusenda", movechance=0.001, capacity=17210, foreign=True))
 
   #Within Burundi
@@ -67,7 +68,8 @@ if __name__ == "__main__":
   e.linkUp("Mwaro","Gitega","46.0")
   e.linkUp("Bujumbura","Rumonge","75.0")
   e.linkUp("Rumonge","Bururi","31.0")
-  e.linkUp("Rumonge","Makamba","91.0")
+  e.linkUp("Rumonge","Commune of Mabanda","73.0")
+  e.linkUp("Commune of Mabanda","Makamba","18.0")
   e.linkUp("Bururi","Rutana","65.0")
   e.linkUp("Makamba","Rutana","50.0")
   e.linkUp("Rutana","Makebuko","46.0")
@@ -79,8 +81,9 @@ if __name__ == "__main__":
   #Camps, starting at index locations[22] (at time of writing).
   e.linkUp("Muyinga","Mahama","135.0")
   e.linkUp("Ruyigi","Nduta","90.0")
-  e.linkUp("Bujumbura","Commune of Mabanda","150.0")
-  e.linkUp("Commune of Mabanda","Nyarugusu","71.0")
+  e.linkUp("Commune of Mabanda","Kagunga","36.0")
+  e.linkUp("Kagunga","Nyarugusu","105.0", forced_redirection=True)
+  #e.linkUp("Kagunga","Nyarugusu","91.0", forced_redirection=True) #From Kagunga to Kigoma by ship (Kagunga/Kigoma)
   e.linkUp("Kirundo","Nakivale","307.0")
   e.linkUp("Kirundo","Kigali","88.0")
   e.linkUp("Kigali","Nakivale","247.0")
@@ -90,16 +93,14 @@ if __name__ == "__main__":
 
   d = handle_refugee_data.DataTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
 
-  print("Time, Bujumbura, Bubanza, Cibitoke, Isale, Muramvya, Kayanza, Mwaro, Rumonge, Bururi, Rutana, Makamba, Gitega, Karuzi, Ruyigi, Cankuzo, Muyinga, Kirundo, Ngozi, Gashoho, Gitega-Ruyigi, Makebuko, Commune of Mabanda, Mahama, Nduta, Nyarugusu, Nakivale, Kigali, Lusenda")
-  #print("Time, Lusenda")
-
   list_of_cities = "Time"
 
   for l in locations:
     list_of_cities = "%s,%s" % (list_of_cities, l.name)
 
-  #print(list_of_cities)
+  print(list_of_cities)
   #print("Time,",list_of_cities)
+  #print("Time, Nyarugusu")
 
 
   conflict_zones = [locations[0]]
@@ -164,9 +165,9 @@ if __name__ == "__main__":
 
     #print(t, locations[22].numAgents, mahama_data, a.rel_error(locations[22].numAgents, mahama_data))
     #print(t, locations[23].numAgents, nduta_data, a.rel_error(locations[23].numAgents, nduta_data))
-    #print(t, locations[24].numAgents, nyarugusu_data, a.rel_error(locations[24].numAgents, nyarugusu_data))
-    #print(t, locations[25].numAgents, nakivale_data, a.rel_error(locations[25].numAgents, nakivale_data))
-    #print(t, locations[27].numAgents, lusenda_data, a.rel_error(locations[27].numAgents, lusenda_data))
+    #print(t, locations[25].numAgents, nyarugusu_data, a.rel_error(locations[25].numAgents, nyarugusu_data))
+    #print(t, locations[26].numAgents, nakivale_data, a.rel_error(locations[26].numAgents, nakivale_data))
+    #print(t, locations[28].numAgents, lusenda_data, a.rel_error(locations[28].numAgents, lusenda_data))
 
     errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
 

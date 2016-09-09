@@ -10,7 +10,7 @@ def read_datafile(file_name):
   data = np.loadtxt(file_name, delimiter=',', skiprows=1)
   return data
 
-data = read_datafile("filename.csv")
+data = read_datafile("brazaville.csv")
 
 x = data[:,0] # time
 y = data[:,1] # camp 22 (Mahama)
@@ -19,7 +19,7 @@ z = data[:,2] # third column for comparison
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
 
-ax1.set_title("Title")
+ax1.set_title("Brazaville, Congo")
 ax1.set_xlabel('Time')
 ax1.set_ylabel('No. of Refugees')
 

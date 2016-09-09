@@ -49,16 +49,15 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Baboua", movechance=0.3))
 
   #Chad, Cameroon & Demotratic R.of Congo & R. of Congo camps
-  locations.append(e.addLocation("Belom", movechance=0.001, capacity=19172, foreign=True))
-  locations.append(e.addLocation("Dosseye", movechance=0.001, capacity=12449, foreign=True))
+  locations.append(e.addLocation("Belom", movechance=0.001, capacity=26863, foreign=True))
+  locations.append(e.addLocation("Dosseye", movechance=0.001, capacity=22925, foreign=True))
   locations.append(e.addLocation("East", movechance=0.001, capacity=180485, foreign=True))
   locations.append(e.addLocation("Adamaoua", movechance=0.001, capacity=71506, foreign=True))
-  locations.append(e.addLocation("Monga", movechance=0.001))
   locations.append(e.addLocation("Mole", movechance=0.001, capacity=20454, foreign=True))
   locations.append(e.addLocation("Gbadolite", movechance=0.001))
   locations.append(e.addLocation("Inke", movechance=0.001, capacity=20365, foreign=True))
-  locations.append(e.addLocation("Betou", movechance=0.001, capacity=9825, foreign=True))
-  locations.append(e.addLocation("Brazaville", movechance=0.001, capacity=8295, foreign=True))
+  locations.append(e.addLocation("Betou", movechance=0.001, capacity=10232, foreign=True))
+  locations.append(e.addLocation("Brazaville", movechance=0.001, capacity=8514, foreign=True))
 
   #Within CAR
   e.linkUp("Mobaye","Melego","67.0")
@@ -111,9 +110,7 @@ if __name__ == "__main__":
   e.linkUp("Bouar","Baboua","98.0")
   e.linkUp("Baboua","East","241.0")
   e.linkUp("Baboua","Adamaoua","311.0")
-  e.linkUp("Bangassou","Monga","87.0")
-  e.linkUp("Mobaye","Monga","205.0")
-  e.linkUp("Monga","Mole","1814.0")
+  e.linkUp("Bangui","Mole","42.0")
   e.linkUp("Mobaye","Gbadolite","146.0")
   e.linkUp("Gbadolite","Inke","23.0")
   e.linkUp("Mbaiki","Betou","148.0")
@@ -127,8 +124,8 @@ if __name__ == "__main__":
     list_of_cities = "%s,%s" % (list_of_cities, l.name)
 
   #print("Time,",list_of_cities)
-  print(list_of_cities)
-  #print("Time, Campname")
+  #print(list_of_cities)
+  print("Time, Brazaville")
 
   conflict_zones = [locations[0]]
   conflict_weights = np.array([734350])
@@ -197,7 +194,7 @@ if __name__ == "__main__":
     for l in locations:
       output_string = "%s,%s" % (output_string, l.numAgents)
 
-    print(output_string)
+    #print(output_string)
 
     belom_data = d.get_field("Belom", t) - d.get_field("Belom", 0)
     dosseye_data = d.get_field("Dosseye", t) - d.get_field("Dosseye", 0)
@@ -215,10 +212,10 @@ if __name__ == "__main__":
     #print(t, locations[31].numAgents, dosseye_data, a.rel_error(locations[31].numAgents, dosseye_data))
     #print(t, locations[32].numAgents, east_data, a.rel_error(locations[32].numAgents, east_data))
     #print(t, locations[33].numAgents, adamaoua_data, a.rel_error(locations[33].numAgents, adamaoua_data))
-    #print(t, locations[35].numAgents, mole_data, a.rel_error(locations[35].numAgents, mole_data))
-    #print(t, locations[37].numAgents, inke_data, a.rel_error(locations[37].numAgents, inke_data))
-    #print(t, locations[38].numAgents, betou_data, a.rel_error(locations[38].numAgents, betou_data))
-    #print(t, locations[39].numAgents, brazaville_data, a.rel_error(locations[39].numAgents, brazaville_data))
+    #print(t, locations[34].numAgents, mole_data, a.rel_error(locations[34].numAgents, mole_data))
+    #print(t, locations[36].numAgents, inke_data, a.rel_error(locations[36].numAgents, inke_data))
+    #print(t, locations[37].numAgents, betou_data, a.rel_error(locations[37].numAgents, betou_data))
+    print(t, locations[38].numAgents, brazaville_data, a.rel_error(locations[38].numAgents, brazaville_data))
 
     errors = [a.rel_error(l.numAgents,belom_data), a.rel_error(l.numAgents,dosseye_data), a.rel_error(l.numAgents,east_data), a.rel_error(l.numAgents,adamaoua_data), a.rel_error(l.numAgents,mole_data), a.rel_error(l.numAgents,inke_data)]
 
