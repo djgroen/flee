@@ -124,8 +124,8 @@ if __name__ == "__main__":
     list_of_cities = "%s,%s" % (list_of_cities, l.name)
 
   #print("Time,",list_of_cities)
-  #print(list_of_cities)
-  print("Time, Brazaville")
+  print(list_of_cities)
+  #print("Time, Brazaville")
 
   conflict_zones = [locations[0]]
   conflict_weights = np.array([734350])
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     for l in locations:
       output_string = "%s,%s" % (output_string, l.numAgents)
 
-    #print(output_string)
+    print(output_string)
 
     belom_data = d.get_field("Belom", t) - d.get_field("Belom", 0)
     dosseye_data = d.get_field("Dosseye", t) - d.get_field("Dosseye", 0)
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     #print(t, locations[34].numAgents, mole_data, a.rel_error(locations[34].numAgents, mole_data))
     #print(t, locations[36].numAgents, inke_data, a.rel_error(locations[36].numAgents, inke_data))
     #print(t, locations[37].numAgents, betou_data, a.rel_error(locations[37].numAgents, betou_data))
-    print(t, locations[38].numAgents, brazaville_data, a.rel_error(locations[38].numAgents, brazaville_data))
+    #print(t, locations[38].numAgents, brazaville_data, a.rel_error(locations[38].numAgents, brazaville_data))
 
     errors = [a.rel_error(l.numAgents,belom_data), a.rel_error(l.numAgents,dosseye_data), a.rel_error(l.numAgents,east_data), a.rel_error(l.numAgents,adamaoua_data), a.rel_error(l.numAgents,mole_data), a.rel_error(l.numAgents,inke_data)]
 
