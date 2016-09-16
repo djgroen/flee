@@ -49,7 +49,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Baboua", movechance=0.3))
 
   #Chad, Cameroon & Demotratic R.of Congo & R. of Congo camps
-  locations.append(e.addLocation("Belom", movechance=0.001, capacity=26863, foreign=True))
+  locations.append(e.addLocation("Belom", movechance=0.001, capacity=28483, foreign=True))
   locations.append(e.addLocation("Dosseye", movechance=0.001, capacity=22925, foreign=True))
   locations.append(e.addLocation("East", movechance=0.001, capacity=180485, foreign=True))
   locations.append(e.addLocation("Adamaoua", movechance=0.001, capacity=71506, foreign=True))
@@ -124,8 +124,8 @@ if __name__ == "__main__":
     list_of_cities = "%s,%s" % (list_of_cities, l.name)
 
   #print("Time,",list_of_cities)
-  print(list_of_cities)
-  #print("Time, Brazaville")
+  #print(list_of_cities)
+  print("Time, Belom")
 
   conflict_zones = [locations[0]]
   conflict_weights = np.array([734350])
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     for l in locations:
       output_string = "%s,%s" % (output_string, l.numAgents)
 
-    print(output_string)
+    #print(output_string)
 
     belom_data = d.get_field("Belom", t) - d.get_field("Belom", 0)
     dosseye_data = d.get_field("Dosseye", t) - d.get_field("Dosseye", 0)
@@ -208,7 +208,7 @@ if __name__ == "__main__":
 
     #print(belom_data, dosseye_data, east_data, adamaoua_data, mole_data, inke_data, betou_data, brazaville_data)
 
-    #print(t, locations[30].numAgents, belom_data, a.rel_error(locations[30].numAgents, belom_data))
+    print(t, locations[30].numAgents, belom_data, a.rel_error(locations[30].numAgents, belom_data))
     #print(t, locations[31].numAgents, dosseye_data, a.rel_error(locations[31].numAgents, dosseye_data))
     #print(t, locations[32].numAgents, east_data, a.rel_error(locations[32].numAgents, east_data))
     #print(t, locations[33].numAgents, adamaoua_data, a.rel_error(locations[33].numAgents, adamaoua_data))

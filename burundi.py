@@ -43,9 +43,9 @@ if __name__ == "__main__":
   #Rwanda, Tanzania, Uganda and Congo camps
   locations.append(e.addLocation("Mahama", movechance=0.001, capacity=49105, foreign=True))
   locations.append(e.addLocation("Nduta", movechance=0.001, capacity=55320, foreign=True))
-  locations.append(e.addLocation("Kagunga", movechance=0.001, foreign=True))
+  locations.append(e.addLocation("Kagunga", movechance=1/21.0, foreign=True))
   locations.append(e.addLocation("Nyarugusu", movechance=0.001, capacity=64198, foreign=True))
-  locations.append(e.addLocation("Nakivale", movechance=0.001, capacity=18374, foreign=True))
+  locations.append(e.addLocation("Nakivale", movechance=0.001, capacity=18734, foreign=True))
   locations.append(e.addLocation("Kigali", movechance=0.001, foreign=True))
   locations.append(e.addLocation("Lusenda", movechance=0.001, capacity=17210, foreign=True))
 
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
   print(list_of_cities)
   #print("Time,",list_of_cities)
-  #print("Time, Nyarugusu")
+  #print("Time, campname")
 
 
   conflict_zones = [locations[0]]
