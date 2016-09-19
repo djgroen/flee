@@ -5,6 +5,13 @@ import matplotlib
 import sys
 import handle_refugee_data
 
+"""
+This is a generic plotting program.
+See an example of the output format used in test-output/out.csv
+Example use:
+  python3 plot-flee-output.py test-output
+"""
+
 def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
   #adjust margins. 
   fig = plt.gcf()
@@ -134,6 +141,7 @@ if __name__ == "__main__":
   set_margins()
   plt.savefig("%s/error.png" % out_dir)
 
+  #TODO: These labels need to be more flexible/modifiable.
   refugee_data.loc[:,["refugees in camps (simulation)","refugees in camps (UNHCR)"]].plot(linewidth=5)
 
   fig = matplotlib.pyplot.gcf()
