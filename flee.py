@@ -3,6 +3,7 @@ import random
 class SimulationSettings:
   Softening = 0.0
   UseForeign = True
+  TurnBackAllowed = True
 
 class Person:
   def __init__(self, location):
@@ -17,6 +18,9 @@ class Person:
 
     # Set to true when an agent resides on a link.
     self.travelling = False
+
+    if not SimulationSettings.TurnBackAllowed:
+      self.last_location = None
 
   def evolve(self):
     movechance = self.location.movechance
@@ -36,6 +40,11 @@ class Person:
 
   def finish_travel(self):
     if self.travelling:
+      
+      # update last location of agent.
+      if not SimulationSettings.TurnBackAllowed:
+        self.last_location = self.location
+
       # update location (which is on a link) to link endpoint
       self.location.numAgents -= 1
       self.location = self.location.endpoint
@@ -48,14 +57,21 @@ class Person:
       if self.location.links[i].forced_redirection == True:
         return i
 
+      # If turning back is NOT allowed, remove weight from the last location.
+      if not SimulationSettings.TurnBackAllowed:
+        if self.location.links[i].endpoint == self.last_location:
+          total_score += 0
+          continue
+
       # else, use the normal algorithm.
-      if(self.location.links[i].endpoint.isFull(self.location.links[i].numAgents)):
+      if self.location.links[i].endpoint.isFull(self.location.links[i].numAgents):
         total_score += 0
       else:
         weight = 1.0
         if SimulationSettings.UseForeign == True and self.location.links[i].endpoint.foreign == True:
           weight = 2.0
         total_score += weight / (SimulationSettings.Softening + self.location.links[i].distance)
+
 
     selected_value = random.random() * total_score
 
