@@ -152,7 +152,7 @@ if __name__ == "__main__":
     elif t==627: #Fighting between ex-Seleka & Anti-balaka (deaths & thousnads displaced)
       locations[11].movechance = 1.0
 
-      conflict_zones += [locations[0]]
+      conflict_zones += [locations[11]]
       conflict_weights = np.append(conflict_weights, [276710])
 
     elif t==665: #Violence between Muslims & Anti-Balaka, more than 70 deaths & 40000 people displaced
