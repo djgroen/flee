@@ -1,0 +1,6 @@
+Day,Uxbridge sim,Uxbridge data,Uxbridge error,Hillingdon sim,Hillingdon data,Hillingdon error,Heathrow sim,Heathrow data,Heathrow error,Total error,refugees in camps (UNHCR),refugees in camps (simulation),raw UNHCR refugee count
+
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+1,500,400,100,1200,1300,100,0,54,54,300,1700,1700,1854
+2,750,900,150,2130,2010,120,450,600,150,250,3330,4051,4102
+3,1500,1800,300,4260,4020,240,900,1200,300,500,6660,8102,8204
