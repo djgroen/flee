@@ -2,15 +2,18 @@ import flee
 import handle_refugee_data
 import numpy as np
 import analysis as a
+import sys
 
 """
 Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
+#Burundi Simulation
+
 if __name__ == "__main__":
-  #print("Simulating Burundi.")
 
   end_time = 396
+
   e = flee.Ecosystem()
 
   locations = []
@@ -40,13 +43,19 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Makebuko", movechance=0.3))
   locations.append(e.addLocation("Commune of Mabanda", movechance=0.3))
 
-  #Rwanda, Tanzania, Uganda and Congo camps
+  #Rwanda, Tanzania, Uganda and DRCongo camps
   locations.append(e.addLocation("Mahama", movechance=0.001, capacity=49105, foreign=True))
   locations.append(e.addLocation("Nduta", movechance=0.001, capacity=55320, foreign=True))
   locations.append(e.addLocation("Kagunga", movechance=1/21.0, foreign=True))
   locations.append(e.addLocation("Nyarugusu", movechance=0.001, capacity=64198, foreign=True))
-  locations.append(e.addLocation("Nakivale", movechance=0.001, capacity=18734, foreign=True))
+  locations.append(e.addLocation("Gashora", movechance=0.001, foreign=True))
+  locations.append(e.addLocation("Kayonza", movechance=0.001, foreign=True))
+  locations.append(e.addLocation("Kabarore", movechance=0.001, foreign=True))
+  locations.append(e.addLocation("Kagitumba", movechance=0.001, foreign=True))
+  locations.append(e.addLocation("Gitarama", movechance=0.001, foreign=True))
   locations.append(e.addLocation("Kigali", movechance=0.001, foreign=True))
+  locations.append(e.addLocation("Kabale", movechance=0.001, foreign=True))
+  locations.append(e.addLocation("Nakivale", movechance=0.001, capacity=18734, foreign=True))
   locations.append(e.addLocation("Lusenda", movechance=0.001, capacity=17210, foreign=True))
 
   #Within Burundi
@@ -82,12 +91,17 @@ if __name__ == "__main__":
   e.linkUp("Muyinga","Mahama","135.0")
   e.linkUp("Ruyigi","Nduta","90.0")
   e.linkUp("Commune of Mabanda","Kagunga","36.0")
-  e.linkUp("Kagunga","Nyarugusu","105.0", forced_redirection=True)
-  #e.linkUp("Kagunga","Nyarugusu","91.0", forced_redirection=True) #From Kagunga to Kigoma by ship (Kagunga/Kigoma)
-  e.linkUp("Kirundo","Nakivale","307.0")
-  e.linkUp("Kirundo","Kigali","88.0")
-  e.linkUp("Kigali","Nakivale","247.0")
-  e.linkUp("Kayanza","Nakivale","426.0")
+  e.linkUp("Kagunga","Nyarugusu","91.0", forced_redirection=True) #From Kagunga to Kigoma by ship (Kagunga=Kigoma)
+  e.linkUp("Kirundo","Gashora","55.0")
+  e.linkUp("Gashora","Kayonza","81.0")
+  e.linkUp("Kayonza","Kabarore","45.0")
+  e.linkUp("Kabarore","Kagitumba","71.0")
+  e.linkUp("Kagitumba","Nakivale","66.0")
+  e.linkUp("Gashora","Kigali","57.0")
+  e.linkUp("Kayanza","Gitarama","133.0")
+  e.linkUp("Gitarama","Kigali","44.0")
+  e.linkUp("Kigali","Kabale","96.0")
+  e.linkUp("Kabale","Nakivale","140.0")
   e.linkUp("Bujumbura","Lusenda","53.0")
 
 
@@ -98,18 +112,29 @@ if __name__ == "__main__":
   for l in locations:
     list_of_cities = "%s,%s" % (list_of_cities, l.name)
 
-  print(list_of_cities)
-  #print("Time,",list_of_cities)
+  #print(list_of_cities)
   #print("Time, campname")
+  print("Day,Mahama sim,Mahama data,Mahama error,Nduta sim,Nduta data,Nduta error,Nyarugusu sim,Nyarugusu data,Nyarugusu error,Nakivale sim,Nakivale data,Nakivale error,Lusenda sim,Lusenda data,Lusenda error,Total error,refugees in camps (UNHCR),refugees in camps (simulation),raw UNHCR refugee count")
+
+
+
+  #Bujumbura is in conflict area. All refugees want to leave this place.
+  locations[0].movechance = 1.0
+
+  #Set up a mechanism to incorporate temporary decreases in refugees
+  refugee_debt = 0
+  refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only
 
 
   conflict_zones = [locations[0]]
   conflict_weights = np.array([497166])
 
+
+
   for t in range(0,end_time):
 
     #Append conflict_zone and weight to list.
-    if t == 70: #Intense fighting between military & multineer military forces
+    if t==70: #Intense fighting between military & multineer military forces
       locations[5].movechance = 1.0
 
       conflict_zones += [locations[5]]
@@ -120,6 +145,7 @@ if __name__ == "__main__":
 
       conflict_zones += [locations[2]]
       conflict_weights = np.append(conflict_weights, [460435])
+
     elif t==224: #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
       locations[1].movechance = 1.0
       locations[11].movechance = 1.0
@@ -135,12 +161,16 @@ if __name__ == "__main__":
       conflict_weights = np.append(conflict_weights, [313102])
 
 
-    new_refs = d.get_new_refugees(t)
-    #chosen_location = locations[0]
+    #new_refs = d.get_new_refugees(t)
+    new_refs = d.get_new_refugees(t, FullInterpolation=True) - refugee_debt
+    refugees_raw += d.get_new_refugees(t, FullInterpolation=False)
+    if new_refs < 0:
+      refugee_debt = -new_refs
+      new_refs = 0
+
 
     #Insert refugee agents
     for i in range(0, new_refs):
-      #e.addAgent(location = chosen_location)
       e.addAgent(np.random.choice(conflict_zones, p=conflict_weights/sum(conflict_weights)))
 
     #Propagate the model by one time step.
@@ -148,28 +178,42 @@ if __name__ == "__main__":
 
     #e.printInfo()
 
+    #Validation/data comparison
+    mahama_data = d.get_field("Mahama", t) #- d.get_field("Mahama", 0)
+    nduta_data = d.get_field("Nduta", t) #- d.get_field("Nduta", 0)
+    nyarugusu_data = d.get_field("Nyarugusu", t) #- d.get_field("Nyarugusu", 0)
+    nakivale_data = d.get_field("Nakivale", t) #- d.get_field("Nakivale", 0)
+    lusenda_data = d.get_field("Lusenda", t) #- d.get_field("Lusenda", 0)
+
+
+
+    errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
+    abs_errors = [a.abs_error(l.numAgents, mahama_data), a.abs_error(l.numAgents, nduta_data), a.abs_error(l.numAgents, nyarugusu_data), a.abs_error(l.numAgents, nakivale_data), a.abs_error(l.numAgents, lusenda_data)]
+    loc_data = [mahama_data,nduta_data,nyarugusu_data,nakivale_data,lusenda_data]
+
+
     output_string = "%s" % t
 
-    for l in locations:
-      output_string = "%s,%s" % (output_string, l.numAgents)
+    for i in range(0,len(errors)):
+      output_string += ",%s,%s,%s" % (l.numAgents, loc_data[i], errors[i])
+
+
+    if e.numAgents()>0:
+      output_string += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(sum(loc_data)), int(sum(loc_data)), e.numAgents(), refugees_raw)
+    else:
+      output_string += ",0"
+
 
     print(output_string)
-
-    mahama_data = d.get_field("Mahama", t) - d.get_field("Mahama", 0)
-    nduta_data = d.get_field("Nduta", t) - d.get_field("Nduta", 0)
-    nyarugusu_data = d.get_field("Nyarugusu", t) - d.get_field("Nyarugusu", 0)
-    nakivale_data = d.get_field("Nakivale", t) - d.get_field("Nakivale", 0)
-    lusenda_data = d.get_field("Lusenda", t) - d.get_field("Lusenda", 0)
 
     #print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
 
     #print(t, locations[22].numAgents, mahama_data, a.rel_error(locations[22].numAgents, mahama_data))
     #print(t, locations[23].numAgents, nduta_data, a.rel_error(locations[23].numAgents, nduta_data))
     #print(t, locations[25].numAgents, nyarugusu_data, a.rel_error(locations[25].numAgents, nyarugusu_data))
-    #print(t, locations[26].numAgents, nakivale_data, a.rel_error(locations[26].numAgents, nakivale_data))
-    #print(t, locations[28].numAgents, lusenda_data, a.rel_error(locations[28].numAgents, lusenda_data))
+    #print(t, locations[33].numAgents, nakivale_data, a.rel_error(locations[33].numAgents, nakivale_data))
+    #print(t, locations[34].numAgents, lusenda_data, a.rel_error(locations[34].numAgents, lusenda_data))
 
-    errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
 
     #print("location: ", l.numAgents, ", data: ", mahama_data, ", error: ", errors[0])
     #print("location: ", l.numAgents, ", data: ", nduta_data, ", error: ", errors[1])
@@ -180,11 +224,12 @@ if __name__ == "__main__":
 
     #print("Cumulative error: ", np.sum(errors), "Squared error: ", np.sqrt(np.sum(np.power(errors,2))))
 
-  if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
+
+""" if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
     print("TEST FAILED.")
   if np.sqrt(np.sum(np.power(errors,2))) > 0.33+0.03:
     print("TEST FAILED.")
   else:
     print("TEST SUCCESSFUL.")
-
+"""
 
