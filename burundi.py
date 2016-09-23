@@ -117,7 +117,6 @@ if __name__ == "__main__":
   print("Day,Mahama sim,Mahama data,Mahama error,Nduta sim,Nduta data,Nduta error,Nyarugusu sim,Nyarugusu data,Nyarugusu error,Nakivale sim,Nakivale data,Nakivale error,Lusenda sim,Lusenda data,Lusenda error,Total error,refugees in camps (UNHCR),refugees in camps (simulation),raw UNHCR refugee count")
 
 
-
   #Bujumbura is in conflict area. All refugees want to leave this place.
   locations[0].movechance = 1.0
 
@@ -128,7 +127,6 @@ if __name__ == "__main__":
 
   conflict_zones = [locations[0]]
   conflict_weights = np.array([497166])
-
 
 
   for t in range(0,end_time):
@@ -186,13 +184,13 @@ if __name__ == "__main__":
     lusenda_data = d.get_field("Lusenda", t) #- d.get_field("Lusenda", 0)
 
 
-
     errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
     abs_errors = [a.abs_error(l.numAgents, mahama_data), a.abs_error(l.numAgents, nduta_data), a.abs_error(l.numAgents, nyarugusu_data), a.abs_error(l.numAgents, nakivale_data), a.abs_error(l.numAgents, lusenda_data)]
     loc_data = [mahama_data,nduta_data,nyarugusu_data,nakivale_data,lusenda_data]
 
 
     output_string = "%s" % t
+
 
     for i in range(0,len(errors)):
       output_string += ",%s,%s,%s" % (l.numAgents, loc_data[i], errors[i])
@@ -206,6 +204,9 @@ if __name__ == "__main__":
 
     print(output_string)
 
+
+
+
     #print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
 
     #print(t, locations[22].numAgents, mahama_data, a.rel_error(locations[22].numAgents, mahama_data))
@@ -214,13 +215,11 @@ if __name__ == "__main__":
     #print(t, locations[33].numAgents, nakivale_data, a.rel_error(locations[33].numAgents, nakivale_data))
     #print(t, locations[34].numAgents, lusenda_data, a.rel_error(locations[34].numAgents, lusenda_data))
 
-
     #print("location: ", l.numAgents, ", data: ", mahama_data, ", error: ", errors[0])
     #print("location: ", l.numAgents, ", data: ", nduta_data, ", error: ", errors[1])
     #print("location: ", l.numAgents, ", data: ", nyarugusu_data, ", error: ", errors[2])
     #print("location: ", l.numAgents, ", data: ", nakivale_data, ", error: ", errors[3])
     #print("location: ", l.numAgents, ", data: ", lusenda_data, ", error: ", errors[4])
-
 
     #print("Cumulative error: ", np.sum(errors), "Squared error: ", np.sqrt(np.sum(np.power(errors,2))))
 

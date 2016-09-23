@@ -13,7 +13,7 @@ Example use:
 """
 
 def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
-  #adjust margins. 
+  #adjust margins.
   fig = plt.gcf()
   fig.subplots_adjust(bottom=b,top=t,left=l,right=r)
 
@@ -40,13 +40,13 @@ def plotme(out_dir, data, name):
 
   plt.xlabel("Days elapsed")
 
-  matplotlib.rcParams.update({'font.size': 22})
+  matplotlib.rcParams.update({'font.size': 20})
 
-  labelsim, = plt.plot(days,y1, linewidth=10, label="%s simulation" % (name.title()))
-  labeldata, = plt.plot(days,y2, linewidth=10, label="%s UNHCR data" % (name.title()))
+  labelsim, = plt.plot(days,y1, linewidth=8, label="%s simulation" % (name.title()))
+  labeldata, = plt.plot(days,y2, linewidth=8, label="%s UNHCR data" % (name.title()))
   plt.plot(data_x,data_y,'ob')
 
-  plt.legend(handles=[labelsim, labeldata],loc=4,prop={'size':20})
+  plt.legend(handles=[labelsim, labeldata],loc=4,prop={'size':18})
 
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(12, 8)
@@ -75,7 +75,7 @@ def plotme_minimal(out_dir, data, name):
   y2 = data["%s data" % name].as_matrix()
   days = np.arange(len(y1))
 
-  matplotlib.rcParams.update({'font.size': 28})
+  matplotlib.rcParams.update({'font.size': 18})
 
   max_val = max([max(y1),max(y2)])
 
@@ -89,13 +89,13 @@ def plotme_minimal(out_dir, data, name):
 
   #plt.legend(handles=[labelsim, labeldata],loc=4,prop={'size':20})
   plt.gca().legend_ = None
-  
+
   plt.text(295, 0.02*plt.ylim()[1], "%s" % (name.title()), size=24, ha='right')
   #plt.text(200, 0.02*plt.ylim()[1], "Max: %s" % (max(y1)), size=24)
 
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(8, 6)
-  #adjust margins. 
+  #adjust margins.
   set_margins(l=0.14,b=0.13,r=0.96,t=0.96)
 
   fig.savefig("%s/min-%s.png" % (out_dir, name))
@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
   matplotlib.rcParams.update({'font.size': 20})
 
-  plt.clf()  
+  plt.clf()
   diffdata = refugee_data.loc[:,["Total error"]].as_matrix()
   plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5)
   #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
