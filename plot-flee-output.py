@@ -13,7 +13,7 @@ Example use:
 """
 
 def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
-  #adjust margins.
+  #adjust margins - Setting margins for graphs
   fig = plt.gcf()
   fig.subplots_adjust(bottom=b,top=t,left=l,right=r)
 
@@ -27,6 +27,7 @@ def plotme(out_dir, data, name):
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
 
+  #Setting and labelling - x and y axes
   for day in range(0, len(data["%s data" % name])):
     if d.is_interpolated(name, day) == False:
       #draw a point
@@ -55,6 +56,8 @@ def plotme(out_dir, data, name):
 
   fig.savefig("%s/%s.png" % (out_dir, name))
 
+
+#Plotting minimal graphs
 def plotme_minimal(out_dir, data, name):
 
   plt.clf()
@@ -64,6 +67,7 @@ def plotme_minimal(out_dir, data, name):
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
 
+  #Setting and labelling - x and y axes for minimal
   for day in range(0, len(data["%s data" % name])):
     if d.is_interpolated(name, day) == False:
       #draw a point
@@ -87,6 +91,8 @@ def plotme_minimal(out_dir, data, name):
   labeldata, = plt.plot(days,y2, linewidth=10, label="%s UNHCR data" % (name.title()))
   plt.plot(data_x,data_y,'ob')
 
+
+  #?
   #plt.legend(handles=[labelsim, labeldata],loc=4,prop={'size':20})
   plt.gca().legend_ = None
 
@@ -101,6 +107,7 @@ def plotme_minimal(out_dir, data, name):
   fig.savefig("%s/min-%s.png" % (out_dir, name))
 
 
+#for any other out-dir graphs
 if __name__ == "__main__":
 
   if len(sys.argv)>1:
@@ -113,7 +120,7 @@ if __name__ == "__main__":
 
   refugee_data = pd.read_csv("%s/out.csv" % (out_dir), sep=',', encoding='latin1',index_col='Day')
 
-
+  #other graphs - numagents and error
   rd_cols = list(refugee_data.columns.values)
   location_names = []
   for i in rd_cols:
