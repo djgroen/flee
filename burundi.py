@@ -44,10 +44,10 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Commune of Mabanda", movechance=0.3))
 
   #Rwanda, Tanzania, Uganda and DRCongo camps
-  locations.append(e.addLocation("Mahama", movechance=0.001, capacity=49105, foreign=True))
+  locations.append(e.addLocation("Mahama", movechance=0.001, capacity=49451, foreign=True))
   locations.append(e.addLocation("Nduta", movechance=0.001, capacity=55320, foreign=True))
   locations.append(e.addLocation("Kagunga", movechance=1/21.0, foreign=True))
-  locations.append(e.addLocation("Nyarugusu", movechance=0.001, capacity=64198, foreign=True))
+  locations.append(e.addLocation("Nyarugusu", movechance=0.001, capacity=100925, foreign=True))
   locations.append(e.addLocation("Gashora", movechance=0.001, foreign=True))
   locations.append(e.addLocation("Kayonza", movechance=0.001, foreign=True))
   locations.append(e.addLocation("Kabarore", movechance=0.001, foreign=True))
