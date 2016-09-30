@@ -4,6 +4,7 @@ class SimulationSettings:
   Softening = 0.0
   UseForeign = True
   TurnBackAllowed = True
+  AgentLogLevel = 0
 
 class Person:
   def __init__(self, location):
@@ -21,6 +22,10 @@ class Person:
 
     if not SimulationSettings.TurnBackAllowed:
       self.last_location = None
+
+    if SimulationSettings.AgentLogLevel > 0:
+      self.distance_travelled = 0
+      self.places_travelled = 1
 
   def evolve(self):
     movechance = self.location.movechance
@@ -44,6 +49,11 @@ class Person:
       # update last location of agent.
       if not SimulationSettings.TurnBackAllowed:
         self.last_location = self.location
+
+      # update agent logs
+      if SimulationSettings.AgentLogLevel > 0:
+        self.places_travelled += 1
+        self.distance_travelled += self.location.distance
 
       # update location (which is on a link) to link endpoint
       self.location.numAgents -= 1

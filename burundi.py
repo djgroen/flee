@@ -183,17 +183,21 @@ if __name__ == "__main__":
     nakivale_data = d.get_field("Nakivale", t) #- d.get_field("Nakivale", 0)
     lusenda_data = d.get_field("Lusenda", t) #- d.get_field("Lusenda", 0)
 
+    errors = []
+    abs_errors = []
+    loc_data = [mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data]
+    camp_locations = [22, 23, 25, 33, 34]
 
-    errors = [a.rel_error(l.numAgents,mahama_data), a.rel_error(l.numAgents,nduta_data), a.rel_error(l.numAgents,nyarugusu_data), a.rel_error(l.numAgents,nakivale_data),a.rel_error(l.numAgents,lusenda_data)]
-    abs_errors = [a.abs_error(l.numAgents, mahama_data), a.abs_error(l.numAgents, nduta_data), a.abs_error(l.numAgents, nyarugusu_data), a.abs_error(l.numAgents, nakivale_data), a.abs_error(l.numAgents, lusenda_data)]
-    loc_data = [mahama_data,nduta_data,nyarugusu_data,nakivale_data,lusenda_data]
-
+    for i in range(0,len(camp_locations)):
+      camp_number = camp_locations[i]
+      errors += [a.rel_error(locations[camp_number].numAgents, loc_data[i])]
+      abs_errors += [a.abs_error(locations[camp_number].numAgents, loc_data[i])]
 
     output_string = "%s" % t
 
-
     for i in range(0,len(errors)):
-      output_string += ",%s,%s,%s" % (l.numAgents, loc_data[i], errors[i])
+      camp_number = camp_locations[i]
+      output_string += ",%s,%s,%s" % (locations[camp_number].numAgents, loc_data[i], errors[i])
 
 
     if e.numAgents()>0:
