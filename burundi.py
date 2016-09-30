@@ -228,11 +228,12 @@ if __name__ == "__main__":
     #print("Cumulative error: ", np.sum(errors), "Squared error: ", np.sqrt(np.sum(np.power(errors,2))))
 
 
-""" if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
-    print("TEST FAILED.")
-  if np.sqrt(np.sum(np.power(errors,2))) > 0.33+0.03:
-    print("TEST FAILED.")
-  else:
-    print("TEST SUCCESSFUL.")
-"""
+    """
+    if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
+      print("TEST FAILED.")
+    if np.sqrt(np.sum(np.power(errors,2))) > 0.33+0.03:
+      print("TEST FAILED.")
+    else:
+      print("TEST SUCCESSFUL.")
+    """
 

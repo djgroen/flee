@@ -217,16 +217,21 @@ if __name__ == "__main__":
     brazaville_data = d.get_field("Brazaville", t) #- d.get_field("Brazaville", 0)
 
 
-    errors = [a.rel_error(l.numAgents,belom_data), a.rel_error(l.numAgents,dosseye_data), a.rel_error(l.numAgents,east_data), a.rel_error(l.numAgents,adamaoua_data), a.rel_error(l.numAgents,mole_data), a.rel_error(l.numAgents,inke_data), a.rel_error(l.numAgents,betou_data), a.rel_error(l.numAgents,brazaville_data)]
-    abs_errors = [a.abs_error(l.numAgents, belom_data), a.abs_error(l.numAgents, dosseye_data), a.abs_error(l.numAgents, east_data), a.abs_error(l.numAgents, adamaoua_data), a.abs_error(l.numAgents, mole_data), a.abs_error(l.numAgents, inke_data), a.abs_error(l.numAgents, betou_data), a.abs_error(l.numAgents, brazaville_data)]
-    loc_data = [belom_data,dosseye_data,east_data,adamaoua_data,mole_data,inke_data,betou_data,brazaville_data]
+    errors = []
+    abs_errors = []
+    loc_data = [belom_data, dosseye_data, east_data, adamaoua_data, mole_data, inke_data, betou_data, brazaville_data]
+    camp_locations = [30, 31, 32, 33, 34, 36, 37, 38]
 
+    for i in range(0,len(camp_locations)):
+      camp_number = camp_locations[i]
+      errors += [a.rel_error(locations[camp_number].numAgents, loc_data[i])]
+      abs_errors += [a.abs_error(locations[camp_number].numAgents, loc_data[i])]
 
     output_string = "%s" % t
 
-
     for i in range(0,len(errors)):
-      output_string += ",%s,%s,%s" % (l.numAgents, loc_data[i], errors[i])
+      camp_number = camp_locations[i]
+      output_string += ",%s,%s,%s" % (locations[camp_number].numAgents, loc_data[i], errors[i])
 
 
     if e.numAgents()>0:
@@ -263,11 +268,12 @@ if __name__ == "__main__":
 
     #print("Cumulative error: ", np.sum(errors), "Squared error: ", np.sqrt(np.sum(np.power(errors,2))))
 
-""" if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
-    print("TEST FAILED.")
-  if np.sqrt(np.sum(np.power(errors,2))) > 0.33+0.03:
-    print("TEST FAILED.")
-  else:
-    print("TEST SUCCESSFUL.")
-"""
+    """
+    if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
+      print("TEST FAILED.")
+    if np.sqrt(np.sum(np.power(errors,2))) > 0.33+0.03:
+      print("TEST FAILED.")
+    else:
+      print("TEST SUCCESSFUL.")
+    """
 
