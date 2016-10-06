@@ -29,12 +29,13 @@ def plotme(out_dir, data, name):
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
 
-  #Setting and labelling - x and y axes
+  #Loop - taking the lenght of dataset for x and y rays & populating data to use for graphs
   for day in range(0, len(data["%s data" % name])):
     if d.is_interpolated(name, day) == False:
       #draw a point
       data_x.append(day)
       data_y.append(data.at[day,"%s data" % name])
+
 
   # data.loc[:,["%s sim" % name,"%s data" % name]]).as_matrix()
   y1 = data["%s sim" % name].as_matrix()
@@ -45,6 +46,7 @@ def plotme(out_dir, data, name):
 
   matplotlib.rcParams.update({'font.size': 20})
 
+  #Data conversion
   labelsim, = plt.plot(days,y1, linewidth=8, label="%s simulation" % (name.title()))
   labeldata, = plt.plot(days,y2, linewidth=8, label="%s UNHCR data" % (name.title()))
   plt.plot(data_x,data_y,'ob')
@@ -53,14 +55,17 @@ def plotme(out_dir, data, name):
 
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(12, 8)
-  #adjust margins. 
+  #adjust margins
   set_margins()
 
   fig.savefig("%s/%s.png" % (out_dir, name))
 
 
-#Plotting minimal graphs
+
 def plotme_minimal(out_dir, data, name):
+  """
+  Explaining minimal graphs: populating data points to generate graphs and an example
+  """
 
   plt.clf()
 
@@ -69,9 +74,9 @@ def plotme_minimal(out_dir, data, name):
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
 
-  #Setting and labelling - x and y axes for minimal
+  #Loop - taking the length of dataset for x and y rays 
   for day in range(0, len(data["%s data" % name])):
-    if d.is_interpolated(name, day) == False:
+    if d.is_interpolated05-07-16(name, day) == False:
       #draw a point
       data_x.append(day)
       data_y.append(data.at[day,"%s data" % name])
@@ -85,22 +90,25 @@ def plotme_minimal(out_dir, data, name):
 
   max_val = max([max(y1),max(y2)])
 
+  #Graph labels
   plt.xticks([])
   plt.yticks([2000,5000])
   plt.ylim([0, 1.1*max_val])
 
+  #Data conversion
   labelsim, = plt.plot(days,y1, linewidth=10, label="%s simulation" % (name.title()))
   labeldata, = plt.plot(days,y2, linewidth=10, label="%s UNHCR data" % (name.title()))
   plt.plot(data_x,data_y,'ob')
 
 
-  #?
+  #Text labels
   #plt.legend(handles=[labelsim, labeldata],loc=4,prop={'size':20})
   plt.gca().legend_ = None
 
   plt.text(295, 0.02*plt.ylim()[1], "%s" % (name.title()), size=24, ha='right')
   #plt.text(200, 0.02*plt.ylim()[1], "Max: %s" % (max(y1)), size=24)
 
+  #Size of graphs
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(8, 6)
   #adjust margins.
@@ -109,7 +117,7 @@ def plotme_minimal(out_dir, data, name):
   fig.savefig("%s/min-%s.png" % (out_dir, name))
 
 
-#for any other out-dir graphs
+#Start of the code, assuring arguments of out-folder & csv file are kept
 if __name__ == "__main__":
 
   if len(sys.argv)>1:
@@ -122,7 +130,7 @@ if __name__ == "__main__":
 
   refugee_data = pd.read_csv("%s/out.csv" % (out_dir), sep=',', encoding='latin1',index_col='Day')
 
-  #other graphs - numagents and error
+  #Identifying location names for graphs
   rd_cols = list(refugee_data.columns.values)
   location_names = []
   for i in rd_cols:
@@ -130,6 +138,7 @@ if __name__ == "__main__":
       if "numAgents" not in i:
         location_names.append(' '.join(i.split()[:-1]))
 
+  #Plots for all locations
   for i in location_names:
     plotme(out_dir, refugee_data,i)
     plotme_minimal(out_dir, refugee_data,i)
@@ -141,9 +150,11 @@ if __name__ == "__main__":
   plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5)
   #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
 
+  #Size of plots
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(12, 8)
 
+  #Other graphs
   plt.ylabel("Averaged relative difference")
   plt.xlabel("Days elapsed")
 
