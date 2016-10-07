@@ -76,7 +76,7 @@ def plotme_minimal(out_dir, data, name):
 
   #Loop - taking the length of dataset for x and y rays 
   for day in range(0, len(data["%s data" % name])):
-    if d.is_interpolated05-07-16(name, day) == False:
+    if d.is_interpolated(name, day) == False:
       #draw a point
       data_x.append(day)
       data_y.append(data.at[day,"%s data" % name])
