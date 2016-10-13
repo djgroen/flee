@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
       for i in range(0, len(conflict_zones)):
         if conflict_zones[i].name is not "Bamako":
-          new_conflict_zones += conflict_zones[i]
+          new_conflict_zones += [conflict_zones[i]]
           new_weights = np.append(new_weights, [conflict_weights[i]])
 
       conflict_zones = new_conflict_zones
