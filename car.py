@@ -56,7 +56,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("East", movechance=0.001, capacity=180485, foreign=True))
   locations.append(e.addLocation("Adamaoua", movechance=0.001, capacity=71506, foreign=True))
   locations.append(e.addLocation("Mole", movechance=0.001, capacity=20454, foreign=True))
-  locations.append(e.addLocation("Gbadolite", movechance=0.001))
+  locations.append(e.addLocation("Gbadolite", movechance=0.3))
   locations.append(e.addLocation("Inke", movechance=0.001, capacity=20365, foreign=True))
   locations.append(e.addLocation("Betou", movechance=0.001, capacity=10232, foreign=True))
   locations.append(e.addLocation("Brazaville", movechance=0.001, capacity=8514, foreign=True))
