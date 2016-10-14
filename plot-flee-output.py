@@ -46,7 +46,7 @@ def plotme(out_dir, data, name):
 
   matplotlib.rcParams.update({'font.size': 20})
 
-  #Data conversion
+  #Plotting lines representing simulation results and UNHCR data
   labelsim, = plt.plot(days,y1, linewidth=8, label="%s simulation" % (name.title()))
   labeldata, = plt.plot(days,y2, linewidth=8, label="%s UNHCR data" % (name.title()))
   plt.plot(data_x,data_y,'ob')
@@ -95,7 +95,7 @@ def plotme_minimal(out_dir, data, name):
   plt.yticks([2000,5000])
   plt.ylim([0, 1.1*max_val])
 
-  #Data conversion
+  #Plotting lines representing simulation results and UNHCR data
   labelsim, = plt.plot(days,y1, linewidth=10, label="%s simulation" % (name.title()))
   labeldata, = plt.plot(days,y2, linewidth=10, label="%s UNHCR data" % (name.title()))
   plt.plot(data_x,data_y,'ob')
@@ -108,7 +108,7 @@ def plotme_minimal(out_dir, data, name):
   plt.text(295, 0.02*plt.ylim()[1], "%s" % (name.title()), size=24, ha='right')
   #plt.text(200, 0.02*plt.ylim()[1], "Max: %s" % (max(y1)), size=24)
 
-  #Size of graphs
+  #Size of plots/graphs
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(8, 6)
   #adjust margins.
@@ -150,11 +150,11 @@ if __name__ == "__main__":
   plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5)
   #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
 
-  #Size of plots
+  #Size of plots/figures
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(12, 8)
 
-  #Other graphs
+  #Plotting and saving error (differences) graph
   plt.ylabel("Averaged relative difference")
   plt.xlabel("Days elapsed")
 
@@ -162,8 +162,10 @@ if __name__ == "__main__":
   plt.savefig("%s/error.png" % out_dir)
 
   #TODO: These labels need to be more flexible/modifiable.
+  #Plotting and saving numagents (total refugee numbers) graph
   refugee_data.loc[:,["refugees in camps (simulation)","refugees in camps (UNHCR)"]].plot(linewidth=5)
-
+  
+  #Size of plots/figures
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(12, 8)
 
