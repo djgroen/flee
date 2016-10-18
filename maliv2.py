@@ -198,6 +198,8 @@ if __name__ == "__main__":
     # Basic output
     # e.printInfo()
 
+
+    camps = ["Mbera", "Fassala", "Mentao", "Bobo-Dioulasso", "Abala", "Mangaize", "Niamey", "Tabareybarey"]
     
     # Validation / data comparison
     m1_data = d.get_field("Mbera", t) #- d.get_field("Mbera", 0)
