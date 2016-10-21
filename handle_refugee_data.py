@@ -149,13 +149,13 @@ class DataTable:
 
     last_data_count = 0
     last_t = 0
-    last_time_in_date = self.data_table[-1][self.days_column]
+    last_time_in_data = int(self.data_table[0][-1][self.days_column])
 
-    for t in range(0, last_time_in_data):
+    for t in range(1, last_time_in_data):
       data_count = 0
       for name in camp_names:
         # aggregate refugee counts from all camps in the simulation
-        data_count += self.get_field(name, t)
+        data_count += self.get_field("%s data" % (name) , t)
 
       if data_count > refugee_count:
         # the current entry in the table has a number that exceeds the refugee count we're looking for.

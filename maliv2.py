@@ -1,5 +1,6 @@
 import flee
 import handle_refugee_data
+#handle_refugee_data.subtract_dates()
 import numpy as np
 import analysis as a
 import sys
@@ -35,6 +36,22 @@ def AddInitialRefugees(e, d, loc):
   num_refugees = int(d.get_field(loc.name, 0))
   for i in range(0, num_refugees):
     e.addAgent(location=loc)
+
+
+def remove_conflict_zone(location, conflict_zones, conflict_weights):
+  """
+  Shorthand function to remove a conflict zone from the list.
+  (not used yet)
+  """
+  new_conflict_zones = []
+  new_weights = np.array([])
+
+  for i in range(0, len(conflict_zones)):
+    if conflict_zones[i].name is not location.name:
+      new_conflict_zones += [conflict_zones[i]]
+      new_weights = np.append(new_weights, [conflict_weights[i]])
+
+  return new_conflict_zones, new_weights
 
 
 if __name__ == "__main__":
@@ -118,7 +135,7 @@ if __name__ == "__main__":
 
   d = handle_refugee_data.DataTable(csvformat="generic", data_directory="mali2012/")
 
-  print("Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),refugees in camps (simulation),raw UNHCR refugee count")
+  print("Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),refugees in camps (simulation),raw UNHCR refugee count,retrofitted time")
 
   # Kidal has fallen. All refugees want to leave this place.
   o1.movechance = 1.0
@@ -137,18 +154,23 @@ if __name__ == "__main__":
   AddInitialRefugees(e,d,n3)
   AddInitialRefugees(e,d,n4)
 
-  conflict_zones = [o1]
-  conflict_weights = np.array([68000])
+  conflict_zones = [o1,o6]
+  conflict_weights = np.array([68000,20702])
 
+  march19 = handle_refugee_data.subtract_dates("2012-03-19","2012-02-29")
+  march21 = handle_refugee_data.subtract_dates("2012-03-21","2012-02-29")
+  april1 = handle_refugee_data.subtract_dates("2012-04-01","2012-02-29")
+  september1 = handle_refugee_data.subtract_dates("2012-09-01","2012-02-29")
+  
 
   for t in range(0,end_time):
 
     # Close/open borders here.
-    if t==20: #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
+    if t == march19: #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
       m2.movechance = 1.0
-    if t==22: #On the 21st of March, Burkina Faso opens its borders (see PDF report 3).
+    if t == march21: #On the 21st of March, Burkina Faso opens its borders (see PDF report 3).
       linkBF(e)   
-    if t==31: #Starting from April, refugees appear to enter Niger again (on foot, report 4).
+    if t == april1: #Starting from April, refugees appear to enter Niger again (on foot, report 4).
       linkNiger(e)
 
 
@@ -158,36 +180,21 @@ if __name__ == "__main__":
       refugee_debt = -new_refs
       new_refs = 0
 
-    if t==22:
-      # Add Bamako to conflict zones.
-      o9.movechance = 1.0
-      conflict_zones += [o9]
-      conflict_weights = np.append(conflict_weights, [1809106])    
 
-    if t==40:
-      # Remove Bamako from conflict zones.
-      o9.movechance = 0.3
-
-      new_conflict_zones = []
-      new_weights = np.array([])
-
-      for i in range(0, len(conflict_zones)):
-        if conflict_zones[i].name is not "Bamako":
-          new_conflict_zones += [conflict_zones[i]]
-          new_weights = np.append(new_weights, [conflict_weights[i]])
-
-      conflict_zones = new_conflict_zones
-      conflict_weights = new_weights
-          
-
-    if t==31: #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
+    if t == april1: #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
       o2.movechance = 1.0 # Refugees now want to leave Gao.
       o3.movechance = 1.0 # Refugees now want to leave Timbuktu.
     
       # This is used to append two locations to the list of conflict zones (a Python List).
       conflict_zones += [o2,o3]
       # And this is used to append two weights to the weights array (a NumPy array).
-      conflict_weights = np.append(conflict_weights, [544000,682000])      
+      conflict_weights = np.append(conflict_weights, [544120-20702,682000]) #Gao region population excludes Menaka (pop.20702).     
+ 
+    if t == september1:
+      # Mopti region is being conquered.
+      o5.movechance = 1.0
+      conflict_zones += [o5]
+      conflict_weights = np.append(conflict_weights, [2037330])   
  
     # Here we use the random choice to make a weighted choice between the 1-3 source locations.
     for i in range(0, new_refs):
@@ -198,39 +205,39 @@ if __name__ == "__main__":
     # Basic output
     # e.printInfo()
 
-
-    camps = ["Mbera", "Fassala", "Mentao", "Bobo-Dioulasso", "Abala", "Mangaize", "Niamey", "Tabareybarey"]
     
     # Validation / data comparison
-    m1_data = d.get_field("Mbera", t) #- d.get_field("Mbera", 0)
-    m2_data = d.get_field("Fassala", t) #- d.get_field("Mbera", 0)
-    b1_data = d.get_field("Mentao", t) #- d.get_field("Mentao", 0)
-    b2_data = d.get_field("Bobo-Dioulasso", t) #- d.get_field("Bobo-Dioulasso", 0)
-    n1_data = d.get_field("Abala", t) #- d.get_field("Abala", 0)
-    n2_data = d.get_field("Mangaize", t) #- d.get_field("Mangaize", 0)
-    n3_data = d.get_field("Niamey", t) #- d.get_field("Niamey", 0)
-    n4_data = d.get_field("Tabareybarey", t) #- d.get_field("Tabareybarey", 0)
+    camps = [m1,m2,b1,b2,n1,n2,n3,n4]
+    camp_names = ["Mbera", "Fassala", "Mentao", "Bobo-Dioulasso", "Abala", "Mangaize", "Niamey", "Tabareybarey"]
+    # TODO: refactor camp_names using list comprehension.
+ 
+    camp_pops = []
+    errors = []
+    abs_errors = []
+    for i in range(0, len(camp_names)):
+      camp_pops += [d.get_field(camp_names[i], t)]
+      errors += [a.rel_error(camps[i].numAgents, camp_pops[-1])]
+      abs_errors += [a.abs_error(camps[i].numAgents, camp_pops[-1])]
 
-    errors = [a.rel_error(m1.numAgents,m1_data), a.rel_error(m2.numAgents,m2_data), a.rel_error(b1.numAgents,b1_data), a.rel_error(b2.numAgents,b2_data), a.rel_error(n1.numAgents,n1_data), a.rel_error(n2.numAgents,n2_data), a.rel_error(n3.numAgents,n3_data), a.rel_error(n4.numAgents,n4_data)]
-    abs_errors = [a.abs_error(m1.numAgents,m1_data), a.abs_error(m2.numAgents,m2_data), a.abs_error(b1.numAgents,b1_data), a.abs_error(b2.numAgents,b2_data), a.abs_error(n1.numAgents,n1_data), a.abs_error(n2.numAgents,n2_data), a.abs_error(n3.numAgents,n3_data), a.abs_error(n4.numAgents,n4_data)]
-    locations = [m1,m2,b1,b2,n1,n2,n3,n4]
-    loc_data = [m1_data,m2_data,b1_data,b2_data,n1_data,n2_data,n3_data,n4_data]
-   
+    locations = camps
+    loc_data = camp_pops
 
-    #print "Mbera: ", m1.numAgents, ", data: ", m1_data, ", error: ", errors[0]
-    #print "Mentao: ", b1.numAgents, ", data: ", b1_data, ", error: ", errors[1]
-    #print "Bobo-Dioulasso: ", b2.numAgents,", data: ", b2_data, ", error: ", errors[2]
-    #print "Abala: ", n1.numAgents,", data: ", n1_data, ", error: ", errors[3]
-    #print "Mengaize: ", n2.numAgents,", data: ", n2_data, ", error: ", errors[4]
     #if e.numAgents()>0:
     #  print "Total error: ", float(np.sum(abs_errors))/float(e.numAgents())
 
+    # calculate retrofitted time.
+    refugees_in_camps_sim = 0
+    for c in camps:
+      refugees_in_camps_sim += c.numAgents
+    t_retrofitted = 0 #d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_names)
+
+    # write output (one line per time step taken.
     output = "%s" % (t)
-    for i in range(0,len(errors)):
+    for i in range(0,len(locations)):
       output += ",%s,%s,%s" % (locations[i].numAgents, loc_data[i], errors[i])
 
     if e.numAgents()>0:
-      output += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(sum(loc_data)), int(sum(loc_data)), e.numAgents(), refugees_raw)
+      output += ",%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(sum(loc_data)), int(sum(loc_data)), e.numAgents(), refugees_raw, t_retrofitted)
     else:
       output += ",0"
 
