@@ -229,7 +229,7 @@ if __name__ == "__main__":
     refugees_in_camps_sim = 0
     for c in camps:
       refugees_in_camps_sim += c.numAgents
-    t_retrofitted = 0 #d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_names)
+    t_retrofitted = d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_names)
 
     # write output (one line per time step taken.
     output = "%s" % (t)

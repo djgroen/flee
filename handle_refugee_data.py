@@ -155,7 +155,7 @@ class DataTable:
       data_count = 0
       for name in camp_names:
         # aggregate refugee counts from all camps in the simulation
-        data_count += self.get_field("%s data" % (name) , t)
+        data_count += self.get_field(name , t)
 
       if data_count > refugee_count:
         # the current entry in the table has a number that exceeds the refugee count we're looking for.
@@ -236,6 +236,9 @@ class DataTable:
     for i in range(0,len(self.header)):
       if self.header[i] == name:
         return self.get_interpolated_data(i, day)
+
+    print("Unable to find header: %s" % (name))
+    print(self.header)
 
   def is_interpolated(self, name, day):
     """
