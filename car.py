@@ -145,13 +145,7 @@ if __name__ == "__main__":
   for t in range(0,end_time):
 
     #Append conflict_zone and weight to list.
-    if t==5: #Clashes between Seleka & Anti-Balaka, 100s of people died
-      locations[0].movechance = 1.0
-
-      conflict_zones += [locations[0]]
-      conflict_weights = np.append(conflict_weights, [734350])
-
-    elif t==31: #A wave of reprisal attacks & escalating cycle of violence
+    if t==31: #A wave of reprisal attacks & escalating cycle of violence
       locations[4].movechance = 1.0
       locations[5].movechance = 1.0
       locations[8].movechance = 1.0
@@ -167,24 +161,11 @@ if __name__ == "__main__":
       conflict_zones += [locations[11]]
       conflict_weights = np.append(conflict_weights, [276710])
 
-    elif t==665: #Violence between Muslims & Anti-Balaka, more than 70 deaths & 40000 people displaced
-      locations[0].movechance = 1.0
-
-      conflict_zones += [locations[0]]
-      conflict_weights = np.append(conflict_weights, [734350])
-
-    elif t==714: #Violence left more than 100 dead people
-      locations[0].movechance = 1.0
-
-      conflict_zones += [locations[0]]
-      conflict_weights = np.append(conflict_weights, [734350])
-
     elif t==742: #Violence & death during the constitutional referendum vote
-      locations[0].movechance = 1.0
       locations[12].movechance = 1.0
 
-      conflict_zones += [locations[0], locations[12]]
-      conflict_weights = np.append(conflict_weights, [734350,90316])
+      conflict_zones += [locations[12]]
+      conflict_weights = np.append(conflict_weights, [90316])
 
 
 
