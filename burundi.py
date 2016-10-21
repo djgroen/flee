@@ -178,7 +178,7 @@ if __name__ == "__main__":
 
     #Validation/data comparison
     mahama_data = d.get_field("Mahama", t) #- d.get_field("Mahama", 0)
-    nduta_data = d.get_field("Nduta", t) #- d.get_field("Nduta", 0)
+    nduta_data = d.get_field("Nduta", t) #-d.get_field("Nduta", 0)
     nyarugusu_data = d.get_field("Nyarugusu", t) #- d.get_field("Nyarugusu", 0)
     nakivale_data = d.get_field("Nakivale", t) #- d.get_field("Nakivale", 0)
     lusenda_data = d.get_field("Lusenda", t) #- d.get_field("Lusenda", 0)
