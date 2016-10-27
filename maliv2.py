@@ -10,16 +10,14 @@ def linkBF(e):
   e.linkUp("Douentza","Mentao","487.0")
   e.linkUp("Mopti","Mentao","360.0")
   e.linkUp("Mopti","Bobo-Dioulasso","462.0")
+  e.linkUp("Segou","Bobo-Dioulasso","376.3")
   e.linkUp("Mentao","Bobo-Dioulasso","475.0")
 
 def linkNiger(e):
   # bing based
   e.linkUp("Menaka","Abala","172.0")
-  #e.linkUp("Gao","Mangaize","455.0")
   e.linkUp("Menaka","Mangaize","305.0")
-  #e.linkUp("Gao","Niamey","444.0")
-  #e.linkUp("Menaka","Niamey","559.0")
-  e.linkUp("Gao","Tabareybarey","245.0")
+  e.linkUp("Ansongo","Tabareybarey","148.4")
   e.linkUp("Menaka","Tabareybarey","361.0")
 
   # All distances here are Bing-based.
@@ -37,22 +35,6 @@ def AddInitialRefugees(e, d, loc):
   for i in range(0, num_refugees):
     e.addAgent(location=loc)
 
-
-def remove_conflict_zone(location, conflict_zones, conflict_weights):
-  """
-  Shorthand function to remove a conflict zone from the list.
-  (not used yet)
-  """
-  new_conflict_zones = []
-  new_weights = np.array([])
-
-  for i in range(0, len(conflict_zones)):
-    if conflict_zones[i].name is not location.name:
-      new_conflict_zones += [conflict_zones[i]]
-      new_weights = np.append(new_weights, [conflict_weights[i]])
-
-  return new_conflict_zones, new_weights
-
 def date_to_sim_days(date):
   return handle_refugee_data.subtract_dates(date,"2012-02-29")
 
@@ -66,9 +48,12 @@ if __name__ == "__main__":
 
   e = flee.Ecosystem()
 
-# Distances are estimated using Bing Maps.
+  # Refugees reduce population counts.
+  flee.SimulationSettings.TakeRefugeesFromPopulation = True
 
-# Mali
+  # Distances are estimated using Bing Maps.
+
+  # Mali
   
   lm = {}
 
@@ -78,7 +63,7 @@ if __name__ == "__main__":
   # pop. 86,633. GPS 16.270910 -0.040210
   lm["Timbuktu"] = e.addLocation("Timbuktu", movechance=0.3, pop=54453)
   # pop. 54,453. GPS 16.780260 -3.001590
-  lm["Mopti"] = e.addLocation("Mopti", movechance=0.3, pop=108456)
+  lm["Mopti"] = e.addLocation("Mopti", movechance=0.3, pop=148456) #108456 from Mopti + 40000 from Sevare, which is 10km southeast to Mopti.
   # pop. 108,456 (2009 census)
   lm["Douentza"] = e.addLocation("Douentza", movechance=0.3, pop=28005)
   # pop. 28,005 (2009 census), fell on 5th of April 2012.
@@ -86,28 +71,57 @@ if __name__ == "__main__":
   # pop. 36,767 (2009 census), captured in January 2013 by the Islamists.
   lm["Menaka"] = e.addLocation("Menaka", movechance=1.0, pop=20702)
   # pop. 20,702 (2009 census), captured in January 2012 by the Islamists.
-  lm["Niafounke"] = e.addLocation("Niafounke", movechance=1.0, pop=1000)
+  lm["Niafounke"] = e.addLocation("Niafounke", movechance=1.0, pop=1000)  
   # pop. negligible. Added because it's a junction point, move chance set to 1.0 for that reason.
   lm["Bourem"] = e.addLocation("Bourem", movechance=0.3, pop=27486)
   # pop. 27,486. GPS 16.968122, -0.358435. No information about capture yet, but it's a sizeable town at a junction point.
   lm["Bamako"] = e.addLocation("Bamako", movechance=0.3, pop=1809106)
   # pop. 1,809,106 capital subject to coup d'etat between March 21st and April 8th 2012.
+  lm["Tenenkou"] = e.addLocation("Tenenkou", movechance=0.3, pop=11310)
+  # pop. 11310. First Battle on 02-03-2012, 14.5004532,-4.8748448.
+  lm["Segou"] = e.addLocation("Segou", movechance=0.3, pop=130690)
+
+  lm["Ansongo"] = e.addLocation("Ansongo", movechance=0.3, pop=32709)
+  # pop. 32709
+  lm["Lere"] = e.addLocation("Lere", movechance=0.3, pop=16072)
+  # pop. 16,072.
+  lm["Dire"] = e.addLocation("Dire", movechance=0.3, pop=22365)
+  # pop. 22,365.
+  lm["Goundam"] = e.addLocation("Goundam", movechance=0.3, pop=16253)
+  # pop. 16,253.
   
 
+  """
+  Town merges in Mali, as they are <= 10 km away:
+  ACLED towns -> town in simulation
+  Kati, Kambila, Badalabougo -> Bamako
+  Sevare -> Mopti
+  """
+
   # bing based
-  e.linkUp("Kidal","Bourem", "308.0") #964.0
-  e.linkUp("Gao","Bourem","97.0") #612
+  e.linkUp("Kidal","Bourem", "308.0") 
+  e.linkUp("Gao","Bourem","97.0") 
   e.linkUp("Timbuktu","Bourem","314.0")
 
   e.linkUp("Timbuktu", "Konna","303.0") #Mopti is literally on the way to Bobo-Dioulasso.
   e.linkUp("Gao", "Douentza","397.0") #Mopti is literally on the way to Bobo-Dioulasso.
   e.linkUp("Douentza","Konna","121.0") #Douentza is on the road between Gao and Mopti.
-  e.linkUp("Konna","Mopti","70.0") #Douentza is on the road between Gao and Mopti.
+  e.linkUp("Konna","Mopti","70.0") #Konna is on the road between Gao and Mopti.
+  e.linkUp("Mopti","Segou","401.3")
 
-  e.linkUp("Gao","Menaka","314.0")
+  e.linkUp("Ansongo","Menaka","190.7")
+  e.linkUp("Gao","Ansongo","99.6")
 
-  e.linkUp("Timbuktu","Niafounke","162.0")
+  e.linkUp("Dire","Goundam","42.2")
+  e.linkUp("Goundam","Timbuktu","85.3")
+  e.linkUp("Goundam","Niafounke","77.5")
   e.linkUp("Niafounke","Konna","153.0")
+  e.linkUp("Niafounke", "Lere", "139.8")
+
+  e.linkUp("Tenenkou","Niafounke","308.1")
+  e.linkUp("Tenenkou","Lere","294.5")
+  e.linkUp("Tenenkou","Segou","227.5")
+  e.linkUp("Segou","Bamako","239.8")
 
 # Mauritania
 
@@ -116,7 +130,7 @@ if __name__ == "__main__":
   m2 = e.addLocation("Fassala", movechance=0.08, foreign=True)
 
   # bing based
-  e.linkUp("Niafounke","Fassala","241.0")
+  e.linkUp("Lere","Fassala","98.1")
   e.linkUp("Fassala","Mbera","25.0", forced_redirection=True)
 
 # Burkina Faso
@@ -142,9 +156,6 @@ if __name__ == "__main__":
 
   print("Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),refugees in camps (simulation),raw UNHCR refugee count,retrofitted time,camps_sim_count")
 
-  # Kidal has fallen. All refugees want to leave this place.
-  lm["Kidal"].movechance = 1.0
-
   # Set up a mechanism to incorporate temporary decreases in refugees 
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
@@ -163,6 +174,8 @@ if __name__ == "__main__":
 
   for t in range(0,end_time):
 
+    e.refresh_conflict_weights()
+
     # Close/open borders here.
     if t == date_to_sim_days("2012-03-19"): #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
       m2.movechance = 1.0
@@ -171,19 +184,45 @@ if __name__ == "__main__":
     if t == date_to_sim_days("2012-04-01"): #Starting from April, refugees appear to enter Niger again (on foot, report 4).
       linkNiger(e)
 
-
+    # Determine number of new refugees to insert into the system.
     new_refs = d.get_new_refugees(t, FullInterpolation=True) - refugee_debt
     refugees_raw += d.get_new_refugees(t, FullInterpolation=False)
     if new_refs < 0:
       refugee_debt = -new_refs
       new_refs = 0
 
+    # Add conflict zones at the right time.
     if t == date_to_sim_days("2012-02-03"):
-      lm["Kidal"].movechance = 1.0
       e.add_conflict_zone("Kidal")
 
+    if t == date_to_sim_days("2012-02-03"):
+      e.add_conflict_zone("Timbuktu")
+
+    if t == date_to_sim_days("2012-03-02"):
+      e.add_conflict_zone("Tenenkou")
+
+    if t == date_to_sim_days("2012-03-23"):
+      e.add_conflict_zone("Gao")
+
+    if t == date_to_sim_days("2012-08-10"):
+      e.add_conflict_zone("Bamako")
+
+    if t == date_to_sim_days("2012-03-30"):
+      e.add_conflict_zone("Bourem")
+
+    if t == date_to_sim_days("2012-09-01"):
+      e.add_conflict_zone("Douentza")
+
+    if t == date_to_sim_days("2012-11-28"):
+      e.add_conflict_zone("Lere")
+
+    if t == date_to_sim_days("2012-03-30"):
+      e.add_conflict_zone("Ansongo")
+
+    if t == date_to_sim_days("2012-03-13"):
+      e.add_conflict_zone("Dire")
+
     if t == date_to_sim_days("2012-03-23"): #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
-      lm["Gao"].movechance = 1.0 # Refugees now want to leave Gao.
       e.add_conflict_zone("Gao")  
  
  

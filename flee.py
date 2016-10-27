@@ -6,6 +6,8 @@ class SimulationSettings:
   UseForeign = True
   TurnBackAllowed = True
   AgentLogLevel = 0
+  InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
+  TakeRefugeesFromPopulation = False
 
 class Person:
   def __init__(self, location):
@@ -109,7 +111,7 @@ class Location:
     self.links = [] # paths connecting to other towns
     self.numAgents = 0 # refugee population
     self.capacity = capacity # refugee capacity
-    self.pop = 0 # non-refugee population
+    self.pop = pop # non-refugee population
     self.foreign = foreign
 
   def isFull(self, numOnLink):
@@ -148,15 +150,20 @@ class Ecosystem:
     self.conflict_pop = 0
 
 
-  def add_conflict_zone(self, name):
+  def add_conflict_zone(self, name, change_movechance=True):
     """
     Adds a conflict zone. Default weight is equal to population of the location.
     """
     for i in range(0, len(self.locationNames)):
       if self.locationNames[i] is name:
+        if change_movechance:
+          self.locations[i].movechance = 1.0
         self.conflict_zones += [self.locations[i]]
         self.conflict_weights = np.append(self.conflict_weights, [self.locations[i].pop])
         self.conflict_pop = sum(self.conflict_weights)
+        if SimulationSettings.InitLogLevel > 0:
+          print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
+          print("New total pop. in conflict zones: ", self.conflict_pop) 
         return
     
     print("ERROR in flee.add_conflict_zone: location with name ", name, " appears not to exist in the FLEE ecosystem.")
@@ -189,6 +196,16 @@ class Ecosystem:
     return np.random.choice(self.conflict_zones, p=self.conflict_weights/self.conflict_pop)
 
 
+  def refresh_conflict_weights(self):
+    """
+    This function needs to be called when SimulationSettings.TakeRefugeesFromPopulation is set to True.
+    It will update the weights to reflect the new population numbers.
+    """
+    for i in range(0,len(self.conflict_zones)):
+      self.conflict_weights[i] = self.conflict_zones[i].pop
+    self.conflict_pop = sum(self.conflict_weights)
+
+
   def evolve(self):
     #update agent locations
     for a in self.agents:
@@ -203,12 +220,17 @@ class Ecosystem:
 
   def addLocation(self, name, x="0.0", y="0.0", movechance=0.1, capacity=-1, pop=0, foreign=False):
     l = Location(name, x, y, movechance, capacity, pop, foreign)
+    if SimulationSettings.InitLogLevel > 0:
+      print("Location:", name, x, y, movechance, capacity, ", pop. ", pop, foreign)
     self.locations.append(l)
     self.locationNames.append(l.name)
     return l
    
 
   def addAgent(self, location):
+    if SimulationSettings.TakeRefugeesFromPopulation:
+      if location.pop > 0:
+        location.pop -= 1
     self.agents.append(Person(location))
 
   def numAgents(self):
