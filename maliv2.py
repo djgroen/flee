@@ -53,6 +53,9 @@ def remove_conflict_zone(location, conflict_zones, conflict_weights):
 
   return new_conflict_zones, new_weights
 
+def date_to_sim_days(date):
+  return handle_refugee_data.subtract_dates(date,"2012-02-29")
+
 
 if __name__ == "__main__":
 
@@ -67,27 +70,29 @@ if __name__ == "__main__":
 
 # Mali
   
-  o1 = e.addLocation("Kidal", movechance=0.3)
-  # pop. 25,617. GPS 18.444305 1.401523
-  o2 = e.addLocation("Gao", movechance=0.3)
-  # pop. 86,633. GPS 16.270910 -0.040210
-  o3 = e.addLocation("Timbuktu", movechance=0.3)
-  # pop. 54,453. GPS 16.780260 -3.001590
-  o4 = e.addLocation("Mopti", movechance=0.3)
-  # pop. 108,456 (2009 census)
-  o5 = e.addLocation("Douentza", movechance=0.3)
-  # pop. 28,005 (2009 census), fell on 5th of April 2012.
-  o6 = e.addLocation("Konna", movechance=0.3)
-  # pop. 36,767 (2009 census), captured in January 2013 by the Islamists.
-  o6 = e.addLocation("Menaka", movechance=1.0)
-  # pop. 20,702 (2009 census), captured in January 2012 by the Islamists.
-  o7 = e.addLocation("Niafounke", movechance=1.0)
-  # pop. negligible. Added because it's a junction point, move chance set to 1.0 for that reason.
-  o8 = e.addLocation("Bourem", movechance=0.3)
-  # pop. 27,486. GPS 16.968122, -0.358435. No information about capture yet, but it's a sizeable town at a junction point.
-  o9 = e.addLocation("Bamako", movechance=0.3)
-  # pop. 1,809,106 capital subject to coup d'etat between March 21st and April 8th 2012.
+  lm = {}
 
+  lm["Kidal"] = e.addLocation("Kidal", movechance=0.3, pop=25617)
+  # pop. 25,617. GPS 18.444305 1.401523
+  lm["Gao"] = e.addLocation("Gao", movechance=0.3, pop=86633)
+  # pop. 86,633. GPS 16.270910 -0.040210
+  lm["Timbuktu"] = e.addLocation("Timbuktu", movechance=0.3, pop=54453)
+  # pop. 54,453. GPS 16.780260 -3.001590
+  lm["Mopti"] = e.addLocation("Mopti", movechance=0.3, pop=108456)
+  # pop. 108,456 (2009 census)
+  lm["Douentza"] = e.addLocation("Douentza", movechance=0.3, pop=28005)
+  # pop. 28,005 (2009 census), fell on 5th of April 2012.
+  lm["Konna"] = e.addLocation("Konna", movechance=0.3, pop=36767)
+  # pop. 36,767 (2009 census), captured in January 2013 by the Islamists.
+  lm["Menaka"] = e.addLocation("Menaka", movechance=1.0, pop=20702)
+  # pop. 20,702 (2009 census), captured in January 2012 by the Islamists.
+  lm["Niafounke"] = e.addLocation("Niafounke", movechance=1.0, pop=1000)
+  # pop. negligible. Added because it's a junction point, move chance set to 1.0 for that reason.
+  lm["Bourem"] = e.addLocation("Bourem", movechance=0.3, pop=27486)
+  # pop. 27,486. GPS 16.968122, -0.358435. No information about capture yet, but it's a sizeable town at a junction point.
+  lm["Bamako"] = e.addLocation("Bamako", movechance=0.3, pop=1809106)
+  # pop. 1,809,106 capital subject to coup d'etat between March 21st and April 8th 2012.
+  
 
   # bing based
   e.linkUp("Kidal","Bourem", "308.0") #964.0
@@ -138,7 +143,7 @@ if __name__ == "__main__":
   print("Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),refugees in camps (simulation),raw UNHCR refugee count,retrofitted time,camps_sim_count")
 
   # Kidal has fallen. All refugees want to leave this place.
-  o1.movechance = 1.0
+  lm["Kidal"].movechance = 1.0
 
   # Set up a mechanism to incorporate temporary decreases in refugees 
   refugee_debt = 0
@@ -154,23 +159,16 @@ if __name__ == "__main__":
   AddInitialRefugees(e,d,n3)
   AddInitialRefugees(e,d,n4)
 
-  conflict_zones = [o1,o6]
-  conflict_weights = np.array([68000,20702])
-
-  march19 = handle_refugee_data.subtract_dates("2012-03-19","2012-02-29")
-  march21 = handle_refugee_data.subtract_dates("2012-03-21","2012-02-29")
-  april1 = handle_refugee_data.subtract_dates("2012-04-01","2012-02-29")
-  september1 = handle_refugee_data.subtract_dates("2012-09-01","2012-02-29")
-  
+  e.add_conflict_zone("Menaka")
 
   for t in range(0,end_time):
 
     # Close/open borders here.
-    if t == march19: #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
+    if t == date_to_sim_days("2012-03-19"): #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
       m2.movechance = 1.0
-    if t == march21: #On the 21st of March, Burkina Faso opens its borders (see PDF report 3).
+    if t == date_to_sim_days("2012-03-21"): #On the 21st of March, Burkina Faso opens its borders (see PDF report 3).
       linkBF(e)   
-    if t == april1: #Starting from April, refugees appear to enter Niger again (on foot, report 4).
+    if t == date_to_sim_days("2012-04-01"): #Starting from April, refugees appear to enter Niger again (on foot, report 4).
       linkNiger(e)
 
 
@@ -180,25 +178,19 @@ if __name__ == "__main__":
       refugee_debt = -new_refs
       new_refs = 0
 
+    if t == date_to_sim_days("2012-02-03"):
+      lm["Kidal"].movechance = 1.0
+      e.add_conflict_zone("Kidal")
 
-    if t == april1: #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
-      o2.movechance = 1.0 # Refugees now want to leave Gao.
-      o3.movechance = 1.0 # Refugees now want to leave Timbuktu.
-    
-      # This is used to append two locations to the list of conflict zones (a Python List).
-      conflict_zones += [o2,o3]
-      # And this is used to append two weights to the weights array (a NumPy array).
-      conflict_weights = np.append(conflict_weights, [544120-20702,682000]) #Gao region population excludes Menaka (pop.20702).     
+    if t == date_to_sim_days("2012-03-23"): #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
+      lm["Gao"].movechance = 1.0 # Refugees now want to leave Gao.
+      e.add_conflict_zone("Gao")  
  
-    if t == september1:
-      # Mopti region is being conquered.
-      o5.movechance = 1.0
-      conflict_zones += [o5]
-      conflict_weights = np.append(conflict_weights, [2037330])   
  
-    # Here we use the random choice to make a weighted choice between the 1-3 source locations.
+    # Here we use the random choice to make a weighted choice between the source locations.
+    total_conflict_pop = sum(e.conflict_weights)
     for i in range(0, new_refs):
-      e.addAgent(np.random.choice(conflict_zones, p=conflict_weights/sum(conflict_weights)))
+      e.addAgent(e.pick_conflict_location())
 
     e.evolve()
 

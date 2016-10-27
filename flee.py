@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 class SimulationSettings:
   Softening = 0.0
@@ -100,14 +101,15 @@ class Person:
     return -1
 
 class Location:
-  def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, foreign=False):
+  def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False):
     self.name = name
     self.x = x
     self.y = y
     self.movechance = movechance
-    self.links = []
-    self.numAgents = 0
-    self.capacity = capacity
+    self.links = [] # paths connecting to other towns
+    self.numAgents = 0 # refugee population
+    self.capacity = capacity # refugee capacity
+    self.pop = 0 # non-refugee population
     self.foreign = foreign
 
   def isFull(self, numOnLink):
@@ -140,6 +142,53 @@ class Ecosystem:
     self.agents = []
     self.time = 0
 
+    # Bring conflict zone management into FLEE.
+    self.conflict_zones = []
+    self.conflict_weights = np.array([])
+    self.conflict_pop = 0
+
+
+  def add_conflict_zone(self, name):
+    """
+    Adds a conflict zone. Default weight is equal to population of the location.
+    """
+    for i in range(0, len(self.locationNames)):
+      if self.locationNames[i] is name:
+        self.conflict_zones += [self.locations[i]]
+        self.conflict_weights = np.append(self.conflict_weights, [self.locations[i].pop])
+        self.conflict_pop = sum(self.conflict_weights)
+        return
+    
+    print("ERROR in flee.add_conflict_zone: location with name ", name, " appears not to exist in the FLEE ecosystem.")
+    print("Existing locations include: ", self.locationNames)
+  
+
+  def remove_conflict_zone(self, name):
+    """
+    Shorthand function to remove a conflict zone from the list.
+    (not used yet)
+    """
+    new_conflict_zones = []
+    new_weights = np.array([])
+
+    for i in range(0, len(self.conflict_zones)):
+      if conflict_zones[i].name is not name:
+        new_conflict_zones += [self.conflict_zones[i]]
+        new_weights = np.append(new_weights, [self.conflict_weights[i]])
+
+    self.conflict_zones = new_conflict_zones
+    self.conflict_weights =  new_weights
+    self.conflict_pop = sum(self.conflict_weights)
+
+
+  def pick_conflict_location(self):
+    """
+    Returns a weighted random element from the list of conflict locations.
+    This function returns a number, which is an index in the array of conflict locations.
+    """
+    return np.random.choice(self.conflict_zones, p=self.conflict_weights/self.conflict_pop)
+
+
   def evolve(self):
     #update agent locations
     for a in self.agents:
@@ -152,8 +201,8 @@ class Ecosystem:
 
     self.time += 1
 
-  def addLocation(self, name, x="0.0", y="0.0", movechance=0.1, capacity=-1, foreign=False):
-    l = Location(name, x, y, movechance, capacity, foreign)
+  def addLocation(self, name, x="0.0", y="0.0", movechance=0.1, capacity=-1, pop=0, foreign=False):
+    l = Location(name, x, y, movechance, capacity, pop, foreign)
     self.locations.append(l)
     self.locationNames.append(l.name)
     return l
