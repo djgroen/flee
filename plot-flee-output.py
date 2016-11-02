@@ -172,3 +172,32 @@ if __name__ == "__main__":
   set_margins()
   plt.savefig("%s/numagents.png" % out_dir)
 
+  if "retrofitted time" in refugee_data.columns:
+    plt.clf()
+    fit_time_data = refugee_data.loc[:,["retrofitted time"]].as_matrix()
+    plt.plot(np.arange(len(fit_time_data)), fit_time_data, linewidth=5)
+    #Size of plots/figures
+  
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(12, 8)
+  
+    plt.ylabel("Days passed in simulation")
+    plt.xlabel("Days passed when mapped to UNHCR data")
+
+    set_margins()
+    plt.savefig("%s/time_evolution.png" % out_dir)
+  
+    plt.clf()
+    fit_time_data = refugee_data.loc[:,["retrofitted time"]].as_matrix()
+    plt.plot(fit_time_data, refugee_data.loc[:,["refugees in camps (simulation)"]].as_matrix(), linewidth=5)
+    plt.plot(refugee_data.loc[:,["refugees in camps (UNHCR)"]].as_matrix(), linewidth=5)
+    #Size of plots/figures
+  
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(12, 8)
+  
+    plt.ylabel("Days passed in simulation")
+    plt.xlabel("Days passed when mapped to UNHCR data")
+
+    set_margins()
+    plt.savefig("%s/numagents_retrofitted.png" % out_dir)
