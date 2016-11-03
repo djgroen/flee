@@ -67,8 +67,10 @@ class DataTable:
 
   def get_daily_difference(self, day, day_column=0, count_column=1, Debug=False, FullInterpolation=False):
     """
-    Function to extrapolate count of new refugees at a given time point, based on input data.
+    Extrapolate count of new refugees at a given time point, based on input data.
     count_column = column which contains the relevant difference.
+    FullInterpolation: when disabled, the function ignores any decreases in refugee count.
+    when enabled, the function can return negative numbers when the new total is higher than the older one.
     """
 
     # Refugees only come in *after* day 0.
@@ -149,6 +151,9 @@ class DataTable:
     for i in range(0,len(self.header)):
       if self.header[i] == name:
         return self.get_interpolated_data(i, day)
+
+    print("Unable to find header: %s" % (name))
+    print(self.header)
 
   def is_interpolated(self, name, day):
     """
