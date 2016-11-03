@@ -148,20 +148,30 @@ class DataTable:
     """
 
     last_data_count = 0
+    initial_data_count = 0
     last_t = 0
     last_time_in_data = int(self.data_table[0][-1][self.days_column])
+    #print("LAST TIME IN DATA = ", int(self.data_table[0][-1][self.days_column]))
 
-    for t in range(1, last_time_in_data):
+    for name in camp_names:
+      # aggregate refugee counts from all camps in the simulation
+      initial_data_count += self.get_field(name , 0)
+    last_data_count = initial_data_count
+
+    for t in range(1, last_time_in_data-1):
       data_count = 0
       for name in camp_names:
         # aggregate refugee counts from all camps in the simulation
         data_count += self.get_field(name , t)
 
-      if data_count > refugee_count:
-        # the current entry in the table has a number that exceeds the refugee count we're looking for.
-        # action: interpolate between current and last entry to get the accurate fractional time.
-        t_frac = float(refugee_count - last_data_count) / float(data_count - last_data_count)
-        return last_t + t_frac * (t - last_t)
+      #print(last_data_count, refugee_count, data_count)
+      if int(refugee_count) >= last_data_count:
+        if data_count > refugee_count:
+          # the current entry in the table has a number that exceeds the refugee count we're looking for.
+          # action: interpolate between current and last entry to get the accurate fractional time.
+          t_frac = float(refugee_count - last_data_count) / float(data_count - last_data_count)
+          #print("RETURN t_corr = ", last_t + t_frac * (t - last_t), ", t = ", t, ", last_t = ", last_t, ", refugees in data = ", data_count, "refugees in sim = ", refugee_count)
+          return last_t + t_frac * (t - last_t)
 
       if data_count > last_data_count:
         # Only when the current refugee count in the data exceeds the highest one found previously, 
@@ -224,7 +234,8 @@ class DataTable:
 
            return int(old_val + fraction * float(ref_table[i][self.total_refugee_column] - old_val))
 
-      print("warning: ref_table length exceeded for column: ",column,".")
+      print("warning: ref_table length exceeded for column: ",column,", given day: ",day,".")
+      sys.exit()
       return ref_table[-1][self.total_refugee_column]
 
 
