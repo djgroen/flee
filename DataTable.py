@@ -4,6 +4,9 @@ import csv
 from datetime import datetime
 
 def subtract_dates(date1, date2):
+  """
+  Takes two dates %Y-%m-%d format. Returns date1 - date2, measured in days.
+  """
   date_format = "%Y-%m-%d"
   a = datetime.strptime(date1, date_format)
   b = datetime.strptime(date2, date_format)
@@ -11,7 +14,12 @@ def subtract_dates(date1, date2):
   #print(date1,"-",date2,"=",delta.days)
   return delta.days 
 
-def _processEntry(row, table, data_type, date_column, start_date):
+def _processEntry(row, table, data_type, date_column, count_column, start_date):
+  """
+  Code to process a population count from a CSV file.
+  column <date_column> contains the corresponding date in %Y-%m-%d format.
+  column <count_column> contains the population size on that date.
+  """
   if(row[0][0] == "#"):
     return table
 
@@ -19,14 +27,14 @@ def _processEntry(row, table, data_type, date_column, start_date):
   row[date_column] = subtract_dates(row[date_column], start_date)
 
   if data_type == "int":
-    table = np.vstack([table,[int(row[0]), int(row[1])]])
+    table = np.vstack([table,[int(row[date_column]), int(row[count_column])]])
   else:
-    table = np.vstack([table,[float(row[0]), float(row[1])]])
+    table = np.vstack([table,[float(row[date_column]), float(row[count_column])]])
 
   return table
 
 
-def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, start_date="2012-02-29"):
+def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, count_column=1, start_date="2012-02-29"):
   """
   Converts a CSV file to a table with date offsets from 29 feb 2012.
   CSV format for each line is:
@@ -45,10 +53,10 @@ def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, start_d
     
     if(len(row)>1): 
       if len(row[0])>0 and "DateTime" not in row[0]:
-        table = _processEntry(row, table, data_type, date_column, start_date) 
+        table = _processEntry(row, table, data_type, date_column, count_column, start_date) 
 
     for row in values:
-      table = _processEntry(row, table, data_type, date_column, start_date)
+      table = _processEntry(row, table, data_type, date_column, count_column, start_date)
 
   #print(table)
   return table
