@@ -105,7 +105,7 @@ if __name__ == "__main__":
   e.linkUp("Bujumbura","Lusenda","53.0")
 
 
-  d = handle_refugee_data.DataTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
 
   list_of_cities = "Time"
 

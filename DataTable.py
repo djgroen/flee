@@ -10,6 +10,21 @@ def subtract_dates(date1, date2):
   #print(date1,"-",date2,"=",delta.days)
   return delta.days 
 
+def _processEntry(row, table, data_type, date_column, start_date):
+  if(row[0][0] == "#"):
+    return table
+
+  # Make sure the date column becomes an integer, which contains the offset in days relative to the start date.
+  row[date_column] = subtract_dates(row[date_column], start_date)
+
+  if data_type == "int":
+    table = np.vstack([table,[int(row[0]), int(row[1])]])
+  else:
+    table = np.vstack([table,[float(row[0]), float(row[1])]])
+
+  return table
+
+
 def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, start_date="2012-02-29"):
   """
   Converts a CSV file to a table with date offsets from 29 feb 2012.
@@ -24,19 +39,16 @@ def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, start_d
 
   with open(csv_name, newline='') as csvfile:
     values = csv.reader(csvfile)
-    first_line = True
+
+    row = next(values)  
+    
+    if(len(row)>1): 
+      if len(row[0])>0 and "DateTime" not in row[0]:
+        table = _processEntry(row, table, data_type, date_column, start_date) 
+
     for row in values:
+      table = _processEntry(row, table, data_type, date_column, start_date)
 
-      if(row[0][0] == "#"):
-        continue
-
-      # Make sure the date column becomes an integer, which contains the offset in days relative to the start date.
-      row[date_column] = subtract_dates(row[date_column], start_date)
-
-      if data_type == "int":
-        table = np.vstack([table,[int(row[0]), int(row[1])]])
-      else:
-        table = np.vstack([table,[float(row[0]), float(row[1])]])
   #print(table)
   return table
 
@@ -49,10 +61,10 @@ class DataTable:
     self.csvformat = csvformat
     self.total_refugee_column = 1
     self.days_column = 0
+    self.header = []
+    self.data_table = []
 
     if self.csvformat=="generic":
-      self.header = []
-      self.data_table = []
       with open("%s/%s" % (data_directory, data_layout), newline='') as csvfile:
         values = csv.reader(csvfile)
         for row in values:
@@ -60,7 +72,6 @@ class DataTable:
             if(row[0][0] == "#"):
               continue
             self.header.append(row[0])
-            #print("%s/%s" % (data_directory, row[1]))
 
             self.data_table.append(ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, row[1]), start_date=start_date))
 

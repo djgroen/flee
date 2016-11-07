@@ -115,7 +115,7 @@ if __name__ == "__main__":
   e.linkUp("Tadmuriyah","Anbar","267.0")
 
 
-  d = handle_refugee_data.DataTable(csvformat="generic", data_directory="Syria", start_date="2013-01-01")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="Syria", start_date="2013-01-01")
 
   list_of_cities = "Time"
 

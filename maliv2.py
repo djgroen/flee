@@ -152,7 +152,7 @@ if __name__ == "__main__":
   n4 = e.addLocation("Tabareybarey", movechance=0.001, capacity=9189, foreign=True)
   # GPS 14.754761 0.944773
 
-  d = handle_refugee_data.DataTable(csvformat="generic", data_directory="mali2012/")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012/")
 
   print("Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),refugees in camps (simulation),raw UNHCR refugee count,retrofitted time,camps_sim_count")
 
@@ -185,8 +185,8 @@ if __name__ == "__main__":
       linkNiger(e)
 
     # Determine number of new refugees to insert into the system.
-    new_refs = d.get_new_refugees(t, FullInterpolation=True) - refugee_debt
-    refugees_raw += d.get_new_refugees(t, FullInterpolation=False)
+    new_refs = d.get_daily_difference(t, FullInterpolation=True) - refugee_debt
+    refugees_raw += d.get_daily_difference(t, FullInterpolation=False)
     if new_refs < 0:
       refugee_debt = -new_refs
       new_refs = 0
