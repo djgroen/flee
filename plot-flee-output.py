@@ -163,7 +163,7 @@ if __name__ == "__main__":
 
   #TODO: These labels need to be more flexible/modifiable.
   #Plotting and saving numagents (total refugee numbers) graph
-  refugee_data.loc[:,["refugees in camps (simulation)","refugees in camps (UNHCR)"]].plot(linewidth=5)
+  refugee_data.loc[:,["total refugees (simulation)","refugees in camps (UNHCR)"]].plot(linewidth=5)
   
   #Size of plots/figures
   fig = matplotlib.pyplot.gcf()
@@ -187,17 +187,21 @@ if __name__ == "__main__":
     set_margins()
     plt.savefig("%s/time_evolution.png" % out_dir)
   
+    sim_refs = refugee_data.loc[:,["refugees in camps (simulation)"]].as_matrix()
+    un_refs = refugee_data.loc[:,["refugees in camps (UNHCR)"]].as_matrix()
+
     plt.clf()
     fit_time_data = refugee_data.loc[:,["retrofitted time"]].as_matrix()
-    plt.plot(fit_time_data, refugee_data.loc[:,["refugees in camps (simulation)"]].as_matrix(), linewidth=5)
-    plt.plot(refugee_data.loc[:,["refugees in camps (UNHCR)"]].as_matrix(), linewidth=5)
+    plt.plot(fit_time_data, sim_refs, linewidth=8, label="# in camps (sim, retrofitted)")
+    plt.plot(range(0,len(sim_refs)), sim_refs, linewidth=5, label="# in camps (sim)")
+    plt.plot(range(0,len(un_refs)), un_refs, linewidth=3, label="# in camps (data)")
     #Size of plots/figures
   
     fig = matplotlib.pyplot.gcf()
     fig.set_size_inches(12, 8)
   
-    plt.ylabel("Days passed in simulation")
-    plt.xlabel("Days passed when mapped to UNHCR data")
+    plt.ylabel("Number of refugees in camps")
+    plt.xlabel("Simulated (or measured) days")
 
     set_margins()
     plt.savefig("%s/numagents_retrofitted.png" % out_dir)

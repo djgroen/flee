@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import csv
 from datetime import datetime
@@ -151,6 +152,8 @@ class DataTable:
         return int(old_val + fraction * float(ref_table[i][self.total_refugee_column] - old_val))
 
     print("warning: ref_table length exceeded for column: ",column,".")
+    print(day, column, ", last ref_table values: ", ref_table[i-1][self.total_refugee_column], ref_table[i][self.days_column])
+    sys.exit()
     return ref_table[-1][self.total_refugee_column]
 
 

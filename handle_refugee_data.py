@@ -33,8 +33,10 @@ class RefugeeTable(DataTable):
       for name in camp_names:
         # aggregate refugee counts from all camps in the simulation
         data_count += self.get_field(name , t)
+        #print("Name: ", name, "Camp pop. ", self.get_field(name , t))
 
       #print(last_data_count, refugee_count, data_count)
+
       if int(refugee_count) >= last_data_count:
         if data_count > refugee_count:
           # the current entry in the table has a number that exceeds the refugee count we're looking for.
@@ -49,5 +51,10 @@ class RefugeeTable(DataTable):
         last_data_count = data_count
         last_t = t
 
+
   def get_new_refugees(self, day, format="mali-portal", Debug=False, FullInterpolation=False):
+     """ 
+     This function is in place to provide an intuitive naming convention, and to retain backwards compatibility.
+     See the corresponding function in DataTable.py for exact details on how to use it.
+     """
      return self.get_daily_difference(day, Debug, FullInterpolation)
