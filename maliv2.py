@@ -31,7 +31,7 @@ def linkNiger(e):
 
 def AddInitialRefugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
-  num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=False))
+  num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
   for i in range(0, num_refugees):
     e.addAgent(location=loc)
 
@@ -190,8 +190,8 @@ if __name__ == "__main__":
       linkNiger(e)
 
     # Determine number of new refugees to insert into the system.
-    new_refs = d.get_daily_difference(t, FullInterpolation=False) - refugee_debt
-    refugees_raw += d.get_daily_difference(t, FullInterpolation=False)
+    new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
+    refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
     if new_refs < 0:
       refugee_debt = -new_refs
       new_refs = 0
@@ -248,7 +248,7 @@ if __name__ == "__main__":
     errors = []
     abs_errors = []
     for i in range(0, len(camp_names)):
-      camp_pops += [d.get_field(camp_names[i], t, FullInterpolation=False)]
+      camp_pops += [d.get_field(camp_names[i], t, FullInterpolation=True)]
       errors += [a.rel_error(camps[i].numAgents, camp_pops[-1])]
       abs_errors += [a.abs_error(camps[i].numAgents, camp_pops[-1])]
 
