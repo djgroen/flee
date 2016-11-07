@@ -163,7 +163,7 @@ if __name__ == "__main__":
 
   #TODO: These labels need to be more flexible/modifiable.
   #Plotting and saving numagents (total refugee numbers) graph
-  refugee_data.loc[:,["total refugees (simulation)","refugees in camps (UNHCR)"]].plot(linewidth=5)
+  refugee_data.loc[:,["total refugees (simulation)","refugees in camps (UNHCR)","raw UNHCR refugee count","refugee_debt"]].plot(linewidth=5)
   
   #Size of plots/figures
   fig = matplotlib.pyplot.gcf()

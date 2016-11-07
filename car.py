@@ -175,7 +175,8 @@ if __name__ == "__main__":
     if new_refs < 0:
       refugee_debt = -new_refs
       new_refs = 0
-
+    elif refugee_debt > 0:
+      refugee_debt = 0
 
     #Insert refugee agents
     for i in range(0, new_refs):

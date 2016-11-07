@@ -58,7 +58,6 @@ def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, count_c
     for row in values:
       table = _processEntry(row, table, data_type, date_column, count_column, start_date)
 
-  #print(table)
   return table
 
 
@@ -85,22 +84,43 @@ class DataTable:
             self.data_table.append(ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, row[1]), start_date=start_date))
 
 
-  def get_daily_difference(self, day, day_column=0, count_column=1, Debug=False, FullInterpolation=False):
+  def get_daily_difference(self, day, day_column=0, count_column=1, Debug=False, FullInterpolation=False, ZeroOnDayZero=True):
     """
     Extrapolate count of new refugees at a given time point, based on input data.
     count_column = column which contains the relevant difference.
     FullInterpolation: when disabled, the function ignores any decreases in refugee count.
     when enabled, the function can return negative numbers when the new total is higher than the older one.
     """
+    
+    self.total_refugee_column = count_column
+    self.days_column = day_column
+    ref_table = self.data_table[0]
 
     # Refugees only come in *after* day 0.
     if day==0:
-      return 0
+      if ZeroOnDayZero==True:
+        return 0
+      else:
+        ref_table = self.data_table[0]
+
+        if FullInterpolation:
+          new_refugees = 0
+          for i in self.header[1:]:
+            new_refugees += self.get_field(i, 0)
+
+          return int(new_refugees)
+
+        # If no interpolation:
+        old_refugees = ref_table[0][self.days_column] #set to initial value in table.
+        old_day = 0
+        for i in range (0,len(ref_table)):
+          if day > ref_table[i][self.days_column]:
+            old_refugees = ref_table[i][self.total_refugee_column]
+            old_day = ref_table[i][self.days_column]
+          elif day == ref_table[i][self.days_column]:
+            return int(ref_table[i][self.total_refugee_column] - old_refugees)
 
     else:
-      self.total_refugee_column = 1
-      self.days_column = 0
-      ref_table = self.data_table[0]
 
       if FullInterpolation:
         new_refugees = 0
@@ -111,20 +131,15 @@ class DataTable:
         return int(new_refugees)
 
 
-    old_refugees = ref_table[0][self.days_column] #set to initial value in table.
-    old_day = 0
-    for i in range (0,len(ref_table)):
-      if day > ref_table[i][self.days_column]:
-        old_refugees = ref_table[i][self.total_refugee_column]
-        old_day = ref_table[i][self.days_column]
-      else:
-        time_fraction = 1.0 / float(ref_table[i][self.days_column] - old_day)
-
-        # We calculate the number of new refugees using simple extrapolation
-        new_refugees = int(time_fraction * (ref_table[i][self.total_refugee_column] - old_refugees))
-        if Debug:
-          print(new_refugees, time_fraction, i, ref_table[i][self.total_refugee_column], old_refugees)
-        return new_refugees
+      # If no interpolation:
+      old_refugees = ref_table[0][self.days_column] #set to initial value in table.
+      old_day = 0
+      for i in range (0,len(ref_table)):
+        if day > ref_table[i][self.days_column]:
+          old_refugees = ref_table[i][self.total_refugee_column]
+          old_day = ref_table[i][self.days_column]
+        elif day == ref_table[i][self.days_column]:
+          return int(ref_table[i][self.total_refugee_column] - old_refugees)
 
     # If the day exceeds the validation data table, then we return 0
     return 0
@@ -159,23 +174,42 @@ class DataTable:
         #print(day, old_day, ref_table[i][self.total_refugee_column], old_val)
         return int(old_val + fraction * float(ref_table[i][self.total_refugee_column] - old_val))
 
-    print("warning: ref_table length exceeded for column: ",column,".")
-    print(day, column, ", last ref_table values: ", ref_table[i-1][self.total_refugee_column], ref_table[i][self.days_column])
-    sys.exit()
+    #print("# warning: ref_table length exceeded for column: ",day, self.header[column], ", last ref_table values: ", ref_table[i-1][self.total_refugee_column], ref_table[i][self.days_column])
     return ref_table[-1][self.total_refugee_column]
 
-
-  def get_field(self, name, day):
+  def get_raw_data(self, column, day):
     """
-    Gets in a given named column for a given day. Interpolates between days as needed.
+    Gets in a given column for a given day. Does not Interpolate.
+    """
+    ref_table = self.data_table[column]
+
+    old_val = ref_table[0][self.total_refugee_column]
+    old_day = 0
+
+    for i in range (0,len(ref_table)):
+      if day >= ref_table[i][self.days_column]:
+        old_val = ref_table[i][self.total_refugee_column]
+        old_day = ref_table[i][self.days_column]
+      else:
+        break
+    return int(old_val)
+
+
+  def get_field(self, name, day, FullInterpolation=True):
+    """
+    Gets in a given named column for a given day. Interpolates between days if needed.
     """
 
     for i in range(0,len(self.header)):
       if self.header[i] == name:
-        return self.get_interpolated_data(i, day)
+        if FullInterpolation:
+          return self.get_interpolated_data(i, day)
+        else:
+          return self.get_raw_data(i, day)
 
     print("Unable to find header: %s" % (name))
     print(self.header)
+
 
   def is_interpolated(self, name, day):
     """

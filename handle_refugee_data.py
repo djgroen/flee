@@ -51,6 +51,8 @@ class RefugeeTable(DataTable):
         last_data_count = data_count
         last_t = t
 
+    return last_time_in_data
+
 
   def get_new_refugees(self, day, format="mali-portal", Debug=False, FullInterpolation=False):
      """ 

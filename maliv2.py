@@ -31,7 +31,7 @@ def linkNiger(e):
 
 def AddInitialRefugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
-  num_refugees = int(d.get_field(loc.name, 0))
+  num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=False))
   for i in range(0, num_refugees):
     e.addAgent(location=loc)
 
@@ -45,6 +45,8 @@ if __name__ == "__main__":
     end_time = int(sys.argv[1])
   else:
     end_time = 61
+
+  flee.SimulationSettings.TurnBackAllowed = False
 
   e = flee.Ecosystem()
 
@@ -154,7 +156,7 @@ if __name__ == "__main__":
 
   d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012/")
 
-  print("Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation)")
+  print("Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt")
 
   # Set up a mechanism to incorporate temporary decreases in refugees 
   refugee_debt = 0
@@ -172,6 +174,9 @@ if __name__ == "__main__":
 
   e.add_conflict_zone("Menaka")
 
+  # Start with a refugee debt to account for the mismatch between camp aggregates and total UNHCR data.
+  refugee_debt = e.numAgents()
+
   for t in range(0,end_time):
 
     e.refresh_conflict_weights()
@@ -185,11 +190,13 @@ if __name__ == "__main__":
       linkNiger(e)
 
     # Determine number of new refugees to insert into the system.
-    new_refs = d.get_daily_difference(t, FullInterpolation=True) - refugee_debt
+    new_refs = d.get_daily_difference(t, FullInterpolation=False) - refugee_debt
     refugees_raw += d.get_daily_difference(t, FullInterpolation=False)
     if new_refs < 0:
       refugee_debt = -new_refs
       new_refs = 0
+    elif refugee_debt > 0:
+      refugee_debt = 0
 
     # Add conflict zones at the right time.
     if t == date_to_sim_days("2012-02-03"):
@@ -227,16 +234,11 @@ if __name__ == "__main__":
  
  
     # Here we use the random choice to make a weighted choice between the source locations.
-    total_conflict_pop = sum(e.conflict_weights)
     for i in range(0, new_refs):
       e.addAgent(e.pick_conflict_location())
 
     e.evolve()
 
-    # Basic output
-    # e.printInfo()
-
-    
     # Validation / data comparison
     camps = [m1,m2,b1,b2,n1,n2,n3,n4]
     camp_names = ["Mbera", "Fassala", "Mentao", "Bobo-Dioulasso", "Abala", "Mangaize", "Niamey", "Tabareybarey"]
@@ -246,12 +248,12 @@ if __name__ == "__main__":
     errors = []
     abs_errors = []
     for i in range(0, len(camp_names)):
-      camp_pops += [d.get_field(camp_names[i], t)]
+      camp_pops += [d.get_field(camp_names[i], t, FullInterpolation=False)]
       errors += [a.rel_error(camps[i].numAgents, camp_pops[-1])]
       abs_errors += [a.abs_error(camps[i].numAgents, camp_pops[-1])]
 
     locations = camps
-    loc_data = camp_pops
+    loc_data = camp_pops 
 
     #if e.numAgents()>0:
     #  print "Total error: ", float(np.sum(abs_errors))/float(e.numAgents())
@@ -267,9 +269,10 @@ if __name__ == "__main__":
     for i in range(0,len(locations)):
       output += ",%s,%s,%s" % (locations[i].numAgents, loc_data[i], errors[i])
 
-    if e.numAgents()>0:
-      output += ",%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(sum(loc_data)), int(sum(loc_data)), e.numAgents(), refugees_raw, t_retrofitted, refugees_in_camps_sim)
+    if float(sum(loc_data))>0:
+      # Reminder: Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation)
+      output += ",%s,%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(sum(loc_data)), int(sum(loc_data)), e.numAgents(), refugees_raw, t_retrofitted, refugees_in_camps_sim, refugee_debt)
     else:
-      output += ",0"
+      output += ",0,0,0,0,0,0,0"
 
     print(output)
