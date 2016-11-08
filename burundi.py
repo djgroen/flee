@@ -161,7 +161,7 @@ if __name__ == "__main__":
 
     #new_refs = d.get_new_refugees(t)
     new_refs = d.get_new_refugees(t, FullInterpolation=True) - refugee_debt
-    refugees_raw += d.get_new_refugees(t, FullInterpolation=False)
+    refugees_raw += d.get_new_refugees(t, FullInterpolation=True)
     if new_refs < 0:
       refugee_debt = -new_refs
       new_refs = 0

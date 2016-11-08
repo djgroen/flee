@@ -147,8 +147,20 @@ if __name__ == "__main__":
 
   plt.clf()
   diffdata = refugee_data.loc[:,["Total error"]].as_matrix()
-  plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5)
+  plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error")
   #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
+
+  # Plot error using retrofitting if applicable.
+  if "Total error (retrofitted)" in refugee_data.columns:
+    offset = 0
+    retrofitted_times = refugee_data.loc[:,["retrofitted time"]].as_matrix()
+    for i in range(0,len(retrofitted_times)):
+      if retrofitted_times[i] > 0.1:
+        continue
+      offset += 1
+
+    diffdata_retro = refugee_data.loc[:,["Total error (retrofitted)"]].as_matrix()
+    plt.plot(retrofitted_times[offset:], diffdata_retro[offset:], linewidth=5, label="error (retrofitted)")
 
   #Size of plots/figures
   fig = matplotlib.pyplot.gcf()
@@ -163,7 +175,10 @@ if __name__ == "__main__":
 
   #TODO: These labels need to be more flexible/modifiable.
   #Plotting and saving numagents (total refugee numbers) graph
-  refugee_data.loc[:,["total refugees (simulation)","refugees in camps (UNHCR)","raw UNHCR refugee count","refugee_debt"]].plot(linewidth=5)
+  if "refugee_debt" in refugee_data.columns:
+    refugee_data.loc[:,["total refugees (simulation)","refugees in camps (UNHCR)","raw UNHCR refugee count","refugee_debt"]].plot(linewidth=5)
+  else:
+    refugee_data.loc[:,["total refugees (simulation)","refugees in camps (UNHCR)","raw UNHCR refugee count"]].plot(linewidth=5)
   
   #Size of plots/figures
   fig = matplotlib.pyplot.gcf()
@@ -205,3 +220,4 @@ if __name__ == "__main__":
 
     set_margins()
     plt.savefig("%s/numagents_retrofitted.png" % out_dir)
+

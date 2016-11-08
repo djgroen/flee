@@ -170,8 +170,8 @@ if __name__ == "__main__":
 
 
     #new_refs = d.get_new_refugees(t)
-    new_refs = d.get_new_refugees(t, FullInterpolation=True) - refugee_debt
-    refugees_raw += d.get_new_refugees(t, FullInterpolation=False)
+    new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
+    refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
     if new_refs < 0:
       refugee_debt = -new_refs
       new_refs = 0
@@ -216,8 +216,8 @@ if __name__ == "__main__":
       output_string += ",%s,%s,%s" % (locations[camp_number].numAgents, loc_data[i], errors[i])
 
 
-    if e.numAgents()>0:
-      output_string += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(sum(loc_data)), int(sum(loc_data)), e.numAgents(), refugees_raw)
+    if refugees_raw>0:
+      output_string += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw)
     else:
       output_string += ",0"
 

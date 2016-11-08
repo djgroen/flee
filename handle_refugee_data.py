@@ -28,6 +28,9 @@ class RefugeeTable(DataTable):
       initial_data_count += self.get_field(name , 0)
     last_data_count = initial_data_count
 
+    if refugee_count <= initial_data_count:
+      return 0
+
     for t in range(1, last_time_in_data-1):
       data_count = 0
       for name in camp_names:
@@ -37,29 +40,32 @@ class RefugeeTable(DataTable):
 
       #print(last_data_count, refugee_count, data_count)
 
-      if int(refugee_count) >= last_data_count:
-        if data_count > refugee_count:
+      if int(refugee_count) >= int(last_data_count):
+        if int(data_count) >= int(refugee_count):
           # the current entry in the table has a number that exceeds the refugee count we're looking for.
           # action: interpolate between current and last entry to get the accurate fractional time.
           t_frac = float(refugee_count - last_data_count) / float(data_count - last_data_count)
           #print("RETURN t_corr = ", last_t + t_frac * (t - last_t), ", t = ", t, ", last_t = ", last_t, ", refugees in data = ", data_count, "refugees in sim = ", refugee_count)
           return last_t + t_frac * (t - last_t)
 
-      if data_count > last_data_count:
+      if int(data_count) >= int(last_data_count):
         # Only when the current refugee count in the data exceeds the highest one found previously, 
         # will we make a new interpolation checkpoint.
         last_data_count = data_count
         last_t = t
 
+    
+    print("Retrofit output:", refugee_count, last_time_in_data, last_data_count, initial_data_count, data_count)
+    sys.exit()
     return last_time_in_data
 
 
-  def get_new_refugees(self, day, format="mali-portal", Debug=False, FullInterpolation=False):
+  def get_new_refugees(self, day, Debug=False, FullInterpolation=True):
     """ 
     This function is in place to provide an intuitive naming convention, and to retain backwards compatibility.
     See the corresponding function in DataTable.py for exact details on how to use it.
     """
-    return self.get_daily_difference(day, Debug, FullInterpolation)
+    return self.get_daily_difference(day, day_column=0, count_column=1, Debug=Debug, FullInterpolation=FullInterpolation, ZeroOnDayZero=False)
 
   def correctLevel1Registrations(self, name, date):
     hindex = self._find_headerindex(name)

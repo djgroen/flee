@@ -167,7 +167,7 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Tabareybarey","2012-12-21")
   
 
-  print("Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt")
+  print("Day,Mbera sim,Mbera data,Mbera error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
 
   # Set up a mechanism to incorporate temporary decreases in refugees 
   refugee_debt = 0
@@ -251,17 +251,33 @@ if __name__ == "__main__":
     e.evolve()
 
     # Validation / data comparison
-    camps = [m1,m2,b1,b2,n1,n2,n3,n4]
-    camp_names = ["Mbera", "Fassala", "Mentao", "Bobo-Dioulasso", "Abala", "Mangaize", "Niamey", "Tabareybarey"]
+    camps = [m1,b1,b2,n1,n2,n3,n4]
+    camp_names = ["Mbera", "Mentao", "Bobo-Dioulasso", "Abala", "Mangaize", "Niamey", "Tabareybarey"]
     # TODO: refactor camp_names using list comprehension.
  
+    # calculate retrofitted time.
+    refugees_in_camps_sim = 0
+    for c in camps:
+      refugees_in_camps_sim += c.numAgents
+    t_retrofitted = d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_names)
+
+    # calculate error terms.
     camp_pops = []
     errors = []
     abs_errors = []
+    camp_pops_retrofitted = []
+    errors_retrofitted = []
+    abs_errors_retrofitted = []
     for i in range(0, len(camp_names)):
+      # normal 1 step = 1 day errors.
       camp_pops += [d.get_field(camp_names[i], t, FullInterpolation=True)]
       errors += [a.rel_error(camps[i].numAgents, camp_pops[-1])]
       abs_errors += [a.abs_error(camps[i].numAgents, camp_pops[-1])]
+
+      # errors when using retrofitted time stepping.
+      camp_pops_retrofitted += [d.get_field(camp_names[i], t_retrofitted, FullInterpolation=True)]
+      errors_retrofitted += [a.rel_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
+      abs_errors_retrofitted += [a.abs_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
 
     locations = camps
     loc_data = camp_pops 
@@ -269,20 +285,14 @@ if __name__ == "__main__":
     #if e.numAgents()>0:
     #  print "Total error: ", float(np.sum(abs_errors))/float(e.numAgents())
 
-    # calculate retrofitted time.
-    refugees_in_camps_sim = 0
-    for c in camps:
-      refugees_in_camps_sim += c.numAgents
-    t_retrofitted = d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_names)
-
     # write output (one line per time step taken.
     output = "%s" % (t)
     for i in range(0,len(locations)):
       output += ",%s,%s,%s" % (locations[i].numAgents, loc_data[i], errors[i])
 
     if float(sum(loc_data))>0:
-      # Reminder: Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation)
-      output += ",%s,%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(sum(loc_data)), int(sum(loc_data)), e.numAgents(), refugees_raw, t_retrofitted, refugees_in_camps_sim, refugee_debt)
+      # Reminder: Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),Total error (retrofitted)
+      output += ",%s,%s,%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, t_retrofitted, refugees_in_camps_sim, refugee_debt, float(np.sum(abs_errors_retrofitted))/float(refugees_raw))
     else:
       output += ",0,0,0,0,0,0,0"
 
