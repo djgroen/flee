@@ -71,6 +71,7 @@ class DataTable:
     self.days_column = 0
     self.header = []
     self.data_table = []
+    self.start_date = start_date
 
     if self.csvformat=="generic":
       with open("%s/%s" % (data_directory, data_layout), newline='') as csvfile:
@@ -194,22 +195,28 @@ class DataTable:
         break
     return int(old_val)
 
+  def _find_headerindex(self, name):
+    """
+    Finds matching index number for a particular name in the list of headers.
+    """
+    for i in range(0,len(self.header)):
+      if self.header[i] == name:
+        return i
+
+    print(self.header)
+    sys.exit("Error: can't find the header %s in the header list" % (name))
+
 
   def get_field(self, name, day, FullInterpolation=True):
     """
     Gets in a given named column for a given day. Interpolates between days if needed.
     """
 
-    for i in range(0,len(self.header)):
-      if self.header[i] == name:
-        if FullInterpolation:
-          return self.get_interpolated_data(i, day)
-        else:
-          return self.get_raw_data(i, day)
-
-    print("Unable to find header: %s" % (name))
-    print(self.header)
-
+    i = self._find_headerindex(name)
+    if FullInterpolation:
+      return self.get_interpolated_data(i, day)
+    else:
+      return self.get_raw_data(i, day)
 
   def is_interpolated(self, name, day):
     """
@@ -225,3 +232,6 @@ class DataTable:
             return True
 
     return True
+
+  #def d.correctLevel1Registrations(name, date):
+  # correct for start date.

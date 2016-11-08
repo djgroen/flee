@@ -156,6 +156,17 @@ if __name__ == "__main__":
 
   d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012/")
 
+  # Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
+  # These errors led to a perceived large drop in refugee population in all of these camps.
+  # We correct by linearly scaling the values down to make the last level 1 registration match the first level 2 registration value.
+  # To our knowledge, all level 2 registration procedures were put in place by the end of 2012.
+  d.correctLevel1Registrations("Mbera","2012-12-31")
+  d.correctLevel1Registrations("Mentao","2012-10-03")
+  d.correctLevel1Registrations("Abala","2012-12-21")
+  d.correctLevel1Registrations("Mangaize","2012-12-21")
+  d.correctLevel1Registrations("Tabareybarey","2012-12-21")
+  
+
   print("Day,Mbera sim,Mbera data,Mbera error,Fassala sim,Fassala data,Fassala error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt")
 
   # Set up a mechanism to incorporate temporary decreases in refugees 
