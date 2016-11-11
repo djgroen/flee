@@ -129,22 +129,22 @@ if __name__ == "__main__":
   conflict_weights = np.array([497166])
 
 
-  for t in range(0,end_time):
+  for t_retrofit in range(0,end_time):
 
     #Append conflict_zone and weight to list.
-    if t==70: #Intense fighting between military & multineer military forces
+    if int(t_retrofit) == 70: #Intense fighting between military & multineer military forces
       locations[5].movechance = 1.0
 
       conflict_zones += [locations[5]]
       conflict_weights = np.append(conflict_weights, [585412])
 
-    elif t==71: #Intense fighting between military & mulineer military forces
+    elif int(t_retrofit) == 71: #Intense fighting between military & mulineer military forces
       locations[2].movechance = 1.0
 
       conflict_zones += [locations[2]]
       conflict_weights = np.append(conflict_weights, [460435])
 
-    elif t==224: #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
+    elif int(t_retrofit) == 224: #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
       locations[1].movechance = 1.0
       locations[11].movechance = 1.0
       locations[16].movechance = 1.0
@@ -152,7 +152,7 @@ if __name__ == "__main__":
       conflict_zones += [locations[1], locations[11], locations[16]]
       conflict_weights = np.append(conflict_weights, [338023,725223,628256])
 
-    elif t==269: #Clashes between RED-Tabara & government forces
+    elif int(t_retrofit) == 269: #Clashes between RED-Tabara & government forces
       locations[8].movechance = 1.0
 
       conflict_zones += [locations[8]]
@@ -160,8 +160,8 @@ if __name__ == "__main__":
 
 
     #new_refs = d.get_new_refugees(t)
-    new_refs = d.get_new_refugees(t, FullInterpolation=True) - refugee_debt
-    refugees_raw += d.get_new_refugees(t, FullInterpolation=True)
+    new_refs = d.get_new_refugees(t_retrofit, FullInterpolation=True) - refugee_debt
+    refugees_raw += d.get_new_refugees(t_retrofit, FullInterpolation=True)
     if new_refs < 0:
       refugee_debt = -new_refs
       new_refs = 0
@@ -178,11 +178,11 @@ if __name__ == "__main__":
     #e.printInfo()
 
     #Validation/data comparison
-    mahama_data = d.get_field("Mahama", t) #- d.get_field("Mahama", 0)
-    nduta_data = d.get_field("Nduta", t) #-d.get_field("Nduta", 0)
-    nyarugusu_data = d.get_field("Nyarugusu", t) #- d.get_field("Nyarugusu", 0)
-    nakivale_data = d.get_field("Nakivale", t) #- d.get_field("Nakivale", 0)
-    lusenda_data = d.get_field("Lusenda", t) #- d.get_field("Lusenda", 0)
+    mahama_data = d.get_field("Mahama", t_retrofit) #- d.get_field("Mahama", 0)
+    nduta_data = d.get_field("Nduta", t_retrofit) #-d.get_field("Nduta", 0)
+    nyarugusu_data = d.get_field("Nyarugusu", t_retrofit) #- d.get_field("Nyarugusu", 0)
+    nakivale_data = d.get_field("Nakivale", t_retrofit) #- d.get_field("Nakivale", 0)
+    lusenda_data = d.get_field("Lusenda", t_retrofit) #- d.get_field("Lusenda", 0)
 
     errors = []
     abs_errors = []
@@ -215,7 +215,7 @@ if __name__ == "__main__":
       errors_retrofitted += [a.rel_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
       abs_errors_retrofitted += [a.abs_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
 
-    output = "%s" % t
+    output = "%s" % t_retrofit
 
     for i in range(0,len(errors)):
       camp_number = camp_locations[i]
@@ -231,30 +231,4 @@ if __name__ == "__main__":
 
 
     print(output)
-
-    #print(mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data)
-
-    #print(t, locations[22].numAgents, mahama_data, a.rel_error(locations[22].numAgents, mahama_data))
-    #print(t, locations[23].numAgents, nduta_data, a.rel_error(locations[23].numAgents, nduta_data))
-    #print(t, locations[25].numAgents, nyarugusu_data, a.rel_error(locations[25].numAgents, nyarugusu_data))
-    #print(t, locations[33].numAgents, nakivale_data, a.rel_error(locations[33].numAgents, nakivale_data))
-    #print(t, locations[34].numAgents, lusenda_data, a.rel_error(locations[34].numAgents, lusenda_data))
-
-    #print("location: ", l.numAgents, ", data: ", mahama_data, ", error: ", errors[0])
-    #print("location: ", l.numAgents, ", data: ", nduta_data, ", error: ", errors[1])
-    #print("location: ", l.numAgents, ", data: ", nyarugusu_data, ", error: ", errors[2])
-    #print("location: ", l.numAgents, ", data: ", nakivale_data, ", error: ", errors[3])
-    #print("location: ", l.numAgents, ", data: ", lusenda_data, ", error: ", errors[4])
-
-    #print("Cumulative error: ", np.sum(errors), "Squared error: ", np.sqrt(np.sum(np.power(errors,2))))
-
-
-    """
-    if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
-      print("TEST FAILED.")
-    if np.sqrt(np.sum(np.power(errors,2))) > 0.33+0.03:
-      print("TEST FAILED.")
-    else:
-      print("TEST SUCCESSFUL.")
-    """
 
