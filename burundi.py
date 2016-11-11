@@ -12,7 +12,7 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 
 if __name__ == "__main__":
 
-  end_time = 396
+  end_time = 1200 #396
 
   e = flee.Ecosystem()
 

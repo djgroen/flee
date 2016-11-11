@@ -18,7 +18,7 @@ def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
   fig.subplots_adjust(bottom=b,top=t,left=l,right=r)
 
 
-def plotme(out_dir, data, name):
+def plotme(out_dir, data, name, retrofitted=True):
   """
   Explain function: what does it do, what do the arguments mean, and possibly an example.
   """
@@ -47,7 +47,11 @@ def plotme(out_dir, data, name):
   matplotlib.rcParams.update({'font.size': 20})
 
   #Plotting lines representing simulation results and UNHCR data
-  labelsim, = plt.plot(days,y1, linewidth=8, label="%s simulation" % (name.title()))
+  if retrofitted==False:
+    labelsim, = plt.plot(days,y1, linewidth=8, label="%s simulation" % (name.title()))
+  else:
+    retrofitted_times = refugee_data.loc[:,["retrofitted time"]].as_matrix()
+    labelsim, = plt.plot(retrofitted_times, y1, linewidth=8, label="%s simulation" % (name.title()))
   labeldata, = plt.plot(days,y2, linewidth=8, label="%s UNHCR data" % (name.title()))
   plt.plot(data_x,data_y,'ob')
 
@@ -58,7 +62,10 @@ def plotme(out_dir, data, name):
   #adjust margins
   set_margins()
 
-  fig.savefig("%s/%s.png" % (out_dir, name))
+  if retrofitted==False:
+    fig.savefig("%s/%s.png" % (out_dir, name))
+  else:
+    fig.savefig("%s/%s-retrofitted.png" % (out_dir, name))
 
 
 
@@ -141,6 +148,7 @@ if __name__ == "__main__":
   #Plots for all locations
   for i in location_names:
     plotme(out_dir, refugee_data,i)
+    plotme(out_dir, refugee_data,i,retrofitted=False)
     plotme_minimal(out_dir, refugee_data,i)
 
   matplotlib.rcParams.update({'font.size': 20})
