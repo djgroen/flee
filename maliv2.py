@@ -44,7 +44,12 @@ if __name__ == "__main__":
   if len(sys.argv)>1:
     end_time = int(sys.argv[1])
   else:
-    end_time = 61
+    end_time = 300
+
+  RetroFitting = False
+  if len(sys.argv)>2:
+    if "-r" in sys.argv[2]:
+      RetroFitting = True
 
   flee.SimulationSettings.TurnBackAllowed = False
 
@@ -194,8 +199,10 @@ if __name__ == "__main__":
 
     e.refresh_conflict_weights()
 
-    #t_data = t
-    t_data = int(t_retrofitted)
+    if RetroFitting==False:
+      t_data = t
+    else:
+      t_data = int(t_retrofitted)
     
     # Close/open borders here.
     if t_data == date_to_sim_days("2012-03-19"): #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
