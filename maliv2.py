@@ -188,6 +188,8 @@ if __name__ == "__main__":
   # Start with a refugee debt to account for the mismatch between camp aggregates and total UNHCR data.
   refugee_debt = e.numAgents()
 
+  t_retrofitted = 0
+
   for t in range(0,end_time):
 
     e.refresh_conflict_weights()
@@ -209,38 +211,41 @@ if __name__ == "__main__":
     elif refugee_debt > 0:
       refugee_debt = 0
 
+    #t_data = t
+    t_data = t_retrofitted
+
     # Add conflict zones at the right time.
-    if t == date_to_sim_days("2012-02-03"):
+    if t_data == date_to_sim_days("2012-02-03"):
       e.add_conflict_zone("Kidal")
 
-    if t == date_to_sim_days("2012-02-03"):
+    if t_data == date_to_sim_days("2012-02-03"):
       e.add_conflict_zone("Timbuktu")
 
-    if t == date_to_sim_days("2012-03-02"):
+    if t_data == date_to_sim_days("2012-03-02"):
       e.add_conflict_zone("Tenenkou")
 
-    if t == date_to_sim_days("2012-03-23"):
+    if t_data == date_to_sim_days("2012-03-23"):
       e.add_conflict_zone("Gao")
 
-    if t == date_to_sim_days("2012-08-10"):
+    if t_data == date_to_sim_days("2012-08-10"):
       e.add_conflict_zone("Bamako")
 
-    if t == date_to_sim_days("2012-03-30"):
+    if t_data == date_to_sim_days("2012-03-30"):
       e.add_conflict_zone("Bourem")
 
-    if t == date_to_sim_days("2012-09-01"):
+    if t_data == date_to_sim_days("2012-09-01"):
       e.add_conflict_zone("Douentza")
 
-    if t == date_to_sim_days("2012-11-28"):
+    if t_data == date_to_sim_days("2012-11-28"):
       e.add_conflict_zone("Lere")
 
-    if t == date_to_sim_days("2012-03-30"):
+    if t_data == date_to_sim_days("2012-03-30"):
       e.add_conflict_zone("Ansongo")
 
-    if t == date_to_sim_days("2012-03-13"):
+    if t_data == date_to_sim_days("2012-03-13"):
       e.add_conflict_zone("Dire")
 
-    if t == date_to_sim_days("2012-03-23"): #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
+    if t_data == date_to_sim_days("2012-03-23"): #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
       e.add_conflict_zone("Gao")  
  
  
