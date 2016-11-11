@@ -194,12 +194,15 @@ if __name__ == "__main__":
 
     e.refresh_conflict_weights()
 
+    #t_data = t
+    t_data = int(t_retrofitted)
+    
     # Close/open borders here.
-    if t == date_to_sim_days("2012-03-19"): #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
+    if t_data == date_to_sim_days("2012-03-19"): #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
       m2.movechance = 1.0
-    if t == date_to_sim_days("2012-03-21"): #On the 21st of March, Burkina Faso opens its borders (see PDF report 3).
+    if t_data == date_to_sim_days("2012-03-21"): #On the 21st of March, Burkina Faso opens its borders (see PDF report 3).
       linkBF(e)   
-    if t == date_to_sim_days("2012-04-01"): #Starting from April, refugees appear to enter Niger again (on foot, report 4).
+    if t_data == date_to_sim_days("2012-04-01"): #Starting from April, refugees appear to enter Niger again (on foot, report 4).
       linkNiger(e)
 
     # Determine number of new refugees to insert into the system.
@@ -210,9 +213,6 @@ if __name__ == "__main__":
       new_refs = 0
     elif refugee_debt > 0:
       refugee_debt = 0
-
-    #t_data = t
-    t_data = t_retrofitted
 
     # Add conflict zones at the right time.
     if t_data == date_to_sim_days("2012-02-03"):
