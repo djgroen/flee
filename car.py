@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
   #print(list_of_cities)
   #print("Time, campname")
-  print("Day,Belom sim,Belom data,Belom error,Dosseye sim,Dosseye data,Dosseye error,East sim,East data,East error,Adamaoua sim,Adamaoua data,Adamaoua error,Mole sim,Mole data,Mole error,Inke sim,Inke data,Inke error,Betou sim,Betou data,Betou error,Brazaville sim,Brazaville data,Brazaville error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count")
+  print("Day,Belom sim,Belom data,Belom error,Dosseye sim,Dosseye data,Dosseye error,East sim,East data,East error,Adamaoua sim,Adamaoua data,Adamaoua error,Mole sim,Mole data,Mole error,Inke sim,Inke data,Inke error,Betou sim,Betou data,Betou error,Brazaville sim,Brazaville data,Brazaville error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
 
 
   #Bangui is in conflict area. All refugees want to leave this place.
@@ -204,25 +204,48 @@ if __name__ == "__main__":
     loc_data = [belom_data, dosseye_data, east_data, adamaoua_data, mole_data, inke_data, betou_data, brazaville_data]
     camp_locations = [30, 31, 32, 33, 34, 36, 37, 38]
 
+    camps = []
+    for i in camp_locations:
+      camps += [locations[i]]
+    camp_names = ["Belom", "Dosseye", "East", "Adamaoua", "Mole", "Inke", "Betou", "Brazaville"]
+
+    camp_pops_retrofitted = []
+    errors_retrofitted = []
+    abs_errors_retrofitted = []
+
+    # calculate retrofitted time.
+    refugees_in_camps_sim = 0
+    for c in camps:
+      refugees_in_camps_sim += c.numAgents
+    t_retrofitted = d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_names)
+
+    # calculate errors
     for i in range(0,len(camp_locations)):
       camp_number = camp_locations[i]
       errors += [a.rel_error(locations[camp_number].numAgents, loc_data[i])]
       abs_errors += [a.abs_error(locations[camp_number].numAgents, loc_data[i])]
 
-    output_string = "%s" % t
+      # errors when using retrofitted time stepping.
+      camp_pops_retrofitted += [d.get_field(camp_names[i], t_retrofitted, FullInterpolation=True)]
+      errors_retrofitted += [a.rel_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
+      abs_errors_retrofitted += [a.abs_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
+
+    output = "%s" % t
 
     for i in range(0,len(errors)):
       camp_number = camp_locations[i]
-      output_string += ",%s,%s,%s" % (locations[camp_number].numAgents, loc_data[i], errors[i])
+      output += ",%s,%s,%s" % (locations[camp_number].numAgents, loc_data[i], errors[i])
 
 
     if refugees_raw>0:
-      output_string += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw)
+      #output_string += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw)
+      output += ",%s,%s,%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, t_retrofitted, refugees_in_camps_sim, refugee_debt, float(np.sum(abs_errors_retrofitted))/float(refugees_raw))
     else:
-      output_string += ",0"
+      output += ",0,0,0,0,0,0,0"
+      #output_string += ",0"
 
 
-    print(output_string)
+    print(output)
 
 
 
