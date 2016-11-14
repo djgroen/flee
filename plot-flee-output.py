@@ -157,6 +157,8 @@ if __name__ == "__main__":
   diffdata = refugee_data.loc[:,["Total error"]].as_matrix()
   plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error")
   #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
+  
+  print("Averaged error: ",np.mean((diffdata ** 2.0)/len(diffdata)))
 
   # Plot error using retrofitting if applicable.
   if "Total error (retrofitted)" in refugee_data.columns:
@@ -169,6 +171,7 @@ if __name__ == "__main__":
 
     diffdata_retro = refugee_data.loc[:,["Total error (retrofitted)"]].as_matrix()
     plt.plot(retrofitted_times[offset:], diffdata_retro[offset:], linewidth=5, label="error (retrofitted)")
+    print("Averaged error (retrofitted): ", np.mean((diffdata_retro[offset:] ** 2.0)/len(diffdata_retro[offset:])))
 
   #Size of plots/figures
   fig = matplotlib.pyplot.gcf()
@@ -177,6 +180,7 @@ if __name__ == "__main__":
   #Plotting and saving error (differences) graph
   plt.ylabel("Averaged relative difference")
   plt.xlabel("Days elapsed")
+
 
   set_margins()
   plt.savefig("%s/error.png" % out_dir)

@@ -2,10 +2,10 @@ import random
 import numpy as np
 
 class SimulationSettings:
-  Softening = 0.0
-  UseForeign = True
-  TurnBackAllowed = True
-  AgentLogLevel = 0
+  Softening = 0.0 # Offset added to distance calculation to lighten distance-based weighting.
+  UseForeign = True # Foreign countries have double weights.
+  TurnBackAllowed = True # Refugees can flee from A to B, and then back to A.
+  AgentLogLevel = 0 # Higher is mode verbosity.
   InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
   TakeRefugeesFromPopulation = False
 
