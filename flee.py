@@ -55,7 +55,7 @@ class Person:
 
           if SimulationSettings.EnableConstrainedMoveSpeed:
             # With movespeeds enabled, we set the distance remaining initially to the length of the link.
-            self.distance_remaining_on_link = self.location.links[chosenRoute].distance
+            self.distance_remaining_on_link = self.location.distance
 
   def finish_travel(self):
     if self.travelling:
