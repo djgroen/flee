@@ -154,24 +154,24 @@ if __name__ == "__main__":
   matplotlib.rcParams.update({'font.size': 20})
 
   plt.clf()
-  diffdata = refugee_data.loc[:,["Total error"]].as_matrix()
+  diffdata = (refugee_data.loc[:,["Total error"]].as_matrix()).flatten()
   plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error")
   #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
   
-  print("Averaged error: ",np.mean((diffdata ** 2.0)/len(diffdata)))
+  print("Averaged error: ",  np.trapz(diffdata ** 2.0) / (1.0*len(diffdata)))
 
   # Plot error using retrofitting if applicable.
   if "Total error (retrofitted)" in refugee_data.columns:
     offset = 0
-    retrofitted_times = refugee_data.loc[:,["retrofitted time"]].as_matrix()
+    retrofitted_times = (refugee_data.loc[:,["retrofitted time"]].as_matrix()).flatten()
     for i in range(0,len(retrofitted_times)):
       if retrofitted_times[i] > 0.1:
         continue
       offset += 1
 
-    diffdata_retro = refugee_data.loc[:,["Total error (retrofitted)"]].as_matrix()
+    diffdata_retro = (refugee_data.loc[:,["Total error (retrofitted)"]].as_matrix()).flatten()
     plt.plot(retrofitted_times[offset:], diffdata_retro[offset:], linewidth=5, label="error (retrofitted)")
-    print("Averaged error (retrofitted): ", np.mean((diffdata_retro[offset:] ** 2.0)/len(diffdata_retro[offset:])))
+    print("Averaged error (retrofitted): ", np.trapz((diffdata_retro[offset:]**2.0), retrofitted_times[offset:]) / retrofitted_times[-1])
 
   #Size of plots/figures
   fig = matplotlib.pyplot.gcf()
