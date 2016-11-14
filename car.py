@@ -2,6 +2,7 @@ import flee
 import handle_refugee_data
 import numpy as np
 import analysis as a
+import sys
 
 """
 Generation 1 code. Incorporates only distance, travel always takes one day.
@@ -11,7 +12,17 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 
 if __name__ == "__main__":
 
-  end_time = 820
+  
+  if len(sys.argv)>1:
+    end_time = int(sys.argv[1])
+  else:
+    end_time = 820
+
+  RetroFitting = False
+  if len(sys.argv)>2:
+    if "-r" in sys.argv[2]:
+      RetroFitting = True
+
 
   e = flee.Ecosystem()
 
@@ -121,6 +132,19 @@ if __name__ == "__main__":
 
   d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="car2014", start_date="2013-12-01")
 
+  # Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
+  # These errors led to a perceived large drop in refugee population in all of these camps.
+  # We correct by linearly scaling the values down to make the last level 1 registration match the first level 2 registration value.
+  # To our knowledge, all level 2 registration procedures were put in place by the end of 2016.
+  d.correctLevel1Registrations("Belom","2014-04-15")
+  d.correctLevel1Registrations("Dosseye","2015-01-01")
+  d.correctLevel1Registrations("East","2014-09-28")
+  d.correctLevel1Registrations("Adamaoua","2014-10-19")
+  d.correctLevel1Registrations("Mole","2016-02-29")
+  d.correctLevel1Registrations("Inke","2014-06-30")
+  d.correctLevel1Registrations("Betou","2014-03-22")
+  d.correctLevel1Registrations("Brazaville","2016-04-30")
+
   list_of_cities = "Time"
 
   for l in locations:
@@ -138,14 +162,42 @@ if __name__ == "__main__":
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only
 
-
   conflict_zones = [locations[0]]
   conflict_weights = np.array([734350])
 
+  # Start with a refugee debt to account for the mismatch between camp aggregates and total UNHCR data.
+  refugee_debt = e.numAgents()
+
+  t_retrofitted = 0
+
   for t in range(0,end_time):
 
+    e.refresh_conflict_weights()
+
+    if RetroFitting==False:
+      t_data = t
+    else:
+      t_data = int(t_retrofitted)
+
+    """
+    # Close borders here.
+    if t_data == 163: #On the 12th of May, Chad closes border altogether.
+      locations[30] = 1.0
+    if t_data == 163: #On the 12th of May, Chad closes border altogether.
+      locations[31] = 1.0
+    """
+
+    new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
+    refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
+    if new_refs < 0:
+      refugee_debt = -new_refs
+      new_refs = 0
+    elif refugee_debt > 0:
+      refugee_debt = 0
+
+
     #Append conflict_zone and weight to list.
-    if t==31: #A wave of reprisal attacks & escalating cycle of violence
+    if t_data == 31: #A wave of reprisal attacks & escalating cycle of violence
       locations[4].movechance = 1.0
       locations[5].movechance = 1.0
       locations[8].movechance = 1.0
@@ -155,28 +207,18 @@ if __name__ == "__main__":
       conflict_zones += [locations[4], locations[5], locations[8], locations[9], locations[11]]
       conflict_weights = np.append(conflict_weights, [233666,369220,356725,430506,276710])
 
-    elif t==627: #Fighting between ex-Seleka & Anti-balaka (deaths & thousnads displaced)
+    elif t_data == 627: #Fighting between ex-Seleka & Anti-balaka (deaths & thousnads displaced)
       locations[11].movechance = 1.0
 
       conflict_zones += [locations[11]]
       conflict_weights = np.append(conflict_weights, [276710])
 
-    elif t==742: #Violence & death during the constitutional referendum vote
+    elif t_data == 742: #Violence & death during the constitutional referendum vote
       locations[12].movechance = 1.0
 
       conflict_zones += [locations[12]]
       conflict_weights = np.append(conflict_weights, [90316])
 
-
-
-    #new_refs = d.get_new_refugees(t)
-    new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
-    refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
-    if new_refs < 0:
-      refugee_debt = -new_refs
-      new_refs = 0
-    elif refugee_debt > 0:
-      refugee_debt = 0
 
     #Insert refugee agents
     for i in range(0, new_refs):
@@ -249,36 +291,4 @@ if __name__ == "__main__":
 
 
 
-
-    #print(belom_data, dosseye_data, east_data, adamaoua_data, mole_data, inke_data, betou_data, brazaville_data)
-
-    #print(t, locations[30].numAgents, belom_data, a.rel_error(locations[30].numAgents, belom_data))
-    #print(t, locations[31].numAgents, dosseye_data, a.rel_error(locations[31].numAgents, dosseye_data))
-    #print(t, locations[32].numAgents, east_data, a.rel_error(locations[32].numAgents, east_data))
-    #print(t, locations[33].numAgents, adamaoua_data, a.rel_error(locations[33].numAgents, adamaoua_data))
-    #print(t, locations[34].numAgents, mole_data, a.rel_error(locations[34].numAgents, mole_data))
-    #print(t, locations[36].numAgents, inke_data, a.rel_error(locations[36].numAgents, inke_data))
-    #print(t, locations[37].numAgents, betou_data, a.rel_error(locations[37].numAgents, betou_data))
-    #print(t, locations[38].numAgents, brazaville_data, a.rel_error(locations[38].numAgents, brazaville_data))
-
-
-    #print("location: ", l.numAgents, ", data: ", belom_data, ", error: ", errors[0])
-    #print("location: ", l.numAgents, ", data: ", dosseye_data, ", error: ", errors[1])
-    #print("location: ", l.numAgents, ", data: ", east_data, ", error: ", errors[2])
-    #print("location: ", l.numAgents, ", data: ", adamaoua_data, ", error: ", errors[3])
-    #print("location: ", l.numAgents, ", data: ", mole_data, ", error: ", errors[4])
-    #print("location: ", l.numAgents, ", data: ", inke_data, ", error: ", errors[5])
-    #print("location: ", l.numAgents, ", data: ", inke_data, ", error: ", errors[5])
-    #print("location: ", l.numAgents, ", data: ", inke_data, ", error: ", errors[5])
-
-    #print("Cumulative error: ", np.sum(errors), "Squared error: ", np.sqrt(np.sum(np.power(errors,2))))
-
-    """
-    if np.abs(np.sum(errors) - 0.495521376979) > 0.1:
-      print("TEST FAILED.")
-    if np.sqrt(np.sum(np.power(errors,2))) > 0.33+0.03:
-      print("TEST FAILED.")
-    else:
-      print("TEST SUCCESSFUL.")
-    """
 
