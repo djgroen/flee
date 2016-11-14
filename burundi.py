@@ -12,7 +12,16 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 
 if __name__ == "__main__":
 
-  end_time = 1200 #396
+
+  if len(sys.argv)>1:
+    end_time = int(sys.argv[1])
+  else:
+    end_time = 396
+
+  RetroFitting = False
+  if len(sys.argv)>2:
+    if "-r" in sys.argv[2]:
+      RetroFitting = True
 
   e = flee.Ecosystem()
 
@@ -107,6 +116,17 @@ if __name__ == "__main__":
 
   d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
 
+  # Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
+  # These errors led to a perceived large drop in refugee population in all of these camps.
+  # We correct by linearly scaling the values down to make the last level 1 registration match the first level 2 registration value.
+  # To our knowledge, all level 2 registration procedures were put in place by the end of 2016.
+  d.correctLevel1Registrations("Mahama","2015-10-04")
+  d.correctLevel1Registrations("Nduta","2016-04-06")
+  d.correctLevel1Registrations("Nyarugusu","2015-11-10")
+  d.correctLevel1Registrations("Nakivale","2015-08-18")
+  d.correctLevel1Registrations("Lusenda","2015-09-30")
+
+
   list_of_cities = "Time"
 
   for l in locations:
@@ -128,23 +148,30 @@ if __name__ == "__main__":
   conflict_zones = [locations[0]]
   conflict_weights = np.array([497166])
 
+  t_retrofitted = 0
 
-  for t_retrofit in range(0,end_time):
+  for t in range(0,end_time):
+
+    if RetroFitting==False:
+      t_data = t
+    else:
+      t_data = int(t_retrofitted)
+
 
     #Append conflict_zone and weight to list.
-    if int(t_retrofit) == 70: #Intense fighting between military & multineer military forces
+    if t_data == 70: #Intense fighting between military & multineer military forces
       locations[5].movechance = 1.0
 
       conflict_zones += [locations[5]]
       conflict_weights = np.append(conflict_weights, [585412])
 
-    elif int(t_retrofit) == 71: #Intense fighting between military & mulineer military forces
+    elif t_data == 71: #Intense fighting between military & mulineer military forces
       locations[2].movechance = 1.0
 
       conflict_zones += [locations[2]]
       conflict_weights = np.append(conflict_weights, [460435])
 
-    elif int(t_retrofit) == 224: #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
+    elif t_data == 224: #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
       locations[1].movechance = 1.0
       locations[11].movechance = 1.0
       locations[16].movechance = 1.0
@@ -152,7 +179,7 @@ if __name__ == "__main__":
       conflict_zones += [locations[1], locations[11], locations[16]]
       conflict_weights = np.append(conflict_weights, [338023,725223,628256])
 
-    elif int(t_retrofit) == 269: #Clashes between RED-Tabara & government forces
+    elif t_data == 269: #Clashes between RED-Tabara & government forces
       locations[8].movechance = 1.0
 
       conflict_zones += [locations[8]]
@@ -160,8 +187,8 @@ if __name__ == "__main__":
 
 
     #new_refs = d.get_new_refugees(t)
-    new_refs = d.get_new_refugees(t_retrofit, FullInterpolation=True) - refugee_debt
-    refugees_raw += d.get_new_refugees(t_retrofit, FullInterpolation=True)
+    new_refs = d.get_new_refugees(t, FullInterpolation=True) - refugee_debt
+    refugees_raw += d.get_new_refugees(t, FullInterpolation=True)
     if new_refs < 0:
       refugee_debt = -new_refs
       new_refs = 0
@@ -178,11 +205,11 @@ if __name__ == "__main__":
     #e.printInfo()
 
     #Validation/data comparison
-    mahama_data = d.get_field("Mahama", t_retrofit) #- d.get_field("Mahama", 0)
-    nduta_data = d.get_field("Nduta", t_retrofit) #-d.get_field("Nduta", 0)
-    nyarugusu_data = d.get_field("Nyarugusu", t_retrofit) #- d.get_field("Nyarugusu", 0)
-    nakivale_data = d.get_field("Nakivale", t_retrofit) #- d.get_field("Nakivale", 0)
-    lusenda_data = d.get_field("Lusenda", t_retrofit) #- d.get_field("Lusenda", 0)
+    mahama_data = d.get_field("Mahama", t) #- d.get_field("Mahama", 0)
+    nduta_data = d.get_field("Nduta", t) #-d.get_field("Nduta", 0)
+    nyarugusu_data = d.get_field("Nyarugusu", t) #- d.get_field("Nyarugusu", 0)
+    nakivale_data = d.get_field("Nakivale", t) #- d.get_field("Nakivale", 0)
+    lusenda_data = d.get_field("Lusenda", t) #- d.get_field("Lusenda", 0)
 
     errors = []
     abs_errors = []
@@ -215,7 +242,7 @@ if __name__ == "__main__":
       errors_retrofitted += [a.rel_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
       abs_errors_retrofitted += [a.abs_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
 
-    output = "%s" % t_retrofit
+    output = "%s" % t
 
     for i in range(0,len(errors)):
       camp_number = camp_locations[i]
