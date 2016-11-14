@@ -8,6 +8,9 @@ class SimulationSettings:
   AgentLogLevel = 0 # Higher is mode verbosity.
   InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
   TakeRefugeesFromPopulation = False
+  EnableConstrainedMoveSpeed = False #Impose limited movespeed. Otherwise agents traverse one link per iteration.
+  MoveSpeed = 100.0 # Move speed in kilometers per iteration (typically a day).
+
 
 class Person:
   def __init__(self, location):
@@ -30,25 +33,44 @@ class Person:
       self.distance_travelled = 0
       self.places_travelled = 1
 
-  def evolve(self):
-    movechance = self.location.movechance
-    outcome = random.random()
-    self.travelling = False
-    if outcome < movechance:
-      # determine here which route to take?
-      chosenRoute = self.selectRoute()
+    if SimulationSettings.EnableConstrainedMoveSpeed:
+      self.distance_remaining_on_link = 0
+      self.move_speed = SimulationSettings.MoveSpeed
 
-      # if there is a viable route to a different location.
-      if chosenRoute >= 0:
-        # update location to link endpoint
-        self.location.numAgents -= 1
-        self.location = self.location.links[chosenRoute]
-        self.location.numAgents += 1
-        self.travelling = True
+  def evolve(self):
+    if self.travelling == False:
+      movechance = self.location.movechance
+      outcome = random.random()
+      if outcome < movechance:
+        # determine here which route to take?
+        chosenRoute = self.selectRoute()
+
+        # if there is a viable route to a different location.
+        if chosenRoute >= 0:
+          # update location to link endpoint
+          self.location.numAgents -= 1
+          self.location = self.location.links[chosenRoute]
+          self.location.numAgents += 1
+          self.travelling = True
+
+          if SimulationSettings.EnableConstrainedMoveSpeed:
+            # With movespeeds enabled, we set the distance remaining initially to the length of the link.
+            self.distance_remaining_on_link = self.location.links[chosenRoute].distance
 
   def finish_travel(self):
     if self.travelling:
       
+      if SimulationSettings.EnableConstrainedMoveSpeed:      
+        self.distance_remaining_on_link -= self.move_speed
+
+        # In this case, the agent stays on the link, and travel is not finished.
+        if self.distance_remaining_on_link > 0.0:
+          return
+
+        # In this case, we set the remaining distance to exactly 0 and continue finishing travel.
+        else:
+          self.distance_remaining_on_link = 0
+
       # update last location of agent.
       if not SimulationSettings.TurnBackAllowed:
         self.last_location = self.location
@@ -62,6 +84,7 @@ class Person:
       self.location.numAgents -= 1
       self.location = self.location.endpoint
       self.location.numAgents += 1
+      self.travelling = False
       
   def selectRoute(self):
     total_score = 0.0

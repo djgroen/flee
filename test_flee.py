@@ -23,7 +23,7 @@ if __name__ == "__main__":
   e.linkUp("A","C","1368.0")
   e.linkUp("A","D","536.0")
 
-  d = handle_refugee_data.DataTable(csvformat="generic", data_directory="mali2012")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012")
 
   for t in range(0,end_time):
     new_refs = d.get_new_refugees(t)
