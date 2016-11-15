@@ -2,22 +2,19 @@ import random
 import numpy as np
 
 class SimulationSettings:
-  Softening = 0.0 # Offset added to distance calculation to lighten distance-based weighting.
-  UseForeign = True # Foreign countries have double weights.
-  TurnBackAllowed = True # Refugees can flee from A to B, and then back to A.
-  AgentLogLevel = 0 # Higher is mode verbosity.
+  Softening = 0.0
+  UseForeign = True
+  TurnBackAllowed = True
+  AgentLogLevel = 0
   InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
   TakeRefugeesFromPopulation = False
-  EnableConstrainedMoveSpeed = False #Impose limited movespeed. Otherwise agents traverse one link per iteration.
-  MoveSpeed = 100.0 # Move speed in kilometers per iteration (typically a day).
-
 
 class Person:
   def __init__(self, location):
     self.health = 1
 
     self.injured = 0
-    
+
     self.age = 35
     self.location = location
     self.home_location = location
@@ -33,43 +30,24 @@ class Person:
       self.distance_travelled = 0
       self.places_travelled = 1
 
-    if SimulationSettings.EnableConstrainedMoveSpeed:
-      self.distance_remaining_on_link = 0
-      self.move_speed = SimulationSettings.MoveSpeed
-
   def evolve(self):
-    if self.travelling == False:
-      movechance = self.location.movechance
-      outcome = random.random()
-      if outcome < movechance:
-        # determine here which route to take?
-        chosenRoute = self.selectRoute()
+    movechance = self.location.movechance
+    outcome = random.random()
+    self.travelling = False
+    if outcome < movechance:
+      # determine here which route to take?
+      chosenRoute = self.selectRoute()
 
-        # if there is a viable route to a different location.
-        if chosenRoute >= 0:
-          # update location to link endpoint
-          self.location.numAgents -= 1
-          self.location = self.location.links[chosenRoute]
-          self.location.numAgents += 1
-          self.travelling = True
-
-          if SimulationSettings.EnableConstrainedMoveSpeed:
-            # With movespeeds enabled, we set the distance remaining initially to the length of the link.
-            self.distance_remaining_on_link = self.location.distance
+      # if there is a viable route to a different location.
+      if chosenRoute >= 0:
+        # update location to link endpoint
+        self.location.numAgents -= 1
+        self.location = self.location.links[chosenRoute]
+        self.location.numAgents += 1
+        self.travelling = True
 
   def finish_travel(self):
     if self.travelling:
-      
-      if SimulationSettings.EnableConstrainedMoveSpeed:      
-        self.distance_remaining_on_link -= self.move_speed
-
-        # In this case, the agent stays on the link, and travel is not finished.
-        if self.distance_remaining_on_link > 0.0:
-          return
-
-        # In this case, we set the remaining distance to exactly 0 and continue finishing travel.
-        else:
-          self.distance_remaining_on_link = 0
 
       # update last location of agent.
       if not SimulationSettings.TurnBackAllowed:
@@ -84,8 +62,7 @@ class Person:
       self.location.numAgents -= 1
       self.location = self.location.endpoint
       self.location.numAgents += 1
-      self.travelling = False
-      
+
   def selectRoute(self):
     total_score = 0.0
     for i in range(0,len(self.location.links)):
@@ -160,6 +137,7 @@ class Link:
     # if True, then all Persons will go down this link.
     self.forced_redirection = forced_redirection
 
+
 class Ecosystem:
   def __init__(self):
     self.locations = []
@@ -171,6 +149,17 @@ class Ecosystem:
     self.conflict_zones = []
     self.conflict_weights = np.array([])
     self.conflict_pop = 0
+
+
+  def remove_link(self, endpoint, name):
+    """Remove link when there is border closure between countries"""
+    new_links = []
+
+    for i in range(0, len(self.links)):
+      if links[i].endpoint.name is not name:
+        new_links += [self.links[i]]
+
+    self.links = new_links
 
 
   def add_conflict_zone(self, name, change_movechance=True):
@@ -188,10 +177,10 @@ class Ecosystem:
           print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
           print("New total pop. in conflict zones: ", self.conflict_pop) 
         return
-    
+
     print("ERROR in flee.add_conflict_zone: location with name ", name, " appears not to exist in the FLEE ecosystem.")
     print("Existing locations include: ", self.locationNames)
-  
+
 
   def remove_conflict_zone(self, name):
     """
@@ -248,7 +237,7 @@ class Ecosystem:
     self.locations.append(l)
     self.locationNames.append(l.name)
     return l
-   
+
 
   def addAgent(self, location):
     if SimulationSettings.TakeRefugeesFromPopulation:
@@ -258,6 +247,7 @@ class Ecosystem:
 
   def numAgents(self):
     return len(self.agents)
+
 
   def linkUp(self, endpoint1, endpoint2, distance="1.0", forced_redirection=False):
     """ Creates a link between two endpoint locations
@@ -273,7 +263,6 @@ class Ecosystem:
 
     self.locations[endpoint1_index].links.append( Link(self.locations[endpoint2_index], distance, forced_redirection) )
     self.locations[endpoint2_index].links.append( Link(self.locations[endpoint1_index], distance) )
-
 
   def printInfo(self):
 

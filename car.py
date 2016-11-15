@@ -12,7 +12,7 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 
 if __name__ == "__main__":
 
-  
+
   if len(sys.argv)>1:
     end_time = int(sys.argv[1])
   else:
@@ -155,18 +155,19 @@ if __name__ == "__main__":
   print("Day,Belom sim,Belom data,Belom error,Dosseye sim,Dosseye data,Dosseye error,East sim,East data,East error,Adamaoua sim,Adamaoua data,Adamaoua error,Mole sim,Mole data,Mole error,Inke sim,Inke data,Inke error,Betou sim,Betou data,Betou error,Brazaville sim,Brazaville data,Brazaville error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
 
 
-  #Bangui is in conflict area. All refugees want to leave this place.
-  locations[0].movechance = 1.0
-
   #Set up a mechanism to incorporate temporary decreases in refugees
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only
+
+  #Bangui is in conflict area. All refugees want to leave this place.
+  locations[0].movechance = 1.0
 
   conflict_zones = [locations[0]]
   conflict_weights = np.array([734350])
 
   # Start with a refugee debt to account for the mismatch between camp aggregates and total UNHCR data.
   refugee_debt = e.numAgents()
+
 
   t_retrofitted = 0
 
@@ -179,14 +180,8 @@ if __name__ == "__main__":
     else:
       t_data = int(t_retrofitted)
 
-    """
-    # Close borders here.
-    if t_data == 163: #On the 12th of May, Chad closes border altogether.
-      locations[30] = 1.0
-    if t_data == 163: #On the 12th of May, Chad closes border altogether.
-      locations[31] = 1.0
-    """
 
+    # Determine number of new refugees to insert into the system.
     new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
     refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
     if new_refs < 0:
@@ -195,8 +190,15 @@ if __name__ == "__main__":
     elif refugee_debt > 0:
       refugee_debt = 0
 
+    new_links = []
+    # Close borders here: On the 12th of May, Chad closes border altogether.
+    if t_data == 163:
+      e.remove_links("Kago","Belom")
+      e.remove_links("Kago","Belom")
+      e.remove_links("Beboura III","Dosseye")
 
-    #Append conflict_zone and weight to list.
+
+    #Append conflict_zones and weights to list.
     if t_data == 31: #A wave of reprisal attacks & escalating cycle of violence
       locations[4].movechance = 1.0
       locations[5].movechance = 1.0
@@ -240,7 +242,7 @@ if __name__ == "__main__":
     betou_data = d.get_field("Betou", t) #- d.get_field("Betou", 0)
     brazaville_data = d.get_field("Brazaville", t) #- d.get_field("Brazaville", 0)
 
-
+    #Calculation of error terms
     errors = []
     abs_errors = []
     loc_data = [belom_data, dosseye_data, east_data, adamaoua_data, mole_data, inke_data, betou_data, brazaville_data]
