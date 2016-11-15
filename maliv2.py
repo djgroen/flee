@@ -50,6 +50,7 @@ if __name__ == "__main__":
   if len(sys.argv)>2:
     if "-r" in sys.argv[2]:
       RetroFitting = True
+      end_time *= 10
 
   flee.SimulationSettings.TurnBackAllowed = False
 
@@ -203,6 +204,8 @@ if __name__ == "__main__":
       t_data = t
     else:
       t_data = int(t_retrofitted)
+      if t_data > end_time:
+        break
     
     # Close/open borders here.
     if t_data == date_to_sim_days("2012-03-19"): #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
@@ -309,3 +312,5 @@ if __name__ == "__main__":
       output += ",0,0,0,0,0,0,0"
 
     print(output)
+    
+   

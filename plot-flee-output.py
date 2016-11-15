@@ -132,10 +132,18 @@ if __name__ == "__main__":
   else:
     out_dir = "out"
 
+  RetroFitting = False
+  if len(sys.argv)>2:
+    if "-r" in sys.argv[2]:
+      RetroFitting = True
+
+
   matplotlib.style.use('ggplot')
   #figsize=(15, 10)
 
   refugee_data = pd.read_csv("%s/out.csv" % (out_dir), sep=',', encoding='latin1',index_col='Day')
+  if RetroFitting == True:
+    refugee_data = pd.read_csv("%s/out-retrofitted.csv" % (out_dir), sep=',', encoding='latin1',index_col='Day')
 
   #Identifying location names for graphs
   rd_cols = list(refugee_data.columns.values)
@@ -147,31 +155,14 @@ if __name__ == "__main__":
 
   #Plots for all locations
   for i in location_names:
-    plotme(out_dir, refugee_data,i)
-    plotme(out_dir, refugee_data,i,retrofitted=False)
-    plotme_minimal(out_dir, refugee_data,i)
+    plotme(out_dir, refugee_data,i,retrofitted=RetroFitting)
+    #plotme_minimal(out_dir, refugee_data,i)
 
   matplotlib.rcParams.update({'font.size': 20})
 
   plt.clf()
-  diffdata = (refugee_data.loc[:,["Total error"]].as_matrix()).flatten()
-  plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error")
-  #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
-  
-  print("Averaged error: ",  np.trapz(diffdata ** 2.0) / (1.0*len(diffdata)))
 
-  # Plot error using retrofitting if applicable.
-  if "Total error (retrofitted)" in refugee_data.columns:
-    offset = 0
-    retrofitted_times = (refugee_data.loc[:,["retrofitted time"]].as_matrix()).flatten()
-    for i in range(0,len(retrofitted_times)):
-      if retrofitted_times[i] > 0.1:
-        continue
-      offset += 1
-
-    diffdata_retro = (refugee_data.loc[:,["Total error (retrofitted)"]].as_matrix()).flatten()
-    plt.plot(retrofitted_times[offset:], diffdata_retro[offset:], linewidth=5, label="error (retrofitted)")
-    print("Averaged error (retrofitted): ", np.trapz((diffdata_retro[offset:]**2.0), retrofitted_times[offset:]) / retrofitted_times[-1])
+  # ERROR PLOTS
 
   #Size of plots/figures
   fig = matplotlib.pyplot.gcf()
@@ -181,9 +172,31 @@ if __name__ == "__main__":
   plt.ylabel("Averaged relative difference")
   plt.xlabel("Days elapsed")
 
+  if RetroFitting==False:
+    diffdata = (refugee_data.loc[:,["Total error"]].as_matrix()).flatten()
+    print(out_dir,": Averaged error: ",  np.trapz(diffdata ** 2.0) / (1.0*len(diffdata)))
+    plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error")
+    #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
+  
+    set_margins()
+    plt.savefig("%s/error.png" % out_dir)
 
-  set_margins()
-  plt.savefig("%s/error.png" % out_dir)
+  # Plot error using retrofitting if applicable.
+  if RetroFitting==True and "Total error (retrofitted)" in refugee_data.columns:
+    offset = 0
+    retrofitted_times = (refugee_data.loc[:,["retrofitted time"]].as_matrix()).flatten()
+    for i in range(0,len(retrofitted_times)):
+      if retrofitted_times[i] > 0.1:
+        continue
+      offset += 1
+
+    diffdata_retro = (refugee_data.loc[:,["Total error (retrofitted)"]].as_matrix()).flatten()
+    plt.plot(retrofitted_times[offset:], diffdata_retro[offset:], linewidth=5, label="error (retrofitted)")
+    print(out_dir,": Averaged error (retrofitted): ", np.trapz((diffdata_retro[offset:]**2.0), retrofitted_times[offset:]) / retrofitted_times[-1])
+
+    set_margins()
+    plt.savefig("%s/error-retrofitted.png" % out_dir)
+
 
   #TODO: These labels need to be more flexible/modifiable.
   #Plotting and saving numagents (total refugee numbers) graph
@@ -199,7 +212,7 @@ if __name__ == "__main__":
   set_margins()
   plt.savefig("%s/numagents.png" % out_dir)
 
-  if "retrofitted time" in refugee_data.columns:
+  if RetroFitting==True and "retrofitted time" in refugee_data.columns:
     plt.clf()
     fit_time_data = refugee_data.loc[:,["retrofitted time"]].as_matrix()
     plt.plot(np.arange(len(fit_time_data)), fit_time_data, linewidth=5)
