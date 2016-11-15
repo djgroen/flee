@@ -141,7 +141,7 @@ class Location:
     """ Checks whether a given location has reached full capacity. In this case it will no longer admit persons."""
     if self.capacity < 0:
       return False
-    elif self.numAgents + numOnLink >= self.capacity:
+    elif self.numAgents >= self.capacity:
       return True
     return False
 

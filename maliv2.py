@@ -204,7 +204,7 @@ if __name__ == "__main__":
       t_data = t
     else:
       t_data = int(t_retrofitted)
-      if t_data > end_time:
+      if t_data > end_time / 10:
         break
     
     # Close/open borders here.

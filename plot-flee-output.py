@@ -55,6 +55,9 @@ def plotme(out_dir, data, name, retrofitted=True):
   labeldata, = plt.plot(days,y2, linewidth=8, label="%s UNHCR data" % (name.title()))
   plt.plot(data_x,data_y,'ob')
 
+  if retrofitted==True:
+    plt.xlim(0,retrofitted_times[-1])
+
   plt.legend(handles=[labelsim, labeldata],loc=4,prop={'size':18})
 
   fig = matplotlib.pyplot.gcf()
@@ -198,6 +201,9 @@ if __name__ == "__main__":
     plt.savefig("%s/error-retrofitted.png" % out_dir)
 
 
+  plt.clf()
+
+
   #TODO: These labels need to be more flexible/modifiable.
   #Plotting and saving numagents (total refugee numbers) graph
   if "refugee_debt" in refugee_data.columns:
@@ -227,6 +233,10 @@ if __name__ == "__main__":
     set_margins()
     plt.savefig("%s/time_evolution.png" % out_dir)
   
+
+    # Sim and data comparison.
+    plt.clf()
+
     sim_refs = refugee_data.loc[:,["refugees in camps (simulation)"]].as_matrix()
     un_refs = refugee_data.loc[:,["refugees in camps (UNHCR)"]].as_matrix()
 
@@ -242,6 +252,9 @@ if __name__ == "__main__":
   
     plt.ylabel("Number of refugees in camps")
     plt.xlabel("Simulated (or measured) days")
+    
+    plt.legend(loc=4)
+
 
     set_margins()
     plt.savefig("%s/numagents_retrofitted.png" % out_dir)
