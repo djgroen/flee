@@ -22,7 +22,7 @@ if __name__ == "__main__":
   if len(sys.argv)>2:
     if "-r" in sys.argv[2]:
       RetroFitting = True
-
+      end_time *= 10
 
   e = flee.Ecosystem()
 
@@ -178,6 +178,9 @@ if __name__ == "__main__":
       t_data = t
     else:
       t_data = int(t_retrofitted)
+      if t_data > end_time:
+        break
+
 
     """
     # Close borders here.
