@@ -222,6 +222,7 @@ if __name__ == "__main__":
     plt.clf()
     fit_time_data = refugee_data.loc[:,["retrofitted time"]].as_matrix()
     plt.plot(np.arange(len(fit_time_data)), fit_time_data, linewidth=5)
+    plt.plot(np.arange(len(fit_time_data)), np.arange(len(fit_time_data)), linewidth=3)
     #Size of plots/figures
   
     fig = matplotlib.pyplot.gcf()

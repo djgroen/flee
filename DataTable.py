@@ -72,6 +72,8 @@ class DataTable:
     self.header = []
     self.data_table = []
     self.start_date = start_date
+    self.override_refugee_input = False # Use modified input data for FLEE simulations
+    self.override_refugee_input_file = ""
 
     if self.csvformat=="generic":
       with open("%s/%s" % (data_directory, data_layout), newline='') as csvfile:
@@ -86,6 +88,17 @@ class DataTable:
 
     #print(self.header, self.data_table)
 
+  def override_refugee_input(self, data_file_name):
+    """
+    Do not use the total refugee count data as the input value, but instead take values from a separate file.
+    """
+    self.override_refugee_input_file = data_file_name
+    self.override_refugee_input = True
+  
+    self.header.append("total (modified input)")
+    self.data_table.append(ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, data_file_name), start_date=start_date))
+
+
   def get_daily_difference(self, day, day_column=0, count_column=1, Debug=False, FullInterpolation=True, ZeroOnDayZero=False):
     """
     Extrapolate count of new refugees at a given time point, based on input data.
@@ -97,6 +110,9 @@ class DataTable:
     self.total_refugee_column = count_column
     self.days_column = day_column
     ref_table = self.data_table[0]
+
+    if self.override_refugee_input == True:
+      ref_table = self.data_table[self._find_headerindex("total (modified input)")]
 
     # Refugees only come in *after* day 0.
     if int(day) == 0:

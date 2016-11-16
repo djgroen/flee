@@ -10,7 +10,7 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 if __name__ == "__main__":
   print("Testing basic data handling and simulation kernel.")
 
-  end_time = 80
+  end_time = 10
   e = flee.Ecosystem()
 
   l1 = e.addLocation("A", movechance=0.3)
@@ -23,7 +23,7 @@ if __name__ == "__main__":
   e.linkUp("A","C","1368.0")
   e.linkUp("A","D","536.0")
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="test_data", start_date="2010-01-01", data_layout="data_layout.csv")
 
   for t in range(0,end_time):
     new_refs = d.get_new_refugees(t)
@@ -35,13 +35,12 @@ if __name__ == "__main__":
     # Propagate the model by one time step.
     e.evolve()
 
-    e.printInfo()
-    print(t, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents)
+    print(t, l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents)
 
 
-  assert t==79
-  assert l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents==78319
-  assert abs(l1.numAgents-746)<250
+  assert t==9
+  assert l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents==635 # This includes refugee counts from Fassala as well
+  assert abs(l1.numAgents-53)<20
   #79 746 24601 14784 38188
 
   print("Test successful!")
