@@ -5,7 +5,8 @@ class SimulationSettings:
   Softening = 0.0
   UseForeign = True
   TurnBackAllowed = True
-  AgentLogLevel = 0
+  AgentLogLevel = 0 # set to 1 for basic agent information.
+  CampLogLevel = 0  # set to 1 to obtain average times for agents to reach camps at any time step (aggregate info). 
   InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
   TakeRefugeesFromPopulation = False
 
@@ -29,8 +30,12 @@ class Person:
     if SimulationSettings.AgentLogLevel > 0:
       self.distance_travelled = 0
       self.places_travelled = 1
+      self.timesteps_since_departure = 0
 
   def evolve(self):
+    if SimulationSettings.AgentLogLevel > 0:
+      self.timesteps_since_departure += 1
+
     movechance = self.location.movechance
     outcome = random.random()
     self.travelling = False
@@ -62,6 +67,10 @@ class Person:
       self.location.numAgents -= 1
       self.location = self.location.endpoint
       self.location.numAgents += 1
+
+      if SimulationSettings.CampLogLevel > 0: 
+        if self.location.Camp == True:
+          self.location.incoming_journey_lengths += [self.timesteps_since_departure]
 
   def selectRoute(self):
     total_score = 0.0
@@ -114,6 +123,10 @@ class Location:
     self.pop = pop # non-refugee population
     self.foreign = foreign
 
+    if SimulationSettings.CampLogLevel > 0:
+      self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
+      self.Camp = False
+
   def isFull(self, numOnLink):
     """ Checks whether a given location has reached full capacity. In this case it will no longer admit persons."""
     if self.capacity < 0:
@@ -150,6 +163,22 @@ class Ecosystem:
     self.conflict_weights = np.array([])
     self.conflict_pop = 0
 
+    if SimulationSettings.CampLogLevel > 0:
+      self.num_arrivals = [] # one element per time step.
+      self.travel_durations = [] # one element per time step.
+
+  def _aggregate_arrivals(self):
+    if SimulationSettings.CampLogLevel > 0:
+      arrival_total = 0
+      tmp_num_arrivals = 0 
+      for l in self.locations:
+        if l.Camp == True:
+          arrival_total += np.sum(l.incoming_journey_lengths)
+          tmp_num_arrivals += len(incoming_journey_lengths)
+          l.incoming_journey_lengths = []
+      self.num_arrivals += [tmp_num_arrivals]
+      self.travel_durations += [(1.0*arrival_total) / (1.0*tmp_num_arrivals)]
+    
 
   def remove_link(self, endpoint, name):
     """Remove link when there is border closure between countries"""
@@ -227,7 +256,8 @@ class Ecosystem:
       a.finish_travel()
 
     #update link properties
-
+    if SimulationSettings.CampLogLevel > 0:
+      self._aggregate_arrivals()
     self.time += 1
 
   def addLocation(self, name, x="0.0", y="0.0", movechance=0.1, capacity=-1, pop=0, foreign=False):
