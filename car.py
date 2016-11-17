@@ -196,9 +196,9 @@ if __name__ == "__main__":
     new_links = []
     # Close borders here: On the 12th of May, Chad closes border altogether.
     if t_data == 163:
-      e.remove_links("Kago","Belom")
-      e.remove_links("Kago","Belom")
-      e.remove_links("Beboura III","Dosseye")
+      e.remove_link("Kago","Belom")
+      e.remove_link("Kago","Belom")
+      e.remove_link("Beboura III","Dosseye")
 
 
     #Append conflict_zones and weights to list.
