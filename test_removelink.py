@@ -23,27 +23,6 @@ if __name__ == "__main__":
   e.linkUp("A","C","1368.0")
   e.linkUp("A","D","536.0")
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012")
-
-  for t in range(0,end_time):
-    new_refs = d.get_new_refugees(t)
-
-    # Insert refugee agents
-    for i in range(0, new_refs):
-      e.addAgent(location=l1)
-
-    # Propagate the model by one time step.
-    e.evolve()
-
-    e.printInfo()
-    print(t, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents)
-
-  assert t==79
-  assert l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents==78319
-  assert abs(l1.numAgents-746)<250
-  #79 746 24601 14784 38188
-
-  assert t==13
   assert e.removelink("B","C")
 
   print("Test successful!")
