@@ -174,7 +174,7 @@ class Ecosystem:
       for l in self.locations:
         if l.Camp == True:
           arrival_total += np.sum(l.incoming_journey_lengths)
-          tmp_num_arrivals += len(incoming_journey_lengths)
+          tmp_num_arrivals += len(l.incoming_journey_lengths)
           l.incoming_journey_lengths = []
       self.num_arrivals += [tmp_num_arrivals]
       if tmp_num_arrivals>0:
