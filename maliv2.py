@@ -52,8 +52,6 @@ if __name__ == "__main__":
       RetroFitting = True
       end_time *= 10
 
-  flee.SimulationSettings.TurnBackAllowed = False
-
   e = flee.Ecosystem()
 
   # Refugees reduce population counts.
