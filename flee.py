@@ -181,13 +181,16 @@ class Ecosystem:
         self.travel_durations += [(1.0*arrival_total) / (1.0*tmp_num_arrivals)]
       else:
         self.travel_durations += [0.0]
-    
+
 
   def remove_link(self, startpoint, endpoint):
     """Remove link when there is border closure between countries"""
     new_links = []
 
     # Convert name "startpoint" to index "x".
+    for i in range(0, len(self.locationNames)):
+      if(self.locationNames[i] == startpoint):
+        x = i
 
     for i in range(0, len(self.locations[x].links)):
       if self.locations[x].links[i].endpoint.name is not endpoint:
