@@ -197,7 +197,7 @@ if __name__ == "__main__":
     # Close borders here: On the 12th of May, Chad closes border altogether.
     if t_data == 163:
       e.remove_link("Kago","Belom")
-      e.remove_link("Kago","Belom")
+      e.remove_link("Ndele","Belom")
       e.remove_link("Beboura III","Dosseye")
 
 
