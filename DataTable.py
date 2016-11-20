@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import csv
 from datetime import datetime
+from datetime import timedelta
 
 def subtract_dates(date1, date2):
   """
@@ -13,6 +14,12 @@ def subtract_dates(date1, date2):
   delta = a - b
   #print(date1,"-",date2,"=",delta.days)
   return delta.days 
+
+def steps_to_date(steps, start_date):
+  date_format = "%Y-%m-%d"
+  date_1 = datetime.strptime(start_date, "%Y-%m-%d")
+  new_date = (date_1 + timedelta(days=steps)).date()
+  return new_date
 
 def _processEntry(row, table, data_type, date_column, count_column, start_date):
   """
@@ -74,6 +81,7 @@ class DataTable:
     self.start_date = start_date
     self.override_refugee_input = False # Use modified input data for FLEE simulations
     self.override_refugee_input_file = ""
+    self.data_directory = data_directory
 
     if self.csvformat=="generic":
       with open("%s/%s" % (data_directory, data_layout), newline='') as csvfile:
@@ -88,7 +96,7 @@ class DataTable:
 
     #print(self.header, self.data_table)
 
-  def override_refugee_input(self, data_file_name):
+  def override_input(self, data_file_name):
     """
     Do not use the total refugee count data as the input value, but instead take values from a separate file.
     """
@@ -96,7 +104,7 @@ class DataTable:
     self.override_refugee_input = True
   
     self.header.append("total (modified input)")
-    self.data_table.append(ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, data_file_name), start_date=start_date))
+    self.data_table.append(ConvertCsvFileToNumPyTable("%s" % (data_file_name), start_date=self.start_date))
 
 
   def get_daily_difference(self, day, day_column=0, count_column=1, Debug=False, FullInterpolation=True, ZeroOnDayZero=False):

@@ -38,6 +38,19 @@ def AddInitialRefugees(e, d, loc):
 def date_to_sim_days(date):
   return handle_refugee_data.subtract_dates(date,"2012-02-29")
 
+def getNewRefs(d, t, refugees_raw, refugee_debt):
+
+  # Determine number of new refugees to insert into the system.
+  new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
+  refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
+  if new_refs < 0:
+    refugee_debt = -new_refs
+    new_refs = 0
+  elif refugee_debt > 0:
+    refugee_debt = 0
+
+  return new_refs, refugees_raw, refugee_debt
+
 
 if __name__ == "__main__":
 
@@ -46,11 +59,18 @@ if __name__ == "__main__":
   else:
     end_time = 300
 
-  RetroFitting = False
+  RetroFitting = True
+  end_time *= 10
+  OverrideInput = False  
+
   if len(sys.argv)>2:
-    if "-r" in sys.argv[2]:
-      RetroFitting = True
-      end_time *= 10
+    if "-n" or "-r" in sys.argv[2]:
+      RetroFitting = False
+      end_time = int(end_time/10)
+  
+    else:
+      OverrideInput = True
+      
 
   # Refugees reduce population counts.
   flee.SimulationSettings.TakeRefugeesFromPopulation = True
@@ -173,7 +193,11 @@ if __name__ == "__main__":
   n3.Camp = True
   n4.Camp = True
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012/")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012/", start_date="2012-02-29")
+
+  # Use custom total refugee inflow file.
+  if OverrideInput==True:
+    d.override_input("arrivals.txt") #TODO: should be sys.argv[2]
 
   # Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
   # These errors led to a perceived large drop in refugee population in all of these camps.
@@ -211,6 +235,24 @@ if __name__ == "__main__":
 
   num_steps = 0
 
+  """
+  warmup_period = date_to_sim_days("2012-02-29")
+
+  # Warmup period, no logging here.
+  for t in range(0, warmup_period):
+
+    e.refresh_conflict_weights()
+
+    new_refs, refugees_raw, refugee_debt = getNewRefs(d, t, refugees_raw, refugee_debt)
+
+    # Here we use the random choice to make a weighted choice between the source locations.
+    for i in range(0, new_refs):
+      e.addAgent(e.pick_conflict_location())
+
+    e.evolve()
+  """
+
+  # Main simulations
   for t in range(0,end_time):
 
     e.refresh_conflict_weights()
@@ -232,14 +274,7 @@ if __name__ == "__main__":
     if t_data == date_to_sim_days("2012-04-01"): #Starting from April, refugees appear to enter Niger again (on foot, report 4).
       linkNiger(e)
 
-    # Determine number of new refugees to insert into the system.
-    new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
-    refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
-    if new_refs < 0:
-      refugee_debt = -new_refs
-      new_refs = 0
-    elif refugee_debt > 0:
-      refugee_debt = 0
+    new_refs, refugees_raw, refugee_debt = getNewRefs(d, t, refugees_raw, refugee_debt)
 
     # Add conflict zones at the right time.
     if t_data == date_to_sim_days("2012-02-03"):
@@ -330,11 +365,63 @@ if __name__ == "__main__":
 
     print(output)
     
-  #Write arrivals and spread after the simulation...
 
-  text_file = open("arrivals.txt", "w")
+  # Write arrivals and spread after the simulation.
+  # Optimize the arrival count using an optimization function.
 
-  for i in range(0, num_steps):
-    text_file.write("%s,%s,%s\n" % (i, e.num_arrivals[i], e.travel_durations[i]))  
+  arrivals_file = open("arrivals.txt", "w")
+  dbg_file = open("debug-log.txt", "w")
+  dbg_file.write("t, data_val, new_val, value_change, sum of weights, errors_per_step, sum of error_modified_input, e.num_arrivals[t], e.travel_durations[t]\n")
+  
+  modified_inputs = []
 
-  text_file.close()
+  errors_per_step = []
+
+  for t in range(0, num_steps):
+    arrivals_data = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
+    errors_per_step += [arrivals_data - e.num_arrivals[i]]
+
+
+  new_val = 0
+  data_val = 0
+
+  for t in range(0, num_steps):
+
+    weights_for_modified_input = []
+    errors_for_modified_input = []
+
+    for u in range(0, num_steps):  
+
+      td_min = int(np.floor(e.travel_durations[u]))
+      td_min_weight = e.travel_durations[u] % 1.0
+      td_max = int(np.ceil(e.travel_durations[u]))
+      td_max_weight = 1.0 - (e.travel_durations[u] % 1.0)
+
+      # append weights to array
+      if int(u - td_min) == t:
+        weights_for_modified_input += [td_min_weight]
+        errors_for_modified_input += [errors_per_step[u-td_min]]
+      if int(u - td_max) == t:
+        weights_for_modified_input += [td_max_weight]
+        errors_for_modified_input += [errors_per_step[u-td_max]]
+
+    # Compute by how much the number of new refugees at time t should change
+    value_change = 0.0
+    total_weight = np.sum(weights_for_modified_input)
+    for i in range(0,len(weights_for_modified_input)):
+      value_change += weights_for_modified_input[i] * errors_for_modified_input[i] / total_weight
+
+    #value_change *= int(float(value_change)*0.5) # Put a small softening factor on the value change, to reduce risk of overshooting.
+
+    # Write corrected value
+    data_val += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
+    new_val += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) + value_change
+    #if new_val < 0:
+    #  new_val = 0
+    tdate = handle_refugee_data.steps_to_date(t, d.start_date)  
+    arrivals_file.write("%s,%s\n" % (tdate, int(new_val)))
+   
+    #dbg_file.write("%s, %s, %s, %s, %s, %s, %s, %s\n" % (t, new_val, value_change, len(weights_for_modified_input), len(errors_per_step), len(errors_for_modified_input), len(e.num_arrivals), len(e.travel_durations)))  
+    dbg_file.write("%s, %s/%s, %s, %s, %s, %s, %s, %s\n" % (t, data_val, new_val, value_change, np.sum(weights_for_modified_input), errors_per_step[i], np.sum(errors_for_modified_input), e.num_arrivals[i], e.travel_durations[i]))  
+
+  arrivals_file.close()

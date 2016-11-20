@@ -34,7 +34,8 @@ class Person:
 
   def evolve(self):
     if SimulationSettings.AgentLogLevel > 0:
-      self.timesteps_since_departure += 1
+      if self.timesteps_since_departure > 0:
+        self.timesteps_since_departure += 1
 
     movechance = self.location.movechance
     outcome = random.random()
@@ -50,6 +51,10 @@ class Person:
         self.location = self.location.links[chosenRoute]
         self.location.numAgents += 1
         self.travelling = True
+
+        if SimulationSettings.AgentLogLevel > 0:
+          if self.timesteps_since_departure == 0:
+            self.timesteps_since_departure += 1
 
   def finish_travel(self):
     if self.travelling:
@@ -168,20 +173,27 @@ class Ecosystem:
       self.travel_durations = [] # one element per time step.
 
   def _aggregate_arrivals(self):
+    """
+    Add up arrival statistics, to find out travel durations and total number of camp arrivals.
+    """
     if SimulationSettings.CampLogLevel > 0:
       arrival_total = 0
       tmp_num_arrivals = 0 
+
       for l in self.locations:
         if l.Camp == True:
           arrival_total += np.sum(l.incoming_journey_lengths)
           tmp_num_arrivals += len(l.incoming_journey_lengths)
           l.incoming_journey_lengths = []
+
       self.num_arrivals += [tmp_num_arrivals]
+
       if tmp_num_arrivals>0:
-        self.travel_durations += [(1.0*arrival_total) / (1.0*tmp_num_arrivals)]
+        self.travel_durations += [float(arrival_total) / float(tmp_num_arrivals)]
       else:
         self.travel_durations += [0.0]
-    
+
+      #print("New arrivals: ", self.travel_durations[-1], arrival_total, tmp_num_arrivals)    
 
   def remove_link(self, startpoint, endpoint):
     """Remove link when there is border closure between countries"""
