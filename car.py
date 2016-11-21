@@ -61,16 +61,18 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Gamboula", movechance=0.3))
   locations.append(e.addLocation("Baboua", movechance=0.3))
 
+  camp_movechance = 0.001
+
   #Chad, Cameroon & Demotratic R.of Congo & R. of Congo camps
-  locations.append(e.addLocation("Belom", movechance=0.001, capacity=28483, foreign=True))
-  locations.append(e.addLocation("Dosseye", movechance=0.001, capacity=22925, foreign=True))
-  locations.append(e.addLocation("East", movechance=0.001, capacity=180485, foreign=True))
-  locations.append(e.addLocation("Adamaoua", movechance=0.001, capacity=71506, foreign=True))
-  locations.append(e.addLocation("Mole", movechance=0.001, capacity=20454, foreign=True))
+  locations.append(e.addLocation("Belom", movechance=camp_movechance, capacity=28483, foreign=True))
+  locations.append(e.addLocation("Dosseye", movechance=camp_movechance, capacity=22925, foreign=True))
+  locations.append(e.addLocation("East", movechance=camp_movechance, capacity=180485, foreign=True))
+  locations.append(e.addLocation("Adamaoua", movechance=camp_movechance, capacity=71506, foreign=True))
+  locations.append(e.addLocation("Mole", movechance=camp_movechance, capacity=20454, foreign=True))
   locations.append(e.addLocation("Gbadolite", movechance=0.3))
-  locations.append(e.addLocation("Inke", movechance=0.001, capacity=20365, foreign=True))
-  locations.append(e.addLocation("Betou", movechance=0.001, capacity=10232, foreign=True))
-  locations.append(e.addLocation("Brazaville", movechance=0.001, capacity=8514, foreign=True))
+  locations.append(e.addLocation("Inke", movechance=camp_movechance, capacity=20365, foreign=True))
+  locations.append(e.addLocation("Betou", movechance=camp_movechance, capacity=10232, foreign=True))
+  locations.append(e.addLocation("Brazaville", movechance=camp_movechance, capacity=8514, foreign=True))
 
   #Within CAR
   e.linkUp("Mobaye","Melego","67.0")
@@ -145,6 +147,17 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Betou","2014-03-22")
   d.correctLevel1Registrations("Brazaville","2016-04-30")
 
+  last_physical_day = int(sys.argv[1])
+
+  locations[30].capacity = d.getMaxFromData("Belom", last_physical_day)
+  locations[31].capacity = d.getMaxFromData("Dosseye", last_physical_day)
+  locations[32].capacity = d.getMaxFromData("East", last_physical_day)
+  locations[33].capacity = d.getMaxFromData("Adamaoua", last_physical_day)
+  locations[34].capacity = d.getMaxFromData("Mole", last_physical_day)
+  locations[36].capacity = d.getMaxFromData("Inke", last_physical_day)
+  locations[37].capacity = d.getMaxFromData("Betou", last_physical_day)
+  locations[38].capacity = d.getMaxFromData("Brazaville", last_physical_day)
+
   list_of_cities = "Time"
 
   for l in locations:
@@ -195,10 +208,10 @@ if __name__ == "__main__":
 
     new_links = []
     # Close borders here: On the 12th of May, Chad closes border altogether.
-    if t_data == 163:
-      e.remove_link("Kago","Belom")
-      e.remove_link("Ndele","Belom")
-      e.remove_link("Beboura III","Dosseye")
+    #if t_data == 163:
+      #e.remove_link("Kago","Belom")
+      #e.remove_link("Ndele","Belom")
+      #e.remove_link("Beboura III","Dosseye")
 
 
     #Append conflict_zones and weights to list.

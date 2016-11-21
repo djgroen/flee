@@ -53,11 +53,13 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Makebuko", movechance=0.3))
   locations.append(e.addLocation("Commune of Mabanda", movechance=0.3))
 
+  camp_movechance = 0.001
+
   #Rwanda, Tanzania, Uganda and DRCongo camps
-  locations.append(e.addLocation("Mahama", movechance=0.001, capacity=49451, foreign=True))
-  locations.append(e.addLocation("Nduta", movechance=0.001, capacity=55320, foreign=True))
+  locations.append(e.addLocation("Mahama", movechance=camp_movechance, capacity=49451, foreign=True))
+  locations.append(e.addLocation("Nduta", movechance=camp_movechance, capacity=55320, foreign=True))
   locations.append(e.addLocation("Kagunga", movechance=1/21.0, foreign=True))
-  locations.append(e.addLocation("Nyarugusu", movechance=0.001, capacity=100925, foreign=True))
+  locations.append(e.addLocation("Nyarugusu", movechance=camp_movechance, capacity=100925, foreign=True))
   locations.append(e.addLocation("Gashora", movechance=0.3, foreign=True))
   locations.append(e.addLocation("Kayonza", movechance=0.3, foreign=True))
   locations.append(e.addLocation("Kabarore", movechance=0.3, foreign=True))
@@ -65,8 +67,8 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Gitarama", movechance=0.3, foreign=True))
   locations.append(e.addLocation("Kigali", movechance=0.3, foreign=True))
   locations.append(e.addLocation("Kabale", movechance=0.3, foreign=True))
-  locations.append(e.addLocation("Nakivale", movechance=0.001, capacity=18734, foreign=True))
-  locations.append(e.addLocation("Lusenda", movechance=0.001, capacity=17210, foreign=True))
+  locations.append(e.addLocation("Nakivale", movechance=camp_movechance, capacity=18734, foreign=True))
+  locations.append(e.addLocation("Lusenda", movechance=camp_movechance, capacity=17210, foreign=True))
 
   #Within Burundi
   e.linkUp("Bujumbura","Bubanza","48.0")
@@ -121,11 +123,18 @@ if __name__ == "__main__":
   # These errors led to a perceived large drop in refugee population in all of these camps.
   # We correct by linearly scaling the values down to make the last level 1 registration match the first level 2 registration value.
   # To our knowledge, all level 2 registration procedures were put in place by the end of 2016.
+  last_physical_day = int(sys.argv[1])
+
   d.correctLevel1Registrations("Mahama","2015-10-04")
+  locations[22].capacity = d.getMaxFromData("Mahama", last_physical_day)
   d.correctLevel1Registrations("Nduta","2016-04-06")
+  locations[23].capacity = d.getMaxFromData("Nduta", last_physical_day)
   d.correctLevel1Registrations("Nyarugusu","2015-11-10")
+  locations[25].capacity = d.getMaxFromData("Nyarugusu", last_physical_day)
   d.correctLevel1Registrations("Nakivale","2015-08-18")
+  locations[33].capacity = d.getMaxFromData("Nakivale", last_physical_day)
   d.correctLevel1Registrations("Lusenda","2015-09-30")
+  locations[34].capacity = d.getMaxFromData("Lusenda", last_physical_day)
 
 
   list_of_cities = "Time"

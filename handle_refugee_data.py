@@ -82,3 +82,21 @@ class RefugeeTable(DataTable):
           ref_table[0:i,1] *= first_level_2_value / last_level_1_value
           #print(first_level_2_value, last_level_1_value, ref_table[0:i,1])
 
+  def getMaxFromData(self, name, days):
+    """
+    Gets the maximum refugee count in a certain place within the timespan of "days" days since the start date.
+    """
+    hindex = self._find_headerindex(name)
+    ref_table = self.data_table[hindex]
+    max_val = 0
+
+    for i in range(0, len(ref_table)):
+
+      if int(ref_table[i][0]) == int(days):
+        break
+
+      if int(ref_table[i,1]) > max_val:
+        max_val = int(ref_table[i][1])
+
+    return max_val
+    

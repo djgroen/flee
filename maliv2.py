@@ -55,7 +55,7 @@ if __name__ == "__main__":
   e = flee.Ecosystem()
 
   # Refugees reduce population counts.
-  flee.SimulationSettings.TakeRefugeesFromPopulation = True
+  #flee.SimulationSettings.TakeRefugeesFromPopulation = True
 
   # Distances are estimated using Bing Maps.
 
@@ -129,9 +129,11 @@ if __name__ == "__main__":
   e.linkUp("Tenenkou","Segou","227.5")
   e.linkUp("Segou","Bamako","239.8")
 
+  camp_movechance = 0.001
+
 # Mauritania
 
-  m1 = e.addLocation("Mbera", movechance=0.001, capacity=103731, foreign=True)
+  m1 = e.addLocation("Mbera", movechance=camp_movechance, capacity=103731, foreign=True)
   # GPS 15.639012,-5.751422
   m2 = e.addLocation("Fassala", movechance=0.08, foreign=True)
 
@@ -141,21 +143,21 @@ if __name__ == "__main__":
 
 # Burkina Faso
 
-  b1 = e.addLocation("Mentao", movechance=0.001, capacity=10038, foreign=True)
+  b1 = e.addLocation("Mentao", movechance=camp_movechance, capacity=10038, foreign=True)
   # GPS 13.999700,-1.680371
-  b2 = e.addLocation("Bobo-Dioulasso", movechance=0.001, capacity=1926, foreign=True)
+  b2 = e.addLocation("Bobo-Dioulasso", movechance=camp_movechance, capacity=1926, foreign=True)
   # GPS 11.178103,-4.291773
 
   # No linking up yet, as BF border was shut prior to March 21st 2012.
 
 # Niger
-  n1 = e.addLocation("Abala", movechance=0.001, capacity=18573, foreign=True)
+  n1 = e.addLocation("Abala", movechance=camp_movechance, capacity=18573, foreign=True)
   # GPS 14.927683 3.433727
-  n2 = e.addLocation("Mangaize", movechance=0.001, capacity=4356, foreign=True)
+  n2 = e.addLocation("Mangaize", movechance=camp_movechance, capacity=4356, foreign=True)
   # GPS 14.684030 1.882720
-  n3 = e.addLocation("Niamey", movechance=0.001, capacity=6327, foreign=True)
+  n3 = e.addLocation("Niamey", movechance=camp_movechance, capacity=6327, foreign=True)
 
-  n4 = e.addLocation("Tabareybarey", movechance=0.001, capacity=9189, foreign=True)
+  n4 = e.addLocation("Tabareybarey", movechance=camp_movechance, capacity=9189, foreign=True)
   # GPS 14.754761 0.944773
 
   d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012/")
@@ -164,11 +166,18 @@ if __name__ == "__main__":
   # These errors led to a perceived large drop in refugee population in all of these camps.
   # We correct by linearly scaling the values down to make the last level 1 registration match the first level 2 registration value.
   # To our knowledge, all level 2 registration procedures were put in place by the end of 2012.
+  last_physical_day = int(sys.argv[1])
+
   d.correctLevel1Registrations("Mbera","2012-12-31")
+  m1.capacity = d.getMaxFromData("Mbera", last_physical_day)
   d.correctLevel1Registrations("Mentao","2012-10-03")
+  b1.capacity = d.getMaxFromData("Mentao", last_physical_day)
   d.correctLevel1Registrations("Abala","2012-12-21")
+  n1.capacity = d.getMaxFromData("Abala", last_physical_day)
   d.correctLevel1Registrations("Mangaize","2012-12-21")
+  n2.capacity = d.getMaxFromData("Mangaize", last_physical_day)
   d.correctLevel1Registrations("Tabareybarey","2012-12-21")
+  n4.capacity = d.getMaxFromData("Tabareybarey", last_physical_day)
   
 
   print("Day,Mbera sim,Mbera data,Mbera error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
