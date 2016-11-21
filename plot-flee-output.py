@@ -200,6 +200,17 @@ if __name__ == "__main__":
     set_margins()
     plt.savefig("%s/error-retrofitted.png" % out_dir)
 
+    plt.clf()
+
+    refugee_data_normal_time = pd.read_csv("%s/out.csv" % (out_dir), sep=',', encoding='latin1',index_col='Day')
+    diffdata = (refugee_data_normal_time.loc[:,["Total error"]].as_matrix()).flatten()
+    plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error")
+    plt.plot(retrofitted_times[offset:], diffdata_retro[offset:], linewidth=5, label="error (retrofitted)")
+    #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
+  
+    set_margins()
+    plt.legend()
+    plt.savefig("%s/error-both.png" % out_dir)
 
   plt.clf()
 
@@ -228,8 +239,8 @@ if __name__ == "__main__":
     fig = matplotlib.pyplot.gcf()
     fig.set_size_inches(12, 8)
   
-    plt.ylabel("Days passed in simulation")
-    plt.xlabel("Days passed when mapped to UNHCR data")
+    plt.xlabel("Steps taken in simulation")
+    plt.ylabel("Days passed when mapped to UNHCR data")
 
     set_margins()
     plt.savefig("%s/time_evolution.png" % out_dir)

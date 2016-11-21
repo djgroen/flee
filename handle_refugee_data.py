@@ -92,7 +92,9 @@ class RefugeeTable(DataTable):
 
     for i in range(0, len(ref_table)):
 
-      if int(ref_table[i][0]) == int(days):
+      if int(ref_table[i][0]) >= int(days):
+        if int(ref_table[i,1]) > max_val:
+          max_val = int(ref_table[i][1])
         break
 
       if int(ref_table[i,1]) > max_val:

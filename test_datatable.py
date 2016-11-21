@@ -17,6 +17,9 @@ if __name__ == "__main__":
   assert d.get_field("Total", 300) == 21079
   assert d.get_field("Total", 700) == 311338
 
+  print("Testing getMaxFromData.")
+  assert d.getMaxFromData("camp1", 1200) == 800000
+
   print("Testing correction for level 1 registrations.")
   d.correctLevel1Registrations("Total","2014-01-01")
 

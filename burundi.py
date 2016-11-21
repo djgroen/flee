@@ -126,16 +126,16 @@ if __name__ == "__main__":
   last_physical_day = int(sys.argv[1])
 
   d.correctLevel1Registrations("Mahama","2015-10-04")
-  locations[22].capacity = d.getMaxFromData("Mahama", last_physical_day)
   d.correctLevel1Registrations("Nduta","2016-04-06")
-  locations[23].capacity = d.getMaxFromData("Nduta", last_physical_day)
   d.correctLevel1Registrations("Nyarugusu","2015-11-10")
-  locations[25].capacity = d.getMaxFromData("Nyarugusu", last_physical_day)
   d.correctLevel1Registrations("Nakivale","2015-08-18")
-  locations[33].capacity = d.getMaxFromData("Nakivale", last_physical_day)
   d.correctLevel1Registrations("Lusenda","2015-09-30")
+  
+  locations[22].capacity = d.getMaxFromData("Mahama", last_physical_day)
+  locations[23].capacity = d.getMaxFromData("Nduta", last_physical_day)
+  locations[25].capacity = d.getMaxFromData("Nyarugusu", last_physical_day)
+  locations[33].capacity = d.getMaxFromData("Nakivale", last_physical_day)
   locations[34].capacity = d.getMaxFromData("Lusenda", last_physical_day)
-
 
   list_of_cities = "Time"
 
