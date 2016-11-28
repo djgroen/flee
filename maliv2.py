@@ -43,8 +43,10 @@ if __name__ == "__main__":
 
   if len(sys.argv)>1:
     end_time = int(sys.argv[1])
+    last_physical_day = int(sys.argv[1])
   else:
     end_time = 300
+    last_physical_day = 300
 
   RetroFitting = False
   if len(sys.argv)>2:
@@ -166,8 +168,6 @@ if __name__ == "__main__":
   # These errors led to a perceived large drop in refugee population in all of these camps.
   # We correct by linearly scaling the values down to make the last level 1 registration match the first level 2 registration value.
   # To our knowledge, all level 2 registration procedures were put in place by the end of 2012.
-  last_physical_day = int(sys.argv[1])
-
   d.correctLevel1Registrations("Mbera","2012-12-31")
   m1.capacity = d.getMaxFromData("Mbera", last_physical_day)
   d.correctLevel1Registrations("Mentao","2012-10-03")

@@ -12,11 +12,12 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 
 if __name__ == "__main__":
 
-
   if len(sys.argv)>1:
     end_time = int(sys.argv[1])
+    last_physical_day = int(sys.argv[1])
   else:
     end_time = 820
+    last_physical_day = 820
 
   RetroFitting = False
   if len(sys.argv)>2:
@@ -153,8 +154,6 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Inke","2014-06-30")
   d.correctLevel1Registrations("Betou","2014-03-22")
   d.correctLevel1Registrations("Brazaville","2016-04-30")
-
-  last_physical_day = int(sys.argv[1])
 
   locations[30].capacity = d.getMaxFromData("Belom", last_physical_day)
   locations[31].capacity = d.getMaxFromData("Dosseye", last_physical_day)
