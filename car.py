@@ -92,7 +92,7 @@ if __name__ == "__main__":
   e.linkUp("Bozoum","Paoua","116.0")
   e.linkUp("Bozoum","Bossangoa","132.0")
   e.linkUp("Bossangoa","RN1","98.0")
-  e.linkUp("Batangafo","RN1","154.0)
+  e.linkUp("Batangafo","RN1","154.0")
   e.linkUp("Paoua","RN1","82.0")
   e.linkUp("Bozoum","Bossembele","223.0")
   e.linkUp("Bossangoa","Bossembele","148.0")
@@ -126,13 +126,13 @@ if __name__ == "__main__":
 
 
   #Camps, starting at index locations[30] (at time of writing).
-  e.linkUp("Gamboula","East","135.0")
-  e.linkUp("Baboua","East","241.0")
-  e.linkUp("Baboua","Adamaoua","311.0")
-  e.linkUp("Paoua","Dosseye","136.0")
-  e.linkUp("RN1","Dosseye","108.0")
   e.linkUp("Kabo","Belom","87.0")
   e.linkUp("Ndele","Belom","299.0")
+  e.linkUp("Paoua","Dosseye","136.0")
+  e.linkUp("RN1","Dosseye","108.0")
+  e.linkUp("Gamboula","East","135.0")		
+  e.linkUp("Baboua","East","241.0")
+  e.linkUp("Baboua","Adamaoua","311.0")		
   e.linkUp("Bangui","Mole","42.0")
   e.linkUp("Gbadolite","Inke","42.0")
   e.linkUp("Mbaiki","Betou","148.0")
@@ -203,7 +203,6 @@ if __name__ == "__main__":
         break
 
 
-
     # Determine number of new refugees to insert into the system.
     new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
     refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
@@ -221,28 +220,115 @@ if __name__ == "__main__":
       #e.remove_link("Beboura III","Dosseye")
 
 
-    #Append conflict_zones and weights to list.
-    if t_data == 31: #A wave of reprisal attacks & escalating cycle of violence
-      locations[4].movechance = 1.0
-      locations[5].movechance = 1.0
-      locations[8].movechance = 1.0
-      locations[9].movechance = 1.0
-      locations[11].movechance = 1.0
-
-      conflict_zones += [locations[4], locations[5], locations[8], locations[9], locations[11]]
-      conflict_weights = np.append(conflict_weights, [233666,369220,356725,430506,276710])
-
-    elif t_data == 627: #Fighting between ex-Seleka & Anti-balaka (deaths & thousnads displaced)
+    #Append conflict_zones and weights to list from ACLED conflict database.
+    if t_data == 5: #A wave of reprisal attacks & escalating cycle of violence between Seleka militia and Anti-Balaka
       locations[11].movechance = 1.0
 
       conflict_zones += [locations[11]]
-      conflict_weights = np.append(conflict_weights, [276710])
+      conflict_weights = np.append(conflict_weights, [22284])
 
-    elif t_data == 742: #Violence & death during the constitutional referendum vote
+    elif t_data == 20: #MISCA: African-led International Support Mission against Anti-balaka (deaths & thousnads displaced)
+      locations[13].movechance = 1.0
+
+      conflict_zones += [locations[13]]
+      conflict_weights = np.append(conflict_weights, [38451])
+
+    elif t_data == 31: #Violence & death in battles between Seleka militia and Anti-Balaka
+      locations[1].movechance = 1.0
+
+      conflict_zones += [locations[1]]
+      conflict_weights = np.append(conflict_weights, [267859])
+
+    elif t_data == 50: #Violence & battles of Seleka militia with Anti-Balaka
+      locations[24].movechance = 1.0
+      locations[9].movechance = 1.0
+
+      conflict_zones += [locations[24], locations[9]]
+      conflict_weights = np.append(conflict_weights, [41486,39205])
+
+    elif t_data == 58: #Battles between Seleka militia and Anti-Balaka
+      locations[3].movechance = 1.0
+
+      conflict_zones += [locations[3]]
+      conflict_weights = np.append(conflict_weights, [11688])
+
+    elif t_data == 67: #Battles between Seleka militia and Anti-Balaka
+      locations[18].movechance = 1.0
+
+      conflict_zones += [locations[18]]
+      conflict_weights = np.append(conflict_weights, [27797])
+
+    elif t_data == 72: ##Battles between Military forces and Anti-Balaka
+      locations[6].movechance = 1.0
+
+      conflict_zones += [locations[6]]
+      conflict_weights = np.append(conflict_weights, [105155])
+
+    elif t_data == 77: #Battles between Seleka militia and Salanze Communal Militia
+      locations[26].movechance = 1.0
+
+      conflict_zones += [locations[26]]
+      conflict_weights = np.append(conflict_weights, [35305])
+
+    elif t_data == 97: #Battles between Seleka militia and Sangaris (French Mission)
+      locations[21].movechance = 1.0
+
+      conflict_zones += [locations[21]]
+      conflict_weights = np.append(conflict_weights, [13704])
+
+    elif t_data == 100: #MISCA: African-led International Support Mission against Anti-balaka
+      locations[4].movechance = 1.0
+
+      conflict_zones += [locations[4]]
+      conflict_weights = np.append(conflict_weights, [41462])
+
+    elif t_data == 128: #Battles between Seleka militia and Anti-Balaka
+      locations[20].movechance = 1.0
+
+      conflict_zones += [locations[20]]
+      conflict_weights = np.append(conflict_weights, [12447])
+
+    elif t_data == 130: #Battles of Bria Communal Militia (Seleka Militia) and MISCA (African-led International Support Mission)
+      locations[23].movechance = 1.0
+
+      conflict_zones += [locations[23]]
+      conflict_weights = np.append(conflict_weights, [43322])
+
+    elif t_data == 134: #Battles between Anti-Balaka and Seleka militia
+      locations[25].movechance = 1.0
+
+      conflict_zones += [locations[25]]
+      conflict_weights = np.append(conflict_weights, [10822])
+
+    elif t_data == 143: #Battles between Seleka militia and Anti-Balaka
+      locations[16].movechance = 1.0
+
+      conflict_zones += [locations[16]]
+      conflict_weights = np.append(conflict_weights, [12280])
+
+    elif t_data == 146: #Battles by unidentified Armed groups 
       locations[12].movechance = 1.0
 
       conflict_zones += [locations[12]]
-      conflict_weights = np.append(conflict_weights, [90316])
+      conflict_weights = np.append(conflict_weights, [17370])
+
+    elif t_data == 173: #MISCA: African-led International Support Mission against Anti-balaka
+      locations[8].movechance = 1.0
+
+      conflict_zones += [locations[8]]
+      conflict_weights = np.append(conflict_weights, [54551])
+
+    elif t_data == 241: #Battles between Anti-Balaka and Seleka militia
+      locations[15].movechance = 1.0
+
+      conflict_zones += [locations[15]]
+      conflict_weights = np.append(conflict_weights, [16420])
+
+    elif t_data == 313: #MINUSCA: United Nations Multidimensional Integrated Stabilization Mission against Seleka militia (PRGF Faction)
+      locations[19].movechance = 1.0
+
+      conflict_zones += [locations[19]]
+      conflict_weights = np.append(conflict_weights, [24527])
 
 
     #Insert refugee agents

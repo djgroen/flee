@@ -32,18 +32,22 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Bujumbura", movechance=1.0))
 
   locations.append(e.addLocation("Bubanza", movechance=0.3))
+  locations.append(e.addLocation("Bukinanyana", movechance=0.3))
   locations.append(e.addLocation("Cibitoke", movechance=0.3))
   locations.append(e.addLocation("Isale", movechance=0.3))
   locations.append(e.addLocation("Muramvya", movechance=0.3))
   locations.append(e.addLocation("Kayanza", movechance=0.3))
+  locations.append(e.addLocation("Kabarore", movechance=0.3))
   locations.append(e.addLocation("Mwaro", movechance=0.3))
   locations.append(e.addLocation("Rumonge", movechance=0.3))
+  locations.append(e.addLocation("Burambi", movechance=0.3))
   locations.append(e.addLocation("Bururi", movechance=0.3))
   locations.append(e.addLocation("Rutana", movechance=0.3))
   locations.append(e.addLocation("Makamba", movechance=0.3))
   locations.append(e.addLocation("Gitega", movechance=0.3))
   locations.append(e.addLocation("Karuzi", movechance=0.3))
   locations.append(e.addLocation("Ruyigi", movechance=0.3))
+  locations.append(e.addLocation("Gisuru", movechance=0.3))
   locations.append(e.addLocation("Cankuzo", movechance=0.3))
   locations.append(e.addLocation("Muyinga", movechance=0.3))
   locations.append(e.addLocation("Kirundo", movechance=0.3))
@@ -72,7 +76,9 @@ if __name__ == "__main__":
 
   #Within Burundi
   e.linkUp("Bujumbura","Bubanza","48.0")
-  e.linkUp("Bujumbura","Cibitoke","64.0")
+  e.linkUp("Bubanza","Bukinanyana","74.0")
+  e.linkUp("Bujumbura","Cibitoke","63.0")
+  e.linkUp("Cibitoke","Bukinanyana","49.0")
   e.linkUp("Bujumbura","Isale","11.0")
   e.linkUp("Isale","Muramvya","47.0")
   e.linkUp("Muramvya","Gitega","44.0")
@@ -83,12 +89,14 @@ if __name__ == "__main__":
   e.linkUp("Isale","Kayanza","84.0")
   e.linkUp("Kayanza","Ngozi","31.0")
   e.linkUp("Ngozi","Gashoho","41.0")
+  e.linkUp("Kayanza","Kabarore","18.0")
   e.linkUp("Gashoho","Kirundo","42.0")
   e.linkUp("Gashoho","Muyinga","34.0")
   e.linkUp("Bujumbura","Mwaro","67.0")
   e.linkUp("Mwaro","Gitega","46.0")
   e.linkUp("Bujumbura","Rumonge","75.0")
   e.linkUp("Rumonge","Bururi","31.0")
+  e.linkUp("Rumonge","Buramnbi","22.0")
   e.linkUp("Rumonge","Commune of Mabanda","73.0")
   e.linkUp("Commune of Mabanda","Makamba","18.0")
   e.linkUp("Bururi","Rutana","65.0")
@@ -97,11 +105,13 @@ if __name__ == "__main__":
   e.linkUp("Makebuko","Gitega","24.0")
   e.linkUp("Makebuko","Ruyigi","40.0")
   e.linkUp("Ruyigi","Cankuzo","51.0")
+  e.linkUp("Ruyigi","Gisuru","31.0")
   e.linkUp("Cankuzo","Muyinga","63.0")
 
-  #Camps, starting at index locations[22] (at time of writing).
+  #Camps, starting at index locations[26] (at time of writing).
   e.linkUp("Muyinga","Mahama","135.0")
   e.linkUp("Ruyigi","Nduta","90.0")
+  e.linkUp("Gisuru","Nduta","60.0")
   e.linkUp("Commune of Mabanda","Kagunga","36.0")
   e.linkUp("Kagunga","Nyarugusu","91.0", forced_redirection=True) #From Kagunga to Kigoma by ship (Kagunga=Kigoma)
   e.linkUp("Kirundo","Gashora","55.0")
@@ -131,11 +141,11 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Nakivale","2015-08-18")
   d.correctLevel1Registrations("Lusenda","2015-09-30")
   
-  locations[22].capacity = d.getMaxFromData("Mahama", last_physical_day)
-  locations[23].capacity = d.getMaxFromData("Nduta", last_physical_day)
-  locations[25].capacity = d.getMaxFromData("Nyarugusu", last_physical_day)
-  locations[33].capacity = d.getMaxFromData("Nakivale", last_physical_day)
-  locations[34].capacity = d.getMaxFromData("Lusenda", last_physical_day)
+  locations[26].capacity = d.getMaxFromData("Mahama", last_physical_day)
+  locations[27].capacity = d.getMaxFromData("Nduta", last_physical_day)
+  locations[29].capacity = d.getMaxFromData("Nyarugusu", last_physical_day)
+  locations[37].capacity = d.getMaxFromData("Nakivale", last_physical_day)
+  locations[38].capacity = d.getMaxFromData("Lusenda", last_physical_day)
 
   list_of_cities = "Time"
 
@@ -171,30 +181,40 @@ if __name__ == "__main__":
 
     #Append conflict_zone and weight to list.
     if t_data == 70: #Intense fighting between military & multineer military forces
-      locations[5].movechance = 1.0
+      locations[7].movechance = 1.0
 
-      conflict_zones += [locations[5]]
-      conflict_weights = np.append(conflict_weights, [585412])
+      conflict_zones += [locations[7]]
+      conflict_weights = np.append(conflict_weights, [62303])
 
     elif t_data == 71: #Intense fighting between military & mulineer military forces
       locations[2].movechance = 1.0
 
       conflict_zones += [locations[2]]
+      conflict_weights = np.append(conflict_weights, [75750])
+
+    elif t_data == 75: #Battles unidentified armed groups coordinately attacked military barracks
+      locations[3].movechance = 1.0
+
+      conflict_zones += [locations[3]]
       conflict_weights = np.append(conflict_weights, [460435])
 
-    elif t_data == 224: #Clashes, armed groups coordinately attacked military barracks; API Unit of police executed civilians; Military & police forces retaliate with violent raids
-      locations[1].movechance = 1.0
-      locations[11].movechance = 1.0
-      locations[16].movechance = 1.0
-
-      conflict_zones += [locations[1], locations[11], locations[16]]
-      conflict_weights = np.append(conflict_weights, [338023,725223,628256])
-
-    elif t_data == 269: #Clashes between RED-Tabara & government forces
+    elif t_data == 178: #Clashes and battles police forces
       locations[8].movechance = 1.0
 
       conflict_zones += [locations[8]]
-      conflict_weights = np.append(conflict_weights, [313102])
+      conflict_weights = np.append(conflict_weights, [273143])
+
+    elif t_data == 206: #Battles unidentified armed groups coordinate attacks
+      locations[17].movechance = 1.0
+
+      conflict_zones += [locations[17]]
+      conflict_weights = np.append(conflict_weights, [99461])
+
+    elif t_data == 221: #Military forces
+      locations[10].movechance = 1.0
+
+      conflict_zones += [locations[10]]
+      conflict_weights = np.append(conflict_weights, [57167])
 
 
     #new_refs = d.get_new_refugees(t)
@@ -225,7 +245,7 @@ if __name__ == "__main__":
     errors = []
     abs_errors = []
     loc_data = [mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data]
-    camp_locations = [22, 23, 25, 33, 34]
+    camp_locations = [26, 27, 29, 37, 38]
 
     camps = []
     for i in camp_locations:
