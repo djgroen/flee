@@ -24,19 +24,6 @@ def plotme(out_dir, data, name, retrofitted=True):
   """
   plt.clf()
 
-  data_x = []
-  data_y = []
-
-  d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
-
-  #Loop - taking the lenght of dataset for x and y rays & populating data to use for graphs
-  for day in range(0, len(data["%s data" % name])):
-    if d.is_interpolated(name, day) == False:
-      #draw a point
-      data_x.append(day)
-      data_y.append(data.at[day,"%s data" % name])
-
-
   # data.loc[:,["%s sim" % name,"%s data" % name]]).as_matrix()
   y1 = data["%s sim" % name].as_matrix()
   y2 = data["%s data" % name].as_matrix()
@@ -53,7 +40,6 @@ def plotme(out_dir, data, name, retrofitted=True):
     retrofitted_times = refugee_data.loc[:,["retrofitted time"]].as_matrix()
     labelsim, = plt.plot(retrofitted_times, y1, linewidth=8, label="%s simulation" % (name.title()))
   labeldata, = plt.plot(days,y2, linewidth=8, label="%s UNHCR data" % (name.title()))
-  plt.plot(data_x,data_y,'ob')
 
   if retrofitted==True:
     plt.xlim(0,retrofitted_times[-1])
@@ -156,7 +142,48 @@ if __name__ == "__main__":
       if "numAgents" not in i:
         location_names.append(' '.join(i.split()[:-1]))
 
-  #Plots for all locations
+
+  #Plotting and saving numagents (total refugee numbers) graph
+  #TODO: These labels need to be more flexible/modifiable.
+
+  plt.xlabel("Days elapsed")
+
+  matplotlib.rcParams.update({'font.size': 20})
+
+
+  if "refugee_debt" in refugee_data.columns:
+    refugee_data.loc[:,["total refugees (simulation)","refugees in camps (UNHCR)","raw UNHCR refugee count","refugee_debt"]].plot(linewidth=5)
+  else:
+    refugee_data.loc[:,["total refugees (simulation)","refugees in camps (UNHCR)","raw UNHCR refugee count"]].plot(linewidth=5)
+  
+  #Size of plots/figures
+  fig = matplotlib.pyplot.gcf()
+  fig.set_size_inches(12, 8)
+
+  set_margins()
+  plt.savefig("%s/numagents.png" % out_dir)
+
+
+
+  # Calculate the best offset.
+
+  sim_refs = refugee_data.loc[:,["refugees in camps (simulation)"]].as_matrix()
+  un_refs = refugee_data.loc[:,["refugees in camps (UNHCR)"]].as_matrix()
+
+  offset = 0
+  min_error = 1000000
+
+  for i in range(0,200):
+    compare_len = len(sim_refs[i:])
+    error = np.mean(np.abs(sim_refs[i:] - un_refs[:compare_len]))
+    print("error with offset ", i, " is: ", error)
+    if error < min_error:
+      min_error = error
+      offset = i
+
+  print("The best offset = ", offset)
+
+  #Plots for all locations, one .png file for every time plotme is called.
   for i in location_names:
     plotme(out_dir, refugee_data,i,retrofitted=RetroFitting)
     #plotme_minimal(out_dir, refugee_data,i)
@@ -194,8 +221,8 @@ if __name__ == "__main__":
       offset += 1
 
     diffdata_retro = (refugee_data.loc[:,["Total error (retrofitted)"]].as_matrix()).flatten()
-    plt.plot(retrofitted_times[offset:], diffdata_retro[offset:], linewidth=5, label="error (retrofitted)")
     print(out_dir,": Averaged error (retrofitted): ", np.trapz((diffdata_retro[offset:]**2.0), retrofitted_times[offset:]) / retrofitted_times[-1])
+    plt.plot(retrofitted_times[offset:], diffdata_retro[offset:], linewidth=5, label="error (retrofitted)")
 
     set_margins()
     plt.savefig("%s/error-retrofitted.png" % out_dir)
@@ -215,19 +242,6 @@ if __name__ == "__main__":
   plt.clf()
 
 
-  #TODO: These labels need to be more flexible/modifiable.
-  #Plotting and saving numagents (total refugee numbers) graph
-  if "refugee_debt" in refugee_data.columns:
-    refugee_data.loc[:,["total refugees (simulation)","refugees in camps (UNHCR)","raw UNHCR refugee count","refugee_debt"]].plot(linewidth=5)
-  else:
-    refugee_data.loc[:,["total refugees (simulation)","refugees in camps (UNHCR)","raw UNHCR refugee count"]].plot(linewidth=5)
-  
-  #Size of plots/figures
-  fig = matplotlib.pyplot.gcf()
-  fig.set_size_inches(12, 8)
-
-  set_margins()
-  plt.savefig("%s/numagents.png" % out_dir)
 
   if RetroFitting==True and "retrofitted time" in refugee_data.columns:
     plt.clf()
