@@ -4,7 +4,8 @@ import numpy as np
 class SimulationSettings:
   Softening = 0.0
   UseForeign = True
-  TurnBackAllowed = True
+  TurnBackAllowed = True #True
+  AvoidConflicts = True #False
   AgentLogLevel = 0 # set to 1 for basic agent information.
   CampLogLevel = 0  # set to 1 to obtain average times for agents to reach camps at any time step (aggregate info). 
   InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
@@ -95,6 +96,8 @@ class Person:
         total_score += 0
       else:
         weight = 1.0
+        if SimulationSettings.AvoidConflicts == True and self.location.links[i].endpoint.movechance > 0.5:
+          weight = 0.5
         if SimulationSettings.UseForeign == True and self.location.links[i].endpoint.foreign == True:
           weight = 2.0
         total_score += weight / (SimulationSettings.Softening + self.location.links[i].distance)
@@ -108,6 +111,8 @@ class Person:
         checked_score += 0
       else:
         weight = 1.0
+        if SimulationSettings.AvoidConflicts == True and self.location.links[i].endpoint.movechance > 0.5:
+          weight = 0.5
         if SimulationSettings.UseForeign == True and self.location.links[i].endpoint.foreign == True:
           weight = 2.0
         checked_score += weight / (SimulationSettings.Softening + self.location.links[i].distance)
