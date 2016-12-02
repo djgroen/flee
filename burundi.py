@@ -31,32 +31,36 @@ if __name__ == "__main__":
   locations = []
 
   #Burundi
-  locations.append(e.addLocation("Bujumbura", movechance=1.0))
-
+  locations.append(e.addLocation("Bujumbura", movechance=1.0, pop=497166))
   locations.append(e.addLocation("Bubanza", movechance=0.3))
-  locations.append(e.addLocation("Bukinanyana", movechance=0.3))
-  locations.append(e.addLocation("Cibitoke", movechance=0.3))
+  locations.append(e.addLocation("Bukinanyana", movechance=0.3, pop=75750))
+  locations.append(e.addLocation("Cibitoke", movechance=0.3, pop=460435))
   locations.append(e.addLocation("Isale", movechance=0.3))
+
   locations.append(e.addLocation("Muramvya", movechance=0.3))
   locations.append(e.addLocation("Kayanza", movechance=0.3))
-  locations.append(e.addLocation("Kabarore", movechance=0.3))
-  locations.append(e.addLocation("Mwaro", movechance=0.3))
+  locations.append(e.addLocation("Kabarore", movechance=0.3, pop=62303)) 
+  locations.append(e.addLocation("Mwaro", movechance=0.3, pop=273143))
   locations.append(e.addLocation("Rumonge", movechance=0.3))
-  locations.append(e.addLocation("Burambi", movechance=0.3))
+
+  locations.append(e.addLocation("Burambi", movechance=0.3, pop=57167))
   locations.append(e.addLocation("Bururi", movechance=0.3))
   locations.append(e.addLocation("Rutana", movechance=0.3))
   locations.append(e.addLocation("Makamba", movechance=0.3))
   locations.append(e.addLocation("Gitega", movechance=0.3))
+
   locations.append(e.addLocation("Karuzi", movechance=0.3))
   locations.append(e.addLocation("Ruyigi", movechance=0.3))
-  locations.append(e.addLocation("Gisuru", movechance=0.3))
+  locations.append(e.addLocation("Gisuru", movechance=0.3, pop=99461))
   locations.append(e.addLocation("Cankuzo", movechance=0.3))
   locations.append(e.addLocation("Muyinga", movechance=0.3))
+
   locations.append(e.addLocation("Kirundo", movechance=0.3))
   locations.append(e.addLocation("Ngozi", movechance=0.3))
   locations.append(e.addLocation("Gashoho", movechance=0.3))
   locations.append(e.addLocation("Gitega-Ruyigi", movechance=0.3))
   locations.append(e.addLocation("Makebuko", movechance=0.3))
+
   locations.append(e.addLocation("Commune of Mabanda", movechance=0.3))
 
   camp_movechance = 0.001
@@ -158,16 +162,11 @@ if __name__ == "__main__":
   print("Day,Mahama sim,Mahama data,Mahama error,Nduta sim,Nduta data,Nduta error,Nyarugusu sim,Nyarugusu data,Nyarugusu error,Nakivale sim,Nakivale data,Nakivale error,Lusenda sim,Lusenda data,Lusenda error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
 
 
-  #Bujumbura is in conflict area. All refugees want to leave this place.
-  locations[0].movechance = 1.0
+  e.add_conflict_zone("Bujumbura")
 
   #Set up a mechanism to incorporate temporary decreases in refugees
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only
-
-
-  conflict_zones = [locations[0]]
-  conflict_weights = np.array([497166])
 
   t_retrofitted = 0
 
@@ -182,41 +181,22 @@ if __name__ == "__main__":
 
     #Append conflict_zone and weight to list.
     if t_data == 70: #Intense fighting between military & multineer military forces
-      locations[7].movechance = 1.0
-
-      conflict_zones += [locations[7]]
-      conflict_weights = np.append(conflict_weights, [62303])
+      e.add_conflict_zone("Kabarore")
 
     elif t_data == 71: #Intense fighting between military & mulineer military forces
-      locations[2].movechance = 1.0
-
-      conflict_zones += [locations[2]]
-      conflict_weights = np.append(conflict_weights, [75750])
+      e.add_conflict_zone("Bukinanyana")
 
     elif t_data == 75: #Battles unidentified armed groups coordinately attacked military barracks
-      locations[3].movechance = 1.0
-
-      conflict_zones += [locations[3]]
-      conflict_weights = np.append(conflict_weights, [460435])
+      e.add_conflict_zone("Cibitoke")
 
     elif t_data == 178: #Clashes and battles police forces
-      locations[8].movechance = 1.0
-
-      conflict_zones += [locations[8]]
-      conflict_weights = np.append(conflict_weights, [273143])
+      e.add_conflict_zone("Mwaro")
 
     elif t_data == 206: #Battles unidentified armed groups coordinate attacks
-      locations[17].movechance = 1.0
-
-      conflict_zones += [locations[17]]
-      conflict_weights = np.append(conflict_weights, [99461])
+      e.add_conflict_zone("Gisuru")
 
     elif t_data == 221: #Military forces
-      locations[10].movechance = 1.0
-
-      conflict_zones += [locations[10]]
-      conflict_weights = np.append(conflict_weights, [57167])
-
+      e.add_conflict_zone("Burambi")
 
     #new_refs = d.get_new_refugees(t)
     new_refs = d.get_new_refugees(t, FullInterpolation=True) - refugee_debt
@@ -227,9 +207,9 @@ if __name__ == "__main__":
     elif refugee_debt > 0:
       refugee_debt = 0
 
-    #Insert refugee agents
+    # Here we use the random choice to make a weighted choice between the source locations.
     for i in range(0, new_refs):
-      e.addAgent(np.random.choice(conflict_zones, p=conflict_weights/sum(conflict_weights)))
+      e.addAgent(e.pick_conflict_location())
 
     #Propagate the model by one time step.
     e.evolve()
