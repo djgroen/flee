@@ -301,6 +301,8 @@ if __name__ == "__main__":
       errors_retrofitted += [a.rel_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
       abs_errors_retrofitted += [a.abs_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
 
+    # Total error is calculated using float(np.sum(abs_errors))/float(refugees_raw))
+
     locations = camps
     loc_data = camp_pops 
 

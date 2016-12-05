@@ -4,6 +4,10 @@ import numpy as np
 import matplotlib
 import sys
 import handle_refugee_data
+import warnings
+import analysis as a
+warnings.filterwarnings("ignore")
+
 
 """
 This is a generic plotting program.
@@ -18,7 +22,7 @@ def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
   fig.subplots_adjust(bottom=b,top=t,left=l,right=r)
 
 
-def plotme(out_dir, data, name, retrofitted=True):
+def plotme(out_dir, data, name, retrofitted=True, offset=0):
   """
   Explain function: what does it do, what do the arguments mean, and possibly an example.
   """
@@ -35,7 +39,10 @@ def plotme(out_dir, data, name, retrofitted=True):
 
   #Plotting lines representing simulation results and UNHCR data
   if retrofitted==False:
-    labelsim, = plt.plot(days,y1, linewidth=8, label="%s simulation" % (name.title()))
+    if offset == 0:
+      labelsim, = plt.plot(days,y1, linewidth=8, label="%s simulation" % (name.title()))
+    if offset > 0:
+      labelsim, = plt.plot(days[:-offset],y1[offset:], linewidth=8, label="%s simulation" % (name.title()))
   else:
     retrofitted_times = refugee_data.loc[:,["retrofitted time"]].as_matrix()
     labelsim, = plt.plot(retrofitted_times, y1, linewidth=8, label="%s simulation" % (name.title()))
@@ -52,7 +59,10 @@ def plotme(out_dir, data, name, retrofitted=True):
   set_margins()
 
   if retrofitted==False:
-    fig.savefig("%s/%s.png" % (out_dir, name))
+    if offset == 0:
+      fig.savefig("%s/%s.png" % (out_dir, name))
+    else:
+      fig.savefig("%s/%s-offset.png" % (out_dir, name))
   else:
     fig.savefig("%s/%s-retrofitted.png" % (out_dir, name))
 
@@ -171,21 +181,66 @@ if __name__ == "__main__":
   un_refs = refugee_data.loc[:,["refugees in camps (UNHCR)"]].as_matrix()
 
   offset = 0
-  min_error = 1000000
 
-  for i in range(0,200):
-    compare_len = len(sim_refs[i:])
-    error = np.mean(np.abs(sim_refs[i:] - un_refs[:compare_len]))
-    print("error with offset ", i, " is: ", error)
-    if error < min_error:
-      min_error = error
-      offset = i
+  if RetroFitting == False:
+    min_error = 1000000
+    error_at_zero_offset = 0
 
-  print("The best offset = ", offset)
+    for i in range(0,200):
+      compare_len = len(sim_refs[i:])
+      error = np.mean(np.abs(sim_refs[i:] - un_refs[:compare_len]))
+
+      if i == 0:
+        error_at_zero_offset = error
+
+      #print("error with offset ", i, " is: ", error)
+      if error < min_error:
+        min_error = error
+        offset = i
+
+    #print(out_dir, ": The best offset = ", offset, ", error = ", min_error, ", error at offset 0 = ",error_at_zero_offset)
+
+
+  # Recalculate and print the error when offset is set.
+  if offset > 0:
+    total_errors = []
+    for d in range(0, len(sim_refs[offset:])):
+      # calculate error terms.
+      camp_pops = []
+      errors = []
+      abs_errors = []
+      #camp_pops_retrofitted = []
+      #errors_retrofitted = []
+      #abs_errors_retrofitted = []
+      for name in location_names:
+        y1 = (refugee_data["%s sim" % name].as_matrix())[offset:]
+        y2 = refugee_data["%s data" % name].as_matrix()
+        days = np.arange(len(y1))
+
+        # normal 1 step = 1 day errors.
+        camp_pops += [y2[d]]
+        errors += [a.rel_error(y1[d], camp_pops[-1])]
+        abs_errors += [a.abs_error(y1[d], camp_pops[-1])]
+
+        # errors when using retrofitted time stepping.
+        #camp_pops_retrofitted += [d.get_field(camp_names[i], t_retrofitted, FullInterpolation=True)]
+        #errors_retrofitted += [a.rel_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
+        #abs_errors_retrofitted += [a.abs_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
+
+      if un_refs[d] > 0.0:
+        total_errors += [float(np.sum(abs_errors))/float(un_refs[d])]
+      # Total error is calculated using float(np.sum(abs_errors))/float(refugees_raw))
+    print(out_dir,": Averaged error with", offset, "offset: ", np.trapz(np.array(total_errors) ** 2.0) / (1.0*len(total_errors)))
+
 
   #Plots for all locations, one .png file for every time plotme is called.
   for i in location_names:
-    plotme(out_dir, refugee_data,i,retrofitted=RetroFitting)
+
+    plotme(out_dir, refugee_data, i, retrofitted=RetroFitting)
+
+    if not RetroFitting and offset>0:
+      plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, offset=offset)
+
     #plotme_minimal(out_dir, refugee_data,i)
 
   matplotlib.rcParams.update({'font.size': 20})
@@ -204,7 +259,7 @@ if __name__ == "__main__":
 
   if RetroFitting==False:
     diffdata = (refugee_data.loc[:,["Total error"]].as_matrix()).flatten()
-    print(out_dir,": Averaged error: ",  np.trapz(diffdata ** 2.0) / (1.0*len(diffdata)))
+    print(out_dir,": Averaged error with 0 offset: ",  np.trapz(diffdata ** 2.0) / (1.0*len(diffdata)))
     plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error")
     #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
   
