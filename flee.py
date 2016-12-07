@@ -1,15 +1,24 @@
 import random
 import numpy as np
+import sys
 
 class SimulationSettings:
   Softening = 0.0
-  UseForeign = True
+  UseForeign = True # IMPORTANT: UseForeign is ignored when UseDynamicAwareness is enabled.
   TurnBackAllowed = True #True
   AvoidConflicts = True #False
   AgentLogLevel = 0 # set to 1 for basic agent information.
   CampLogLevel = 0  # set to 1 to obtain average times for agents to reach camps at any time step (aggregate info). 
   InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
   TakeRefugeesFromPopulation = True
+
+  CampWeight = 2.0 # attraction factor for camps.
+  ConflictWeight = 0.5 # reduction factor for refugees entering conflict zones.
+  MinMoveSpeed = 50 # least number of km that we expect refugees to traverse per time step.
+  #MaxMoveSpeed = 300 # least number of km that we expect refugees to traverse per time step.
+  #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
+
+  UseDynamicAwareness = True # Refugees become smarter over time.
 
 class Person:
   def __init__(self, location):
@@ -21,6 +30,7 @@ class Person:
     self.location = location
     self.home_location = location
     self.location.numAgents += 1
+    self.timesteps_since_departure = 0
 
     # Set to true when an agent resides on a link.
     self.travelling = False
@@ -31,13 +41,8 @@ class Person:
     if SimulationSettings.AgentLogLevel > 0:
       self.distance_travelled = 0
       self.places_travelled = 1
-      self.timesteps_since_departure = 0
 
   def evolve(self):
-    if SimulationSettings.AgentLogLevel > 0:
-      if self.timesteps_since_departure > 0:
-        self.timesteps_since_departure += 1
-
     movechance = self.location.movechance
     outcome = random.random()
     self.travelling = False
@@ -53,16 +58,13 @@ class Person:
         self.location.numAgents += 1
         self.travelling = True
 
-        if SimulationSettings.AgentLogLevel > 0:
-          if self.timesteps_since_departure == 0:
-            self.timesteps_since_departure += 1
+    self.timesteps_since_departure += 1
 
-  def finish_travel(self):
+
+  def finish_travel(self, travelled_this_timestep=0):
     if self.travelling:
 
-      # update last location of agent.
-      if not SimulationSettings.TurnBackAllowed:
-        self.last_location = self.location
+      travelled_this_timestep += self.location.distance
 
       # update agent logs
       if SimulationSettings.AgentLogLevel > 0:
@@ -78,48 +80,77 @@ class Person:
         if self.location.Camp == True:
           self.location.incoming_journey_lengths += [self.timesteps_since_departure]
 
+      # refugees may take another route if they have travelled less than MinMoveSpeed.
+      if travelled_this_timestep < SimulationSettings.MinMoveSpeed:
+        self.evolve()
+        self.finish_travel(travelled_this_timestep)
+
+
+  def getLinkWeight(self, link, awareness_level):
+    """
+    Calculate the weight of an adjacent link. Weight = probability that it will be chosen.
+    """  
+    if SimulationSettings.UseDynamicAwareness == False:
+      weight = 1.0
+
+      # If turning back is NOT allowed, remove weight from the last location.
+      if not SimulationSettings.TurnBackAllowed:
+        if self.location.links[i].endpoint == self.last_location:
+          weight = 0.1
+          
+      if SimulationSettings.AvoidConflicts == True and link.endpoint.movechance > 0.5:
+        weight = 0.5
+      if SimulationSettings.UseForeign == True and link.endpoint.foreign == True:
+        weight = 2.0
+
+      return float(weight / float(SimulationSettings.Softening + link.distance))
+
+    else:
+
+      # If turning back is NOT allowed, remove weight from the last location.
+      if not SimulationSettings.TurnBackAllowed:
+        if link.endpoint == self.last_location:
+          return float(0.1 / float(SimulationSettings.Softening + link.distance))
+
+      if awareness_level == 0:
+        return float(1.0 / float(SimulationSettings.Softening + link.distance))
+      if awareness_level == 1:
+        return float(link.endpoint.LocationScore / float(SimulationSettings.Softening + link.distance))
+      if awareness_level == 2:
+        return float(link.endpoint.NeighbourhoodScore / float(SimulationSettings.Softening + link.distance))
+      if awareness_level > 2:
+        return float(link.endpoint.RegionScore / float(SimulationSettings.Softening + link.distance))
+
+
+
   def selectRoute(self):
-    total_score = 0.0
+    weights = np.array([])
     for i in range(0,len(self.location.links)):
       # forced redirection: if this is true for a link, return its value immediately.
       if self.location.links[i].forced_redirection == True:
         return i
 
-      # If turning back is NOT allowed, remove weight from the last location.
-      if not SimulationSettings.TurnBackAllowed:
-        if self.location.links[i].endpoint == self.last_location:
-          total_score += 0
-          continue
-
-      # else, use the normal algorithm.
-      if self.location.links[i].endpoint.isFull(self.location.links[i].numAgents):
-        total_score += 0
+      if self.timesteps_since_departure < 1:
+        weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 0)])
+      elif self.timesteps_since_departure < 2:
+        weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 1)])
+      elif self.timesteps_since_departure < 4:
+        weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 2)])
       else:
-        weight = 1.0
-        if SimulationSettings.AvoidConflicts == True and self.location.links[i].endpoint.movechance > 0.5:
-          weight = 0.5
-        if SimulationSettings.UseForeign == True and self.location.links[i].endpoint.foreign == True:
-          weight = 2.0
-        total_score += weight / (SimulationSettings.Softening + self.location.links[i].distance)
+        weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 3)])
 
+    if len(weights) == 0:
+      return -1
+    else:
+      if np.sum(weights) > 0.0:
+        weights /= np.sum(weights)
+      else: # if all have zero weight, then we do equal weighting.
+        weights += 1.0/float(len(weights))
 
-    selected_value = random.random() * total_score
+      #if len(weights) != len(list(range(0,len(self.location.links)))):
+      #  print(weights, list(range(0,len(self.location.links))))
 
-    checked_score = 0.0
-    for i in range(0,len(self.location.links)):
-      if(self.location.links[i].endpoint.isFull(self.location.links[i].numAgents)):
-        checked_score += 0
-      else:
-        weight = 1.0
-        if SimulationSettings.AvoidConflicts == True and self.location.links[i].endpoint.movechance > 0.5:
-          weight = 0.5
-        if SimulationSettings.UseForeign == True and self.location.links[i].endpoint.foreign == True:
-          weight = 2.0
-        checked_score += weight / (SimulationSettings.Softening + self.location.links[i].distance)
-        if selected_value < checked_score:
-          return i
-
-    return -1
+      return np.random.choice(list(range(0,len(self.location.links))), p=weights)
 
 class Location:
   def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False):
@@ -132,10 +163,20 @@ class Location:
     self.capacity = capacity # refugee capacity
     self.pop = pop # non-refugee population
     self.foreign = foreign
+    self.Conflict = False
+    self.Camp = False
+
+    # Automatically tags a location as a Camp if refugees are less than 1% likely to move out on a given day.
+    if movechance < 0.01:
+      self.Camp = True
+
+    self.LocationScore = 1.0 # Value of Location. Should be between 0.5 and SimulationSettings.CampWeight.
+    self.NeighbourhoodScore = 1.0 # Value of Neighbourhood. Should be between 0.5 and SimulationSettings.CampWeight.
+    self.RegionScore = 1.0 # Value of surrounding region. Should be between 0.5 and SimulationSettings.CampWeight.
+ 
 
     if SimulationSettings.CampLogLevel > 0:
       self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
-      self.Camp = False
 
   def isFull(self, numOnLink):
     """ Checks whether a given location has reached full capacity. In this case it will no longer admit persons."""
@@ -144,6 +185,55 @@ class Location:
     elif self.numAgents >= self.capacity:
       return True
     return False
+
+  def updateLocationScore(self):
+    """ Attractiveness of the local point, based on local point information only. """
+
+    if self.Camp:
+      if self.isFull(self.capacity/100):
+        self.LocationScore = 0.0
+      else:
+        self.LocationScore = SimulationSettings.CampWeight
+    elif self.Conflict:
+      self.LocationScore = SimulationSettings.ConflictWeight
+    else:
+      self.LocationScore = 1.0
+  
+  def updateNeighbourhoodScore(self):
+
+    """ Attractiveness of the local point, based on information from local and adjacent points, weighted by link length. """
+    # No links connected or a Camp? Use LocationScore.
+    if len(self.links) == 0 or self.Camp:
+      self.NeighbourhoodScore = self.LocationScore
+      return
+
+
+    self.NeighbourhoodScore = 0.0
+    total_link_weight = 0.0
+
+    for i in self.links:
+      self.NeighbourhoodScore += i.endpoint.LocationScore / float(i.distance)      
+      total_link_weight += 1.0 / float(i.distance)
+
+    self.NeighbourhoodScore /= total_link_weight
+
+  def updateRegionScore(self):
+    """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points, 
+        weighted by link length. """
+    # No links connected or a Camp? Use LocationScore.
+    if len(self.links) == 0 or self.Camp:
+      self.RegionScore = self.LocationScore
+      return
+
+    self.RegionScore = 0.0
+    total_link_weight = 0.0
+
+    for i in self.links:
+      self.RegionScore += i.endpoint.NeighbourhoodScore / float(i.distance)      
+      total_link_weight += 1.0 / float(i.distance)
+
+    self.RegionScore /= total_link_weight
+
 
 class Link:
   def __init__(self, endpoint, distance, forced_redirection=False):
@@ -224,6 +314,7 @@ class Ecosystem:
       if self.locationNames[i] is name:
         if change_movechance:
           self.locations[i].movechance = 1.0
+          self.locations[i].Conflict = True
         self.conflict_zones += [self.locations[i]]
         self.conflict_weights = np.append(self.conflict_weights, [self.locations[i].pop])
         self.conflict_pop = sum(self.conflict_weights)
@@ -273,6 +364,16 @@ class Ecosystem:
 
 
   def evolve(self):
+    # update level 1, 2 and 3 location scores
+    for l in self.locations:
+      l.updateLocationScore() 
+
+    for l in self.locations:
+      l.updateNeighbourhoodScore() 
+
+    for l in self.locations:
+      l.updateRegionScore() 
+
     #update agent locations
     for a in self.agents:
       a.evolve()

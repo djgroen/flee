@@ -179,6 +179,7 @@ if __name__ == "__main__":
 
   sim_refs = refugee_data.loc[:,["refugees in camps (simulation)"]].as_matrix()
   un_refs = refugee_data.loc[:,["refugees in camps (UNHCR)"]].as_matrix()
+  raw_refs = refugee_data.loc[:,["raw UNHCR refugee count"]].as_matrix()
 
   offset = 0
 
@@ -198,39 +199,52 @@ if __name__ == "__main__":
         min_error = error
         offset = i
 
-    #print(out_dir, ": The best offset = ", offset, ", error = ", min_error, ", error at offset 0 = ",error_at_zero_offset)
+    print(out_dir, ": The best offset = ", offset, ", error = ", min_error, ", error at offset 0 = ",error_at_zero_offset)
 
 
   # Recalculate and print the error when offset is set.
-  if offset > 0:
-    total_errors = []
-    for d in range(0, len(sim_refs[offset:])):
-      # calculate error terms.
-      camp_pops = []
-      errors = []
-      abs_errors = []
-      #camp_pops_retrofitted = []
-      #errors_retrofitted = []
-      #abs_errors_retrofitted = []
-      for name in location_names:
-        y1 = (refugee_data["%s sim" % name].as_matrix())[offset:]
-        y2 = refugee_data["%s data" % name].as_matrix()
-        days = np.arange(len(y1))
 
-        # normal 1 step = 1 day errors.
-        camp_pops += [y2[d]]
-        errors += [a.rel_error(y1[d], camp_pops[-1])]
-        abs_errors += [a.abs_error(y1[d], camp_pops[-1])]
+  total_errors = []
+  total_errors_0 = []
 
-        # errors when using retrofitted time stepping.
-        #camp_pops_retrofitted += [d.get_field(camp_names[i], t_retrofitted, FullInterpolation=True)]
-        #errors_retrofitted += [a.rel_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
-        #abs_errors_retrofitted += [a.abs_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
+  for d in range(0, len(sim_refs[offset:])):
+    # calculate error terms.
+    camp_pops = []
+    errors = []
+    errors_0 = []
+    abs_errors = []
+    abs_errors_0 = []
+    #camp_pops_retrofitted = []
+    #errors_retrofitted = []
+    #abs_errors_retrofitted = []
+    for name in location_names:
+      y2 = refugee_data["%s data" % name].as_matrix()
+      y1 = (refugee_data["%s sim" % name].as_matrix())[offset:]
+      days = np.arange(len(y1))
 
-      if un_refs[d] > 0.0:
-        total_errors += [float(np.sum(abs_errors))/float(un_refs[d])]
-      # Total error is calculated using float(np.sum(abs_errors))/float(refugees_raw))
-    print(out_dir,": Averaged error with", offset, "offset: ", np.trapz(np.array(total_errors) ** 2.0) / (1.0*len(total_errors)))
+      # normal 1 step = 1 day errors.
+      camp_pops += [y2[d]]
+      errors += [a.rel_error(y1[d], camp_pops[-1])]
+      abs_errors += [a.abs_error(y1[d], camp_pops[-1])]
+
+      # errors when using retrofitted time stepping.
+      #camp_pops_retrofitted += [d.get_field(camp_names[i], t_retrofitted, FullInterpolation=True)]
+      #errors_retrofitted += [a.rel_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
+      #abs_errors_retrofitted += [a.abs_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
+
+      y1_0 = refugee_data["%s sim" % name].as_matrix()
+      days_0 = np.arange(len(y1_0))
+      errors_0 += [a.rel_error(y1_0[d], camp_pops[-1])]
+      abs_errors_0 += [a.abs_error(y1_0[d], camp_pops[-1])]
+
+    if un_refs[d] > 0.0:
+      total_errors += [float(np.sum(abs_errors))/float(raw_refs[d])]
+      total_errors_0 += [float(np.sum(abs_errors_0))/float(raw_refs[d])]
+      #total_errors_retrofitted += [float(np.sum(abs_errors_retrofitted))/float(un_refs[d])]
+    # Total error is calculated using float(np.sum(abs_errors))/float(refugees_raw))
+
+  #print(out_dir,": Averaged error with", offset, "offset: ", np.trapz(np.array(total_errors) ** 2.0) / (1.0*len(total_errors)))
+  #print(out_dir,": Averaged error with no offset: ", np.trapz(np.array(total_errors_0) ** 2.0) / (1.0*len(total_errors_0)))
 
 
   #Plots for all locations, one .png file for every time plotme is called.
