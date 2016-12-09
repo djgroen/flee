@@ -134,8 +134,8 @@ if __name__ == "__main__":
   locations[26].capacity = d.getMaxFromData("Mahama", last_physical_day)
   locations[27].capacity = d.getMaxFromData("Nduta", last_physical_day)
   locations[29].capacity = d.getMaxFromData("Nyarugusu", last_physical_day)
-  locations[37].capacity = d.getMaxFromData("Nakivale", last_physical_day)
-  locations[38].capacity = d.getMaxFromData("Lusenda", last_physical_day)
+  locations[30].capacity = d.getMaxFromData("Nakivale", last_physical_day)
+  locations[31].capacity = d.getMaxFromData("Lusenda", last_physical_day)
 
   list_of_cities = "Time"
 
@@ -211,7 +211,7 @@ if __name__ == "__main__":
     errors = []
     abs_errors = []
     loc_data = [mahama_data, nduta_data, nyarugusu_data, nakivale_data, lusenda_data]
-    camp_locations = [26, 27, 29, 37, 38]
+    camp_locations = [26, 27, 29, 30, 31]
 
     camps = []
     for i in camp_locations:
