@@ -262,9 +262,6 @@ if __name__ == "__main__":
     if t_data == date_to_sim_days("2012-03-13"):
       e.add_conflict_zone("Dire")
 
-    if t_data == date_to_sim_days("2012-03-23"): #Kidal has fallen, but Gao and Timbuktu are still controlled by Mali
-      e.add_conflict_zone("Gao")  
- 
  
     # Here we use the random choice to make a weighted choice between the source locations.
     for i in range(0, new_refs):
