@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
   locations.append(e.addLocation("Muramvya", movechance=0.3))
   locations.append(e.addLocation("Kayanza", movechance=0.3))
-  locations.append(e.addLocation("Kabarore", movechance=0.3, pop=62303)) 
+  locations.append(e.addLocation("Kabarore", movechance=0.3, pop=62303)) #This resides in Kayanza province in Burundi. Not to be confused with Kabarore, Rwanda.
   locations.append(e.addLocation("Mwaro", movechance=0.3, pop=273143))
   locations.append(e.addLocation("Rumonge", movechance=0.3))
 
@@ -70,13 +70,6 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Nduta", movechance=camp_movechance, capacity=55320, foreign=True))
   locations.append(e.addLocation("Kagunga", movechance=1/21.0, foreign=True))
   locations.append(e.addLocation("Nyarugusu", movechance=camp_movechance, capacity=100925, foreign=True))
-  locations.append(e.addLocation("Gashora", movechance=0.3, foreign=True))
-  locations.append(e.addLocation("Kayonza", movechance=0.3, foreign=True))
-  locations.append(e.addLocation("Kabarore", movechance=0.3, foreign=True))
-  locations.append(e.addLocation("Kagitumba", movechance=0.3, foreign=True))
-  locations.append(e.addLocation("Gitarama", movechance=0.3, foreign=True))
-  locations.append(e.addLocation("Kigali", movechance=0.3, foreign=True))
-  locations.append(e.addLocation("Kabale", movechance=0.3, foreign=True))
   locations.append(e.addLocation("Nakivale", movechance=camp_movechance, capacity=18734, foreign=True))
   locations.append(e.addLocation("Lusenda", movechance=camp_movechance, capacity=17210, foreign=True))
 
@@ -120,16 +113,8 @@ if __name__ == "__main__":
   e.linkUp("Gisuru","Nduta","60.0")
   e.linkUp("Commune of Mabanda","Kagunga","36.0")
   e.linkUp("Kagunga","Nyarugusu","91.0", forced_redirection=True) #From Kagunga to Kigoma by ship (Kagunga=Kigoma)
-  e.linkUp("Kirundo","Gashora","55.0")
-  e.linkUp("Gashora","Kayonza","81.0")
-  e.linkUp("Kayonza","Kabarore","45.0")
-  e.linkUp("Kabarore","Kagitumba","71.0")
-  e.linkUp("Kagitumba","Nakivale","66.0")
-  e.linkUp("Gashora","Kigali","57.0")
-  e.linkUp("Kayanza","Gitarama","133.0")
-  e.linkUp("Gitarama","Kigali","44.0")
-  e.linkUp("Kigali","Kabale","96.0")
-  e.linkUp("Kabale","Nakivale","140.0")
+  e.linkUp("Kirundo","Nakivale","318.0")
+  e.linkUp("Kayanza","Nakivale","413.0")
   e.linkUp("Bujumbura","Lusenda","53.0")
 
 
