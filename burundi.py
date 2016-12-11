@@ -78,16 +78,18 @@ if __name__ == "__main__":
   e.linkUp("Bubanza","Bukinanyana","74.0")
   e.linkUp("Bujumbura","Cibitoke","63.0")
   e.linkUp("Cibitoke","Bukinanyana","49.0")
-  e.linkUp("Bujumbura","Isale","11.0")
-  e.linkUp("Isale","Muramvya","47.0")
+  #e.linkUp("Bujumbura","Isale","11.0") # ???
+  #e.linkUp("Isale","Muramvya","47.0") # ???
+  e.linkUp("Bujumbura","Muramvya","58.0") 
   e.linkUp("Muramvya","Gitega","44.0")
-  e.linkUp("Gitega","Gitega-Ruyigi","12.0")
-  e.linkUp("Gitega-Ruyigi","Karuzi","42.0")
-  e.linkUp("Gitega-Ruyigi","Ruyigi","43.0")
+  e.linkUp("Gitega","Karuzi","54.0")
+  e.linkUp("Gitega","Ruyigi","55.0") 
+  e.linkUp("Ruyigi","Karuzi","43.0") 
   e.linkUp("Karuzi","Muyinga","42.0")
-  e.linkUp("Isale","Kayanza","84.0")
-  e.linkUp("Kayanza","Ngozi","31.0")
-  e.linkUp("Ngozi","Gashoho","41.0")
+  #e.linkUp("Isale","Kayanza","84.0") # ???
+  e.linkUp("Bujumbura","Kayanza","95.0") 
+  e.linkUp("Kayanza","Ngozi","31.0") ##
+  e.linkUp("Ngozi","Gashoho","41.0") ##
   e.linkUp("Kayanza","Kabarore","18.0")
   e.linkUp("Gashoho","Kirundo","42.0")
   e.linkUp("Gashoho","Muyinga","34.0")
@@ -95,13 +97,13 @@ if __name__ == "__main__":
   e.linkUp("Mwaro","Gitega","46.0")
   e.linkUp("Bujumbura","Rumonge","75.0")
   e.linkUp("Rumonge","Bururi","31.0")
-  e.linkUp("Rumonge","Buramnbi","22.0")
+  e.linkUp("Rumonge","Burambi","22.0")
   e.linkUp("Rumonge","Commune of Mabanda","73.0")
-  e.linkUp("Commune of Mabanda","Makamba","18.0")
+  e.linkUp("Commune of Mabanda","Makamba","18.0") # ??
   e.linkUp("Bururi","Rutana","65.0")
-  e.linkUp("Makamba","Rutana","50.0")
-  e.linkUp("Rutana","Makebuko","46.0")
-  e.linkUp("Makebuko","Gitega","24.0")
+  e.linkUp("Makamba","Rutana","50.0") # ??
+  e.linkUp("Rutana","Makebuko","46.0") # ??
+  e.linkUp("Makebuko","Gitega","24.0") # ??
   e.linkUp("Makebuko","Ruyigi","40.0")
   e.linkUp("Ruyigi","Cankuzo","51.0")
   e.linkUp("Ruyigi","Gisuru","31.0")
