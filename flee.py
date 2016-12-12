@@ -86,7 +86,7 @@ class Person:
     """
     Calculate the weight of an adjacent link. Weight = probability that it will be chosen.
     """  
-    if SimulationSettings.UseDynamicAwareness == False:
+    """if SimulationSettings.UseDynamicAwareness == False:
       weight = 1.0
 
       # If turning back is NOT allowed, remove weight from the last location.
@@ -105,13 +105,17 @@ class Person:
 
       return float(weight / float(SimulationSettings.Softening + link.distance))
 
+    else:"""
+
+    # If turning back is NOT allowed, remove weight from the last location.
+    if not SimulationSettings.TurnBackAllowed:
+      if link.endpoint == self.last_location:
+        return 0.0 #float(0.1 / float(SimulationSettings.Softening + link.distance))
+
+    # else, use the normal algorithm.
+    if link.endpoint.isFull(link.numAgents):
+      return 0.0
     else:
-
-      # If turning back is NOT allowed, remove weight from the last location.
-      if not SimulationSettings.TurnBackAllowed:
-        if link.endpoint == self.last_location:
-          return float(0.1 / float(SimulationSettings.Softening + link.distance))
-
       if awareness_level == 0:
         return float(1.0 / float(SimulationSettings.Softening + link.distance))
       if awareness_level == 1:
@@ -123,19 +127,29 @@ class Person:
 
   def selectRoute(self):
     weights = np.array([])
-    for i in range(0,len(self.location.links)):
-      # forced redirection: if this is true for a link, return its value immediately.
-      if self.location.links[i].forced_redirection == True:
-        return i
 
-      if self.timesteps_since_departure < 1:
-        weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 0)])
-      elif self.timesteps_since_departure < 2:
-        weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 1)])
-      elif self.timesteps_since_departure < 4:
-        weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 2)])
-      else:
-        weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 3)])
+    if not SimulationSettings.UseDynamicAwareness:
+      for i in range(0,len(self.location.links)):
+        # forced redirection: if this is true for a link, return its value immediately.
+        if self.location.links[i].forced_redirection == True:
+          return i
+        else:
+          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 1)])
+          
+    else:
+      for i in range(0,len(self.location.links)):
+        # forced redirection: if this is true for a link, return its value immediately.
+        if self.location.links[i].forced_redirection == True:
+          return i
+
+        if self.timesteps_since_departure < 1:
+          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 0)])
+        elif self.timesteps_since_departure < 2:
+          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 1)])
+        elif self.timesteps_since_departure < 4:
+          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 2)])
+        else:
+          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 3)])
 
     if len(weights) == 0:
       return -1
@@ -187,11 +201,11 @@ class Location:
   def updateLocationScore(self):
     """ Attractiveness of the local point, based on local point information only. """
 
-    if self.Camp:
-      if self.isFull(self.capacity/100):
-        self.LocationScore = 0.0
-      else:
-        self.LocationScore = SimulationSettings.CampWeight
+    if self.foreign:
+      #if self.isFull(self.capacity/100):
+      #  self.LocationScore = 0.0
+      #else:
+      self.LocationScore = SimulationSettings.CampWeight
     elif self.Conflict:
       self.LocationScore = SimulationSettings.ConflictWeight
     else:
