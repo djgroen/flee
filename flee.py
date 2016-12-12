@@ -4,9 +4,9 @@ import sys
 
 class SimulationSettings:
   Softening = 0.0
-  UseForeign = True # IMPORTANT: UseForeign is ignored when UseDynamicAwareness is enabled.
-  TurnBackAllowed = True #True
-  AvoidConflicts = True #False
+  UseForeign = True
+  TurnBackAllowed = True
+  AvoidConflicts = False #False
   AgentLogLevel = 0 # set to 1 for basic agent information.
   CampLogLevel = 0  # set to 1 to obtain average times for agents to reach camps at any time step (aggregate info). 
   InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
@@ -18,7 +18,7 @@ class SimulationSettings:
   #MaxMoveSpeed = 300 # least number of km that we expect refugees to traverse per time step.
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
 
-  UseDynamicAwareness = True # Refugees become smarter over time.
+  UseDynamicAwareness = False # Refugees become smarter over time.
 
 class Person:
   def __init__(self, location):
@@ -61,10 +61,12 @@ class Person:
     self.timesteps_since_departure += 1
 
 
-  def finish_travel(self, travelled_this_timestep=0):
+  def finish_travel(self):
     if self.travelling:
 
-      travelled_this_timestep += self.location.distance
+      # update last location of agent.
+      if not SimulationSettings.TurnBackAllowed:
+        self.last_location = self.location
 
       # update agent logs
       if SimulationSettings.AgentLogLevel > 0:
@@ -80,12 +82,6 @@ class Person:
         if self.location.Camp == True:
           self.location.incoming_journey_lengths += [self.timesteps_since_departure]
 
-      # refugees may take another route if they have travelled less than MinMoveSpeed.
-      if travelled_this_timestep < SimulationSettings.MinMoveSpeed:
-        self.evolve()
-        self.finish_travel(travelled_this_timestep)
-
-
   def getLinkWeight(self, link, awareness_level):
     """
     Calculate the weight of an adjacent link. Weight = probability that it will be chosen.
@@ -96,12 +92,16 @@ class Person:
       # If turning back is NOT allowed, remove weight from the last location.
       if not SimulationSettings.TurnBackAllowed:
         if self.location.links[i].endpoint == self.last_location:
-          weight = 0.1
+          return 0.0
           
-      if SimulationSettings.AvoidConflicts == True and link.endpoint.movechance > 0.5:
-        weight = 0.5
-      if SimulationSettings.UseForeign == True and link.endpoint.foreign == True:
-        weight = 2.0
+      # else, use the normal algorithm.
+      if link.endpoint.isFull(link.numAgents):
+        return 0.0
+      else:
+        if SimulationSettings.AvoidConflicts == True and link.endpoint.movechance > 0.5:
+          weight = 0.5
+        if SimulationSettings.UseForeign == True and link.endpoint.foreign == True:
+          weight = 2.0
 
       return float(weight / float(SimulationSettings.Softening + link.distance))
 
@@ -118,10 +118,8 @@ class Person:
         return float(link.endpoint.LocationScore / float(SimulationSettings.Softening + link.distance))
       if awareness_level == 2:
         return float(link.endpoint.NeighbourhoodScore / float(SimulationSettings.Softening + link.distance))
-      if awareness_level > 2:
+      else:
         return float(link.endpoint.RegionScore / float(SimulationSettings.Softening + link.distance))
-
-
 
   def selectRoute(self):
     weights = np.array([])
@@ -147,7 +145,7 @@ class Person:
       else: # if all have zero weight, then we do equal weighting.
         weights += 1.0/float(len(weights))
 
-      #if len(weights) != len(list(range(0,len(self.location.links)))):
+    #if len(weights) != len(list(range(0,len(self.location.links)))):
       #  print(weights, list(range(0,len(self.location.links))))
 
       return np.random.choice(list(range(0,len(self.location.links))), p=weights)
@@ -173,7 +171,6 @@ class Location:
     self.LocationScore = 1.0 # Value of Location. Should be between 0.5 and SimulationSettings.CampWeight.
     self.NeighbourhoodScore = 1.0 # Value of Neighbourhood. Should be between 0.5 and SimulationSettings.CampWeight.
     self.RegionScore = 1.0 # Value of surrounding region. Should be between 0.5 and SimulationSettings.CampWeight.
- 
 
     if SimulationSettings.CampLogLevel > 0:
       self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
@@ -185,6 +182,7 @@ class Location:
     elif self.numAgents >= self.capacity:
       return True
     return False
+
 
   def updateLocationScore(self):
     """ Attractiveness of the local point, based on local point information only. """
@@ -233,7 +231,6 @@ class Location:
       total_link_weight += 1.0 / float(i.distance)
 
     self.RegionScore /= total_link_weight
-
 
 class Link:
   def __init__(self, endpoint, distance, forced_redirection=False):
@@ -294,10 +291,14 @@ class Ecosystem:
     """Remove link when there is border closure between countries"""
     new_links = []
 
+    x = -1
     # Convert name "startpoint" to index "x".
-    for i in range(0, len(self.locationNames)):
-      if(self.locationNames[i] == startpoint):
+    for i in range(0, len(self.locations)):
+      if(self.locations[i].name == startpoint):
         x = i
+
+    if x<0:
+      print("#Warning: location not found in remove_link")
 
     for i in range(0, len(self.locations[x].links)):
       if self.locations[x].links[i].endpoint.name is not endpoint:
@@ -408,14 +409,20 @@ class Ecosystem:
   def linkUp(self, endpoint1, endpoint2, distance="1.0", forced_redirection=False):
     """ Creates a link between two endpoint locations
     """
-    endpoint1_index = 0
-    endpoint2_index = 0
+    endpoint1_index = -1
+    endpoint2_index = -1
     for i in range(0, len(self.locationNames)):
       if(self.locationNames[i] == endpoint1):
         endpoint1_index = i
       if(self.locationNames[i] == endpoint2):
         endpoint2_index = i
 
+    if endpoint1_index < 0:
+      print("Error: link created to non-existent source: ", endpoint1, " with dest ", endpoint2)
+      sys.exit()
+    if endpoint2_index < 0:
+      print("Error: link created to non-existent destination: ", endpoint2, " with source ", endpoint1)
+      sys.exit()
 
     self.locations[endpoint1_index].links.append( Link(self.locations[endpoint2_index], distance, forced_redirection) )
     self.locations[endpoint2_index].links.append( Link(self.locations[endpoint1_index], distance) )

@@ -33,6 +33,7 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0):
   y2 = data["%s data" % name].as_matrix()
   days = np.arange(len(y1))
 
+  #print(name, retrofitted, offset, len(y1), len(y2))
   plt.xlabel("Days elapsed")
 
   matplotlib.rcParams.update({'font.size': 20})
@@ -252,8 +253,8 @@ if __name__ == "__main__":
 
     plotme(out_dir, refugee_data, i, retrofitted=RetroFitting)
 
-    if not RetroFitting and offset>0:
-      plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, offset=offset)
+    #if not RetroFitting and offset>0:
+    #  plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, offset=offset)
 
     #plotme_minimal(out_dir, refugee_data,i)
 
@@ -273,7 +274,7 @@ if __name__ == "__main__":
 
   if RetroFitting==False:
     diffdata = (refugee_data.loc[:,["Total error"]].as_matrix()).flatten()
-    print(out_dir,": Averaged error with 0 offset: ",  np.trapz(diffdata ** 2.0) / (1.0*len(diffdata)))
+    print(out_dir,": Averaged error with 0 offset: ",  np.trapz(diffdata ** 2.0) / (1.0*len(diffdata)),", len: ", len(diffdata))
     plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error")
     #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
   
@@ -290,7 +291,7 @@ if __name__ == "__main__":
       offset += 1
 
     diffdata_retro = (refugee_data.loc[:,["Total error (retrofitted)"]].as_matrix()).flatten()
-    print(out_dir,": Averaged error (retrofitted): ", np.trapz((diffdata_retro[offset:]**2.0), retrofitted_times[offset:]) / retrofitted_times[-1])
+    print(out_dir,": Averaged error (retrofitted): ", np.trapz((diffdata_retro[offset:]**2.0), retrofitted_times[offset:]) / retrofitted_times[-1], ", end time: ", retrofitted_times[-1])
     plt.plot(retrofitted_times[offset:], diffdata_retro[offset:], linewidth=5, label="error (retrofitted)")
 
     set_margins()

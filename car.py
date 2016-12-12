@@ -215,9 +215,10 @@ if __name__ == "__main__":
     new_links = []
     # Close borders here: On the 12th of May, Chad closes border altogether.
     if t_data == 163:
-      e.remove_link("Kago","Belom")
+      e.remove_link("Kabo","Belom")
       e.remove_link("Ndele","Belom")
-      e.remove_link("Beboura III","Dosseye")
+      e.remove_link("Paoua","Dosseye")
+      e.remove_link("RN1","Dosseye")
 
 
     #Append conflict_zones and weights to list from ACLED conflict database.
