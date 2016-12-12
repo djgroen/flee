@@ -14,10 +14,11 @@ class SimulationSettings:
 
   CampWeight = 2.0 # attraction factor for camps.
   ConflictWeight = 0.5 # reduction factor for refugees entering conflict zones.
-  MinMoveSpeed = 50 # least number of km that we expect refugees to traverse per time step.
+  #MinMoveSpeed = 50 # least number of km that we expect refugees to traverse per time step.
   #MaxMoveSpeed = 300 # least number of km that we expect refugees to traverse per time step.
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
 
+  AwarenessLevel = 0 #0 = road only, 1 = location, 2 = neighbours, 3 = region.
   UseDynamicAwareness = False # Refugees become smarter over time.
 
 class Person:
@@ -86,26 +87,6 @@ class Person:
     """
     Calculate the weight of an adjacent link. Weight = probability that it will be chosen.
     """  
-    """if SimulationSettings.UseDynamicAwareness == False:
-      weight = 1.0
-
-      # If turning back is NOT allowed, remove weight from the last location.
-      if not SimulationSettings.TurnBackAllowed:
-        if self.location.links[i].endpoint == self.last_location:
-          return 0.0
-          
-      # else, use the normal algorithm.
-      if link.endpoint.isFull(link.numAgents):
-        return 0.0
-      else:
-        if SimulationSettings.AvoidConflicts == True and link.endpoint.movechance > 0.5:
-          weight = 0.5
-        if SimulationSettings.UseForeign == True and link.endpoint.foreign == True:
-          weight = 2.0
-
-      return float(weight / float(SimulationSettings.Softening + link.distance))
-
-    else:"""
 
     # If turning back is NOT allowed, remove weight from the last location.
     if not SimulationSettings.TurnBackAllowed:
@@ -134,7 +115,7 @@ class Person:
         if self.location.links[i].forced_redirection == True:
           return i
         else:
-          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 1)])
+          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], SimulationSettings.AwarenessLevel)])
           
     else:
       for i in range(0,len(self.location.links)):
@@ -202,9 +183,6 @@ class Location:
     """ Attractiveness of the local point, based on local point information only. """
 
     if self.foreign:
-      #if self.isFull(self.capacity/100):
-      #  self.LocationScore = 0.0
-      #else:
       self.LocationScore = SimulationSettings.CampWeight
     elif self.Conflict:
       self.LocationScore = SimulationSettings.ConflictWeight
