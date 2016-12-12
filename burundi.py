@@ -8,6 +8,11 @@ import sys
 Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
+def date_to_sim_days(date):
+  return handle_refugee_data.subtract_dates(date,"2015-05-01")
+
+
+
 #Burundi Simulation
 
 if __name__ == "__main__":
@@ -67,7 +72,7 @@ if __name__ == "__main__":
 
   #Rwanda, Tanzania, Uganda and DRCongo camps
   locations.append(e.addLocation("Mahama", movechance=camp_movechance, capacity=49451, foreign=True))
-  locations.append(e.addLocation("Nduta", movechance=camp_movechance, capacity=55320, foreign=True))
+  locations.append(e.addLocation("Nduta", movechance=0.3, capacity=55320, foreign=True)) # Nduta open on 2015-08-10
   locations.append(e.addLocation("Kagunga", movechance=1/21.0, foreign=True))
   locations.append(e.addLocation("Nyarugusu", movechance=camp_movechance, capacity=100925, foreign=True))
   locations.append(e.addLocation("Nakivale", movechance=camp_movechance, capacity=18734, foreign=True))
@@ -111,14 +116,18 @@ if __name__ == "__main__":
 
   #Camps, starting at index locations[26] (at time of writing).
   e.linkUp("Muyinga","Mahama","135.0")
-  e.linkUp("Ruyigi","Nduta","90.0")
+  e.linkUp("Kirundo","Mahama","183.0") # Shorter route than via Gashoho and Muyinga. Goes through Bugesera, where a transit centre is located according to UNHCR reports.
+  #e.linkUp("Ruyigi","Nduta","90.0")
   e.linkUp("Gisuru","Nduta","60.0")
   e.linkUp("Commune of Mabanda","Kagunga","36.0")
+  e.linkUp("Commune of Mabanda","Nyarugusu","71.0") # estimated distance, as exact location of Nyarugusu is uncertain. 
+
   e.linkUp("Kagunga","Nyarugusu","91.0", forced_redirection=True) #From Kagunga to Kigoma by ship (Kagunga=Kigoma)
   e.linkUp("Kirundo","Nakivale","318.0")
   e.linkUp("Kayanza","Nakivale","413.0")
-  e.linkUp("Bujumbura","Lusenda","53.0")
+  #e.linkUp("Bujumbura","Lusenda","53.0") # only added when the refugee inflow starts at Lusenda, on 30-07-2015
 
+  e.linkUp("Nduta","Nyarugusu","150.0", forced_redirection=True) #distance needs to be checked.
 
   d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
 
@@ -165,6 +174,14 @@ if __name__ == "__main__":
       t_data = int(t_retrofitted)
       if t_data > end_time / 10:
         break
+
+    if t_data == date_to_sim_days("2015-07-30"):
+      e.linkUp("Bujumbura","Lusenda","53.0") # only added when the refugee inflow starts at Lusenda, on 30-07-2015
+
+    if t_data == date_to_sim_days("2015-08-10"):
+      locations[22].movechance=camp_movechance
+      e.remove_link("Nduta","Nyarugusu")
+      e.linkUp("Nduta","Nyarugusu","150.0") #Re-add link, but without forced redirection.    
 
     #Append conflict_zone and weight to list.
     if t_data == 70: #Intense fighting between military & multineer military forces
