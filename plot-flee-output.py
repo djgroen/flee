@@ -67,7 +67,26 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0):
   else:
     fig.savefig("%s/%s-retrofitted.png" % (out_dir, name))
 
+  if retrofitted==False:
+    plt.clf()
 
+    plt.xlabel("Days elapsed")
+    plt.ylabel("fraction of total refugees in camps")
+
+    simtot = data["refugees in camps (simulation)"].as_matrix()
+    untot = data["refugees in camps (UNHCR)"].as_matrix()
+
+    labelsim, = plt.plot(days,y1/simtot, linewidth=8, label="%s simulation" % (name.title()))
+    labeldata, = plt.plot(days,y2/untot, linewidth=8, label="%s UNHCR data" % (name.title()))
+
+    plt.legend(handles=[labelsim, labeldata],loc=4,prop={'size':18})
+
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(12, 8)
+    #adjust margins
+    set_margins()
+
+    fig.savefig("%s/%s-rel.png" % (out_dir, name))
 
 def plotme_minimal(out_dir, data, name):
   """
