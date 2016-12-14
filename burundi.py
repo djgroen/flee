@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
   locations.append(e.addLocation("Commune of Mabanda", movechance=0.3))
 
-  camp_movechance = 0.001
+  camp_movechance = 0.0001
 
   #Rwanda, Tanzania, Uganda and DRCongo camps
   locations.append(e.addLocation("Mahama", movechance=camp_movechance, capacity=49451, foreign=True))
@@ -76,7 +76,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Kagunga", movechance=1/21.0, foreign=True))
   locations.append(e.addLocation("Nyarugusu", movechance=camp_movechance, capacity=100925, foreign=True))
   locations.append(e.addLocation("Nakivale", movechance=camp_movechance, capacity=18734, foreign=True))
-  locations.append(e.addLocation("Lusenda", movechance=camp_movechance, capacity=17210, foreign=True))
+  locations.append(e.addLocation("Lusenda", movechance=0.3, capacity=17210, foreign=True))
 
   #Within Burundi
   e.linkUp("Bujumbura","Bubanza","48.0")
@@ -125,7 +125,6 @@ if __name__ == "__main__":
   e.linkUp("Kagunga","Nyarugusu","91.0", forced_redirection=True) #From Kagunga to Kigoma by ship (Kagunga=Kigoma)
   e.linkUp("Kirundo","Nakivale","318.0")
   e.linkUp("Kayanza","Nakivale","413.0")
-  #e.linkUp("Bujumbura","Lusenda","53.0") # only added when the refugee inflow starts at Lusenda, on 30-07-2015
 
   e.linkUp("Nduta","Nyarugusu","150.0", forced_redirection=True) #distance needs to be checked.
 
@@ -175,11 +174,14 @@ if __name__ == "__main__":
       if t_data > end_time / 10:
         break
 
-    if t_data == date_to_sim_days("2015-07-30"):
+    if t_data == date_to_sim_days("2015-07-30"): #Open Lusenda
+      locations[31].movechance=camp_movechance
+      locations[31].Camp=True
       e.linkUp("Bujumbura","Lusenda","53.0") # only added when the refugee inflow starts at Lusenda, on 30-07-2015
 
     if t_data == date_to_sim_days("2015-08-10"):
-      locations[22].movechance=camp_movechance
+      locations[27].movechance=camp_movechance
+      locations[27].Camp=True
       e.remove_link("Nduta","Nyarugusu")
       e.linkUp("Nduta","Nyarugusu","150.0") #Re-add link, but without forced redirection.    
 

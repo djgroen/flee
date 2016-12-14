@@ -4,21 +4,20 @@ import sys
 
 class SimulationSettings:
   Softening = 0.0
-  UseForeign = True
-  TurnBackAllowed = True
-  AvoidConflicts = False #False
+  #TurnBackAllowed = True # feature disabled for now.
   AgentLogLevel = 0 # set to 1 for basic agent information.
   CampLogLevel = 0  # set to 1 to obtain average times for agents to reach camps at any time step (aggregate info). 
   InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
   TakeRefugeesFromPopulation = True
 
   CampWeight = 2.0 # attraction factor for camps.
-  ConflictWeight = 0.5 # reduction factor for refugees entering conflict zones.
+  ConflictWeight = 0.25 # reduction factor for refugees entering conflict zones.
   #MinMoveSpeed = 50 # least number of km that we expect refugees to traverse per time step.
   #MaxMoveSpeed = 300 # least number of km that we expect refugees to traverse per time step.
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
+  CapacityBuffer = 1.1
 
-  AwarenessLevel = 0 #0 = road only, 1 = location, 2 = neighbours, 3 = region.
+  AwarenessLevel = 1 #0 = road only, 1 = location, 2 = neighbours, 3 = region.
   UseDynamicAwareness = False # Refugees become smarter over time.
 
 class Person:
@@ -36,8 +35,8 @@ class Person:
     # Set to true when an agent resides on a link.
     self.travelling = False
 
-    if not SimulationSettings.TurnBackAllowed:
-      self.last_location = None
+    #if not SimulationSettings.TurnBackAllowed:
+    #  self.last_location = None
 
     if SimulationSettings.AgentLogLevel > 0:
       self.distance_travelled = 0
@@ -66,8 +65,8 @@ class Person:
     if self.travelling:
 
       # update last location of agent.
-      if not SimulationSettings.TurnBackAllowed:
-        self.last_location = self.location
+      #if not SimulationSettings.TurnBackAllowed:
+      #  self.last_location = self.location
 
       # update agent logs
       if SimulationSettings.AgentLogLevel > 0:
@@ -89,48 +88,42 @@ class Person:
     """  
 
     # If turning back is NOT allowed, remove weight from the last location.
-    if not SimulationSettings.TurnBackAllowed:
-      if link.endpoint == self.last_location:
-        return 0.0 #float(0.1 / float(SimulationSettings.Softening + link.distance))
+    #if not SimulationSettings.TurnBackAllowed:
+    #  if link.endpoint == self.last_location:
+    #    return 0.0 #float(0.1 / float(SimulationSettings.Softening + link.distance))
 
-    # else, use the normal algorithm.
-    if link.endpoint.isFull(link.numAgents):
-      return 0.0
-    else:
-      if awareness_level == 0:
-        return float(1.0 / float(SimulationSettings.Softening + link.distance))
-      if awareness_level == 1:
-        return float(link.endpoint.LocationScore / float(SimulationSettings.Softening + link.distance))
-      if awareness_level == 2:
-        return float(link.endpoint.NeighbourhoodScore / float(SimulationSettings.Softening + link.distance))
-      else:
-        return float(link.endpoint.RegionScore / float(SimulationSettings.Softening + link.distance))
+    return float(link.endpoint.scores[awareness_level] / float(SimulationSettings.Softening + link.distance))
 
   def selectRoute(self):
-    weights = np.array([])
+    linklen = len(self.location.links)
+    weights = np.zeros(linklen)
 
     if not SimulationSettings.UseDynamicAwareness:
-      for i in range(0,len(self.location.links)):
+      for i in range(0,linklen):
         # forced redirection: if this is true for a link, return its value immediately.
-        if self.location.links[i].forced_redirection == True:
+        if self.location.links[i].endpoint.isFull(self.location.links[i].numAgents):
+          weights[i] = 0.0
+        elif self.location.links[i].forced_redirection == True:
           return i
         else:
-          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], SimulationSettings.AwarenessLevel)])
+          weights[i] = self.getLinkWeight(self.location.links[i], SimulationSettings.AwarenessLevel)
           
     else:
-      for i in range(0,len(self.location.links)):
+      for i in range(0,linklen):
         # forced redirection: if this is true for a link, return its value immediately.
-        if self.location.links[i].forced_redirection == True:
+        if self.location.links[i].endpoint.isFull(self.location.links[i].numAgents):
+          weights[i] = 0.0
+        elif self.location.links[i].forced_redirection == True:
           return i
-
-        if self.timesteps_since_departure < 1:
-          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 0)])
-        elif self.timesteps_since_departure < 2:
-          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 1)])
-        elif self.timesteps_since_departure < 4:
-          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 2)])
         else:
-          weights = np.append(weights, [self.getLinkWeight(self.location.links[i], 3)])
+          if self.timesteps_since_departure < 1:
+            weights[i] = self.getLinkWeight(self.location.links[i], 0)
+          elif self.timesteps_since_departure < 2:
+            weights[i] = self.getLinkWeight(self.location.links[i], 1)
+          elif self.timesteps_since_departure < 4:
+            weights[i] = self.getLinkWeight(self.location.links[i], 2)
+          else:
+            weights[i] = self.getLinkWeight(self.location.links[i], 3)
 
     if len(weights) == 0:
       return -1
@@ -140,7 +133,7 @@ class Person:
       else: # if all have zero weight, then we do equal weighting.
         weights += 1.0/float(len(weights))
 
-    #if len(weights) != len(list(range(0,len(self.location.links)))):
+      #if len(weights) != len(list(range(0,len(self.location.links)))):
       #  print(weights, list(range(0,len(self.location.links))))
 
       return np.random.choice(list(range(0,len(self.location.links))), p=weights)
@@ -166,7 +159,8 @@ class Location:
     self.LocationScore = 1.0 # Value of Location. Should be between 0.5 and SimulationSettings.CampWeight.
     self.NeighbourhoodScore = 1.0 # Value of Neighbourhood. Should be between 0.5 and SimulationSettings.CampWeight.
     self.RegionScore = 1.0 # Value of surrounding region. Should be between 0.5 and SimulationSettings.CampWeight.
-
+    self.scores = np.array([1.0,1.0,1.0,1.0])
+ 
     if SimulationSettings.CampLogLevel > 0:
       self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
 
@@ -174,7 +168,7 @@ class Location:
     """ Checks whether a given location has reached full capacity. In this case it will no longer admit persons."""
     if self.capacity < 0:
       return False
-    elif self.numAgents >= self.capacity:
+    elif self.numAgents >= self.capacity*SimulationSettings.CapacityBuffer:
       return True
     return False
 
@@ -223,6 +217,7 @@ class Location:
       total_link_weight += 1.0 / float(i.distance)
 
     self.RegionScore /= total_link_weight
+    self.scores = np.array([1.0, self.LocationScore, self.NeighbourhoodScore, self.RegionScore])
 
 class Link:
   def __init__(self, endpoint, distance, forced_redirection=False):

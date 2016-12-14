@@ -131,7 +131,7 @@ if __name__ == "__main__":
   e.linkUp("Tenenkou","Segou","227.5")
   e.linkUp("Segou","Bamako","239.8")
 
-  camp_movechance = 0.001
+  camp_movechance = 0.0001
 
 # Mauritania
 

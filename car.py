@@ -66,7 +66,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Obo", movechance=0.3))
   locations.append(e.addLocation("Mobaye", movechance=0.3))
 
-  camp_movechance = 0.001
+  camp_movechance = 0.0001
 
   #Chad, Cameroon & Demotratic R.of Congo & R. of Congo camps
   locations.append(e.addLocation("Belom", movechance=camp_movechance, capacity=28483, foreign=True))
@@ -77,7 +77,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Gbadolite", movechance=0.3))
   locations.append(e.addLocation("Inke", movechance=camp_movechance, capacity=20365, foreign=True))
   locations.append(e.addLocation("Betou", movechance=camp_movechance, capacity=10232, foreign=True))
-  locations.append(e.addLocation("Brazaville", movechance=camp_movechance, capacity=8514, foreign=True))
+  locations.append(e.addLocation("Brazaville", movechance=camp_movechance, capacity=7221, foreign=True))
 
   #Within CAR
   e.linkUp("Bangui","Bimbo","26.0")
@@ -157,7 +157,7 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Mole","2016-02-29")
   d.correctLevel1Registrations("Inke","2014-06-30")
   d.correctLevel1Registrations("Betou","2014-03-22")
-  d.correctLevel1Registrations("Brazaville","2016-04-30")
+  #d.correctLevel1Registrations("Brazaville","2016-04-30")
 
   locations[30].capacity = d.getMaxFromData("Belom", last_physical_day)
   locations[31].capacity = d.getMaxFromData("Dosseye", last_physical_day)
