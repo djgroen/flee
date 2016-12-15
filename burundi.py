@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
   locations.append(e.addLocation("Commune of Mabanda", movechance=0.3))
 
-  camp_movechance = 0.0001
+  camp_movechance = 0.001
 
   #Rwanda, Tanzania, Uganda and DRCongo camps
   locations.append(e.addLocation("Mahama", movechance=camp_movechance, capacity=49451, foreign=True))

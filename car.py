@@ -66,7 +66,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Obo", movechance=0.3))
   locations.append(e.addLocation("Mobaye", movechance=0.3))
 
-  camp_movechance = 0.0001
+  camp_movechance = 0.001
 
   #Chad, Cameroon & Demotratic R.of Congo & R. of Congo camps
   locations.append(e.addLocation("Belom", movechance=camp_movechance, capacity=28483, foreign=True))
@@ -150,7 +150,7 @@ if __name__ == "__main__":
   # These errors led to a perceived large drop in refugee population in all of these camps.
   # We correct by linearly scaling the values down to make the last level 1 registration match the first level 2 registration value.
   # To our knowledge, all level 2 registration procedures were put in place by the end of 2016.
-  d.correctLevel1Registrations("Belom","2014-04-15")
+  d.correctLevel1Registrations("Belom","2015-08-31")
   d.correctLevel1Registrations("Dosseye","2015-01-01")
   d.correctLevel1Registrations("East","2014-09-28")
   d.correctLevel1Registrations("Adamaoua","2014-10-19")

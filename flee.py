@@ -15,7 +15,7 @@ class SimulationSettings:
   #MinMoveSpeed = 50 # least number of km that we expect refugees to traverse per time step.
   #MaxMoveSpeed = 300 # least number of km that we expect refugees to traverse per time step.
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
-  CapacityBuffer = 1.1
+  CapacityBuffer = 1.0
 
   AwarenessLevel = 1 #0 = road only, 1 = location, 2 = neighbours, 3 = region.
   UseDynamicAwareness = False # Refugees become smarter over time.
