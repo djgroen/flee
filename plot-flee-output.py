@@ -42,12 +42,14 @@ class SimulationErrors:
     if rescaled:
       errtype = "absolute difference rescaled"
 
-    diffdata = loc_errors[0].errors[errtype]
+    self.tmp = self.location_errors[0].errors[errtype]
 
-    for lerr in loc_errors[1:]:
-      diffdata = np.add(diffdata, lerr.errors[errtype])
+    for lerr in self.location_errors[1:]:
+      self.tmp = np.add(self.tmp, lerr.errors[errtype])
 
-    return diffdata
+    return self.tmp
+
+
 
 def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
   #adjust margins - Setting margins for graphs
@@ -103,7 +105,7 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
     if offset == 0:
       fig.savefig("%s/%s-%s.png" % (out_dir, name, legend_loc))
     else:
-      fig.savefig("%s/%s-offset.png" % (out_dir, name))
+      fig.savefig("%s/%s-offset-%s.png" % (out_dir, name, offset))
   else:
     fig.savefig("%s/%s-retrofitted.png" % (out_dir, name))
 
@@ -167,6 +169,12 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
   
   lerr = LocationErrors()
 
+  if offset > 0:
+    y1 = y1[offset:]
+    y1_rescaled = y1_rescaled[offset:]
+    y2 = y2[:-offset]
+    untot = untot[:-offset]
+ 
   # absolute difference
   lerr.errors["absolute difference"] = a.abs_diffs(y1, y2)
 
@@ -195,8 +203,6 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
     #ln_accuracy_ratio = calculate_ln_accuracy_ratio(y1, y2)
     #ln_accuracy_ratio_30 = calculate_ln_accuracy_ratio(y1[30:], y2[30:])
     print(out_dir, name, "MASE7: ", lerr.errors["MASE7"], ", MASE30: ", lerr.errors["MASE30"], ", abs. diff. 30: ", np.mean(lerr.errors["absolute difference"]))
-
- 
 
   return lerr
 
@@ -317,7 +323,7 @@ if __name__ == "__main__":
   un_refs = refugee_data.loc[:,["refugees in camps (UNHCR)"]].as_matrix().flatten()
   raw_refs = refugee_data.loc[:,["raw UNHCR refugee count"]].as_matrix().flatten()
 
-  """
+  """ 
   offset = 0
 
   if RetroFitting == False:
@@ -337,54 +343,9 @@ if __name__ == "__main__":
         offset = i
 
     print(out_dir, ": The best offset = ", offset, ", error = ", min_error, ", error at offset 0 = ",error_at_zero_offset)
-  
-  offset = 7
-
-  # Recalculate and print the error when offset is set.
-
-  total_errors = []
-  total_errors_0 = []
-
-  for d in range(0, len(sim_refs[offset:])):
-    # calculate error terms.
-    camp_pops = []
-    errors = []
-    errors_0 = []
-    abs_errors = []
-    abs_errors_0 = []
-    #camp_pops_retrofitted = []
-    #errors_retrofitted = []
-    #abs_errors_retrofitted = []
-    for name in location_names:
-      y2 = refugee_data["%s data" % name].as_matrix()
-      y1 = (refugee_data["%s sim" % name].as_matrix())[offset:]
-      days = np.arange(len(y1))
-
-      # normal 1 step = 1 day errors.
-      camp_pops += [y2[d]]
-      errors += [a.rel_error(y1[d], camp_pops[-1])]
-      abs_errors += [a.abs_error(y1[d], camp_pops[-1])]
-
-      # errors when using retrofitted time stepping.
-      #camp_pops_retrofitted += [d.get_field(camp_names[i], t_retrofitted, FullInterpolation=True)]
-      #errors_retrofitted += [a.rel_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
-      #abs_errors_retrofitted += [a.abs_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
-
-      y1_0 = refugee_data["%s sim" % name].as_matrix()
-      days_0 = np.arange(len(y1_0))
-      errors_0 += [a.rel_error(y1_0[d], camp_pops[-1])]
-      abs_errors_0 += [a.abs_error(y1_0[d], camp_pops[-1])]
-
-    if un_refs[d] > 0.0:
-      total_errors += [float(np.sum(abs_errors))/float(raw_refs[d])]
-      total_errors_0 += [float(np.sum(abs_errors_0))/float(raw_refs[d])]
-      #total_errors_retrofitted += [float(np.sum(abs_errors_retrofitted))/float(un_refs[d])]
-    # Total error is calculated using float(np.sum(abs_errors))/float(refugees_raw))
-
-  #print(out_dir,": Averaged error with", offset, "offset: ", np.trapz(np.array(total_errors) ** 2.0) / (1.0*len(total_errors)))
-  #print(out_dir,": Averaged error with no offset: ", np.trapz(np.array(total_errors_0) ** 2.0) / (1.0*len(total_errors_0)))
-  
   """
+
+  PlotOffsets = True
 
   # Plots for all locations, one .png file for every time plotme is called.
   # Also populated LocationErrors classes.
@@ -402,10 +363,28 @@ if __name__ == "__main__":
     else:
       loc_errors.append(plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4))
 
-    #if not RetroFitting and offset>0:
-    #  plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, offset=offset)
+
+
+  if not RetroFitting and PlotOffsets==True:
+  
+    for offset in [7,14,30]:
+
+      loc_errors_offset = []
+      for i in location_names:
+        loc_errors_offset.append(plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, offset=offset))
+
+
+      sim_errors_offset = SimulationErrors(loc_errors_offset)
+      #print(offset, i, len(sim_errors_offset.location_errors[-1].errors["absolute difference"]), len(sim_errors_offset.abs_diff(rescaled=False)))
+
+      diffdata = sim_errors_offset.abs_diff(rescaled=False) / np.maximum(un_refs[:-offset], np.ones(len(un_refs[:-offset])))
+      diffdata_rescaled = sim_errors_offset.abs_diff() / np.maximum(un_refs[:-offset], np.ones(len(un_refs[:-offset])))
+
+      print(offset, out_dir,": Averaged error : ", np.mean(diffdata), ", rescaled: ", np.mean(diffdata_rescaled),", len: ", len(diffdata))
 
     #plotme_minimal(out_dir, refugee_data,i)
+
+
 
   sim_errors = SimulationErrors(loc_errors)
 
@@ -427,10 +406,6 @@ if __name__ == "__main__":
 
     diffdata = sim_errors.abs_diff(rescaled=False) / np.maximum(un_refs, np.ones(len(un_refs)))
     diffdata_rescaled = sim_errors.abs_diff() / np.maximum(un_refs, np.ones(len(un_refs)))
-
-    #ref_mismatch_error = np.abs(1.0 - np.abs( sim_refs[:len(diffdata)] / np.maximum(raw_refs[:len(diffdata)], np.ones(len(diffdata)))))
-
-    #print(out_dir,": Averaged error with 0 offset: ",  np.trapz(diffdata ** 2.0) / (1.0*len(diffdata)),", len: ", len(diffdata))
     print(out_dir,": Averaged error normal: ", np.mean(diffdata), ", rescaled: ", np.mean(diffdata_rescaled),", len: ", len(diffdata))
 
     labeldiff, = plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error")
