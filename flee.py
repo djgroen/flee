@@ -12,8 +12,8 @@ class SimulationSettings:
 
   CampWeight = 2.0 # attraction factor for camps.
   ConflictWeight = 0.25 # reduction factor for refugees entering conflict zones.
-  #MinMoveSpeed = 50 # least number of km that we expect refugees to traverse per time step.
-  #MaxMoveSpeed = 300 # least number of km that we expect refugees to traverse per time step.
+  MinMoveSpeed = 25 # least number of km that we expect refugees to traverse per time step.
+  MaxMoveSpeed = 250 # most number of km that we expect refugees to traverse per time step.
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
   CapacityBuffer = 1.0
 
@@ -34,6 +34,9 @@ class Person:
 
     # Set to true when an agent resides on a link.
     self.travelling = False
+    
+    # Tracks how much distance a Person has been able to travel on the current link.
+    self.distance_travelled_on_link = 0
 
     #if not SimulationSettings.TurnBackAllowed:
     #  self.last_location = None
@@ -43,44 +46,64 @@ class Person:
       self.places_travelled = 1
 
   def evolve(self):
-    movechance = self.location.movechance
-    outcome = random.random()
-    self.travelling = False
-    if outcome < movechance:
-      # determine here which route to take?
-      chosenRoute = self.selectRoute()
 
-      # if there is a viable route to a different location.
-      if chosenRoute >= 0:
-        # update location to link endpoint
-        self.location.numAgents -= 1
-        self.location = self.location.links[chosenRoute]
-        self.location.numAgents += 1
-        self.travelling = True
+    if self.travelling == False:
+      movechance = self.location.movechance
+      outcome = random.random()
+      if outcome < movechance:
+        # determine here which route to take?
+        chosenRoute = self.selectRoute()
+
+        # if there is a viable route to a different location.
+        if chosenRoute >= 0:
+          # update location to link endpoint
+          self.location.numAgents -= 1
+          self.location = self.location.links[chosenRoute]
+          self.location.numAgents += 1
+          self.travelling = True
+          self.distance_travelled_on_link = 0
 
     self.timesteps_since_departure += 1
 
 
-  def finish_travel(self):
+  def finish_travel(self, distance_moved_this_timestep=0):
     if self.travelling:
 
       # update last location of agent.
       #if not SimulationSettings.TurnBackAllowed:
       #  self.last_location = self.location
 
-      # update agent logs
-      if SimulationSettings.AgentLogLevel > 0:
-        self.places_travelled += 1
-        self.distance_travelled += self.location.distance
+      self.distance_travelled_on_link += SimulationSettings.MaxMoveSpeed
+      if self.distance_travelled_on_link - distance_moved_this_timestep > self.location.distance:
 
-      # update location (which is on a link) to link endpoint
-      self.location.numAgents -= 1
-      self.location = self.location.endpoint
-      self.location.numAgents += 1
+        # update agent logs
+        if SimulationSettings.AgentLogLevel > 0:
+          self.places_travelled += 1
+          self.distance_travelled += self.location.distance
 
-      if SimulationSettings.CampLogLevel > 0: 
-        if self.location.Camp == True:
-          self.location.incoming_journey_lengths += [self.timesteps_since_departure]
+        # if the person has moved less than the minMoveSpeed, it should go through another evolve() step.
+        evolveMore = False
+        if self.location.distance + distance_moved_this_timestep < SimulationSettings.MinMoveSpeed:
+          distance_moved_this_timestep += self.location.distance
+          evolveMore = True
+
+        # update location (which is on a link) to link endpoint
+        self.location.numAgents -= 1
+        self.location = self.location.endpoint
+        self.location.numAgents += 1
+
+        self.travelling = False
+        self.distance_travelled_on_link = 0
+
+        if SimulationSettings.CampLogLevel > 0: 
+          if self.location.Camp == True:
+            self.location.incoming_journey_lengths += [self.timesteps_since_departure]
+
+        # Perform another evolve step. And if it results in travel, then the current 
+        # travelled distance needs to be taken into account.
+        if evolveMore == True:
+          self.evolve()
+          self.finish_travel(distance_moved_this_timestep)
 
   def getLinkWeight(self, link, awareness_level):
     """
