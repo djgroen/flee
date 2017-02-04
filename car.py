@@ -213,6 +213,15 @@ if __name__ == "__main__":
       refugee_debt = 0
 
     new_links = []
+
+    # CAR/DRC border is closed on the 5th of December. Appears to remain closed until the 30th of June.
+    # Source: http://data.unhcr.org/car/download.php?id=21
+
+    # 12 Feb. In Mole, refugees who were waiting to be registered and relocated received their food rations from the WFP.  
+    # Source: http://data.unhcr.org/car/download.php?id=22
+
+    # 19 Feb: drop of IDPs in Bangui from 400k to 273k.
+
     # Close borders here: On the 12th of May, Chad closes border altogether.
     if t_data == 163:
       e.remove_link("Kabo","Belom")
