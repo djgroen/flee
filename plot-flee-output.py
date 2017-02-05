@@ -132,16 +132,33 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
 
     # Plotting line representing naieve model
     if naieve_model:
-      y3 = np.empty(len(days))
-
-      y3_early = np.empty(len(days))
-
-      y3.fill(y2[naieve_training_day])
-
-      y3_early.fill(y2[naieve_early_day])
+      # Flat line from day 7
+      n1 = np.empty(len(days))
+      n1.fill(y2[naieve_early_day])
+      # Flat line from day 30
+      n2 = np.empty(len(days))
+      n2.fill(y2[naieve_training_day])
+      # Sloped line from day 7
+      n3 = np.empty(len(days))
+      n3.fill(y2[naieve_early_day])
+      for i in range(0,len(n3)):
+        n3[i] *= i*y2[naieve_early_day]/y2[naieve_early_day]
+      # Sloped line from day 30
+      n4 = np.empty(len(days))
+      n4.fill(y2[naieve_training_day])
+      for i in range(0,len(n4)):
+        n4[i] *= i*y2[naieve_training_day]/y2[naieve_training_day]
+      # Flat ratio from day 7
+      n5 = np.empty(len(days))
+      for i in range(0,len(n5)):
+        n5[i] = untot[i] * (y2[naieve_early_day] / untot[naieve_early_day])
+      # Flat ratio from day 7
+      n6 = np.empty(len(days))
+      for i in range(0,len(n6)):
+        n6[i] = untot[i] * (y2[naieve_training_day] / untot[naieve_training_day])
       
-      labelnaieve, = plt.plot(days, y3, linewidth=6, label="%s naieve model" % (name.title()))
-      labelnaieve, = plt.plot(days, y3_early, linewidth=6, label="%s naieve early" % (name.title()))
+      labelnaieve, = plt.plot(days, n1, linewidth=6, label="%s naieve model" % (name.title()))
+      labelnaieve, = plt.plot(days, n2, linewidth=6, label="%s naieve early" % (name.title()))
       plt.axvline(x=naieve_early_day, linewidth=2, ls="dotted", c="grey")
       plt.axvline(x=naieve_training_day, linewidth=2, ls="dotted", c="grey")
 
@@ -193,10 +210,10 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
   if naieve_model:
 
     # flat naieve model (7 day)
-    lerr.errors["MASE7"] = a.calculate_MASE(y1_rescaled, y2, y3_early, naieve_early_day)
+    lerr.errors["MASE7"] = a.calculate_MASE(y1_rescaled, y2, n1, naieve_early_day)
 
     # flat naieve model (30 day)
-    lerr.errors["MASE30"] = a.calculate_MASE(y1_rescaled, y2, y3, naieve_training_day)
+    lerr.errors["MASE30"] = a.calculate_MASE(y1_rescaled, y2, n2, naieve_training_day)
 
 
     # Accuracy ratio doesn't work because of 0 values in the data.
