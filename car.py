@@ -166,7 +166,7 @@ if __name__ == "__main__":
   e.linkUp("Nola","Brazaville","1300.0")
 
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="car2014/")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="car2014/", start_date="2013-12-01")
 
   # Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
   # These errors led to a perceived large drop in refugee population in all of these camps.
@@ -204,8 +204,39 @@ if __name__ == "__main__":
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only
 
-  #Bangui is in conflict area. All refugees want to leave this place.
-  e.add_conflict_zone("Bangui")
+  #Append conflict_zones and weights to list from ACLED conflict database.
+  #Conflict zones year before the start of simulation period
+  #if t_data == date_to_sim_days("2012-12-10"):
+  e.add_conflict_zone("Ndele")
+  #if t_data == date_to_sim_days("2012-12-15"):
+  e.add_conflict_zone("Bamingui")
+  #if t_data == date_to_sim_days("2012-12-28"):
+  e.add_conflict_zone("Bambari")
+  #if t_data == date_to_sim_days("2013-01-18"):
+  e.add_conflict_zone("Obo")
+  #if t_data == date_to_sim_days("2013-03-11"):
+  e.add_conflict_zone("Bangassou")
+  #if t_data == date_to_sim_days("2013-03-24"):
+  e.add_conflict_zone("Bangui") # Main capital entry. Bangui has 100,000s IDPs though.
+  #if t_data == date_to_sim_days("2013-04-17"):
+  e.add_conflict_zone("Mbres")
+  #if t_data == date_to_sim_days("2013-05-03"):
+  e.add_conflict_zone("Bohong")
+  #if t_data == date_to_sim_days("2013-05-17"):
+  e.add_conflict_zone("Bouca")
+  #if t_data == date_to_sim_days("2013-09-07"):
+  e.add_conflict_zone("Bossangoa")
+  #if t_data == date_to_sim_days("2013-09-14"):
+  e.add_conflict_zone("Bossembele")
+  #if t_data == date_to_sim_days("2013-10-10"):
+  e.add_conflict_zone("Bogangolo")
+  #if t_data == date_to_sim_days("2013-10-26"):
+  e.add_conflict_zone("Bouar")
+  #if t_data == date_to_sim_days("2013-11-10"):
+  e.add_conflict_zone("Rafai")
+  #if t_data == date_to_sim_days("2013-11-28"):
+  e.add_conflict_zone("Damara")
+
 
   # Start with a refugee debt to account for the mismatch between camp aggregates and total UNHCR data.
   refugee_debt = e.numAgents()
@@ -237,7 +268,17 @@ if __name__ == "__main__":
     new_links = []
 
     # CAR/DRC border is closed on the 5th of December. Appears to remain closed until the 30th of June.
-    # Source: http://data.unhcr.org/car/download.php?id=21
+    # Source: http://data.unhcr.org/car/download.php
+    if t_data == date_to_sim_days("2013-12-05"):
+      e.remove_link("Bangui","Mole")
+      e.remove_link("Gbadolite","Inke")
+
+    if t_data == date_to_sim_days("2013-06-30"):
+      e.remove_link("Mole","Bangui")
+      e.remove_link("Inke","Gbadolite")
+      e.linkUp("Bangui","Mole","42.0")
+      e.linkUp("Gbadolite","Inke","42.0")
+      
 
     # 12 Feb. In Mole, refugees who were waiting to be registered and relocated received their food rations from the WFP.  
     # Source: http://data.unhcr.org/car/download.php?id=22
@@ -251,70 +292,20 @@ if __name__ == "__main__":
       e.remove_link("Paoua","Dosseye")
       e.remove_link("RN1","Dosseye")
 
-
-    #Append conflict_zones and weights to list from ACLED conflict database.
-    #Conflict zones year before the start of simulation period
-    if t_data == date_to_sim_days("2012-12-10"):
-      e.add_conflict_zone("Ndele")
-
-    if t_data == date_to_sim_days("2012-12-15"):
-      e.add_conflict_zone("Bamingui")
-
-    if t_data == date_to_sim_days("2012-12-28"):
-      e.add_conflict_zone("Bambari")
-
-    if t_data == date_to_sim_days("2013-01-18"):
-      e.add_conflict_zone("Obo")
-
-    if t_data == date_to_sim_days("2013-03-11"):
-      e.add_conflict_zone("Bangassou")
-
-    if t_data == date_to_sim_days("2013-03-24"):
-      e.add_conflict_zone("Bangui")
-
-    if t_data == date_to_sim_days("2013-04-17"):
-      e.add_conflict_zone("Mbres")
-
-    if t_data == date_to_sim_days("2013-05-03"):
-      e.add_conflict_zone("Bohong")
-
-    if t_data == date_to_sim_days("2013-05-17"):
-      e.add_conflict_zone("Bouca")
-
-    if t_data == date_to_sim_days("2013-09-07"):
-      e.add_conflict_zone("Bossangoa")
-
-    if t_data == date_to_sim_days("2013-09-14"):
-      e.add_conflict_zone("Bossembele")
-
-    if t_data == date_to_sim_days("2013-10-10"):
-      e.add_conflict_zone("Bogangolo")
-
-    if t_data == date_to_sim_days("2013-10-26"):
-      e.add_conflict_zone("Bouar")
-
-    if t_data == date_to_sim_days("2013-11-10"):
-      e.add_conflict_zone("Rafai")
-
-    if t_data == date_to_sim_days("2013-11-28"):
-      e.add_conflict_zone("Damara")
-
-
     #Conflict zones after the start of simulation period
     if t_data == date_to_sim_days("2013-12-06"): #A wave of reprisal attacks & escalating cycle of violence between Seleka militia and Anti-Balaka
       e.add_conflict_zone("Bozoum")
 
-    if t_data == date_to_sim_days("2013-12-21"): #MISCA: African-led International Support Mission against Anti-balaka (deaths & thousnads displaced)
-      e.add_conflict_zone("Bossangoa")
+    #if t_data == date_to_sim_days("2013-12-21"): #MISCA: African-led International Support Mission against Anti-balaka (deaths & thousnads displaced)
+    #  e.add_conflict_zone("Bossangoa")
 
     if t_data == date_to_sim_days("2014-01-01"): #Violence & death in battles between Seleka militia and Anti-Balaka
       e.add_conflict_zone("Bimbo")
 
-    if t_data == date_to_sim_days("2014-01-19"): #Violence & battles of Seleka militia with Anti-Balaka
-      e.add_conflict_zone("Bambari")
-
-    if t_data == date_to_sim_days("2014-01-20"):
-      e.add_conflict_zone("Bouar")
+    #if t_data == date_to_sim_days("2014-01-19"): #Violence & battles of Seleka militia with Anti-Balaka
+    #  e.add_conflict_zone("Bambari")
+    #if t_data == date_to_sim_days("2014-01-20"):
+    #  e.add_conflict_zone("Bouar")
       
     if t_data == date_to_sim_days("2014-01-28"): #Battles between Seleka militia and Anti-Balaka
       e.add_conflict_zone("Boda")
@@ -325,11 +316,11 @@ if __name__ == "__main__":
     if t_data == date_to_sim_days("2014-02-11"): ##Battles between Military forces and Anti-Balaka
       e.add_conflict_zone("Berberati")
 
-    if t_data == date_to_sim_days("2014-02-16"): #Battles between Seleka militia and Salanze Communal Militia
-      e.add_conflict_zone("Bangassou")
+    #if t_data == date_to_sim_days("2014-02-16"): #Battles between Seleka militia and Salanze Communal Militia
+    #  e.add_conflict_zone("Bangassou")
 
-    if t_data == date_to_sim_days("2014-03-08"): #Battles between Seleka militia and Sangaris (French Mission)
-      e.add_conflict_zone("Ndele")      
+    #if t_data == date_to_sim_days("2014-03-08"): #Battles between Seleka militia and Sangaris (French Mission)
+    #  e.add_conflict_zone("Ndele")      
 
     if t_data == date_to_sim_days("2014-03-11"): #MISCA: African-led International Support Mission against Anti-balaka
       e.add_conflict_zone("Nola")      
@@ -343,8 +334,8 @@ if __name__ == "__main__":
     if t_data == date_to_sim_days("2014-04-14"): #Battles between Anti-Balaka and Seleka militia
       e.add_conflict_zone("Grimari")      
 
-    if t_data == date_to_sim_days("2014-04-23"): #Battles between Seleka militia and Anti-Balaka
-      e.add_conflict_zone("Bouca")      
+    #if t_data == date_to_sim_days("2014-04-23"): #Battles between Seleka militia and Anti-Balaka
+    #  e.add_conflict_zone("Bouca")      
 
     if t_data == date_to_sim_days("2014-04-26"): #Battles by unidentified Armed groups 
       e.add_conflict_zone("Paoua")      
