@@ -10,6 +10,9 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 
 #Central African Republic (CAR) Simulation
 
+def date_to_sim_days(date):
+  return handle_refugee_data.subtract_dates(date,"2013-12-01")
+
 if __name__ == "__main__":
 
   if len(sys.argv)>1:
@@ -36,7 +39,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Boda", movechance=0.3, pop=11688))
   locations.append(e.addLocation("Nola", movechance=0.3, pop=41462))
   
-  locations.append(e.addLocation("Bossembele", movechance=0.3))
+  locations.append(e.addLocation("Bossembele", movechance=0.3, pop=37849))
   locations.append(e.addLocation("Berberati", movechance=0.3, pop=105155))
   locations.append(e.addLocation("Gamboula", movechance=0.3))
   locations.append(e.addLocation("Carnot", movechance=0.3, pop=54551))
@@ -54,18 +57,27 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Kaga Bandoro", movechance=0.3, pop=27797))
   locations.append(e.addLocation("Sibut", movechance=0.3, pop=24527))
   
+  locations.append(e.addLocation("Bamingui", movechance=0.3, pop=6230))
   locations.append(e.addLocation("Dekoa", movechance=0.3, pop=12447))
   locations.append(e.addLocation("Ndele", movechance=0.3, pop=13704))
   locations.append(e.addLocation("Birao", movechance=0.3))
   locations.append(e.addLocation("Bria", movechance=0.3, pop=43322))
-  locations.append(e.addLocation("Bambari", movechance=0.3, pop=41486))
   
+  locations.append(e.addLocation("Bambari", movechance=0.3, pop=41486))
   locations.append(e.addLocation("Grimari", movechance=0.3, pop=10822))
   locations.append(e.addLocation("Bangassou", movechance=0.3, pop=35305))
-  locations.append(e.addLocation("Rafai", movechance=0.3))
-  locations.append(e.addLocation("Obo", movechance=0.3))
+  locations.append(e.addLocation("Rafai", movechance=0.3, pop=13962))
+  locations.append(e.addLocation("Obo", movechance=0.3, pop=36029))
+ 
   locations.append(e.addLocation("Mobaye", movechance=0.3))
+  locations.append(e.addLocation("Bohong", movechance=0.3, pop=19700))  
+  locations.append(e.addLocation("Mbres", movechance=0.3, pop=20709))
+  locations.append(e.addLocation("Damara", movechance=0.3, pop=32321))
+  locations.append(e.addLocation("Bogangolo", movechance=0.3, pop=9966))
+  
+  locations.append(e.addLocation("Marali", movechance=0.3))
 
+  
   camp_movechance = 0.001
 
   #Chad, Cameroon & Demotratic R.of Congo & R. of Congo camps
@@ -92,6 +104,8 @@ if __name__ == "__main__":
   e.linkUp("Berberati","Carnot","92.0")
   e.linkUp("Carnot","Bouar","140.0")
   e.linkUp("Bouar","Baboua","98.0")
+  e.linkUp("Bouar","Bohong","72.0")
+  e.linkUp("Bohong","Bozoum","101.0")
   e.linkUp("Bouar","Bozoum","109.0")
   e.linkUp("Bozoum","Carnot","186.0")
   e.linkUp("Bozoum","Paoua","116.0")
@@ -101,6 +115,7 @@ if __name__ == "__main__":
   e.linkUp("Paoua","RN1","82.0")
   e.linkUp("Bozoum","Bossembele","223.0")
   e.linkUp("Bossangoa","Bossembele","148.0")
+  e.linkUp("Bossembele","Bogangolo","132.0")
   e.linkUp("Bossembele","Bangui","159.0")
   e.linkUp("Bossangoa","Bouca","98.0")
   e.linkUp("Bossangoa","Batangafo","147.0")
@@ -108,11 +123,18 @@ if __name__ == "__main__":
   e.linkUp("Batangafo","Kabo","60.0")
   e.linkUp("Kabo","Kaga Bandoro","107.0")
   e.linkUp("Batangafo","Kaga Bandoro","113.0")
-  e.linkUp("Bangui","Sibut","183.0")
-  e.linkUp("Bouca","Sibut","147.0")
+  e.linkUp("Damara","Bogangolo","93.0")
+  e.linkUp("Bangui","Damara","74.0")
+  e.linkUp("Damara","Sibut","105.0")
+  e.linkUp("Sibut","Bogangolo","127.0")
+  e.linkUp("Bogangolo","Marali","55.0")
+  e.linkUp("Marali","Bouca","58.0")
+  e.linkUp("Marali","Sibut","89.0")
   e.linkUp("Sibut","Dekoa","69.0")
   e.linkUp("Dekoa","Kaga Bandoro","80.0")
-  e.linkUp("Kaga Bandoro","Ndele","324.0")
+  e.linkUp("Kaga Bandoro","Mbres","91.0")
+  e.linkUp("Mbres","Bamingui","112.0")
+  e.linkUp("Bamingui","Ndele","121.0")
   e.linkUp("Ndele","Birao","352.0")
   e.linkUp("Birao","Bria","480.0")
   e.linkUp("Ndele","Bria","314.0")
@@ -130,7 +152,7 @@ if __name__ == "__main__":
   e.linkUp("Gbadolite","Bangui","500.0")
 
 
-  #Camps, starting at index locations[30] (at time of writing).
+  #Camps, starting at index locations[36] (at time of writing).
   e.linkUp("Kabo","Belom","87.0")
   e.linkUp("Ndele","Belom","299.0")
   e.linkUp("Paoua","Dosseye","136.0")
@@ -144,7 +166,7 @@ if __name__ == "__main__":
   e.linkUp("Nola","Brazaville","1300.0")
 
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="car2014", start_date="2013-12-01")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="car2014/")
 
   # Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
   # These errors led to a perceived large drop in refugee population in all of these camps.
@@ -159,14 +181,14 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Betou","2014-03-22")
   #d.correctLevel1Registrations("Brazaville","2016-04-30")
 
-  locations[30].capacity = d.getMaxFromData("Belom", last_physical_day)
-  locations[31].capacity = d.getMaxFromData("Dosseye", last_physical_day)
-  locations[32].capacity = d.getMaxFromData("East", last_physical_day)
-  locations[33].capacity = d.getMaxFromData("Adamaoua", last_physical_day)
-  locations[34].capacity = d.getMaxFromData("Mole", last_physical_day)
-  locations[36].capacity = d.getMaxFromData("Inke", last_physical_day)
-  locations[37].capacity = d.getMaxFromData("Betou", last_physical_day)
-  locations[38].capacity = d.getMaxFromData("Brazaville", last_physical_day)
+  locations[36].capacity = d.getMaxFromData("Belom", last_physical_day)
+  locations[37].capacity = d.getMaxFromData("Dosseye", last_physical_day)
+  locations[38].capacity = d.getMaxFromData("East", last_physical_day)
+  locations[39].capacity = d.getMaxFromData("Adamaoua", last_physical_day)
+  locations[40].capacity = d.getMaxFromData("Mole", last_physical_day)
+  locations[42].capacity = d.getMaxFromData("Inke", last_physical_day)
+  locations[43].capacity = d.getMaxFromData("Betou", last_physical_day)
+  locations[44].capacity = d.getMaxFromData("Brazaville", last_physical_day)
 
   list_of_cities = "Time"
 
@@ -222,8 +244,8 @@ if __name__ == "__main__":
 
     # 19 Feb: drop of IDPs in Bangui from 400k to 273k.
 
-    # Close borders here: On the 12th of May, Chad closes border altogether.
-    if t_data == 163:
+    # Close borders here: On the 12th of May 2014, Chad closes border altogether.
+    if t_data == date_to_sim_days("2014-05-12"):
       e.remove_link("Kabo","Belom")
       e.remove_link("Ndele","Belom")
       e.remove_link("Paoua","Dosseye")
@@ -231,59 +253,109 @@ if __name__ == "__main__":
 
 
     #Append conflict_zones and weights to list from ACLED conflict database.
-    if t_data == 5: #A wave of reprisal attacks & escalating cycle of violence between Seleka militia and Anti-Balaka
-      e.add_conflict_zone("Bozoum")
+    #Conflict zones year before the start of simulation period
+    if t_data == date_to_sim_days("2012-12-10"):
+      e.add_conflict_zone("Ndele")
 
-    elif t_data == 20: #MISCA: African-led International Support Mission against Anti-balaka (deaths & thousnads displaced)
-      e.add_conflict_zone("Bossangoa")
+    if t_data == date_to_sim_days("2012-12-15"):
+      e.add_conflict_zone("Bamingui")
 
-    elif t_data == 31: #Violence & death in battles between Seleka militia and Anti-Balaka
-      e.add_conflict_zone("Bimbo")
-
-    elif t_data == 50: #Violence & battles of Seleka militia with Anti-Balaka
+    if t_data == date_to_sim_days("2012-12-28"):
       e.add_conflict_zone("Bambari")
-      e.add_conflict_zone("Bouar")
-      
-    elif t_data == 58: #Battles between Seleka militia and Anti-Balaka
-      e.add_conflict_zone("Boda")
 
-    elif t_data == 67: #Battles between Seleka militia and Anti-Balaka
-      e.add_conflict_zone("Kaga Bandoro")
+    if t_data == date_to_sim_days("2013-01-18"):
+      e.add_conflict_zone("Obo")
 
-    elif t_data == 72: ##Battles between Military forces and Anti-Balaka
-      e.add_conflict_zone("Berberati")
-
-    elif t_data == 77: #Battles between Seleka militia and Salanze Communal Militia
+    if t_data == date_to_sim_days("2013-03-11"):
       e.add_conflict_zone("Bangassou")
 
-    elif t_data == 97: #Battles between Seleka militia and Sangaris (French Mission)
+    if t_data == date_to_sim_days("2013-03-24"):
+      e.add_conflict_zone("Bangui")
+
+    if t_data == date_to_sim_days("2013-04-17"):
+      e.add_conflict_zone("Mbres")
+
+    if t_data == date_to_sim_days("2013-05-03"):
+      e.add_conflict_zone("Bohong")
+
+    if t_data == date_to_sim_days("2013-05-17"):
+      e.add_conflict_zone("Bouca")
+
+    if t_data == date_to_sim_days("2013-09-07"):
+      e.add_conflict_zone("Bossangoa")
+
+    if t_data == date_to_sim_days("2013-09-14"):
+      e.add_conflict_zone("Bossembele")
+
+    if t_data == date_to_sim_days("2013-10-10"):
+      e.add_conflict_zone("Bogangolo")
+
+    if t_data == date_to_sim_days("2013-10-26"):
+      e.add_conflict_zone("Bouar")
+
+    if t_data == date_to_sim_days("2013-11-10"):
+      e.add_conflict_zone("Rafai")
+
+    if t_data == date_to_sim_days("2013-11-28"):
+      e.add_conflict_zone("Damara")
+
+
+    #Conflict zones after the start of simulation period
+    if t_data == date_to_sim_days("2013-12-06"): #A wave of reprisal attacks & escalating cycle of violence between Seleka militia and Anti-Balaka
+      e.add_conflict_zone("Bozoum")
+
+    if t_data == date_to_sim_days("2013-12-21"): #MISCA: African-led International Support Mission against Anti-balaka (deaths & thousnads displaced)
+      e.add_conflict_zone("Bossangoa")
+
+    if t_data == date_to_sim_days("2014-01-01"): #Violence & death in battles between Seleka militia and Anti-Balaka
+      e.add_conflict_zone("Bimbo")
+
+    if t_data == date_to_sim_days("2014-01-19"): #Violence & battles of Seleka militia with Anti-Balaka
+      e.add_conflict_zone("Bambari")
+
+    if t_data == date_to_sim_days("2014-01-20"):
+      e.add_conflict_zone("Bouar")
+      
+    if t_data == date_to_sim_days("2014-01-28"): #Battles between Seleka militia and Anti-Balaka
+      e.add_conflict_zone("Boda")
+
+    if t_data == date_to_sim_days("2014-02-06"): #Battles between Seleka militia and Anti-Balaka
+      e.add_conflict_zone("Kaga Bandoro")
+
+    if t_data == date_to_sim_days("2014-02-11"): ##Battles between Military forces and Anti-Balaka
+      e.add_conflict_zone("Berberati")
+
+    if t_data == date_to_sim_days("2014-02-16"): #Battles between Seleka militia and Salanze Communal Militia
+      e.add_conflict_zone("Bangassou")
+
+    if t_data == date_to_sim_days("2014-03-08"): #Battles between Seleka militia and Sangaris (French Mission)
       e.add_conflict_zone("Ndele")      
 
-    elif t_data == 100: #MISCA: African-led International Support Mission against Anti-balaka
+    if t_data == date_to_sim_days("2014-03-11"): #MISCA: African-led International Support Mission against Anti-balaka
       e.add_conflict_zone("Nola")      
 
-    elif t_data == 128: #Battles between Seleka militia and Anti-Balaka
+    if t_data == date_to_sim_days("2014-04-08"): #Battles between Seleka militia and Anti-Balaka
       e.add_conflict_zone("Dekoa")      
 
-    elif t_data == 130: #Battles of Bria Communal Militia (Seleka Militia) and MISCA (African-led International Support Mission)
+    if t_data == date_to_sim_days("2014-04-10"): #Battles of Bria Communal Militia (Seleka Militia) and MISCA (African-led International Support Mission)
       e.add_conflict_zone("Bria")      
 
-    elif t_data == 134: #Battles between Anti-Balaka and Seleka militia
+    if t_data == date_to_sim_days("2014-04-14"): #Battles between Anti-Balaka and Seleka militia
       e.add_conflict_zone("Grimari")      
 
-    elif t_data == 143: #Battles between Seleka militia and Anti-Balaka
+    if t_data == date_to_sim_days("2014-04-23"): #Battles between Seleka militia and Anti-Balaka
       e.add_conflict_zone("Bouca")      
 
-    elif t_data == 146: #Battles by unidentified Armed groups 
+    if t_data == date_to_sim_days("2014-04-26"): #Battles by unidentified Armed groups 
       e.add_conflict_zone("Paoua")      
 
-    elif t_data == 173: #MISCA: African-led International Support Mission against Anti-balaka
+    if t_data == date_to_sim_days("2014-05-23"): #MISCA: African-led International Support Mission against Anti-balaka
       e.add_conflict_zone("Carnot")      
 
-    elif t_data == 241: #Battles between Anti-Balaka and Seleka militia
+    if t_data == date_to_sim_days("2014-07-30"): #Battles between Anti-Balaka and Seleka militia
       e.add_conflict_zone("Batangafo")      
 
-    elif t_data == 313: #MINUSCA: United Nations Multidimensional Integrated Stabilization Mission against Seleka militia (PRGF Faction)
+    if t_data == date_to_sim_days("2014-10-10"): #MINUSCA: United Nations Multidimensional Integrated Stabilization Mission against Seleka militia (PRGF Faction)
       e.add_conflict_zone("Sibut")      
 
     #Insert refugee agents
@@ -310,7 +382,7 @@ if __name__ == "__main__":
     errors = []
     abs_errors = []
     loc_data = [belom_data, dosseye_data, east_data, adamaoua_data, mole_data, inke_data, betou_data, brazaville_data]
-    camp_locations = [30, 31, 32, 33, 34, 36, 37, 38]
+    camp_locations = [36, 37, 38, 39, 40, 42, 43, 44]
 
     camps = []
     for i in camp_locations:
