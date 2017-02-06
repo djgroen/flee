@@ -384,7 +384,7 @@ if __name__ == "__main__":
 
   if not RetroFitting and PlotOffsets==True:
   
-    for offset in [7,14,30]:
+    """for offset in [7,14,30]:
 
       loc_errors_offset = []
       for i in location_names:
@@ -398,7 +398,7 @@ if __name__ == "__main__":
       diffdata_rescaled = sim_errors_offset.abs_diff() / np.maximum(un_refs[:-offset], np.ones(len(un_refs[:-offset])))
 
       print(offset, out_dir,": Averaged error : ", np.mean(diffdata), ", rescaled: ", np.mean(diffdata_rescaled),", len: ", len(diffdata))
-
+    """
     #plotme_minimal(out_dir, refugee_data,i)
 
 

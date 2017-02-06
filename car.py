@@ -33,7 +33,7 @@ if __name__ == "__main__":
   locations = []
 
   #CAR
-  locations.append(e.addLocation("Bangui", movechance=1.0, pop=734350))
+  locations.append(e.addLocation("Bangui", movechance=0.3, pop=734350-400000)) #Subtracting the number of IDPs from the population to reflect local shelter.
   locations.append(e.addLocation("Bimbo", movechance=0.3, pop=267859))
   locations.append(e.addLocation("Mbaiki", movechance=0.3))
   locations.append(e.addLocation("Boda", movechance=0.3, pop=11688))
@@ -217,7 +217,7 @@ if __name__ == "__main__":
   #if t_data == date_to_sim_days("2013-03-11"):
   e.add_conflict_zone("Bangassou")
   #if t_data == date_to_sim_days("2013-03-24"):
-  e.add_conflict_zone("Bangui") # Main capital entry. Bangui has 100,000s IDPs though.
+  e.add_conflict_zone("Bangui") # Main capital entry. Bangui has 100,000s-500,000 IDPs though.
   #if t_data == date_to_sim_days("2013-04-17"):
   e.add_conflict_zone("Mbres")
   #if t_data == date_to_sim_days("2013-05-03"):
