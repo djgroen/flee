@@ -267,6 +267,7 @@ class Ecosystem:
 
     # Bring conflict zone management into FLEE.
     self.conflict_zones = []
+    self.conflict_zone_names = []
     self.conflict_weights = np.array([])
     self.conflict_pop = 0
 
@@ -323,16 +324,18 @@ class Ecosystem:
     """
     for i in range(0, len(self.locationNames)):
       if self.locationNames[i] is name:
-        if change_movechance:
-          self.locations[i].movechance = 1.0
-          self.locations[i].Conflict = True
-        self.conflict_zones += [self.locations[i]]
-        self.conflict_weights = np.append(self.conflict_weights, [self.locations[i].pop])
-        self.conflict_pop = sum(self.conflict_weights)
-        if SimulationSettings.InitLogLevel > 0:
-          print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
-          print("New total pop. in conflict zones: ", self.conflict_pop) 
-        return
+        if name not in self.conflict_zone_names:
+          if change_movechance:
+            self.locations[i].movechance = 1.0
+            self.locations[i].Conflict = True
+          self.conflict_zone_names += [name]
+          self.conflict_zones += [self.locations[i]]
+          self.conflict_weights = np.append(self.conflict_weights, [self.locations[i].pop])
+          self.conflict_pop = sum(self.conflict_weights)
+          if SimulationSettings.InitLogLevel > 0:
+            print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
+            print("New total pop. in conflict zones: ", self.conflict_pop) 
+          return
 
     print("ERROR in flee.add_conflict_zone: location with name ", name, " appears not to exist in the FLEE ecosystem.")
     print("Existing locations include: ", self.locationNames)
@@ -344,11 +347,13 @@ class Ecosystem:
     (not used yet)
     """
     new_conflict_zones = []
+    new_conflict_zone_names = []
     new_weights = np.array([])
 
     for i in range(0, len(self.conflict_zones)):
       if conflict_zones[i].name is not name:
         new_conflict_zones += [self.conflict_zones[i]]
+        new_conflict_zone_names += [self.conflict_zone_names[i]]
         new_weights = np.append(new_weights, [self.conflict_weights[i]])
 
     self.conflict_zones = new_conflict_zones
