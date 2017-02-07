@@ -71,14 +71,14 @@ def AddCSVTables(table1, table2):
       table = np.vstack([table,[c2[0], c2[1]+table1[offset][1]]])
       if(offset < len(table1)-1):
         offset += 1
+      last_c2 = c2
+      continue
 
     # If table 1 value is higher, add an aggregate entry, and go to the next iteration without increasing the offset.
     if c2[0] < table1[offset][0]:
       table = np.vstack([table,[c2[0], c2[1]+table1[offset][1]]])
-
-    last_c2 = c2
-
-  print("AddCSVTables: ", table1, table2, table)
+      last_c2 = c2
+      continue
 
   return table
 
