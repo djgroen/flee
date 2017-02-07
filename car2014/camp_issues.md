@@ -11,3 +11,4 @@
 
 - Close borders here: On the 12th of May, Chad closes border altogether.
 
+- Inke, Mbotri (DRC) and Betou (Congo) have counts both inside and outside of the camp. These CSV values should be aggregated.
