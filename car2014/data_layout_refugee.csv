@@ -9,7 +9,8 @@ Adamaoua,cam-adamaoua.csv
 Bili,dcon-bili.csv
 Bossobolo,dcon-bossobolo.csv
 Boyabu,dcon-boyabu.csv
+Mboti,dcon-mboti.csv,dcon-mboti-outside.csv
 Mole,dcon-mole.csv
-Inke,dcon-inke.csv
-Betou,con-betou.csv
+Inke,dcon-inke.csv,dcon-inke-outside.csv
+Betou,con-betou.csv,con-betou-outside.csv
 Brazaville,con-brazaville.csv
