@@ -27,7 +27,13 @@ def _processEntry(row, table, data_type, date_column, count_column, start_date):
   column <date_column> contains the corresponding date in %Y-%m-%d format.
   column <count_column> contains the population size on that date.
   """
-  if(row[0][0] == "#"):
+  if len(row) < 2:
+    return table
+
+  if row[0][0] == "#":
+    return table
+
+  if row[1]=="":
     return table
 
   # Make sure the date column becomes an integer, which contains the offset in days relative to the start date.
@@ -37,6 +43,42 @@ def _processEntry(row, table, data_type, date_column, count_column, start_date):
     table = np.vstack([table,[int(row[date_column]), int(row[count_column])]])
   else:
     table = np.vstack([table,[float(row[date_column]), float(row[count_column])]])
+
+  return table
+
+def AddCSVTables(table1, table2): 
+  """  
+  Add two time series tables. This version does not yet support interpolation between values.
+  (The UNHCR data website also does not do this, by the way)
+  """
+  
+  table = np.zeros([0,2])
+
+  offset = 0
+  last_c2 = np.zeros(([1,2]))
+  for c2 in table2:
+
+    # If table 2 date value is higher, then keep adding entries from table 1
+    while c2[0] > table1[offset][0]:
+      table = np.vstack([table,[table1[offset][0], last_c2[1]+table1[offset][1]]])
+      if(offset < len(table1)-1):
+        offset += 1
+      else:
+        break
+
+    # If the two match, add a total.
+    if c2[0] == table1[offset][0]:
+      table = np.vstack([table,[c2[0], c2[1]+table1[offset][1]]])
+      if(offset < len(table1)-1):
+        offset += 1
+
+    # If table 1 value is higher, add an aggregate entry, and go to the next iteration without increasing the offset.
+    if c2[0] < table1[offset][0]:
+      table = np.vstack([table,[c2[0], c2[1]+table1[offset][1]]])
+
+    last_c2 = c2
+
+  print("AddCSVTables: ", table1, table2, table)
 
   return table
 
@@ -87,12 +129,18 @@ class DataTable:
       with open("%s/%s" % (data_directory, data_layout), newline='') as csvfile:
         values = csv.reader(csvfile)
         for row in values:
-          if(len(row)==2):
+          if(len(row)>1):
             if(row[0][0] == "#"):
               continue
             self.header.append(row[0])
 
-            self.data_table.append(ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, row[1]), start_date=start_date))
+            print("%s/%s" % (data_directory, row[1]))
+            csv_total = ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, row[1]), start_date=start_date)
+
+            for added_csv in row[2:]:
+              csv_total = AddCSVTables(csv_total, ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, added_csv), start_date=start_date))
+
+            self.data_table.append(csv_total)
 
     #print(self.header, self.data_table)
 
