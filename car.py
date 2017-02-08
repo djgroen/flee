@@ -49,7 +49,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Bozoum", movechance=0.3, pop=22284))
   locations.append(e.addLocation("Paoua", movechance=0.3, pop=17370))
   locations.append(e.addLocation("Bossangoa", movechance=0.3, pop=38451))
-  locations.append(e.addLocation("RN1", movechance=0.3))
+  locations.append(e.addLocation("RN1", movechance=0.3)) #Coordinates = 7.112110, 17.030220
 
   locations.append(e.addLocation("Batangafo", movechance=0.3, pop=16420))
   locations.append(e.addLocation("Bouca", movechance=0.3, pop=12280))
@@ -76,17 +76,33 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Bogangolo", movechance=0.3, pop=9966))
 
   locations.append(e.addLocation("Marali", movechance=0.3))
-
+  locations.append(e.addLocation("Beboura", movechance=0.3))
+  locations.append(e.addLocation("RN8", movechance=0.3)) #Coordinates = 9.560670, 22.140450
+  
 
   camp_movechance = 0.001
 
-  #Chad, Cameroon & Demotratic R.of Congo & R. of Congo camps
+  #Chad, Cameroon & Demotratic R.of Congo & R. of Congo camps starting at index locations[38] (at time of writing).
+  locations.append(e.addLocation("Amboko", movechance=camp_movechance, capacity=12405, foreign=True))
   locations.append(e.addLocation("Belom", movechance=camp_movechance, capacity=28483, foreign=True))
   locations.append(e.addLocation("Dosseye", movechance=camp_movechance, capacity=22925, foreign=True))
+  locations.append(e.addLocation("Gondje", movechance=camp_movechance, capacity=12171, foreign=True))
+  locations.append(e.addLocation("Moyo", movechance=camp_movechance, capacity=14969, foreign=True))
+  locations.append(e.addLocation("Lolo", movechance=0.08, foreign=True))
+  locations.append(e.addLocation("Mbile", movechance=0.08, foreign=True))
+  locations.append(e.addLocation("Batouri", movechance=0.3))
+  locations.append(e.addLocation("Timangolo", movechance=0.08, foreign=True))
+  locations.append(e.addLocation("Gado-Badzere", movechance=0.08, foreign=True))
   locations.append(e.addLocation("East", movechance=camp_movechance, capacity=180485, foreign=True))
+  locations.append(e.addLocation("D22", movechance=0.3)) #Coordinates = 6.559910, 14.126600
+  locations.append(e.addLocation("Borgop", movechance=0.08, foreign=True))
+  locations.append(e.addLocation("Ngam", movechance=0.08, foreign=True))
   locations.append(e.addLocation("Adamaoua", movechance=camp_movechance, capacity=71506, foreign=True))
   locations.append(e.addLocation("Mole", movechance=camp_movechance, capacity=20454, foreign=True))
   locations.append(e.addLocation("Gbadolite", movechance=0.3))
+  locations.append(e.addLocation("N24", movechance=0.3)) #Coordinates = 3.610560, 20.762290
+  locations.append(e.addLocation("Bili", movechance=camp_movechance, capacity=10282, foreign=True))
+  locations.append(e.addLocation("Bossobolo", movechance=camp_movechance, capacity=18054, foreign=True))
   locations.append(e.addLocation("Inke", movechance=camp_movechance, capacity=20365, foreign=True))
   locations.append(e.addLocation("Betou", movechance=camp_movechance, capacity=10232, foreign=True))
   locations.append(e.addLocation("Brazaville", movechance=camp_movechance, capacity=7221, foreign=True))
@@ -112,7 +128,7 @@ if __name__ == "__main__":
   e.linkUp("Bozoum","Bossangoa","132.0")
   e.linkUp("Bossangoa","RN1","98.0")
   e.linkUp("Batangafo","RN1","154.0")
-  e.linkUp("Paoua","RN1","82.0")
+  e.linkUp("Beboura","RN1","54.0") 
   e.linkUp("Bozoum","Bossembele","223.0")
   e.linkUp("Bossangoa","Bossembele","148.0")
   e.linkUp("Bossembele","Bogangolo","132.0")
@@ -135,7 +151,8 @@ if __name__ == "__main__":
   e.linkUp("Kaga Bandoro","Mbres","91.0")
   e.linkUp("Mbres","Bamingui","112.0")
   e.linkUp("Bamingui","Ndele","121.0")
-  e.linkUp("Ndele","Birao","352.0")
+  e.linkUp("Ndele","RN8","239.0")
+  e.linkUp("RN8","Birao","114.0")
   e.linkUp("Birao","Bria","480.0")
   e.linkUp("Ndele","Bria","314.0")
   e.linkUp("Bria","Bambari","202.0")
@@ -152,15 +169,30 @@ if __name__ == "__main__":
   e.linkUp("Gbadolite","Bangui","500.0")
 
 
-  #Camps, starting at index locations[36] (at time of writing).
+  #Camps, starting at index locations[38] (at time of writing).
   e.linkUp("Kabo","Belom","87.0")
   e.linkUp("Ndele","Belom","299.0")
-  e.linkUp("Paoua","Dosseye","136.0")
+  e.linkUp("Paoua","Beboura","31.0")
+  e.linkUp("Beboura","Amboko","76.0")
+  e.linkUp("Amboko","Gondje","8.0")
+  e.linkUp("Amboko","Dosseye","31.0")
   e.linkUp("RN1","Dosseye","108.0")
-  e.linkUp("Gamboula","East","135.0")
-  e.linkUp("Baboua","East","241.0")
-  e.linkUp("Baboua","Adamaoua","311.0")
+  e.linkUp("RN8","Moyo","176.0")
+  e.linkUp("Gamboula","Lolo","41.0")
+  e.linkUp("Lolo","Mbile","10.0")
+  e.linkUp("Mbile","Batouri","53.0")
+  e.linkUp("Batouri","East","26.0")
+  e.linkUp("Batouri","Timangolo","24.0")
+  e.linkUp("Baboua","Gado-Badzere","81.0") 
+  e.linkUp("Gado-Badzere","East","222.0")
+  e.linkUp("Baboua","D22","181.0")
+  e.linkUp("D22","Ngam","68.0")
+  e.linkUp("Borgop","Ngam","41.0")
+  e.linkUp("D22","Adamaoua","138.0")
   e.linkUp("Bangui","Mole","42.0")
+  e.linkUp("Gbadolite","N24","93.0")
+  e.linkUp("N24","Bili","20.0") #There is no road after 93km to the camp & the remaining 20km was found by distance calculator (www.movable-type.co.uk/scripts/latlong.html)
+  e.linkUp("N24","Bossobolo","23.0")
   e.linkUp("Gbadolite","Inke","42.0")
   e.linkUp("Mbaiki","Betou","148.0")
   e.linkUp("Nola","Brazaville","1300.0")
@@ -172,23 +204,33 @@ if __name__ == "__main__":
   # These errors led to a perceived large drop in refugee population in all of these camps.
   # We correct by linearly scaling the values down to make the last level 1 registration match the first level 2 registration value.
   # To our knowledge, all level 2 registration procedures were put in place by the end of 2016.
+  d.correctLevel1Registrations("Amboko","2015-09-30")
   d.correctLevel1Registrations("Belom","2015-08-31")
   d.correctLevel1Registrations("Dosseye","2015-01-01")
+  d.correctLevel1Registrations("Gondje","2015-09-30")
+  d.correctLevel1Registrations("Moyo","2014-05-11") #and also "2015-06-02"
   d.correctLevel1Registrations("East","2014-09-28")
   d.correctLevel1Registrations("Adamaoua","2014-10-19")
   d.correctLevel1Registrations("Mole","2016-02-29")
+  d.correctLevel1Registrations("Bili","2016-06-30")
+  d.correctLevel1Registrations("Bossobolo","2016-05-20") #Data is only decreasing over time
   d.correctLevel1Registrations("Inke","2014-06-30")
   d.correctLevel1Registrations("Betou","2014-03-22")
   #d.correctLevel1Registrations("Brazaville","2016-04-30")
 
-  locations[36].capacity = d.getMaxFromData("Belom", last_physical_day)
-  locations[37].capacity = d.getMaxFromData("Dosseye", last_physical_day)
-  locations[38].capacity = d.getMaxFromData("East", last_physical_day)
-  locations[39].capacity = d.getMaxFromData("Adamaoua", last_physical_day)
-  locations[40].capacity = d.getMaxFromData("Mole", last_physical_day)
-  locations[42].capacity = d.getMaxFromData("Inke", last_physical_day)
-  locations[43].capacity = d.getMaxFromData("Betou", last_physical_day)
-  locations[44].capacity = d.getMaxFromData("Brazaville", last_physical_day)
+  locations[38].capacity = d.getMaxFromData("Amboko", last_physical_day)
+  locations[39].capacity = d.getMaxFromData("Belom", last_physical_day)
+  locations[40].capacity = d.getMaxFromData("Dosseye", last_physical_day)
+  locations[41].capacity = d.getMaxFromData("Gondje", last_physical_day)
+  locations[42].capacity = d.getMaxFromData("Moyo", last_physical_day)
+  locations[48].capacity = d.getMaxFromData("East", last_physical_day)
+  locations[52].capacity = d.getMaxFromData("Adamaoua", last_physical_day)
+  locations[53].capacity = d.getMaxFromData("Mole", last_physical_day)
+  locations[56].capacity = d.getMaxFromData("Bili", last_physical_day)
+  locations[57].capacity = d.getMaxFromData("Bossobolo", last_physical_day)
+  locations[58].capacity = d.getMaxFromData("Inke", last_physical_day)
+  locations[59].capacity = d.getMaxFromData("Betou", last_physical_day)
+  locations[60].capacity = d.getMaxFromData("Brazaville", last_physical_day)
 
 
 
@@ -199,7 +241,7 @@ if __name__ == "__main__":
 
   #print(list_of_cities)
   #print("Time, campname")
-  print("Day,Belom sim,Belom data,Belom error,Dosseye sim,Dosseye data,Dosseye error,East sim,East data,East error,Adamaoua sim,Adamaoua data,Adamaoua error,Mole sim,Mole data,Mole error,Inke sim,Inke data,Inke error,Betou sim,Betou data,Betou error,Brazaville sim,Brazaville data,Brazaville error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
+  print("Day,Amboko sim,Amboko data,Amboko error,Belom sim,Belom data,Belom error,Dosseye sim,Dosseye data,Dosseye error,Gondje sim,Gondje data,Gondje error,Moyo sim,Moyo data,Moyo error,East sim,East data,East error,Adamaoua sim,Adamaoua data,Adamaoua error,Mole sim,Mole data,Mole error,Bili sim,Bili data,Bili error,Bossobolo sim,Bossobolo data,Bossobolo error,Inke sim,Inke data,Inke error,Betou sim,Betou data,Betou error,Brazaville sim,Brazaville data,Brazaville error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
 
 
   #Set up a mechanism to incorporate temporary decreases in refugees
@@ -269,7 +311,7 @@ if __name__ == "__main__":
 
     new_links = []
 
-    #CAR/DRC border is closed on the 5th of December 2013. Appears to remain closed until the 30th of June 2014.
+    #CAR/DRC border is closed on the 5th of December 2013. Appears to remain closed until the 30th of June
     #Source: http://data.unhcr.org/car/download.php
     if t_data == date_to_sim_days("2013-12-05"):
       e.remove_link("Bangui","Mole")
@@ -361,11 +403,16 @@ if __name__ == "__main__":
 
 
     #Validation/data comparison
+    amboko_data = d.get_field("Amboko", t) #- d.get_field("Amboko", 0)
     belom_data = d.get_field("Belom", t) #- d.get_field("Belom", 0)
     dosseye_data = d.get_field("Dosseye", t) #- d.get_field("Dosseye", 0)
+    gondje_data = d.get_field("Gondje", t) #- d.get_field("Gondje", 0)
+    moyo_data = d.get_field("Moyo", t) #- d.get_field("Moyo", 0)
     east_data = d.get_field("East", t) #- d.get_field("East", 0)
     adamaoua_data = d.get_field("Adamaoua", t) #- d.get_field("Adamaoua", 0)
     mole_data = d.get_field("Mole", t) #- d.get_field("Mole", 0)
+    bili_data = d.get_field("Bili", t) #- d.get_field("Bili", 0)
+    bossobolo_data = d.get_field("Bossobolo", t) #- d.get_field("Bossobolo", 0)
     inke_data = d.get_field("Inke", t) #- d.get_field("Inke", 0)
     betou_data = d.get_field("Betou", t) #- d.get_field("Betou", 0)
     brazaville_data = d.get_field("Brazaville", t) #- d.get_field("Brazaville", 0)
@@ -373,13 +420,13 @@ if __name__ == "__main__":
     #Calculation of error terms
     errors = []
     abs_errors = []
-    loc_data = [belom_data, dosseye_data, east_data, adamaoua_data, mole_data, inke_data, betou_data, brazaville_data]
-    camp_locations = [36, 37, 38, 39, 40, 42, 43, 44]
+    loc_data = [amboko_data, belom_data, dosseye_data, gondje_data, moyo_data, east_data, adamaoua_data, mole_data, bili_data, bossobolo_data, inke_data, betou_data, brazaville_data]
+    camp_locations = [38, 39, 40, 41, 42, 48, 52, 53, 56, 57, 58, 59, 60]
 
     camps = []
     for i in camp_locations:
       camps += [locations[i]]
-    camp_names = ["Belom", "Dosseye", "East", "Adamaoua", "Mole", "Inke", "Betou", "Brazaville"]
+    camp_names = ["Amboko", "Belom", "Dosseye", "Gondje", "Moyo", "East", "Adamaoua", "Mole", "Bili", "Bossobolo", "Inke", "Betou", "Brazaville"]
 
     camp_pops_retrofitted = []
     errors_retrofitted = []
