@@ -49,7 +49,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Bozoum", movechance=0.3, pop=22284))
   locations.append(e.addLocation("Paoua", movechance=0.3, pop=17370))
   locations.append(e.addLocation("Bossangoa", movechance=0.3, pop=38451))
-  locations.append(e.addLocation("RN1", movechance=0.3)) #Coordinates = 7.112110, 17.030220
+  locations.append(e.addLocation("RN1", movechance=1.0)) #Coordinates = 7.112110, 17.030220
 
   locations.append(e.addLocation("Batangafo", movechance=0.3, pop=16420))
   locations.append(e.addLocation("Bouca", movechance=0.3, pop=12280))
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
   locations.append(e.addLocation("Marali", movechance=0.3))
   locations.append(e.addLocation("Beboura", movechance=0.3))
-  locations.append(e.addLocation("RN8", movechance=0.3)) #Coordinates = 9.560670, 22.140450
+  locations.append(e.addLocation("RN8", movechance=1.0)) #Coordinates = 9.560670, 22.140450
   
 
   camp_movechance = 0.001
@@ -88,19 +88,19 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Dosseye", movechance=camp_movechance, capacity=22925, foreign=True))
   locations.append(e.addLocation("Gondje", movechance=camp_movechance, capacity=12171, foreign=True))
   locations.append(e.addLocation("Moyo", movechance=camp_movechance, capacity=14969, foreign=True))
-  locations.append(e.addLocation("Lolo", movechance=0.08, foreign=True))
-  locations.append(e.addLocation("Mbile", movechance=0.08, foreign=True))
-  locations.append(e.addLocation("Batouri", movechance=0.3))
-  locations.append(e.addLocation("Timangolo", movechance=0.08, foreign=True))
-  locations.append(e.addLocation("Gado-Badzere", movechance=0.08, foreign=True))
-  locations.append(e.addLocation("East", movechance=camp_movechance, capacity=180485, foreign=True))
-  locations.append(e.addLocation("D22", movechance=0.3)) #Coordinates = 6.559910, 14.126600
-  locations.append(e.addLocation("Borgop", movechance=0.08, foreign=True))
-  locations.append(e.addLocation("Ngam", movechance=0.08, foreign=True))
+  locations.append(e.addLocation("Lolo", movechance=1.0, foreign=True)) # forwarding location (to aggreg. camp)
+  locations.append(e.addLocation("Mbile", movechance=1.0, foreign=True)) # forwarding location (to aggreg. camp)
+  locations.append(e.addLocation("Batouri", movechance=0.3)) # city on junction point
+  locations.append(e.addLocation("Timangolo", movechance=1.0, foreign=True)) # forwarding location (to aggreg. camp)
+  locations.append(e.addLocation("Gado-Badzere", movechance=1.0, foreign=True)) # forwarding location (to aggreg. camp)
+  locations.append(e.addLocation("East", movechance=camp_movechance, capacity=180485, foreign=True)) # regional camp.
+  locations.append(e.addLocation("D22", movechance=1.0)) # non-city junction, Coordinates = 6.559910, 14.126600
+  locations.append(e.addLocation("Borgop", movechance=1.0, foreign=True)) # forwarding location (to aggreg. camp)
+  locations.append(e.addLocation("Ngam", movechance=1.0, foreign=True)) # forwarding location (to aggreg. camp)
   locations.append(e.addLocation("Adamaoua", movechance=camp_movechance, capacity=71506, foreign=True))
   locations.append(e.addLocation("Mole", movechance=camp_movechance, capacity=20454, foreign=True))
-  locations.append(e.addLocation("Gbadolite", movechance=0.3))
-  locations.append(e.addLocation("N24", movechance=0.3)) #Coordinates = 3.610560, 20.762290
+  locations.append(e.addLocation("Gbadolite", movechance=0.3)) # city on junction point
+  locations.append(e.addLocation("N24", movechance=1.0)) #non-city junction, Coordinates = 3.610560, 20.762290
   locations.append(e.addLocation("Bili", movechance=camp_movechance, capacity=10282, foreign=True))
   locations.append(e.addLocation("Bossobolo", movechance=camp_movechance, capacity=18054, foreign=True))
   locations.append(e.addLocation("Inke", movechance=camp_movechance, capacity=20365, foreign=True))
@@ -208,12 +208,12 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Belom","2015-08-31")
   d.correctLevel1Registrations("Dosseye","2015-01-01")
   d.correctLevel1Registrations("Gondje","2015-09-30")
-  d.correctLevel1Registrations("Moyo","2014-05-11") #and also "2015-06-02"
+  d.correctLevel1Registrations("Moyo","2015-06-02") #and also "2014-05-11"
   d.correctLevel1Registrations("East","2014-09-28")
   d.correctLevel1Registrations("Adamaoua","2014-10-19")
   d.correctLevel1Registrations("Mole","2016-02-29")
   d.correctLevel1Registrations("Bili","2016-06-30")
-  d.correctLevel1Registrations("Bossobolo","2016-05-20") #Data is only decreasing over time
+  #d.correctLevel1Registrations("Bossobolo","2016-05-20") #Data is only decreasing over time, so no grounds for a level1 corr.
   d.correctLevel1Registrations("Inke","2014-06-30")
   d.correctLevel1Registrations("Betou","2014-03-22")
   #d.correctLevel1Registrations("Brazaville","2016-04-30")
