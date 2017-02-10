@@ -8,15 +8,13 @@ import sys
 Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
+#Burundi Simulation
+
+
 def date_to_sim_days(date):
   return handle_refugee_data.subtract_dates(date,"2015-05-01")
 
-
-
-#Burundi Simulation
-
 if __name__ == "__main__":
-
 
   if len(sys.argv)>1:
     end_time = int(sys.argv[1])
@@ -83,16 +81,13 @@ if __name__ == "__main__":
   e.linkUp("Bubanza","Bukinanyana","74.0")
   e.linkUp("Bujumbura","Cibitoke","63.0")
   e.linkUp("Cibitoke","Bukinanyana","49.0")
-  #e.linkUp("Bujumbura","Isale","11.0") # ???
-  #e.linkUp("Isale","Muramvya","47.0") # ???
-  e.linkUp("Bujumbura","Muramvya","58.0") 
+  e.linkUp("Bujumbura","Muramvya","58.0")
   e.linkUp("Muramvya","Gitega","44.0")
   e.linkUp("Gitega","Karuzi","54.0")
-  e.linkUp("Gitega","Ruyigi","55.0") 
-  e.linkUp("Ruyigi","Karuzi","43.0") 
+  e.linkUp("Gitega","Ruyigi","55.0")
+  e.linkUp("Ruyigi","Karuzi","43.0")
   e.linkUp("Karuzi","Muyinga","42.0")
-  #e.linkUp("Isale","Kayanza","84.0") # ???
-  e.linkUp("Bujumbura","Kayanza","95.0") 
+  e.linkUp("Bujumbura","Kayanza","95.0")
   e.linkUp("Kayanza","Ngozi","31.0") ##
   e.linkUp("Ngozi","Gashoho","41.0") ##
   e.linkUp("Kayanza","Kabarore","18.0")
@@ -116,11 +111,10 @@ if __name__ == "__main__":
 
   #Camps, starting at index locations[26] (at time of writing).
   e.linkUp("Muyinga","Mahama","135.0")
-  e.linkUp("Kirundo","Mahama","183.0") # Shorter route than via Gashoho and Muyinga. Goes through Bugesera, where a transit centre is located according to UNHCR reports.
-  #e.linkUp("Ruyigi","Nduta","90.0")
+  e.linkUp("Kirundo","Mahama","183.0") #Shorter route than via Gashoho and Muyinga. Goes through Bugesera, where a transit centre is located according to UNHCR reports.
   e.linkUp("Gisuru","Nduta","60.0")
   e.linkUp("Commune of Mabanda","Kagunga","36.0")
-  e.linkUp("Commune of Mabanda","Nyarugusu","71.0") # estimated distance, as exact location of Nyarugusu is uncertain. 
+  e.linkUp("Commune of Mabanda","Nyarugusu","71.0") #Estimated distance, as exact location of Nyarugusu is uncertain.
 
   e.linkUp("Kagunga","Nyarugusu","91.0", forced_redirection=True) #From Kagunga to Kigoma by ship (Kagunga=Kigoma)
   e.linkUp("Kirundo","Nakivale","318.0")
@@ -134,18 +128,19 @@ if __name__ == "__main__":
   # These errors led to a perceived large drop in refugee population in all of these camps.
   # We correct by linearly scaling the values down to make the last level 1 registration match the first level 2 registration value.
   # To our knowledge, all level 2 registration procedures were put in place by the end of 2016.
-
   d.correctLevel1Registrations("Mahama","2015-10-04")
   d.correctLevel1Registrations("Nduta","2016-04-06")
   d.correctLevel1Registrations("Nyarugusu","2015-11-10")
   d.correctLevel1Registrations("Nakivale","2015-08-18")
   d.correctLevel1Registrations("Lusenda","2015-09-30")
-  
+
   locations[26].capacity = d.getMaxFromData("Mahama", last_physical_day)
   locations[27].capacity = d.getMaxFromData("Nduta", last_physical_day)
   locations[29].capacity = d.getMaxFromData("Nyarugusu", last_physical_day)
   locations[30].capacity = d.getMaxFromData("Nakivale", last_physical_day)
   locations[31].capacity = d.getMaxFromData("Lusenda", last_physical_day)
+
+
 
   list_of_cities = "Time"
 
@@ -157,11 +152,13 @@ if __name__ == "__main__":
   print("Day,Mahama sim,Mahama data,Mahama error,Nduta sim,Nduta data,Nduta error,Nyarugusu sim,Nyarugusu data,Nyarugusu error,Nakivale sim,Nakivale data,Nakivale error,Lusenda sim,Lusenda data,Lusenda error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
 
 
-  e.add_conflict_zone("Bujumbura")
-
   #Set up a mechanism to incorporate temporary decreases in refugees
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only
+
+
+  e.add_conflict_zone("Bujumbura")
+
 
   t_retrofitted = 0
 
@@ -174,34 +171,37 @@ if __name__ == "__main__":
       if t_data > end_time / 10:
         break
 
+    #Lusenda camp open on the 30th of July 2015
     if t_data == date_to_sim_days("2015-07-30"): #Open Lusenda
       locations[31].movechance=camp_movechance
       locations[31].Camp=True
-      e.linkUp("Bujumbura","Lusenda","53.0") # only added when the refugee inflow starts at Lusenda, on 30-07-2015
+      e.linkUp("Bujumbura","Lusenda","53.0") #Only added when the refugee inflow starts at Lusenda, on 30-07-2015
 
     if t_data == date_to_sim_days("2015-08-10"):
       locations[27].movechance=camp_movechance
       locations[27].Camp=True
       e.remove_link("Nduta","Nyarugusu")
-      e.linkUp("Nduta","Nyarugusu","150.0") #Re-add link, but without forced redirection.    
+      e.linkUp("Nduta","Nyarugusu","150.0") #Re-add link, but without forced redirection
+
 
     #Append conflict_zone and weight to list.
-    if t_data == 70: #Intense fighting between military & multineer military forces
+    #Conflict zones after the start of simulation period
+    if t_data == date_to_sim_days("2015-07-10"): #Intense fighting between military & multineer military forces
       e.add_conflict_zone("Kabarore")
 
-    elif t_data == 71: #Intense fighting between military & mulineer military forces
+    elif t_data == date_to_sim_days("2015-07-11"): #Intense fighting between military & mulineer military forces
       e.add_conflict_zone("Bukinanyana")
 
-    elif t_data == 75: #Battles unidentified armed groups coordinately attacked military barracks
+    elif t_data == date_to_sim_days("2015-07-15"): #Battles unidentified armed groups coordinately attacked military barracks
       e.add_conflict_zone("Cibitoke")
 
-    elif t_data == 178: #Clashes and battles police forces
+    elif t_data == date_to_sim_days("2015-10-26"): #Clashes and battles police forces
       e.add_conflict_zone("Mwaro")
 
-    elif t_data == 206: #Battles unidentified armed groups coordinate attacks
+    elif t_data == date_to_sim_days("2015-11-23"): #Battles unidentified armed groups coordinate attacks
       e.add_conflict_zone("Gisuru")
 
-    elif t_data == 221: #Military forces
+    elif t_data == date_to_sim_days("2015-12-08"): #Military forces
       e.add_conflict_zone("Burambi")
 
     #new_refs = d.get_new_refugees(t)
