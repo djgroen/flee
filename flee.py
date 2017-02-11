@@ -323,7 +323,7 @@ class Ecosystem:
     Adds a conflict zone. Default weight is equal to population of the location.
     """
     for i in range(0, len(self.locationNames)):
-      if self.locationNames[i] is name:
+      if self.locationNames[i] == name:
         if name not in self.conflict_zone_names:
           if change_movechance:
             self.locations[i].movechance = 1.0
@@ -337,8 +337,8 @@ class Ecosystem:
             print("New total pop. in conflict zones: ", self.conflict_pop) 
           return
 
-    print("ERROR in flee.add_conflict_zone: location with name ", name, " appears not to exist in the FLEE ecosystem.")
-    print("Existing locations include: ", self.locationNames)
+    print("Diagnostic: self.locationNames: ", self.locationNames)
+    print("ERROR in flee.add_conflict_zone: location with name ", name, " appears not to exist in the FLEE ecosystem (see diagnostic above).")
 
 
   def remove_conflict_zone(self, name):

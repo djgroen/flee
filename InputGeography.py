@@ -51,10 +51,10 @@ class InputGeography:
     lm = {}
 
     for l in self.locations:
-      lm[l[0]] = e.addLocation(l[0], movechance=0.3, pop=l[1], x=l[2], y=l[3])
+      lm[l[0]] = e.addLocation(l[0], movechance=0.3, pop=int(l[1]), x=l[2], y=l[3])
 
     for l in self.links:
-      e.linkUp(l[0], l[1], l[2])
+      e.linkUp(l[0], l[1], int(l[2]))
 
     return e, lm
 

@@ -43,27 +43,11 @@ if __name__ == "__main__":
 
   camp_movechance = 0.001
 
-  print("Yay!")
+  print("Network data loaded")
 
-  sys.exit()
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012/")
+  #d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012/")
 
-  # Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
-  # These errors led to a perceived large drop in refugee population in all of these camps.
-  # We correct by linearly scaling the values down to make the last level 1 registration match the first level 2 registration value.
-  # To our knowledge, all level 2 registration procedures were put in place by the end of 2012.
-  d.correctLevel1Registrations("Mbera","2012-12-31")
-  m1.capacity = d.getMaxFromData("Mbera", last_physical_day)
-  d.correctLevel1Registrations("Mentao","2012-10-03")
-  b1.capacity = d.getMaxFromData("Mentao", last_physical_day)
-  d.correctLevel1Registrations("Abala","2012-12-21")
-  n1.capacity = d.getMaxFromData("Abala", last_physical_day)
-  d.correctLevel1Registrations("Mangaize","2012-12-21")
-  n2.capacity = d.getMaxFromData("Mangaize", last_physical_day)
-  d.correctLevel1Registrations("Tabareybarey","2012-12-21")
-  n4.capacity = d.getMaxFromData("Tabareybarey", last_physical_day)
-  
 
   print("Day,Mbera sim,Mbera data,Mbera error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
 
@@ -71,42 +55,19 @@ if __name__ == "__main__":
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
  
-  # Add initial refugees to the destinations. 
-  AddInitialRefugees(e,d,m1)
-  AddInitialRefugees(e,d,m2)
-  AddInitialRefugees(e,d,b1)
-  AddInitialRefugees(e,d,b2)
-  AddInitialRefugees(e,d,n1)
-  AddInitialRefugees(e,d,n2)
-  AddInitialRefugees(e,d,n3)
-  AddInitialRefugees(e,d,n4)
-
-  e.add_conflict_zone("Menaka")
+  e.add_conflict_zone("Baghdad")
 
   # Start with a refugee debt to account for the mismatch between camp aggregates and total UNHCR data.
-  refugee_debt = e.numAgents()
-
-  t_retrofitted = 0
+  #refugee_debt = e.numAgents()
 
   for t in range(0,end_time):
 
     e.refresh_conflict_weights()
 
-    if RetroFitting==False:
-      t_data = t
-    else:
-      t_data = int(t_retrofitted)
-      if t_data > end_time / 10:
-        break
-    
-    # Close/open borders here.
-    if t_data == date_to_sim_days("2012-03-19"): #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
-      m2.movechance = 1.0
-    if t_data == date_to_sim_days("2012-03-21"): #On the 21st of March, Burkina Faso opens its borders (see PDF report 3).
-      linkBF(e)   
-    if t_data == date_to_sim_days("2012-04-01"): #Starting from April, refugees appear to enter Niger again (on foot, report 4).
-      linkNiger(e)
-
+    t_data = t
+   
+    new_refs = 100 
+    """
     # Determine number of new refugees to insert into the system.
     new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
     refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
@@ -115,45 +76,17 @@ if __name__ == "__main__":
       new_refs = 0
     elif refugee_debt > 0:
       refugee_debt = 0
+    """
 
-    # Add conflict zones at the right time.
-    if t_data == date_to_sim_days("2012-02-03"):
-      e.add_conflict_zone("Kidal")
-
-    if t_data == date_to_sim_days("2012-02-03"):
-      e.add_conflict_zone("Timbuktu")
-
-    if t_data == date_to_sim_days("2012-03-02"):
-      e.add_conflict_zone("Tenenkou")
-
-    if t_data == date_to_sim_days("2012-03-23"):
-      e.add_conflict_zone("Gao")
-
-    if t_data == date_to_sim_days("2012-08-10"):
-      e.add_conflict_zone("Bamako")
-
-    if t_data == date_to_sim_days("2012-03-30"):
-      e.add_conflict_zone("Bourem")
-
-    if t_data == date_to_sim_days("2012-09-01"):
-      e.add_conflict_zone("Douentza")
-
-    if t_data == date_to_sim_days("2012-11-28"):
-      e.add_conflict_zone("Lere")
-
-    if t_data == date_to_sim_days("2012-03-30"):
-      e.add_conflict_zone("Ansongo")
-
-    if t_data == date_to_sim_days("2012-03-13"):
-      e.add_conflict_zone("Dire")
-
- 
     # Here we use the random choice to make a weighted choice between the source locations.
     for i in range(0, new_refs):
       e.addAgent(e.pick_conflict_location())
 
     e.evolve()
 
+    e.printInfo()
+
+    """
     # Validation / data comparison
     camps = [m1,b1,b2,n1,n2,n3,n4]
     camp_names = ["Mbera", "Mentao", "Bobo-Dioulasso", "Abala", "Mangaize", "Niamey", "Tabareybarey"]
@@ -163,7 +96,6 @@ if __name__ == "__main__":
     refugees_in_camps_sim = 0
     for c in camps:
       refugees_in_camps_sim += c.numAgents
-    t_retrofitted = d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_names)
 
     # calculate error terms.
     camp_pops = []
@@ -203,5 +135,5 @@ if __name__ == "__main__":
       output += ",0,0,0,0,0,0,0"
 
     print(output)
-    
+    """    
    
