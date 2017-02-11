@@ -1,0 +1,43 @@
+#location1,location2,gps distance (km)
+Dohuk,Arbil,102
+Dohuk,Nineveh,78
+Nineveh,Arbil,81
+Nineveh,Al-Anbar,325
+Nineveh,Salah Al-Din,199
+Al-Anbar,Salah Al-Din,137
+Al-Anbar,Al-Najaf,185
+Al-Anbar,Baghdad,106
+Al-Anbar,Babil,148
+Al-Anbar,Karbala,112
+Al-Najaf,Karbala,74
+Al-Najaf,Babil,55
+Al-Najaf,Al-Qadisiyah,63
+Al-Najaf,Al-Muthanna,118
+Al-Muthanna,Al-Qadisiyah,81
+Al-Muthanna,Thi Qar,98
+Al-Muthanna,Al-Basrah,255
+Al-Basrah,Thi Qar,157
+Al-Basrah,Misan,182
+Misan,Thi Qar,126
+Misan,Wasit,124
+Wasit,Thi Qar,167
+Wasit,Al-Qadisiyah,96
+Wasit,Babil,131
+Wasit,Diyala,177
+Diyala,Babil,142
+Diyala,Baghdad,50
+Diyala,Salah Al-Din,130
+Diyala,Al-Sulaimaniyah,214
+Al-Sulaimaniyah,Salah Al-Din,191
+Al-Sulaimaniyah,Kirkuk,102
+Al-Sulaimaniyah,Arbil,147
+Arbil,Salah Al-Din,178
+Arbil,Kirkuk,85
+Kirkuk,Salah Al-Din,112
+Salah Al-Din,Baghdad,159
+Baghdad,Babil,94
+Babil,Karbala,40
+Babil,Al-Qadisiyah,76
+Al-Qadisiyah,Thi Qar,160
+Halabja,Al-Sulaimaniyah,64
+Halabja,Diyala,202
