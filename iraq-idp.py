@@ -43,13 +43,20 @@ if __name__ == "__main__":
 
   camp_movechance = 0.001
 
-  print("Network data loaded")
+  #print("Network data loaded")
 
 
-  #d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012/")
+  #d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="iraq/")
 
 
-  print("Day,Mbera sim,Mbera data,Mbera error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
+  output_header_string = "Day,"
+
+  for l in e.locations:
+    output_header_string += "%s sim,%s data,%s error," % (l.name, l.name, l.name)
+
+  output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)"
+
+  print(output_header_string)
 
   # Set up a mechanism to incorporate temporary decreases in refugees 
   refugee_debt = 0
