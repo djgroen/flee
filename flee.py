@@ -315,7 +315,7 @@ class Ecosystem:
       if self.locations[x].links[i].endpoint.name is not endpoint:
         new_links += [self.locations[x].links[i]]
 
-    self.links = new_links
+    self.location[x].links = new_links
 
 
   def add_conflict_zone(self, name, change_movechance=True):
