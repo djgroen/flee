@@ -37,11 +37,9 @@ if __name__ == "__main__":
 
   ig.ReadLocationsFromCSV("iraq/iraq-locations.csv")
 
+  ig.ReadLinksFromCSV("iraq/iraq-links.csv")
+
   lm = ig.StoreInputGeographyInEcosystem(e)
-
-  print(ig.locations)
-
-  e.linkUp("Baghdad","Basra", "10.0") 
 
   camp_movechance = 0.001
 

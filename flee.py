@@ -433,9 +433,11 @@ class Ecosystem:
         endpoint2_index = i
 
     if endpoint1_index < 0:
+      print("Diagnostic: Ecosystem.locationNames: ", self.locationNames)
       print("Error: link created to non-existent source: ", endpoint1, " with dest ", endpoint2)
       sys.exit()
     if endpoint2_index < 0:
+      print("Diagnostic: Ecosystem.locationNames: ", self.locationNames)
       print("Error: link created to non-existent destination: ", endpoint2, " with source ", endpoint1)
       sys.exit()
 

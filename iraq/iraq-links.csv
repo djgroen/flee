@@ -3,7 +3,7 @@ Dohuk,Arbil,10
 Dohuk,Nineveh,10
 Nineveh,Arbil,10
 Nineveh,Al-Anbar,10
-Neneveh,Salah Al-Din,10
+Nineveh,Salah Al-Din,10
 Al-Anbar,Salah Al-Din,10
 Al-Anbar,Al-Najaf,10
 Al-Anbar,Baghdad,10
@@ -21,21 +21,23 @@ Al-Basrah,Misan,10
 Misan,Thi Qar,10
 Misan,Wasit,10
 Wasit,Thi Qar,10
-Wasit,Al Qadisiyah,10
+Wasit,Al-Qadisiyah,10
 Wasit,Babil,10
 Wasit,Diyala,10
 Diyala,Babil,10
 Diyala,Baghdad,10
 Diyala,Salah Al-Din,10
-Diyala,Al Sulaimaniyah,10
-Al Sulaimaniyah,Salah Al-Din,10
-Al Sulaimaniyah,Kirkuk,10
-Al Sulaimaniyah,Arbil,10
+Diyala,Al-Sulaimaniyah,10
+Al-Sulaimaniyah,Salah Al-Din,10
+Al-Sulaimaniyah,Kirkuk,10
+Al-Sulaimaniyah,Arbil,10
 Arbil,Salah Al-Din,10
 Arbil,Kirkuk,10
 Kirkuk,Salah Al-Din,10
-Salah Al Din, Baghdad,10
+Salah Al-Din,Baghdad,10
 Baghdad,Babil,10
 Babil,Karbala,10
-Babil,Al Qadisiyah,10
-Al Qadisiyah,Thi Qar,10
+Babil,Al-Qadisiyah,10
+Al-Qadisiyah,Thi Qar,10
+Halabja,Al-Sulaimaniyah,10
+Halabja,Diyala,10
