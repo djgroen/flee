@@ -23,7 +23,7 @@ class InputGeography:
         if row[0][0] == "#":
           pass
         else:
-          print(row)
+          #print(row)
           self.locations.append([row[name_col], row[population_col], row[gps_x_col], row[gps_y_col]])
 
 
@@ -40,7 +40,7 @@ class InputGeography:
         if row[0][0] == "#":
           pass
         else:
-          print(row)
+          #print(row)
           self.links.append([row[name1_col], row[name2_col], row[dist_col]])
 
   def StoreInputGeographyInEcosystem(self, e):
