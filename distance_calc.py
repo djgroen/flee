@@ -45,7 +45,7 @@ def get_capital_gps_location(path_locations_file, district):
 def update_links(path_links_file, path_locations_file):
     #links_file = open(path_links_file, "r")
     #locations_file = open(path_locations_file, "r")
-    path_out_file = os.path.splitext(path_links_file)[0] + '_dist.csv'
+    path_out_file = os.path.splitext(path_links_file)[0] + '-dist.csv'
     fileout = open(path_out_file, "w")
     fileout.write('#location1,location2,gps distance (km)\n')
     #csvrdr = csv.reader(links_file, delimiter=",")
