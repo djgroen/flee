@@ -1,4 +1,3 @@
-total,refugees.csv
 Al-Anbar,origin_Anbar.csv
 Babil,origin_Babylon.csv
 Baghdad,origin_Baghdad.csv
@@ -15,6 +14,6 @@ Misan,origin_Missan.csv
 Al-Muthanna,origin_Muthanna.csv
 Al-Najaf,origin_Najaf.csv
 Nineveh,origin_Ninewa.csv
-Salah Al-Din,origin_Salah\ al-Din.csv
+Salah Al-Din,origin_Salah al-Din.csv
 Al-Sulaimaniyah,origin_Sulaymaniyah.csv
-Wasit,origin_Wasit.csv
+Wasit,origin_Wassit.csv

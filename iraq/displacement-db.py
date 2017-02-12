@@ -42,6 +42,8 @@ for g_org in governorates:
     df_temp = df[np.isfinite(df[g_org])]
     filename = 'spawn_data/origin_' + g_org + '.csv'
     with open(filename, "w") as file_out:
+        file_out.write('#date,IDPs\n')
+        file_out.write('2014-05-01,0\n')
         for i in range(0,len(periods)):
             num_ppl = np.sum(df_temp[periods[i]]) * ppl_per_fam
             file_out.write(periods_dic[periods[i]] + ',' + str(int(num_ppl)) + '\n')
