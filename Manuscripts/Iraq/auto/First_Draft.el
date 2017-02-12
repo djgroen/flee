@@ -7,12 +7,12 @@
                      '(("article" "11pt")))
    (TeX-add-to-alist 'LaTeX-provided-package-options
                      '(("inputenc" "utf8") ("fontenc" "T1") ("ulem" "normalem")))
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperref")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperimage")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperbaseurl")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "nolinkurl")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "url")
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "path")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "url")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "nolinkurl")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperbaseurl")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperimage")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperref")
    (add-to-list 'LaTeX-verbatim-macros-with-delims-local "path")
    (TeX-run-style-hooks
     "latex2e"
@@ -22,15 +22,16 @@
     "fontenc"
     "fixltx2e"
     "graphicx"
-    "grffile"
     "longtable"
+    "float"
     "wrapfig"
     "rotating"
     "ulem"
     "amsmath"
     "textcomp"
+    "marvosym"
+    "wasysym"
     "amssymb"
-    "capt-of"
     "hyperref"
     "lmodern"
     "mathtools"
@@ -41,12 +42,12 @@
     "units"
     "gensymb")
    (LaTeX-add-labels
-    "sec:orgheadline1"
-    "sec:orgheadline4"
-    "sec:orgheadline2"
-    "sec:orgheadline3"
-    "sec:orgheadline5"
-    "sec:orgheadline6"
-    "sec:orgheadline7"))
+    "sec-1"
+    "sec-2"
+    "sec-2-1"
+    "sec-2-2"
+    "sec-3"
+    "sec-4"
+    "sec-5"))
  :latex)
 
