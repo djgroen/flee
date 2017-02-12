@@ -13,7 +13,7 @@ def AddInitialRefugees(e, d, loc):
     e.addAgent(location=loc)
 
 def date_to_sim_days(date):
-  return handle_refugee_data.subtract_dates(date,"2012-02-29")
+  return handle_refugee_data.subtract_dates(date,"2014-05-01")
 
 
 if __name__ == "__main__":
@@ -46,7 +46,7 @@ if __name__ == "__main__":
   #print("Network data loaded")
 
 
-  #d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="iraq/")
+  d_spawn = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="iraq/spawn_data",start_date="2014-05-01")
 
 
   output_header_string = "Day,"
@@ -85,9 +85,10 @@ if __name__ == "__main__":
       refugee_debt = 0
     """
 
-    # Here we use the random choice to make a weighted choice between the source locations.
-    for i in range(0, new_refs):
-      e.addAgent(e.pick_conflict_location())
+    for l in e.locations:
+      new_IDPs = int(d_spawn.get_field(l.name, t+1) - d_spawn.get_field(l.name, t)) 
+      for i in range(0, new_IDPs):
+        e.addAgent(l)
 
     e.evolve()
 

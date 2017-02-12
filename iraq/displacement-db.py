@@ -30,6 +30,8 @@ periods_dic = {'Pre-June14':'2014-05-31', 'June-July14':'2014-07-31', 'August14'
 df = xl.parse(xl.sheet_names[0],skiprows=4,header=None, names=names)
 #print(df['Location name in Arabic'])
 
+#df_arrive = xl.parse(xl.sheet_names[0],skiprows=56,header=None, names=names)
+
 families_tot = np.sum(df['Families'])
 people_tot = np.sum(df['Individuals'])
 ppl_per_fam = people_tot / families_tot
@@ -40,10 +42,12 @@ for g_org in governorates:
     df_temp = df[np.isfinite(df[g_org])]
     filename = 'spawn_data/origin_' + g_org + '.csv'
     with open(filename, "w") as file_out:
-        for p in periods:
-            num_ppl = np.sum(df_temp[p]) * ppl_per_fam
-            file_out.write(periods_dic[p] + ',' + str(int(num_ppl)) + '\n')
-            #print(periods_dic[p] + ',' + str(int(num_ppl)))
+        file_out.write('#date,IDPs\n')
+        file_out.write('2014-05-01,0\n')
+        for i in range(0,len(periods)):
+            num_ppl = np.sum(df_temp[periods[i]]) * ppl_per_fam
+            file_out.write(periods_dic[periods[i]] + ',' + str(int(num_ppl)) + '\n')
+            #print(periods_dic[periods[i]] + ',' + str(int(num_ppl)))
 
 # loop over governorates of origin
     # select only lines with valid entries
