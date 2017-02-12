@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 
-xl = pd.ExcelFile('iraq/Round64_Master_List_IDP_2017-2-2_IOM_DTM.xlsx')
+xl = pd.ExcelFile('Round64_Master_List_IDP_2017-2-2_IOM_DTM.xlsx')
 names = ('Place id', 'Governorate', 'District', 'Location name in English',
          'Location name in Arabic', 'Latitude', 'Longitude', 'Families',
          'Individuals', 'Anbar', 'Babylon', 'Baghdad', 'Basrah', 'Dahuk',
@@ -38,7 +38,7 @@ for g_org in governorates:
     print(g_org)
     # choose only rows with valid entries in the governorate
     df_temp = df[np.isfinite(df[g_org])]
-    filename = 'iraq/spawn_data/origin_' + g_org + '.csv'
+    filename = 'spawn_data/origin_' + g_org + '.csv'
     with open(filename, "w") as file_out:
         for p in periods:
             num_ppl = np.sum(df_temp[p]) * ppl_per_fam
