@@ -1,0 +1,134 @@
+% Created 2017-02-12 Sun 11:35
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage{lmodern}
+\usepackage{mathtools}
+\usepackage{url}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{amsopn}
+\usepackage{nicefrac}
+\usepackage{units}
+\usepackage{gensymb}
+\author{BotAnihilator}
+\date{\today}
+\title{}
+\hypersetup{
+ pdfauthor={BotAnihilator},
+ pdftitle={},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 25.1.1 (Org mode 8.3.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\tableofcontents
+
+
+\section{Introduction}
+\label{sec:orgheadline1}
+For several reasons,  people are forced to leave their home cities, the main reason is to avoid armed conflicts or the effects of them; other reasons include but are not limited to generalized crime; organized crime; human rights violations; large scale disasters, human made or of natural origin; etc. but not for economical reasons. If fleeing from their hometowns these people do not cross any international border, they are considered Internally Displaced Persons (IDPs).
+
+A paragraph here linking this 2 ideas mentioning  the UNHCR
+
+There are currently over 50 million Internally Displaced Persons (IDPs) in the world. (check the actual number + include reference). Not only are IDPs vulnerable people but they also put at risk the host cities that they move into. This is due to … (maybe include the reasons + reference). If these cities are not prepared to receive them, this could end in a catastrophe for both parties. We present a simulation approach which is aimed| at predicting where IDPs will move  after a conflict or a natural disaster occurs in a given city. Accurate forecasts will help city councils  reduce negative impacts from these forced migration movements. We validate our simulation results against data from IDPs in Iraq (put from where (DB) + reference) and delivered results “close enough to reality”.
+
+There are 4.4 million IDPs in Iraq (2015) and 34.5 Million in the world : according to: \url{http://reporting.unhcr.org/population}
+
+(cover related literature on IDP modelling. What existing groups have tried to model IDP movements through simulation)
+
+(reflect on the main empirical papers on IDP movements.)
+
+(cover related literature on IDP modelling. What existing groups have tried to model IDP movements through simulation)
+
+(reflect on the main empirical papers on IDP movements.)
+
+The number of new Internally Displaced Persons(IDPs) almost doubled from the previous year (reference) this happened in a great part because the conflict of Syria and (check these facts including the year).
+
+This paragraph should say how DPI damage a city
+
+This paragrah should talk about the WHO and their strategies to counteract the effects
+
+
+This paragraph should talk about how our predictions could help and how are they done.
+
+Talk about DTM
+
+\section{Methodology}
+\label{sec:orgheadline4}
+We propose an agent driven simulation to determine where the IDPs go in case of a conflict.
+
+We started by considering some important factors that may be considered by a
+person when deciding where to flee to. An agent will go to an adjacent town,
+even if he is only on transit, taking into account the following factors
+\subsection{Factors}
+\label{sec:orgheadline2}
+Distance to the location, and travel time to the location.
+People leaving conflict zones need to consider the resources they have to make a journey sometimes walking, with whole families by perilous road. So we considered that is more likely to travel to closer town.
+
+Population of the destination location.  We consider that people tend to feel
+safer in larger cities, and be more optimistic about finding shelter is bigger
+cities.
+
+Conflict in the destination.  We also considered that is very unlikely that
+someone would leave a conflict zone to go to another one. Nevertheless we think
+this is possible if a) the person doesn’t know there is an ongoing conflict in
+said region or b) all adjacent towns are in the same situation and they need to
+pass by to get to a non-adjacent region.
+
+Conflict zones near destination.  If a possible destination is surrounded by
+conflict, people could fear violence will spread to this town also.
+
+Racial/Religious makeup of destination population.  In places of the world where
+either religion or race is a cause of rivalry, some people would avoid migrating
+to nearby area mainly inhabited by an opposing or not welcoming neighbors.
+
+Presence of geographically related IDPs in destination.  People tend to move in
+masses and follow them; so, while fleeing they might follow their neighbors to
+wherever they are going.
+
+Condition of roads leading to destination.  Even when we have access to maps,
+there could be momentarily circumstances that might strongly modify the possible
+evacuation routes: i.e. blocked or destroyed road, taken by opposing forces,
+fire, etc.
+
+Encouraged redirection.
+If the government, authorities or any other public organization offers a safe transportation or suggests safe routes people could accept it.
+
+Humanitarian Presence.
+If IDPs know before hand the availability of shelter on the vicinity, because of
+previous conflicts, they might aim to get refuge in those shelters.
+\subsection{Weighting in the factors}
+\label{sec:orgheadline3}
+The first thing to consider is the availability of data for each factor
+
+\section{Algorithm}
+\label{sec:orgheadline5}
+We should include a flow chart here
+\section{Results}
+\label{sec:orgheadline6}
+There be graphs over here
+Those graphs should be explained.
+\section{Conclusion}
+\label{sec:orgheadline7}
+This paragraph should talk about the difficulties about forecasting this events
+
+Here we say how close we were to reality and why we ere so faraway
+
+Here we talk about future improvements of the code to get it closer to reality
+
+Here we talk again of the importance of our work
+\end{document}
