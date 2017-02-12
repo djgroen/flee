@@ -23,9 +23,9 @@ governorates = ('Anbar', 'Babylon', 'Baghdad', 'Basrah', 'Dahuk', 'Diyala', 'Erb
 periods = ('Pre-June14', 'June-July14', 'August14', 'Post September14', 'Post April15',
            'Post March16', 'Post 17 October16')
 
-periods_dic = {'Pre-June14':'31-05-2014', 'June-July14':'31-07-2014', 'August14':'31-08-2014',
-               'Post September14':'31-03-2015', 'Post April15':'31-03-2016','Post March16':'30-09-2016',
-               'Post 17 October16':'31-01-2016'}
+periods_dic = {'Pre-June14':'2014-05-31', 'June-July14':'2014-07-31', 'August14':'2014-08-31',
+               'Post September14':'2015-03-31', 'Post April15':'2016-03-31','Post March16':'2016-09-30',
+               'Post 17 October16':'2016-01-31'}
 
 df = xl.parse(xl.sheet_names[0],skiprows=4,header=None, names=names)
 #print(df['Location name in Arabic'])
