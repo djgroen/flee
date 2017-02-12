@@ -134,7 +134,7 @@ class DataTable:
               continue
             self.header.append(row[0])
 
-            print("%s/%s" % (data_directory, row[1]))
+            #print("%s/%s" % (data_directory, row[1]))
             csv_total = ConvertCsvFileToNumPyTable("%s/%s" % (data_directory, row[1]), start_date=start_date)
 
             for added_csv in row[2:]:

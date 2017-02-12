@@ -19,6 +19,7 @@ class SimulationSettings:
 
   AwarenessLevel = 1 #0 = road only, 1 = location, 2 = neighbours, 3 = region.
   UseDynamicAwareness = False # Refugees become smarter over time.
+  UseIDPMode = False
 
 class Person:
   def __init__(self, location):
@@ -121,7 +122,20 @@ class Person:
     linklen = len(self.location.links)
     weights = np.zeros(linklen)
 
-    if not SimulationSettings.UseDynamicAwareness:
+    if SimulationSettings.UseIDPMode:
+      """
+      Use this ruleset to model IDPs.
+      """
+      for i in range(0,linklen):
+        # calculate (1/D) * P * 2-C
+        # D = distance, P = population, C = conflict status (1 for conflict zone).
+        C = 0
+        if self.location.links[i].endpoint.movechance > 0.5:
+          C = 1 
+
+        weights[i] = ( 1 / self.location.links[i].distance ) * self.location.links[i].endpoint.pop * (2-C)
+
+    elif not SimulationSettings.UseDynamicAwareness:
       for i in range(0,linklen):
         # forced redirection: if this is true for a link, return its value immediately.
         if self.location.links[i].endpoint.isFull(self.location.links[i].numAgents):

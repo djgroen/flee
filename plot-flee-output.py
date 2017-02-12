@@ -374,7 +374,8 @@ if __name__ == "__main__":
     if not RetroFitting:
       plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4)
       #plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=1)
-      plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=False)
+
+      #plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=False)
       loc_errors.append(plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=True))
 
     else:
