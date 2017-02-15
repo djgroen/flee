@@ -247,6 +247,10 @@ if __name__ == "__main__":
   locations[63].capacity = d.getMaxFromData("Brazaville", last_physical_day)
 
 
+  # Add initial refugees to the destinations. 
+  for i in [39,40,41,42,43,49,53,54,57,58,59,60,61,62,63]:
+    AddInitialRefugees(e,d,locations[i])
+
 
   list_of_cities = "Time"
 
@@ -255,7 +259,7 @@ if __name__ == "__main__":
 
   #print(list_of_cities)
   #print("Time, campname")
-  print("Day,Amboko sim,Amboko data,Amboko error,Belom sim,Belom data,Belom error,Dosseye sim,Dosseye data,Dosseye error,Gondje sim,Gondje data,Gondje error,Moyo sim,Moyo data,Moyo error,East sim,East data,East error,Adamaoua sim,Adamaoua data,Adamaoua error,Bili sim,Bili data,Bili error,Bossobolo sim,Bossobolo data,Bossobolo error,Mole sim,Mole data,Mole error,Boyabu sim, Boyabu data,Boyabu error,Mboti sim,Mboti data,Mboti error,Inke sim,Inke data,Inke error,Betou sim,Betou data,Betou error,Brazaville sim,Brazaville data,Brazaville error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
+  print("Day,Amboko sim,Amboko data,Amboko error,Belom sim,Belom data,Belom error,Dosseye sim,Dosseye data,Dosseye error,Gondje sim,Gondje data,Gondje error,Moyo sim,Moyo data,Moyo error,East sim,East data,East error,Adamaoua sim,Adamaoua data,Adamaoua error,Bili sim,Bili data,Bili error,Bossobolo sim,Bossobolo data,Bossobolo error,Mole sim,Mole data,Mole error,Boyabu sim,Boyabu data,Boyabu error,Mboti sim,Mboti data,Mboti error,Inke sim,Inke data,Inke error,Betou sim,Betou data,Betou error,Brazaville sim,Brazaville data,Brazaville error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
 
 
   #Set up a mechanism to incorporate temporary decreases in refugees
