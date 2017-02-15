@@ -1,0 +1,78 @@
+#+OPTIONS: H:1
+#+LATEX_CLASS: beamer
+#+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
+#+BEAMER_THEME: Bergen
+# +BEAMER_COLOR_THEME: dove
+#+BEAMER_FONT_THEME:
+#+BEAMER_INNER_THEME:
+#+BEAMER_OUTER_THEME:
+# +BEAMER_HEADER: \setbeamertemplate{bibliography item}{[\theenumiv]}
+#+BEAMER_HEADER:\title[IDP Movement]{Forecasting for IDP reception after disasters}
+#+BEAMER_HEADER: \author[Bosne, Groen, Guillermo]{\underline{Eric Bosne}\inst{1} Derek Groen\inst{2} Gerardo Guillermo \inst{1}}
+#+LATEX_HEADER:\institute[CERN, CLASSE, CINVESTAV]{\inst{1} Organisation Européenne pour la Recherche Nucléaire \and \inst{2} University}
+# +LATEX_HEADER: \titlegraphic{\includegraphics[height=1cm]{./Imagenes/logos/LogoBadge.eps}\hfill\includegraphics[height=1cm]{./Imagenes/logos/CLASSE2.png}\hfill\includegraphics[height=1cm]{./Imagenes/logos/cinves.eps}\hfill\includegraphics[height=1cm]{./Imagenes/logos/Logo_Conacyt.png}\hfill\includegraphics[height=1cm]{./Imagenes/logos/eucard2.png}\hfill\includegraphics[height=1cm]{./Imagenes/logos/fcc.png} \vspace{50cm}}
+#+startup: beamer
+#+LaTeX_CLASS_OPTIONS: [presentation]
+#+BEAMER_HEADER:\date{\today}
+#+latex_header: \AtBeginSection[]{\begin{frame}<beamer>\frametitle{Content}\tableofcontents[currentsection]\end{frame}}
+#+BEAMER_HEADER: \setbeamerfont{navigation symbols}{size=\footnotesize}
+#+BEAMER_HEADER: \setbeamerfont{date}{size=\footnotesize}
+#+BEAMER_HEADER:\setbeamerfont{author}{size=\footnotesize,series=\bfseries,parent=structure}
+#+BEAMER_HEADER:\setbeamerfont{institute}{size=\tiny,series=\bfseries,parent=structure}
+#+BEAMER_HEADER:\usepackage{appendixnumberbeamer}
+#+Beamer_Header: \addtocounter{framenumber}{-1}
+# +EMAIL: gerardo.guillermo.canton@cern.ch
+#+EMAIL:eric.bosne@cern.ch, djgroennl@gmail.com, gerardo.guillermo.canton@cern.ch
+#+TITLE:Forecasting for IDP reception after disaster
+#+Author: \underline{Eric Bosne}\inst{1} Derek Groen\inst{2} Gerardo Guillermo \inst{1}
+#+Beamer_HEADER: \setbeamertemplate{navigation symbols}{\usebeamercolor[bg]{footline}\insertframenumber/\inserttotalframenumber}
+#+BEAMER_HEADER: \author[Bosne, Groen, Guillermo]{\underline{Eric Bosne}\inst{1} Derek Groen\inst{2} Gerardo Guillermo \inst{1}}
+#+LATEX_HEADER:\institute[CERN, CLASSE, CINVESTAV]{\inst{1} Organisation Européenne pour la Recherche Nucléaire \and \inst{2} University}
+* Hackathon
+** O
+Identified some factors that might influence the movement of a person fleeing
+from a conflict zone.
+** O
+Built a simple decision making model with these factors and included it in
+the flee library.
+** O
+Imported data from the [[http://iraqdtm.iom.int/Introduction.aspx][DTM]]
+** O 
+Started drafting a journal article
+** O 
+Successfully ran the simulation.
+
+* Simulation output
+*** *
+This is are the worse and best results.
+*** Graphs
+**** Col 1                                                         :B_column:
+:PROPERTIES:
+:BEAMER_col: 0.4
+:BEAMER_env: column
+:END:
+
+ [[../../outiraq/Baghdad-4.png]]
+**** Col 2                                                         :B_column:
+:PROPERTIES:
+:BEAMER_col: 0.4
+:BEAMER_env: column
+:END:
+
+ [[../../outiraq/Dohuk-4.png]]
+*** *
+What is important now is that we have a framework to study the effect of each
+ factor.
+* Post-Hackathon
+** O
+We all agreed we will continue the work aiming to publish it in a journal.
+*** -----
+*Our to do list*
+*** O
+Optimize the model with the current factors.
+*** O
+Include left out parameters.
+*** O
+Automating the data imports.
+*** O
+Writting a final version.

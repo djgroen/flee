@@ -1,23 +1,24 @@
 (TeX-add-style-hook
- "First_Draft"
+ "port_pres"
  (lambda ()
    (setq TeX-command-extra-options
          "--shell-escape")
    (TeX-add-to-alist 'LaTeX-provided-class-options
-                     '(("article" "11pt")))
+                     '(("beamer" "presentation")))
    (TeX-add-to-alist 'LaTeX-provided-package-options
                      '(("inputenc" "utf8") ("fontenc" "T1") ("ulem" "normalem")))
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "path")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "url")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "nolinkurl")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperbaseurl")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperimage")
+   (add-to-list 'LaTeX-verbatim-environments-local "semiverbatim")
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperref")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperimage")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperbaseurl")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "nolinkurl")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "url")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "path")
    (add-to-list 'LaTeX-verbatim-macros-with-delims-local "path")
    (TeX-run-style-hooks
     "latex2e"
-    "article"
-    "art11"
+    "beamer"
+    "beamer10"
     "inputenc"
     "fontenc"
     "fixltx2e"
@@ -40,14 +41,7 @@
     "amsopn"
     "nicefrac"
     "units"
-    "gensymb")
-   (LaTeX-add-labels
-    "sec-1"
-    "sec-2"
-    "sec-2-1"
-    "sec-2-2"
-    "sec-3"
-    "sec-4"
-    "sec-5"))
+    "gensymb"
+    "appendixnumberbeamer"))
  :latex)
 

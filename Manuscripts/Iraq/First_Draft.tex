@@ -1,19 +1,21 @@
-% Created 2017-02-12 Sun 11:35
+% Created 2017-02-12 Sun 12:19
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{fixltx2e}
 \usepackage{graphicx}
-\usepackage{grffile}
 \usepackage{longtable}
+\usepackage{float}
 \usepackage{wrapfig}
 \usepackage{rotating}
 \usepackage[normalem]{ulem}
 \usepackage{amsmath}
 \usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
 \usepackage{amssymb}
-\usepackage{capt-of}
 \usepackage{hyperref}
+\tolerance=1000
 \usepackage{lmodern}
 \usepackage{mathtools}
 \usepackage{url}
@@ -23,23 +25,21 @@
 \usepackage{nicefrac}
 \usepackage{units}
 \usepackage{gensymb}
-\author{BotAnihilator}
+\author{E. David-Bosne, D. Groen, G. Guillermo}
 \date{\today}
-\title{}
+\title{Forecasting for IDP reception after disasters}
 \hypersetup{
- pdfauthor={BotAnihilator},
- pdftitle={},
- pdfkeywords={},
- pdfsubject={},
- pdfcreator={Emacs 25.1.1 (Org mode 8.3.4)}, 
- pdflang={English}}
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs 25.1.1 (Org mode 8.2.10)}}
 \begin{document}
 
+\maketitle
 \tableofcontents
 
 
 \section{Introduction}
-\label{sec:orgheadline1}
+\label{sec-1}
 For several reasons,  people are forced to leave their home cities, the main reason is to avoid armed conflicts or the effects of them; other reasons include but are not limited to generalized crime; organized crime; human rights violations; large scale disasters, human made or of natural origin; etc. but not for economical reasons. If fleeing from their hometowns these people do not cross any international border, they are considered Internally Displaced Persons (IDPs).
 
 A paragraph here linking this 2 ideas mentioning  the UNHCR
@@ -68,14 +68,14 @@ This paragraph should talk about how our predictions could help and how are they
 Talk about DTM
 
 \section{Methodology}
-\label{sec:orgheadline4}
+\label{sec-2}
 We propose an agent driven simulation to determine where the IDPs go in case of a conflict.
 
 We started by considering some important factors that may be considered by a
 person when deciding where to flee to. An agent will go to an adjacent town,
 even if he is only on transit, taking into account the following factors
 \subsection{Factors}
-\label{sec:orgheadline2}
+\label{sec-2-1}
 Distance to the location, and travel time to the location.
 People leaving conflict zones need to consider the resources they have to make a journey sometimes walking, with whole families by perilous road. So we considered that is more likely to travel to closer town.
 
@@ -112,18 +112,18 @@ Humanitarian Presence.
 If IDPs know before hand the availability of shelter on the vicinity, because of
 previous conflicts, they might aim to get refuge in those shelters.
 \subsection{Weighting in the factors}
-\label{sec:orgheadline3}
+\label{sec-2-2}
 The first thing to consider is the availability of data for each factor
 
 \section{Algorithm}
-\label{sec:orgheadline5}
+\label{sec-3}
 We should include a flow chart here
 \section{Results}
-\label{sec:orgheadline6}
+\label{sec-4}
 There be graphs over here
 Those graphs should be explained.
 \section{Conclusion}
-\label{sec:orgheadline7}
+\label{sec-5}
 This paragraph should talk about the difficulties about forecasting this events
 
 Here we say how close we were to reality and why we ere so faraway
@@ -131,4 +131,5 @@ Here we say how close we were to reality and why we ere so faraway
 Here we talk about future improvements of the code to get it closer to reality
 
 Here we talk again of the importance of our work
+% Emacs 25.1.1 (Org mode 8.2.10)
 \end{document}
