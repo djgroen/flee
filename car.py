@@ -13,6 +13,13 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 def date_to_sim_days(date):
   return handle_refugee_data.subtract_dates(date,"2013-12-01")
 
+def AddInitialRefugees(e, d, loc):
+  """ Add the initial refugees to a location, using the location name"""
+  num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
+  for i in range(0, num_refugees):
+    e.addAgent(location=loc)
+
+
 if __name__ == "__main__":
 
   if len(sys.argv)>1:
@@ -88,12 +95,12 @@ if __name__ == "__main__":
 
   locations.append(e.addLocation("Dosseye", movechance=camp_movechance, capacity=22925, foreign=True))
   locations.append(e.addLocation("Gondje", movechance=camp_movechance, capacity=12171, foreign=True))
-  locations.append(e.addLocation("Moyo", movechance=camp_movechance, capacity=14969, foreign=True))
+  locations.append(e.addLocation("Moyo", movechance=camp_movechance, capacity=10903, foreign=True)) #strange blip in the data at 14969.
   locations.append(e.addLocation("Lolo", movechance=1.0, foreign=True)) #forwarding location (to aggreg. camp)
   locations.append(e.addLocation("Mbile", movechance=1.0, foreign=True)) #forwarding location (to aggreg. camp)
 
   locations.append(e.addLocation("Batouri", movechance=0.3)) #city on junction point
-  locations.append(e.addLocation("Timangolo", movechance=1.0, foreign=True)) #forwarding location (to aggreg. camp)
+  locations.append(e.addLocation("Timangolo", movechance=1.0, foreign=True, x=4.628170000, y=14.544500000)) #forwarding location (to aggreg. camp)
   locations.append(e.addLocation("Gado-Badzere", movechance=1.0, foreign=True)) #forwarding location (to aggreg. camp)
   locations.append(e.addLocation("East", movechance=camp_movechance, capacity=180485, foreign=True)) #regional camp.
   locations.append(e.addLocation("D22", movechance=1.0)) #non-city junction, Coordinates = 6.559910, 14.126600
@@ -105,7 +112,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("Gbadolite", movechance=0.3)) #city on junction point
 
   locations.append(e.addLocation("N24", movechance=1.0)) #non-city junction, Coordinates = 3.610560, 20.762290
-  locations.append(e.addLocation("Bili", movechance=camp_movechance, capacity=10282, foreign=True))
+  locations.append(e.addLocation("Bili", movechance=camp_movechance, capacity=10282, foreign=True)) 
   locations.append(e.addLocation("Bossobolo", movechance=camp_movechance, capacity=18054, foreign=True))
   locations.append(e.addLocation("Boyabu", movechance=camp_movechance, capacity=20393, foreign=True))
   locations.append(e.addLocation("Mboti", movechance=camp_movechance, capacity=704, foreign=True))
@@ -186,19 +193,20 @@ if __name__ == "__main__":
   e.linkUp("Amboko","Dosseye","31.0")
   e.linkUp("RN1","Dosseye","108.0")
   e.linkUp("RN8","Moyo","176.0")
+
   e.linkUp("Gamboula","Lolo","41.0")
-  e.linkUp("Lolo","Mbile","10.0")
-  e.linkUp("Mbile","Batouri","53.0")
-  e.linkUp("Batouri","East","26.0")
+  e.linkUp("Lolo","Mbile","10.0", forced_redirection=True)
+  e.linkUp("Mbile","Batouri","53.0", forced_redirection=True)
+  e.linkUp("Batouri","East","26.0", forced_redirection=True)
   e.linkUp("Batouri","Timangolo","24.0")
+  e.linkUp("Timangolo","East","51.0", forced_redicrection=True)
   e.linkUp("Baboua","Gado-Badzere","81.0")
-  e.linkUp("Gado-Badzere","East","222.0")
+  e.linkUp("Gado-Badzere","East","222.0", forced_redirection=True)
   e.linkUp("Baboua","D22","181.0")
-  e.linkUp("D22","Ngam","68.0")
-  e.linkUp("Borgop","Ngam","41.0")
-  e.linkUp("D22","Adamaoua","138.0")
+  e.linkUp("Ngam","D22","68.0", forced_redirection=True)
+  e.linkUp("Borgop","Ngam","41.0", forced_redirection=True)
+  e.linkUp("D22","Adamaoua","138.0", forced_redirection=True)
   e.linkUp("Gbadolite","N24","93.0")
-  e.linkUp("N24","Bili","20.0") #There is no road after 93km to the camp & the remaining 20km was found by distance calculator (www.movable-type.co.uk/scripts/latlong.html)
   e.linkUp("N24","Bossobolo","23.0")
   e.linkUp("Bangui","Mole","42.0")
   e.linkUp("Mole","Boyabu","25.0")
@@ -217,7 +225,7 @@ if __name__ == "__main__":
   #To our knowledge, all level 2 registration procedures were put in place by the end of 2016.
   d.correctLevel1Registrations("Amboko","2015-09-30")
   d.correctLevel1Registrations("Belom","2015-08-31")
-  d.correctLevel1Registrations("Dosseye","2015-01-01")
+  d.correctLevel1Registrations("Dosseye","2015-09-30")
   d.correctLevel1Registrations("Gondje","2015-09-30")
   d.correctLevel1Registrations("Moyo","2015-06-02") #and also "2014-05-11"
   d.correctLevel1Registrations("East","2014-09-28")
@@ -334,12 +342,25 @@ if __name__ == "__main__":
     if t_data == date_to_sim_days("2013-12-05"):
       e.remove_link("Bangui","Mole")
       e.remove_link("Gbadolite","Inke")
+      e.remove_link("Gbadolite","N24")
+      e.remove_link("Zemio","Mboti")
+      e.remove_link("Mobaye","Mboti")
 
-    if t_data == date_to_sim_days("2013-06-30"):
-      e.remove_link("Mole","Bangui")
-      e.remove_link("Inke","Gbadolite")
+    # Bili camp opens on April 1st, 2014.
+    if t_data == date_to_sim_days("2014-04-01"):
+      e.linkUp("N24","Bili","20.0") #There is no road after 93km to the camp & the remaining 20km was found by distance calculator (www.movable-type.co.uk/scripts/latlong.html)
+
+    if t_data == date_to_sim_days("2014-06-30"):
+      #e.remove_link("Mole","Bangui")
+      #e.remove_link("Inke","Gbadolite")
+      #e.remove_link("N24","Gbadolite")
+      #e.remove_link("Mboti","Zemio")
+      #e.remove_link("Mboti","Mobaye")
       e.linkUp("Bangui","Mole","42.0")
       e.linkUp("Gbadolite","Inke","42.0")
+      e.linkUp("Gbadolite","N24","93.0")
+      e.linkUp("Zemio","Mboti","174.0")
+      e.linkUp("Mobaye","Mboti","662.0")
 
     # 12 Feb. In Mole, refugees who were waiting to be registered and relocated received their food rations from the WFP.  
     # Source: http://data.unhcr.org/car/download.php?id=22
@@ -350,8 +371,12 @@ if __name__ == "__main__":
     if t_data == date_to_sim_days("2014-05-12"):
       e.remove_link("Kabo","Belom")
       e.remove_link("Ndele","Belom")
-      e.remove_link("Paoua","Dosseye")
       e.remove_link("RN1","Dosseye")
+      e.remove_link("Paoua","Beboura","31.0")
+      e.remove_link("Beboura","Amboko","76.0")
+      e.remove_link("Amboko","Gondje","8.0")
+      e.remove_link("Amboko","Dosseye","31.0")
+      e.remove_link("RN8","Moyo","176.0")
 
     #Conflict zones after the start of simulation period
     if t_data == date_to_sim_days("2013-12-06"): #A wave of reprisal attacks & escalating cycle of violence between Seleka militia and Anti-Balaka
