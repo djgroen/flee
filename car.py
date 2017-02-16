@@ -199,7 +199,7 @@ if __name__ == "__main__":
   e.linkUp("Mbile","Batouri","53.0", forced_redirection=True)
   e.linkUp("Batouri","East","26.0", forced_redirection=True)
   e.linkUp("Batouri","Timangolo","24.0")
-  e.linkUp("Timangolo","East","51.0", forced_redicrection=True)
+  e.linkUp("Timangolo","East","51.0", forced_redirection=True)
   e.linkUp("Baboua","Gado-Badzere","81.0")
   e.linkUp("Gado-Badzere","East","222.0", forced_redirection=True)
   e.linkUp("Baboua","D22","181.0")
