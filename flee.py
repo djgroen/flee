@@ -12,7 +12,7 @@ class SimulationSettings:
 
   CampWeight = 2.0 # attraction factor for camps.
   ConflictWeight = 0.25 # reduction factor for refugees entering conflict zones.
-  MinMoveSpeed = 25 # least number of km that we expect refugees to traverse per time step.
+  MinMoveSpeed = 50 # least number of km that we expect refugees to traverse per time step.
   MaxMoveSpeed = 250 # most number of km that we expect refugees to traverse per time step.
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
   CapacityBuffer = 1.0
@@ -188,6 +188,7 @@ class Location:
     self.foreign = foreign
     self.Conflict = False
     self.Camp = False
+    self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
 
     # Automatically tags a location as a Camp if refugees are less than 1% likely to move out on a given day.
     if movechance < 0.01:
@@ -210,8 +211,10 @@ class Location:
     return False
 
 
-  def updateLocationScore(self):
+  def updateLocationScore(self, time):
     """ Attractiveness of the local point, based on local point information only. """
+
+    self.time = time
 
     if self.foreign:
       self.LocationScore = SimulationSettings.CampWeight
@@ -312,7 +315,7 @@ class Ecosystem:
 
       #print("New arrivals: ", self.travel_durations[-1], arrival_total, tmp_num_arrivals)    
 
-  def remove_link(self, startpoint, endpoint):
+  def remove_link(self, startpoint, endpoint, twoway=True):
     """Remove link when there is border closure between countries"""
     new_links = []
 
@@ -330,6 +333,25 @@ class Ecosystem:
         new_links += [self.locations[x].links[i]]
 
     self.locations[x].links = new_links
+
+    if twoway: #todo: refactor.
+
+      new_links = []
+
+      # Convert name "endpoint" to index "x".
+      for i in range(0, len(self.locations)):
+        if(self.locations[i].name == endpoint):
+          x = i
+
+      if x<0:
+        print("#Warning: location not found in remove_link")
+
+      for i in range(0, len(self.locations[x].links)):
+        if self.locations[x].links[i].endpoint.name is not startpoint:
+          new_links += [self.locations[x].links[i]]
+
+      self.locations[x].links = new_links
+
 
 
   def add_conflict_zone(self, name, change_movechance=True):
@@ -396,7 +418,7 @@ class Ecosystem:
   def evolve(self):
     # update level 1, 2 and 3 location scores
     for l in self.locations:
-      l.updateLocationScore() 
+      l.updateLocationScore(self.time) 
 
     for l in self.locations:
       l.updateNeighbourhoodScore() 

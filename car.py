@@ -242,7 +242,7 @@ if __name__ == "__main__":
   locations[40].capacity = d.getMaxFromData("Belom", last_physical_day)
   locations[41].capacity = d.getMaxFromData("Dosseye", last_physical_day)
   locations[42].capacity = d.getMaxFromData("Gondje", last_physical_day)
-  locations[43].capacity = d.getMaxFromData("Moyo", last_physical_day)
+  locations[43].capacity = d.getMaxFromData("Moyo", last_physical_day ) # blip in the data set.
   locations[49].capacity = d.getMaxFromData("East", last_physical_day)
   locations[53].capacity = d.getMaxFromData("Adamaoua", last_physical_day)
   locations[54].capacity = d.getMaxFromData("Mole", last_physical_day)
