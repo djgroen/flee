@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
   locations.append(e.addLocation("Dosseye", movechance=camp_movechance, capacity=22925, foreign=True))
   locations.append(e.addLocation("Gondje", movechance=camp_movechance, capacity=12171, foreign=True))
-  locations.append(e.addLocation("Moyo", movechance=camp_movechance, capacity=10903, foreign=True)) #strange blip in the data at 14969.
+  locations.append(e.addLocation("Moyo", movechance=camp_movechance, capacity=7631, foreign=True)) #strange blip in the data at 14969.
   locations.append(e.addLocation("Lolo", movechance=1.0, foreign=True)) #forwarding location (to aggreg. camp)
   locations.append(e.addLocation("Mbile", movechance=1.0, foreign=True)) #forwarding location (to aggreg. camp)
 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
   locations.append(e.addLocation("N24", movechance=1.0)) #non-city junction, Coordinates = 3.610560, 20.762290
 
   locations.append(e.addLocation("Bili", movechance=camp_movechance, capacity=10282, foreign=True))
-  locations.append(e.addLocation("Bossobolo", movechance=camp_movechance, capacity=18054, foreign=True))
+  #locations.append(e.addLocation("Bossobolo", movechance=camp_movechance, capacity=18054, foreign=True)) # excluded because Bossobolo has no measurable refugee influx.
   locations.append(e.addLocation("Boyabu", movechance=camp_movechance, capacity=20393, foreign=True))
   locations.append(e.addLocation("Mboti", movechance=camp_movechance, capacity=704, foreign=True))
   locations.append(e.addLocation("Inke", movechance=camp_movechance, capacity=20365, foreign=True))
@@ -209,8 +209,8 @@ if __name__ == "__main__":
   e.linkUp("Ngam","Adamaoua","272.0", forced_redirection=True)
 
   e.linkUp("Gbadolite","N24","93.0")
-  e.linkUp("N24","Bossobolo","23.0")
-  e.linkUp("Bangui","Mole","42.0")
+  #e.linkUp("N24","Bossobolo","23.0") #Bossobolo has been taken out (see above).  
+  e.linkUp("Bangui","Mole","42.0") 
   e.linkUp("Mole","Boyabu","25.0")
   e.linkUp("Zemio","Mboti","174.0")
   e.linkUp("Mobaye","Mboti","662.0")
@@ -229,10 +229,10 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Belom","2015-08-31")
   d.correctLevel1Registrations("Dosseye","2015-09-30")
   d.correctLevel1Registrations("Gondje","2015-09-30")
-  d.correctLevel1Registrations("Moyo","2015-10-31") #also "2014-05-11" and "2014-06-02"
+  d.correctLevel1Registrations("Moyo","2015-06-02") #also "2014-05-11" and "2015-06-02"
   d.correctLevel1Registrations("East","2014-09-28")
   d.correctLevel1Registrations("Adamaoua","2014-10-19")
-  d.correctLevel1Registrations("Mole","2016-02-29")
+  #d.correctLevel1Registrations("Mole","2016-02-29") # no clear decrease visible.
   d.correctLevel1Registrations("Bili","2016-06-30")
   #d.correctLevel1Registrations("Bossobolo","2016-05-20") #Data is only decreasing over time, so no grounds for a level1 corr.
   d.correctLevel1Registrations("Boyabu","2016-06-30")
@@ -247,30 +247,33 @@ if __name__ == "__main__":
   locations[43].capacity = d.getMaxFromData("Moyo", last_physical_day ) # blip in the data set.
   locations[49].capacity = d.getMaxFromData("East", last_physical_day)
   locations[52].capacity = d.getMaxFromData("Adamaoua", last_physical_day)
-  locations[53].capacity = d.getMaxFromData("Mole", last_physical_day)
+  #locations[53].capacity = d.getMaxFromData("Mole", last_physical_day)
   locations[56].capacity = d.getMaxFromData("Bili", last_physical_day)
-  locations[57].capacity = d.getMaxFromData("Bossobolo", last_physical_day)
-  locations[58].capacity = d.getMaxFromData("Boyabu", last_physical_day)
-  locations[59].capacity = d.getMaxFromData("Mboti", last_physical_day)
-  locations[60].capacity = d.getMaxFromData("Inke", last_physical_day)
-  locations[61].capacity = d.getMaxFromData("Betou", last_physical_day)
-  locations[62].capacity = d.getMaxFromData("Brazaville", last_physical_day)
+  #locations[57].capacity = d.getMaxFromData("Bossobolo", last_physical_day)
+  locations[57].capacity = d.getMaxFromData("Boyabu", last_physical_day)
+  locations[58].capacity = d.getMaxFromData("Mboti", last_physical_day)
+  locations[59].capacity = d.getMaxFromData("Inke", last_physical_day)
+  locations[60].capacity = d.getMaxFromData("Betou", last_physical_day)
+  locations[61].capacity = d.getMaxFromData("Brazaville", last_physical_day)
 
+
+  camp_locations       = [39, 40, 41, 42, 43, 49, 52, 53, 56, 57, 58, 59, 60, 61]
 
   # Add initial refugees to the destinations.
-  for i in [39,40,41,42,43,49,52,53,56,57,58,59,60,61,62]:
+  for i in camp_locations:
     AddInitialRefugees(e,d,locations[i])
 
 
-  list_of_cities = "Time"
+  output_header_string = "Day,"
 
-  for l in locations:
-    list_of_cities = "%s,%s" % (list_of_cities, l.name)
+  for i in camp_locations:
+    l = locations[i]
+    AddInitialRefugees(e,d,l)
+    output_header_string += "%s sim,%s data,%s error," % (l.name, l.name, l.name)
 
-  #print(list_of_cities)
-  #print("Time, campname")
-  print("Day,Amboko sim,Amboko data,Amboko error,Belom sim,Belom data,Belom error,Dosseye sim,Dosseye data,Dosseye error,Gondje sim,Gondje data,Gondje error,Moyo sim,Moyo data,Moyo error,East sim,East data,East error,Adamaoua sim,Adamaoua data,Adamaoua error,Bili sim,Bili data,Bili error,Bossobolo sim,Bossobolo data,Bossobolo error,Mole sim,Mole data,Mole error,Boyabu sim,Boyabu data,Boyabu error,Mboti sim,Mboti data,Mboti error,Inke sim,Inke data,Inke error,Betou sim,Betou data,Betou error,Brazaville sim,Brazaville data,Brazaville error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
+  output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)"
 
+  print(output_header_string)
 
   #Set up a mechanism to incorporate temporary decreases in refugees
   refugee_debt = 0
@@ -348,16 +351,8 @@ if __name__ == "__main__":
       e.remove_link("Zemio","Mboti")
       e.remove_link("Mobaye","Mboti")
 
-    # Bili camp opens on April 1st, 2014.
-    if t_data == date_to_sim_days("2014-04-01"):
-      e.linkUp("N24","Bili","20.0") #There is no road after 93km to the camp & the remaining 20km was found by distance calculator (www.movable-type.co.uk/scripts/latlong.html)
 
     if t_data == date_to_sim_days("2014-06-30"):
-      #e.remove_link("Mole","Bangui")
-      #e.remove_link("Inke","Gbadolite")
-      #e.remove_link("N24","Gbadolite")
-      #e.remove_link("Mboti","Zemio")
-      #e.remove_link("Mboti","Mobaye")
       e.linkUp("Bangui","Mole","42.0")
       e.linkUp("Gbadolite","Inke","42.0")
       e.linkUp("Gbadolite","N24","93.0")
@@ -379,6 +374,11 @@ if __name__ == "__main__":
       e.remove_link("Amboko","Gondje","8.0")
       e.remove_link("Amboko","Dosseye","31.0")
       e.remove_link("RN8","Moyo","176.0")
+
+    # Bili camp opens on April 1st, 2015.
+    if t_data == date_to_sim_days("2015-04-01"):
+      e.linkUp("N24","Bili","20.0") #There is no road after 93km to the camp & the remaining 20km was found by distance calculator (www.movable-type.co.uk/scripts/latlong.html)
+
 
     #Conflict zones after the start of simulation period
     if t_data == date_to_sim_days("2013-12-06"): #A wave of reprisal attacks & escalating cycle of violence between Seleka militia and Anti-Balaka
@@ -456,7 +456,7 @@ if __name__ == "__main__":
     east_data = d.get_field("East", t) #- d.get_field("East", 0)
     adamaoua_data = d.get_field("Adamaoua", t) #- d.get_field("Adamaoua", 0)
     bili_data = d.get_field("Bili", t) #- d.get_field("Bili", 0)
-    bossobolo_data = d.get_field("Bossobolo", t) #- d.get_field("Bossobolo", 0)
+    #bossobolo_data = d.get_field("Bossobolo", t) #- d.get_field("Bossobolo", 0)
     mole_data = d.get_field("Mole", t) #- d.get_field("Mole", 0)
     boyabu_data = d.get_field("Boyabu", t) #- d.get_field("Boyabu", 0)
     mboti_data = d.get_field("Mboti", t) #- d.get_field("Mboti", 0)
@@ -467,13 +467,12 @@ if __name__ == "__main__":
     #Calculation of error terms
     errors = []
     abs_errors = []
-    loc_data = [amboko_data, belom_data, dosseye_data, gondje_data, moyo_data, east_data, adamaoua_data, bili_data, bossobolo_data, mole_data, boyabu_data, mboti_data, inke_data, betou_data, brazaville_data]
-    camp_locations = [39, 40, 41, 42, 43, 49, 52, 53, 56, 57, 58, 59, 60, 61, 62]
+    loc_data = [amboko_data, belom_data, dosseye_data, gondje_data, moyo_data, east_data, adamaoua_data, bili_data, mole_data, boyabu_data, mboti_data, inke_data, betou_data, brazaville_data]
 
     camps = []
     for i in camp_locations:
       camps += [locations[i]]
-    camp_names = ["Amboko", "Belom", "Dosseye", "Gondje", "Moyo", "East", "Adamaoua", "Bili", "Bossobolo", "Mole", "Boyabu", "Mboti", "Inke", "Betou", "Brazaville"]
+    camp_names = ["Amboko", "Belom", "Dosseye", "Gondje", "Moyo", "East", "Adamaoua", "Bili", "Mole", "Boyabu", "Mboti", "Inke", "Betou", "Brazaville"]
 
     camp_pops_retrofitted = []
     errors_retrofitted = []
