@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
   locations.append(e.addLocation("Betou", movechance=camp_movechance, capacity=10232, foreign=True))
   locations.append(e.addLocation("Brazaville", movechance=camp_movechance, capacity=7221, foreign=True))
-  locations.append(e.addLocation("Gore", movechance=0.3)) #city on junction point
+  locations.append(e.addLocation("Gore", movechance=1.0)) #city on junction point, where refugees are actively encouraged to go to nearby camps.
 
   #Within CAR
   e.linkUp("Bangui","Bimbo","26.0")
@@ -189,11 +189,11 @@ if __name__ == "__main__":
   #Camps, starting at index locations[38] (at time of writing).
   e.linkUp("Kabo","Belom","89.0")
   e.linkUp("Beboura","Gore","87.0")
-  e.linkUp("Gore",""Amboko","6.0", forced_redirection=True)
-  e.linkUp("Gore","Gondje","15.0", forced_redirection=True)
+  e.linkUp("Gore","Amboko","6.0")
+  e.linkUp("Gore","Gondje","15.0")
   #e.linkUp("Amboko","Gondje","7.0")
   #e.linkUp("Amboko","Dosseye","35.0")
-  e.linkUp("Gore","Dosseye","34.0", forced_redirection=True)
+  e.linkUp("Gore","Dosseye","34.0")
   e.linkUp("RN8","Moyo","186.0")
 
   e.linkUp("Gamboula","Lolo","43.0")
