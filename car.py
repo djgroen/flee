@@ -37,90 +37,90 @@ if __name__ == "__main__":
 
   e = flee.Ecosystem()
 
-  locations = []
+  lm = {} 
 
   #CAR
-  locations.append(e.addLocation("Bangui", movechance=0.3, pop=734350-400000)) #Subtracting the number of IDPs from the population to reflect local shelter.
+  lm["Bangui"] = e.addLocation("Bangui", movechance=0.3, pop=734350-400000) #Subtracting the number of IDPs from the population to reflect local shelter.
 
-  locations.append(e.addLocation("Bimbo", movechance=0.3, pop=267859))
-  locations.append(e.addLocation("Mbaiki", movechance=0.3))
-  locations.append(e.addLocation("Boda", movechance=0.3, pop=11688))
-  locations.append(e.addLocation("Nola", movechance=0.3, pop=41462))
-  locations.append(e.addLocation("Bossembele", movechance=0.3, pop=37849))
+  lm["Bimbo"] = e.addLocation("Bimbo", movechance=0.3, pop=267859)
+  lm["Mbaiki"] = e.addLocation("Mbaiki", movechance=0.3)
+  lm["Boda"] = e.addLocation("Boda", movechance=0.3, pop=11688)
+  lm["Nola"] = e.addLocation("Nola", movechance=0.3, pop=41462)
+  lm["Bossembele"] = e.addLocation("Bossembele", movechance=0.3, pop=37849)
 
-  locations.append(e.addLocation("Berberati", movechance=0.3, pop=105155))
-  locations.append(e.addLocation("Gamboula", movechance=0.3))
-  locations.append(e.addLocation("Carnot", movechance=0.3, pop=54551))
-  locations.append(e.addLocation("Bouar", movechance=0.3, pop=39205))
-  locations.append(e.addLocation("Baboua", movechance=0.3))
+  lm["Berberati"] = e.addLocation("Berberati", movechance=0.3, pop=105155)
+  lm["Gamboula"] = e.addLocation("Gamboula", movechance=0.3)
+  lm["Carnot"] = e.addLocation("Carnot", movechance=0.3, pop=54551)
+  lm["Bouar"] = e.addLocation("Bouar", movechance=0.3, pop=39205)
+  lm["Baboua"] = e.addLocation("Baboua", movechance=0.3)
 
-  locations.append(e.addLocation("Bozoum", movechance=0.3, pop=22284))
-  locations.append(e.addLocation("Paoua", movechance=0.3, pop=17370))
-  locations.append(e.addLocation("Bossangoa", movechance=0.3, pop=38451))
-  locations.append(e.addLocation("RN1", movechance=1.0)) #non-city junction, Coordinates = 7.112110, 17.030220
-  locations.append(e.addLocation("Batangafo", movechance=0.3, pop=16420))
+  lm["Bozoum"] = e.addLocation("Bozoum", movechance=0.3, pop=22284)
+  lm["Paoua"] = e.addLocation("Paoua", movechance=0.3, pop=17370)
+  lm["Bossangoa"] = e.addLocation("Bossangoa", movechance=0.3, pop=38451)
+  lm["RN1"] = e.addLocation("RN1", movechance=1.0) #non-city junction, Coordinates = 7.112110, 17.030220
+  lm["Batangafo"] = e.addLocation("Batangafo", movechance=0.3, pop=16420)
 
-  locations.append(e.addLocation("Bouca", movechance=0.3, pop=12280))
-  locations.append(e.addLocation("Kabo", movechance=0.3))
-  locations.append(e.addLocation("Kaga Bandoro", movechance=0.3, pop=27797))
-  locations.append(e.addLocation("Sibut", movechance=0.3, pop=24527))
-  locations.append(e.addLocation("Bamingui", movechance=0.3, pop=6230))
+  lm["Bouca"] = e.addLocation("Bouca", movechance=0.3, pop=12280)
+  lm["Kabo"] = e.addLocation("Kabo", movechance=0.3)
+  lm["Kaga Bandoro"] = e.addLocation("Kaga Bandoro", movechance=0.3, pop=27797)
+  lm["Sibut"] = e.addLocation("Sibut", movechance=0.3, pop=24527)
+  lm["Bamingui"] = e.addLocation("Bamingui", movechance=0.3, pop=6230)
 
-  locations.append(e.addLocation("Dekoa", movechance=0.3, pop=12447))
-  locations.append(e.addLocation("Ndele", movechance=0.3, pop=13704))
-  locations.append(e.addLocation("Birao", movechance=0.3))
-  locations.append(e.addLocation("Bria", movechance=0.3, pop=43322))
-  locations.append(e.addLocation("Bambari", movechance=0.3, pop=41486))
+  lm["Dekoa"] = e.addLocation("Dekoa", movechance=0.3, pop=12447)
+  lm["Ndele"] = e.addLocation("Ndele", movechance=0.3, pop=13704)
+  lm["Birao"] = e.addLocation("Birao", movechance=0.3)
+  lm["Bria"] = e.addLocation("Bria", movechance=0.3, pop=43322)
+  lm["Bambari"] = e.addLocation("Bambari", movechance=0.3, pop=41486)
 
-  locations.append(e.addLocation("Grimari", movechance=0.3, pop=10822))
-  locations.append(e.addLocation("Bangassou", movechance=0.3, pop=35305))
-  locations.append(e.addLocation("Rafai", movechance=0.3, pop=13962))
-  locations.append(e.addLocation("Obo", movechance=0.3, pop=36029))
-  locations.append(e.addLocation("Mobaye", movechance=0.3))
+  lm["Grimari"] = e.addLocation("Grimari", movechance=0.3, pop=10822)
+  lm["Bangassou"] = e.addLocation("Bangassou", movechance=0.3, pop=35305)
+  lm["Rafai"] = e.addLocation("Rafai", movechance=0.3, pop=13962)
+  lm["Obo"] = e.addLocation("Obo", movechance=0.3, pop=36029)
+  lm["Mobaye"] = e.addLocation("Mobaye", movechance=0.3)
 
-  locations.append(e.addLocation("Bohong", movechance=0.3, pop=19700))
-  locations.append(e.addLocation("Mbres", movechance=0.3, pop=20709))
-  locations.append(e.addLocation("Damara", movechance=0.3, pop=32321))
-  locations.append(e.addLocation("Bogangolo", movechance=0.3, pop=9966))
-  locations.append(e.addLocation("Marali", movechance=0.3))
+  lm["Bohong"] = e.addLocation("Bohong", movechance=0.3, pop=19700)
+  lm["Mbres"] = e.addLocation("Mbres", movechance=0.3, pop=20709)
+  lm["Damara"] = e.addLocation("Damara", movechance=0.3, pop=32321)
+  lm["Bogangolo"] = e.addLocation("Bogangolo", movechance=0.3, pop=9966)
+  lm["Marali"] = e.addLocation("Marali", movechance=0.3)
 
-  locations.append(e.addLocation("Beboura", movechance=0.3))
-  locations.append(e.addLocation("RN8", movechance=1.0)) #non-city junction, Coordinates = 9.560670, 22.140450
-  locations.append(e.addLocation("Zemio", movechance=0.3))
+  lm["Beboura"] = e.addLocation("Beboura", movechance=0.3)
+  lm["RN8"] = e.addLocation("RN8", movechance=1.0) #non-city junction, Coordinates = 9.560670, 22.140450
+  lm["Zemio"] = e.addLocation("Zemio", movechance=0.3)
 
   camp_movechance = 0.001
 
   #Chad, Cameroon & Demotratic R.of Congo & R. of Congo camps starting at index locations[39] (at time of writing).
-  locations.append(e.addLocation("Amboko", movechance=camp_movechance, capacity=12405, foreign=True))
-  locations.append(e.addLocation("Belom", movechance=camp_movechance, capacity=28483, foreign=True))
+  lm["Amboko"] = e.addLocation("Amboko", movechance=camp_movechance, capacity=12405, foreign=True)
+  lm["Belom"] = e.addLocation("Belom", movechance=camp_movechance, capacity=28483, foreign=True)
 
-  locations.append(e.addLocation("Dosseye", movechance=camp_movechance, capacity=22925, foreign=True))
-  locations.append(e.addLocation("Gondje", movechance=camp_movechance, capacity=12171, foreign=True))
-  locations.append(e.addLocation("Moyo", movechance=camp_movechance, capacity=7631, foreign=True)) #strange blip in the data at 14969.
-  locations.append(e.addLocation("Lolo", movechance=1.0, foreign=True)) #forwarding location (to aggreg. camp)
-  locations.append(e.addLocation("Mbile", movechance=1.0, foreign=True)) #forwarding location (to aggreg. camp)
+  lm["Dosseye"] = e.addLocation("Dosseye", movechance=camp_movechance, capacity=22925, foreign=True)
+  lm["Gondje"] = e.addLocation("Gondje", movechance=camp_movechance, capacity=12171, foreign=True)
+  lm["Moyo"] = e.addLocation("Moyo", movechance=camp_movechance, capacity=7631, foreign=True) #strange blip in the data at 14969.
+  lm["Lolo"] = e.addLocation("Lolo", movechance=1.0, foreign=True) #forwarding location (to aggreg. camp)
+  lm["Mbile"] = e.addLocation("Mbile", movechance=1.0, foreign=True) #forwarding location (to aggreg. camp)
 
-  locations.append(e.addLocation("Batouri", movechance=0.3)) #city on junction point
-  locations.append(e.addLocation("Timangolo", movechance=1.0, foreign=True, x=4.628170000, y=14.544500000)) #forwarding location (to aggreg. camp)
-  locations.append(e.addLocation("Gado-Badzere", movechance=1.0, foreign=True)) #forwarding location (to aggreg. camp)
-  locations.append(e.addLocation("East", movechance=camp_movechance, capacity=180485, foreign=True)) #regional camp.
-  locations.append(e.addLocation("Borgop", movechance=1.0, foreign=True)) #forwarding location (to aggreg. camp)
+  lm["Batouri"] = e.addLocation("Batouri", movechance=0.3) #city on junction point
+  lm["Timangolo"] = e.addLocation("Timangolo", movechance=1.0, foreign=True, x=4.628170000, y=14.544500000) #forwarding location (to aggreg. camp)
+  lm["Gado-Badzere"] = e.addLocation("Gado-Badzere", movechance=1.0, foreign=True) #forwarding location (to aggreg. camp)
+  lm["East"] = e.addLocation("East", movechance=camp_movechance, capacity=180485, foreign=True) #regional camp.
+  lm["Borgop"] = e.addLocation("Borgop", movechance=1.0, foreign=True) #forwarding location (to aggreg. camp)
 
-  locations.append(e.addLocation("Ngam", movechance=1.0, foreign=True)) #forwarding location (to aggreg. camp)
-  locations.append(e.addLocation("Adamaoua", movechance=camp_movechance, capacity=71506, foreign=True))
-  locations.append(e.addLocation("Mole", movechance=camp_movechance, capacity=20454, foreign=True))
-  locations.append(e.addLocation("Gbadolite", movechance=0.3)) #city on junction point
-  locations.append(e.addLocation("N24", movechance=1.0)) #non-city junction, Coordinates = 3.610560, 20.762290
+  lm["Ngam"] = e.addLocation("Ngam", movechance=1.0, foreign=True) #forwarding location (to aggreg. camp)
+  lm["Adamaoua"] = e.addLocation("Adamaoua", movechance=camp_movechance, capacity=71506, foreign=True)
+  lm["Mole"] = e.addLocation("Mole", movechance=camp_movechance, capacity=20454, foreign=True)
+  lm["Gbadolite"] = e.addLocation("Gbadolite", movechance=0.3) #city on junction point
+  lm["N24"] = e.addLocation("N24", movechance=1.0) #non-city junction, Coordinates = 3.610560, 20.762290
 
-  locations.append(e.addLocation("Bili", movechance=camp_movechance, capacity=10282, foreign=True))
-  #locations.append(e.addLocation("Bossobolo", movechance=camp_movechance, capacity=18054, foreign=True)) # excluded because Bossobolo has no measurable refugee influx.
-  locations.append(e.addLocation("Boyabu", movechance=camp_movechance, capacity=20393, foreign=True))
-  locations.append(e.addLocation("Mboti", movechance=camp_movechance, capacity=704, foreign=True))
-  locations.append(e.addLocation("Inke", movechance=camp_movechance, capacity=20365, foreign=True))
+  lm["Bili"] = e.addLocation("Bili", movechance=camp_movechance, capacity=10282, foreign=True)
+  #lm["Bossobolo"] = e.addLocation("Bossobolo", movechance=camp_movechance, capacity=18054, foreign=True) # excluded because Bossobolo has no measurable refugee influx.
+  lm["Boyabu"] = e.addLocation("Boyabu", movechance=camp_movechance, capacity=20393, foreign=True)
+  lm["Mboti"] = e.addLocation("Mboti", movechance=camp_movechance, capacity=704, foreign=True)
+  lm["Inke"] = e.addLocation("Inke", movechance=camp_movechance, capacity=20365, foreign=True)
 
-  locations.append(e.addLocation("Betou", movechance=camp_movechance, capacity=10232, foreign=True))
-  locations.append(e.addLocation("Brazaville", movechance=camp_movechance, capacity=7221, foreign=True))
-  locations.append(e.addLocation("Gore", movechance=1.0)) #city on junction point, where refugees are actively encouraged to go to nearby camps.
+  lm["Betou"] = e.addLocation("Betou", movechance=camp_movechance, capacity=10232, foreign=True)
+  lm["Brazaville"] = e.addLocation("Brazaville", movechance=camp_movechance, capacity=7221, foreign=True)
+  lm["Gore"] = e.addLocation("Gore", movechance=1.0) #city on junction point, where refugees are actively encouraged to go to nearby camps.
 
   #Within CAR
   e.linkUp("Bangui","Bimbo","26.0")
@@ -240,34 +240,34 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Betou","2014-03-22")
   #d.correctLevel1Registrations("Brazaville","2016-04-30")
 
-  locations[39].capacity = d.getMaxFromData("Amboko", last_physical_day)
-  locations[40].capacity = d.getMaxFromData("Belom", last_physical_day)
-  locations[41].capacity = d.getMaxFromData("Dosseye", last_physical_day)
-  locations[42].capacity = d.getMaxFromData("Gondje", last_physical_day)
-  locations[43].capacity = d.getMaxFromData("Moyo", last_physical_day ) # blip in the data set.
-  locations[49].capacity = d.getMaxFromData("East", last_physical_day)
-  locations[52].capacity = d.getMaxFromData("Adamaoua", last_physical_day)
-  #locations[53].capacity = d.getMaxFromData("Mole", last_physical_day)
-  locations[56].capacity = d.getMaxFromData("Bili", last_physical_day)
-  #locations[57].capacity = d.getMaxFromData("Bossobolo", last_physical_day)
-  locations[57].capacity = d.getMaxFromData("Boyabu", last_physical_day)
-  locations[58].capacity = d.getMaxFromData("Mboti", last_physical_day)
-  locations[59].capacity = d.getMaxFromData("Inke", last_physical_day)
-  locations[60].capacity = d.getMaxFromData("Betou", last_physical_day)
-  locations[61].capacity = d.getMaxFromData("Brazaville", last_physical_day)
+  lm["Amboko"].capacity = d.getMaxFromData("Amboko", last_physical_day)
+  lm["Belom"].capacity = d.getMaxFromData("Belom", last_physical_day)
+  lm["Dosseye"].capacity = d.getMaxFromData("Dosseye", last_physical_day)
+  lm["Gondje"].capacity = d.getMaxFromData("Gondje", last_physical_day)
+  #lm["Moyo"].capacity = d.getMaxFromData("Moyo", last_physical_day ) # blip in the data set, set capacity manually.
+  lm["East"].capacity = d.getMaxFromData("East", last_physical_day)
+  lm["Adamaoua"].capacity = d.getMaxFromData("Adamaoua", last_physical_day)
+  lm["Mole"].capacity = d.getMaxFromData("Mole", last_physical_day)
+  lm["Bili"].capacity = d.getMaxFromData("Bili", last_physical_day)
+  #lm["Bossobolo"].capacity = d.getMaxFromData("Bossobolo", last_physical_day) #camp excluded
+  lm["Boyabu"].capacity = d.getMaxFromData("Boyabu", last_physical_day) 
+  lm["Mboti"].capacity = d.getMaxFromData("Mboti", last_physical_day)
+  lm["Inke"].capacity = d.getMaxFromData("Inke", last_physical_day)
+  lm["Betou"].capacity = d.getMaxFromData("Betou", last_physical_day)
+  lm["Brazaville"].capacity = d.getMaxFromData("Brazaville", last_physical_day)
 
 
-  camp_locations       = [39, 40, 41, 42, 43, 49, 52, 53, 56, 57, 58, 59, 60, 61]
+  camp_lm       = ["Amboko","Belom","Dosseye","Gondje","Moyo","East","Adamaoua","Mole","Bili","Boyabu","Mboti","Inke","Betou","Brazaville"]
 
   # Add initial refugees to the destinations.
   for i in camp_locations:
-    AddInitialRefugees(e,d,locations[i])
+    AddInitialRefugees(e,d,lm[i])
 
 
   output_header_string = "Day,"
 
   for i in camp_locations:
-    l = locations[i]
+    l = lm[i]
     AddInitialRefugees(e,d,l)
     output_header_string += "%s sim,%s data,%s error," % (l.name, l.name, l.name)
 
@@ -471,7 +471,7 @@ if __name__ == "__main__":
 
     camps = []
     for i in camp_locations:
-      camps += [locations[i]]
+      camps += [lm[i]]
     camp_names = ["Amboko", "Belom", "Dosseye", "Gondje", "Moyo", "East", "Adamaoua", "Bili", "Mole", "Boyabu", "Mboti", "Inke", "Betou", "Brazaville"]
 
     camp_pops_retrofitted = []
@@ -485,21 +485,20 @@ if __name__ == "__main__":
     t_retrofitted = d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_names)
 
     # calculate errors
-    for i in range(0,len(camp_locations)):
-      camp_number = camp_locations[i]
-      errors += [a.rel_error(locations[camp_number].numAgents, loc_data[i])]
-      abs_errors += [a.abs_error(locations[camp_number].numAgents, loc_data[i])]
+    for i in camp_locations:
+      errors += [a.rel_error(lm[i].numAgents, loc_data[i])]
+      abs_errors += [a.abs_error(lm[i].numAgents, loc_data[i])]
 
       # errors when using retrofitted time stepping.
-      camp_pops_retrofitted += [d.get_field(camp_names[i], t_retrofitted, FullInterpolation=True)]
-      errors_retrofitted += [a.rel_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
-      abs_errors_retrofitted += [a.abs_error(camps[i].numAgents, camp_pops_retrofitted[-1])]
+      camp_pops_retrofitted += [d.get_field(i, t_retrofitted, FullInterpolation=True)]
+      errors_retrofitted += [a.rel_error(lm[i].numAgents, camp_pops_retrofitted[-1])]
+      abs_errors_retrofitted += [a.abs_error(lm[i].numAgents, camp_pops_retrofitted[-1])]
 
     output = "%s" % t
 
     for i in range(0,len(errors)):
-      camp_number = camp_locations[i]
-      output += ",%s,%s,%s" % (locations[camp_number].numAgents, loc_data[i], errors[i])
+      camp_name = camp_locations[i]
+      output += ",%s,%s,%s" % (lm[camp_name].numAgents, loc_data[i], errors[i])
 
 
     if refugees_raw>0:
