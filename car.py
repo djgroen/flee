@@ -257,13 +257,9 @@ if __name__ == "__main__":
   lm["Brazaville"].capacity = d.getMaxFromData("Brazaville", last_physical_day)
 
 
-  camp_lm       = ["Amboko","Belom","Dosseye","Gondje","Moyo","East","Adamaoua","Mole","Bili","Boyabu","Mboti","Inke","Betou","Brazaville"]
+  camp_locations      = ["Amboko","Belom","Dosseye","Gondje","Moyo","East","Adamaoua","Mole","Bili","Boyabu","Mboti","Inke","Betou","Brazaville"]
 
   # Add initial refugees to the destinations.
-  for i in camp_locations:
-    AddInitialRefugees(e,d,lm[i])
-
-
   output_header_string = "Day,"
 
   for i in camp_locations:
@@ -485,14 +481,17 @@ if __name__ == "__main__":
     t_retrofitted = d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_names)
 
     # calculate errors
+    j=0
     for i in camp_locations:
-      errors += [a.rel_error(lm[i].numAgents, loc_data[i])]
-      abs_errors += [a.abs_error(lm[i].numAgents, loc_data[i])]
+      errors += [a.rel_error(lm[i].numAgents, loc_data[j])]
+      abs_errors += [a.abs_error(lm[i].numAgents, loc_data[j])]
 
       # errors when using retrofitted time stepping.
       camp_pops_retrofitted += [d.get_field(i, t_retrofitted, FullInterpolation=True)]
       errors_retrofitted += [a.rel_error(lm[i].numAgents, camp_pops_retrofitted[-1])]
       abs_errors_retrofitted += [a.abs_error(lm[i].numAgents, camp_pops_retrofitted[-1])]
+
+      j += 1
 
     output = "%s" % t
 
