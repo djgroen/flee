@@ -138,17 +138,20 @@ class Person:
     elif not SimulationSettings.UseDynamicAwareness:
       for i in range(0,linklen):
         # forced redirection: if this is true for a link, return its value immediately.
-        if self.location.links[i].endpoint.isFull(self.location.links[i].numAgents):
+        if self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents) <= 0.000001:
           weights[i] = 0.0
         elif self.location.links[i].forced_redirection == True:
           return i
         else:
-          weights[i] = self.getLinkWeight(self.location.links[i], SimulationSettings.AwarenessLevel)
-          
+          weights[i] = self.getLinkWeight(self.location.links[i], SimulationSettings.AwarenessLevel)      
+
+          # Throttle down weight when occupancy is close to peak capacity.
+          weights[i] *= self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents)
+ 
     else:
       for i in range(0,linklen):
         # forced redirection: if this is true for a link, return its value immediately.
-        if self.location.links[i].endpoint.isFull(self.location.links[i].numAgents):
+        if self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents) <= 0.000001:
           weights[i] = 0.0
         elif self.location.links[i].forced_redirection == True:
           return i
@@ -161,6 +164,9 @@ class Person:
             weights[i] = self.getLinkWeight(self.location.links[i], 2)
           else:
             weights[i] = self.getLinkWeight(self.location.links[i], 3)
+
+          # Throttle down weight when occupancy is close to peak capacity.
+          self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents)
 
     if len(weights) == 0:
       return -1
@@ -202,13 +208,24 @@ class Location:
     if SimulationSettings.CampLogLevel > 0:
       self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
 
-  def isFull(self, numOnLink):
-    """ Checks whether a given location has reached full capacity. In this case it will no longer admit persons."""
+  def getCapMultiplier(self, numOnLink):
+    """ Checks whether a given location has reached full capacity or is close to it.
+        returns 1.0 if occupancy < nearly_full_occ (0.9).
+        returns 0.0 if occupancy >= 1.0.
+        returns a value in between for intermediate values
+    """
+    nearly_full_occ = 0.9 #occupancy rate to be considered nearly full.
+    cap_limit = self.capacity*SimulationSettings.CapacityBuffer
+
     if self.capacity < 0:
-      return False
-    elif self.numAgents >= self.capacity*SimulationSettings.CapacityBuffer:
-      return True
-    return False
+      return 1.0
+    elif self.numAgents <= nearly_full_occ * cap_limit:
+      return 1.0
+    elif self.numAgents >= 1.0 * cap_limit:
+      return 0.0
+
+    residual = self.numAgents - nearly_full_occ * cap_limit
+    return residual / (cap_limit * 1.0 - nearly_full_occ)
 
 
   def updateLocationScore(self, time):

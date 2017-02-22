@@ -271,6 +271,14 @@ class DataTable:
     else:
       return self.get_raw_data(i, day)
 
+  def print_data_values_for_location(self, name, last_day):
+    """
+    print all data values for selected location.
+    """
+    for i in range(0,last_day):
+      print(i, self.get_field(name,i))
+
+
   def is_interpolated(self, name, day):
     """
     Checks if data for a given day is inter/extrapolated or not.

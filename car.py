@@ -442,33 +442,15 @@ if __name__ == "__main__":
 
     #e.printInfo()
 
-
-    #Validation/data comparison
-    amboko_data = d.get_field("Amboko", t) #- d.get_field("Amboko", 0)
-    belom_data = d.get_field("Belom", t) #- d.get_field("Belom", 0)
-    dosseye_data = d.get_field("Dosseye", t) #- d.get_field("Dosseye", 0)
-    gondje_data = d.get_field("Gondje", t) #- d.get_field("Gondje", 0)
-    moyo_data = d.get_field("Moyo", t) #- d.get_field("Moyo", 0)
-    east_data = d.get_field("East", t) #- d.get_field("East", 0)
-    adamaoua_data = d.get_field("Adamaoua", t) #- d.get_field("Adamaoua", 0)
-    bili_data = d.get_field("Bili", t) #- d.get_field("Bili", 0)
-    #bossobolo_data = d.get_field("Bossobolo", t) #- d.get_field("Bossobolo", 0)
-    mole_data = d.get_field("Mole", t) #- d.get_field("Mole", 0)
-    boyabu_data = d.get_field("Boyabu", t) #- d.get_field("Boyabu", 0)
-    mboti_data = d.get_field("Mboti", t) #- d.get_field("Mboti", 0)
-    inke_data = d.get_field("Inke", t) #- d.get_field("Inke", 0)
-    betou_data = d.get_field("Betou", t) #- d.get_field("Betou", 0)
-    brazaville_data = d.get_field("Brazaville", t) #- d.get_field("Brazaville", 0)
-
     #Calculation of error terms
     errors = []
     abs_errors = []
-    loc_data = [amboko_data, belom_data, dosseye_data, gondje_data, moyo_data, east_data, adamaoua_data, bili_data, mole_data, boyabu_data, mboti_data, inke_data, betou_data, brazaville_data]
+    loc_data = []
 
     camps = []
     for i in camp_locations:
       camps += [lm[i]]
-    camp_names = ["Amboko", "Belom", "Dosseye", "Gondje", "Moyo", "East", "Adamaoua", "Bili", "Mole", "Boyabu", "Mboti", "Inke", "Betou", "Brazaville"]
+      loc_data += [d.get_field(i, t)]
 
     camp_pops_retrofitted = []
     errors_retrofitted = []
@@ -478,7 +460,8 @@ if __name__ == "__main__":
     refugees_in_camps_sim = 0
     for c in camps:
       refugees_in_camps_sim += c.numAgents
-    t_retrofitted = d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_names)
+
+    t_retrofitted = d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_locations)
 
     # calculate errors
     j=0
@@ -496,8 +479,7 @@ if __name__ == "__main__":
     output = "%s" % t
 
     for i in range(0,len(errors)):
-      camp_name = camp_locations[i]
-      output += ",%s,%s,%s" % (lm[camp_name].numAgents, loc_data[i], errors[i])
+      output += ",%s,%s,%s" % (lm[camp_locations[i]].numAgents, loc_data[i], errors[i])
 
 
     if refugees_raw>0:
