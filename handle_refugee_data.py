@@ -68,6 +68,10 @@ class RefugeeTable(DataTable):
     return self.get_daily_difference(day, day_column=0, count_column=1, Debug=Debug, FullInterpolation=FullInterpolation, ZeroOnDayZero=False)
 
   def correctLevel1Registrations(self, name, date):
+    """
+    Corrects for level 1 registration overestimations. Returns the scaling factor
+    """
+
     hindex = self._find_headerindex(name)
     days = subtract_dates(date, self.start_date)
     ref_table = self.data_table[hindex]
@@ -81,6 +85,9 @@ class RefugeeTable(DataTable):
           #print(days, i, ref_table[0:i,1])
           ref_table[0:i,1] *= first_level_2_value / last_level_1_value
           #print(first_level_2_value, last_level_1_value, ref_table[0:i,1])
+
+    return first_level_2_value / last_level_1_value
+
 
   def getMaxFromData(self, name, days):
     """

@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
   lm["Dosseye"] = e.addLocation("Dosseye", movechance=camp_movechance, capacity=22925, foreign=True)
   lm["Gondje"] = e.addLocation("Gondje", movechance=camp_movechance, capacity=12171, foreign=True)
-  lm["Moyo"] = e.addLocation("Moyo", movechance=camp_movechance, capacity=7631, foreign=True) #strange blip in the data at 14969.
+  lm["Moyo"] = e.addLocation("Moyo", movechance=camp_movechance, capacity=10903, foreign=True) #strange blip in the data at 14969.
   lm["Lolo"] = e.addLocation("Lolo", movechance=1.0, foreign=True) #forwarding location (to aggreg. camp)
   lm["Mbile"] = e.addLocation("Mbile", movechance=1.0, foreign=True) #forwarding location (to aggreg. camp)
 
@@ -186,15 +186,20 @@ if __name__ == "__main__":
   e.linkUp("Gbadolite","Bangui","500.0")
 
 
-  #Camps, starting at index locations[38] (at time of writing).
+  #CAR -> Chad
   e.linkUp("Kabo","Belom","89.0")
   e.linkUp("Beboura","Gore","87.0")
+  e.linkUp("RN8","Moyo","186.0")
+
+  # links within Chad
   e.linkUp("Gore","Amboko","6.0")
+  #e.linkUp("Beboura","Amboko","93.0")
   e.linkUp("Gore","Gondje","15.0")
+  #e.linkUp("Beboura","Gondje","102.0")
   #e.linkUp("Amboko","Gondje","7.0")
   #e.linkUp("Amboko","Dosseye","35.0")
   e.linkUp("Gore","Dosseye","34.0")
-  e.linkUp("RN8","Moyo","186.0")
+  #e.linkUp("Beboura","Dosseye","121.0")
 
   e.linkUp("Gamboula","Lolo","43.0")
   e.linkUp("Lolo","Mbile","11.0", forced_redirection=True)
@@ -229,7 +234,7 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Belom","2015-08-31")
   d.correctLevel1Registrations("Dosseye","2015-09-30")
   d.correctLevel1Registrations("Gondje","2015-09-30")
-  d.correctLevel1Registrations("Moyo","2015-06-02") #also "2014-05-11" and "2015-06-02"
+  lm["Moyo"].capacity *= d.correctLevel1Registrations("Moyo","2015-06-02") #also "2014-05-11" and "2015-06-02"
   d.correctLevel1Registrations("East","2014-09-28")
   d.correctLevel1Registrations("Adamaoua","2014-10-19")
   #d.correctLevel1Registrations("Mole","2016-02-29") # no clear decrease visible.
@@ -241,7 +246,7 @@ if __name__ == "__main__":
   #d.correctLevel1Registrations("Brazaville","2016-04-30")
 
   lm["Amboko"].capacity = d.getMaxFromData("Amboko", last_physical_day)
-  lm["Belom"].capacity = d.getMaxFromData("Belom", last_physical_day)
+  lm["Belom"].capacity = d.getMaxFromData("Belom", last_physical_day) # set manually.
   lm["Dosseye"].capacity = d.getMaxFromData("Dosseye", last_physical_day)
   lm["Gondje"].capacity = d.getMaxFromData("Gondje", last_physical_day)
   #lm["Moyo"].capacity = d.getMaxFromData("Moyo", last_physical_day ) # blip in the data set, set capacity manually.
@@ -258,6 +263,9 @@ if __name__ == "__main__":
 
 
   camp_locations      = ["Amboko","Belom","Dosseye","Gondje","Moyo","East","Adamaoua","Mole","Bili","Boyabu","Mboti","Inke","Betou","Brazaville"]
+
+  #for c in camp_locations:
+  #  print(c, lm[c].capacity, d.getMaxFromData(c, last_physical_day))
 
   # Add initial refugees to the destinations.
   output_header_string = "Day,"
@@ -363,13 +371,8 @@ if __name__ == "__main__":
     # Close borders here: On the 12th of May 2014, Chad closes border altogether.
     if t_data == date_to_sim_days("2014-05-12"):
       e.remove_link("Kabo","Belom")
-      e.remove_link("Ndele","Belom")
-      e.remove_link("RN1","Dosseye")
-      e.remove_link("Paoua","Beboura","31.0")
-      e.remove_link("Beboura","Amboko","76.0")
-      e.remove_link("Amboko","Gondje","8.0")
-      e.remove_link("Amboko","Dosseye","31.0")
-      e.remove_link("RN8","Moyo","176.0")
+      e.remove_link("Beboura","Gore")
+      e.remove_link("RN8","Moyo")
 
     # Bili camp opens on April 1st, 2015.
     if t_data == date_to_sim_days("2015-04-01"):
