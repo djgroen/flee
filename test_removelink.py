@@ -23,7 +23,7 @@ if __name__ == "__main__":
   e.linkUp("A","C","1368.0")
   e.linkUp("A","D","536.0")
 
-  assert e.remove_link("B","C")
+  assert e.remove_link("A","C")
 
   print("Test successful!")
 

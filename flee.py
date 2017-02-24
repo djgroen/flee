@@ -370,6 +370,7 @@ class Ecosystem:
 
     if x<0:
       print("#Warning: location not found in remove_link")
+      return False
 
     for i in range(0, len(self.locations[x].links)):
       if self.locations[x].links[i].endpoint.name is not endpoint:
@@ -388,6 +389,7 @@ class Ecosystem:
 
       if x<0:
         print("#Warning: location not found in remove_link")
+        return False
 
       for i in range(0, len(self.locations[x].links)):
         if self.locations[x].links[i].endpoint.name is not startpoint:
@@ -395,7 +397,7 @@ class Ecosystem:
 
       self.locations[x].links = new_links
 
-
+    return True
 
   def add_conflict_zone(self, name, change_movechance=True):
     """
