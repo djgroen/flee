@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
   e.linkUp("Nduta","Nyarugusu","150.0", forced_redirection=True) #distance needs to be checked.
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="burundi2015", start_date="2015-05-01")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="source_data/burundi2015", start_date="2015-05-01")
 
   # Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
   # These errors led to a perceived large drop in refugee population in all of these camps.

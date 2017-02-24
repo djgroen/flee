@@ -162,7 +162,7 @@ if __name__ == "__main__":
   n4 = e.addLocation("Tabareybarey", movechance=camp_movechance, capacity=9189, foreign=True)
   # GPS 14.754761 0.944773
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="mali2012/")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="source_data/mali2012/")
 
   # Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
   # These errors led to a perceived large drop in refugee population in all of these camps.

@@ -232,7 +232,7 @@ if __name__ == "__main__":
   e.linkUp("Nola","Brazaville","1300.0")
 
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="car2014/", start_date="2013-12-01")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="source_data/car2014/", start_date="2013-12-01")
 
   #Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
   #These errors led to a perceived large drop in refugee population in all of these camps.
