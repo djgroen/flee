@@ -17,12 +17,13 @@ Flee is currently closed-source, but will be released periodically under a BSD 3
 
 Flee consists of a range of testing scripts. These are:
 
-| script name         | what it does                         |
-| ------------------- | ------------------------------------:| 
-| test\_datatable.py  | Test data loading from CSV           |
-| test\_flee.py       | Test simple simulation of Mali       |
-| test\_removelink.py | Test link removal                    |
-| test\_retrofit.py   | Test time retrofitting functionality |
+| script name          | what it does                         |
+| -------------------- | ------------------------------------:| 
+| test\_datatable.py   | Test data loading from CSV           |
+| test\_flee.py        | Test simple simulation of Mali       |
+| test\_removelink.py  | Test link removal                    |
+| test\_retrofit.py    | Test time retrofitting functionality |
+| test\_toy\_escape.py | Test toy escape scenario             |
 
 All tests can be run with Python 3, no arguments need to be specified.
 

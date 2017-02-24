@@ -40,7 +40,6 @@ if __name__ == "__main__":
 
   assert t==9
   assert l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents==635 # This includes refugee counts from Fassala as well
-  assert abs(l1.numAgents-53)<20
   #79 746 24601 14784 38188
 
   print("Test successful!")
