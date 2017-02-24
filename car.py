@@ -23,8 +23,16 @@ def AddInitialRefugees(e, d, loc):
 if __name__ == "__main__":
 
   if len(sys.argv)>1:
-    end_time = int(sys.argv[1])
-    last_physical_day = int(sys.argv[1])
+    if (sys.argv[1]).isnumeric():
+      end_time = int(sys.argv[1])
+      last_physical_day = int(sys.argv[1])
+    else:
+      end_time = 820
+      last_physical_day = 820
+      duration = flee.SimulationSettings.ReadFromCSV(sys.argv[1])
+      if duration>0:
+        end_time = duration
+        last_physical_day = end_time
   else:
     end_time = 820
     last_physical_day = 820
