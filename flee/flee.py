@@ -2,7 +2,7 @@ import random
 import numpy as np
 import csv
 import sys
-from SimulationSettings import *
+from flee.SimulationSettings import *
 
 class Person:
   def __init__(self, location):

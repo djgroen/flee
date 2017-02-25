@@ -1,4 +1,4 @@
-import flee
+import flee.flee as flee
 import handle_refugee_data
 #handle_refugee_data.subtract_dates()
 import numpy as np

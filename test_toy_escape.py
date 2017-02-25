@@ -1,4 +1,4 @@
-import flee
+import flee.flee as flee
 import handle_refugee_data
 import numpy as np
 import analysis as a
