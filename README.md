@@ -6,11 +6,12 @@ Flee is currently closed-source, but will be released periodically under a BSD 3
 
 ## Main source files
 
-| file name           | what it does                                |
-| ------------------- | -------------------------------------------:| 
-| flee.py             | Main ABM kernel                             |
-| analysis.py         | Library with statistical analysis routines. |
-| DataTable.py        | Data Handling kernel for csv data.          |
+| file name                  | what it does                                |
+| -------------------------- | -------------------------------------------:| 
+| flee/flee.py               | Main ABM kernel                             |
+| flee/SimulationSettings.py | Data structure for global sim parameters.   |
+| analysis.py                | Library with statistical analysis routines. |
+| DataTable.py               | Data Handling kernel for csv data.          |
 
 
 ## Testing Flee
