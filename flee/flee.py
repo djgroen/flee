@@ -292,6 +292,16 @@ class Ecosystem:
       self.num_arrivals = [] # one element per time step.
       self.travel_durations = [] # one element per time step.
 
+  def export_graph(self, use_ids_instead_of_names=False):
+    vertices = []
+    edges = []
+    for l in self.locations:
+      vertices += [l.name]
+      for p in l.links:
+        edges += [[l.name, p.endpoint.name, p.distance]]
+
+    return vertices, edges
+
   def _aggregate_arrivals(self):
     """
     Add up arrival statistics, to find out travel durations and total number of camp arrivals.

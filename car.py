@@ -2,6 +2,7 @@ import flee.flee as flee
 import handle_refugee_data
 import numpy as np
 import analysis as a
+import analyze_graph
 import sys
 
 """
@@ -231,6 +232,10 @@ if __name__ == "__main__":
   e.linkUp("Mbaiki","Betou","148.0")
   e.linkUp("Nola","Brazaville","1300.0")
 
+  #DEBUG: print graph and show it on an image.
+  #vertices, edges = e.export_graph()
+  #analyze_graph.print_graph_nx(vertices, edges, print_dist=True)
+  #sys.exit()
 
   d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="source_data/car2014/", start_date="2013-12-01")
 
@@ -385,6 +390,9 @@ if __name__ == "__main__":
     # Bili camp opens on April 1st, 2015.
     if t_data == date_to_sim_days("2015-04-01"):
       e.linkUp("N24","Bili","20.0") #There is no road after 93km to the camp & the remaining 20km was found by distance calculator (www.movable-type.co.uk/scripts/latlong.html)
+      #Optional: write graph image for debugging purposes.
+      #vertices, edges = e.export_graph()
+      #analyze_graph.print_graph_nx(vertices, edges, print_dist=True)
 
 
     #Conflict zones after the start of simulation period
