@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
 import sys
-import handle_refugee_data
+import datamanager.handle_refugee_data as handle_refugee_data
 import warnings
-import analysis as a
+import outputanalysis.analysis as a
 
 warnings.filterwarnings("ignore")
 

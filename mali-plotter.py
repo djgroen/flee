@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
 import sys
-import handle_refugee_data
+import datamanager.handle_refugee_data as handle_refugee_data
 
 def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
   #adjust margins. 

@@ -1,9 +1,9 @@
 import numpy as np
 import csv
-from DataTable import *
+from datamanager import DataTable
 from datetime import datetime
 
-class RefugeeTable(DataTable):
+class RefugeeTable(DataTable.DataTable):
 
   def retrofit_time_to_refugee_count(self, refugee_count, camp_names):
     """
@@ -73,7 +73,7 @@ class RefugeeTable(DataTable):
     """
 
     hindex = self._find_headerindex(name)
-    days = subtract_dates(date, self.start_date)
+    days = DataTable.subtract_dates(date, self.start_date)
     ref_table = self.data_table[hindex]
     
     for i in range(0, len(ref_table)):

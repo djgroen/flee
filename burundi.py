@@ -1,7 +1,8 @@
-import flee.flee as flee
-import handle_refugee_data
+from flee import flee
+from datamanager import handle_refugee_data
+from datamanager import DataTable
 import numpy as np
-import analysis as a
+import outputanalysis.analysis as a
 import sys
 
 """
@@ -12,7 +13,7 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 
 
 def date_to_sim_days(date):
-  return handle_refugee_data.subtract_dates(date,"2015-05-01")
+  return DataTable.subtract_dates(date,"2015-05-01")
 
 if __name__ == "__main__":
 

@@ -1,9 +1,9 @@
-import flee.flee as flee
-import handle_refugee_data
+from flee import flee
+from datamanager import handle_refugee_data
+from datamanager import DataTable #DataTable.subtract_dates()
 import InputGeography
-#handle_refugee_data.subtract_dates()
 import numpy as np
-import analysis as a
+import outputanalysis.analysis as a
 import sys
 
 def AddInitialRefugees(e, d, loc):
@@ -13,7 +13,7 @@ def AddInitialRefugees(e, d, loc):
     e.addAgent(location=loc)
 
 def date_to_sim_days(date):
-  return handle_refugee_data.subtract_dates(date,"2014-05-01")
+  return DataTable.subtract_dates(date,"2014-05-01")
 
 
 if __name__ == "__main__":

@@ -1,8 +1,9 @@
-import flee.flee as flee
-import handle_refugee_data
+from flee import flee
+from datamanager import handle_refugee_data
+from datamanager import DataTable
 import numpy as np
-import analysis as a
-import analyze_graph
+import outputanalysis.analysis as a
+#import analyze_graph
 import sys
 
 """
@@ -12,7 +13,7 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 #Central African Republic (CAR) Simulation
 
 def date_to_sim_days(date):
-  return handle_refugee_data.subtract_dates(date,"2013-12-01")
+  return DataTable.subtract_dates(date,"2013-12-01")
 
 def AddInitialRefugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
