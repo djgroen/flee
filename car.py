@@ -31,7 +31,7 @@ if __name__ == "__main__":
     else:
       end_time = 820
       last_physical_day = 820
-      duration = flee.SimulationSettings.ReadFromCSV(sys.argv[1])
+      duration = flee.SimulationSettings.SimulationSettings.ReadFromCSV(sys.argv[1])
       if duration>0:
         end_time = duration
         last_physical_day = end_time

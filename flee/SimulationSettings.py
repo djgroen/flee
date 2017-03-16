@@ -1,4 +1,5 @@
 import sys
+import csv
 
 class SimulationSettings:
   Softening = 0.0

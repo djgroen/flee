@@ -16,6 +16,7 @@ def print_graph(vertices, edges, print_dist=False):
 def print_graph_nx(vertices, edges, print_dist=False):
   import networkx as nx
   G=nx.DiGraph()
+  labels = []
 
   for v in vertices:
     G.add_node(v)
@@ -23,6 +24,7 @@ def print_graph_nx(vertices, edges, print_dist=False):
   for v in vertices:
     for e in edges:
       G.add_edge(e[0], e[1], weight=int(e[2]))
+      #labels += [(e[0], e[1]), e[2]]
 
   print("Nodes of graph: ")
   print(G.nodes())
@@ -30,5 +32,6 @@ def print_graph_nx(vertices, edges, print_dist=False):
   print(G.edges())
 
   nx.draw(G, with_labels=True)
+  #nx.draw_networkx_edge_labels(G,labels)
   plt.savefig("simulation_graph.png") # save as png
   plt.show()
