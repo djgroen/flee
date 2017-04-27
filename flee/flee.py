@@ -99,6 +99,9 @@ class Person:
     #  if link.endpoint == self.last_location:
     #    return 0.0 #float(0.1 / float(SimulationSettings.SimulationSettings.Softening + link.distance))
 
+    if awareness_level < 0:
+      return 1.0
+
     return float(link.endpoint.scores[awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
 
   def selectRoute(self):

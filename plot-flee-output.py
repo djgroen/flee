@@ -28,14 +28,14 @@ class LocationErrors:
 class SimulationErrors:
   """
   Class containing all error measures within a single simulation.
-  It should be initialized with a Python list of the LocationErrors structure 
+  It should be initialized with a Python list of the LocationErrors structure
   for all of the relevant locations.
   """
   def __init__(self, location_errors):
     self.location_errors = location_errors
 
 
-  def abs_diff(self, rescaled=True): 
+  def abs_diff(self, rescaled=True):
     #true_total_refs is the number of total refugees according to the data.
 
     errtype = "absolute difference"
@@ -49,7 +49,19 @@ class SimulationErrors:
 
     return self.tmp
 
+  def get_error(self, err_type):
+    """
+    Here err_type is the string name of the error that needs to be aggregated.
+    """
+    self.tmp = self.location_errors[0].errors[err_type] * self.location_errors[0].errors["N"]
+    N = self.location_errors[0].errors["N"]
 
+    for lerr in self.location_errors[1:]:
+      self.tmp = np.add(self.tmp, lerr.errors[err_type] * lerr.errors["N"])
+      N += lerr.errors["N"]
+
+    #print(self.tmp, N, self.tmp/ N)
+    return self.tmp / N
 
 def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
   #adjust margins - Setting margins for graphs
@@ -119,11 +131,11 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
     simtot = data["refugees in camps (simulation)"].as_matrix().flatten()
     untot = data["refugees in camps (UNHCR)"].as_matrix().flatten()
 
-    y1_rescaled = np.zeros(len(y1))  
+    y1_rescaled = np.zeros(len(y1))
     for i in range(0, len(y1_rescaled)):
       # Only rescale if simtot > 0
       if simtot[i] > 0:
-        y1_rescaled[i] = y1[i] * untot[i] / simtot[i] 
+        y1_rescaled[i] = y1[i] * untot[i] / simtot[i]
 
 
     labelsim, = plt.plot(days,y1_rescaled, linewidth=8, label="%s simulation" % (name.title()))
@@ -142,12 +154,18 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
       n3 = np.empty(len(days))
       n3.fill(y2[naieve_early_day])
       for i in range(0,len(n3)):
-        n3[i] *= i*y2[naieve_early_day]/y2[naieve_early_day]
+        if y2[naieve_early_day] > 0:
+          n3[i] *= i*y2[naieve_early_day]/y2[naieve_early_day]
+        else:
+          n3[i] = 0
       # Sloped line from day 30
       n4 = np.empty(len(days))
       n4.fill(y2[naieve_training_day])
       for i in range(0,len(n4)):
-        n4[i] *= i*y2[naieve_training_day]/y2[naieve_training_day]
+        if y2[naieve_early_day] > 0:
+          n4[i] *= i*y2[naieve_training_day]/y2[naieve_training_day]
+        else:
+          n4[i] = 0
       # Flat ratio from day 7
       n5 = np.empty(len(days))
       for i in range(0,len(n5)):
@@ -156,7 +174,7 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
       n6 = np.empty(len(days))
       for i in range(0,len(n6)):
         n6[i] = untot[i] * (y2[naieve_training_day] / untot[naieve_training_day])
-      
+
       labelnaieve, = plt.plot(days, n1, linewidth=6, label="%s naieve model" % (name.title()))
       labelnaieve, = plt.plot(days, n2, linewidth=6, label="%s naieve early" % (name.title()))
       plt.axvline(x=naieve_early_day, linewidth=2, ls="dotted", c="grey")
@@ -179,11 +197,11 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
       fig.savefig("%s/%s-%s-rescaled.png" % (out_dir, name, legend_loc))
 
 
-  """ 
+  """
   Error quantification phase:
   - At the end of the plotme command we wish to quantify the errors and mismatches for this camp.
   """
-  
+
   lerr = LocationErrors()
 
   if offset > 0:
@@ -191,7 +209,7 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
     y1_rescaled = y1_rescaled[offset:]
     y2 = y2[:-offset]
     untot = untot[:-offset]
- 
+
   # absolute difference
   lerr.errors["absolute difference"] = a.abs_diffs(y1, y2)
 
@@ -203,23 +221,31 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
 
   """ Errors of which I'm usure whether to report:
    - accuracy ratio (forecast / true value), because it crashes if denominator is 0.
-   - ln(accuracy ration). 
+   - ln(accuracy ratio).
   """
 
   # We can only calculate the Mean Absolute Scaled Error if we have a naieve model in our plot.
   if naieve_model:
 
+    # Number of observations (aggrgate refugee days in UNHCR data set for this location)
+    lerr.errors["N"] = np.sum(y2)
+
     # flat naieve model (7 day)
     lerr.errors["MASE7"] = a.calculate_MASE(y1_rescaled, y2, n1, naieve_early_day)
+    lerr.errors["MASE7-sloped"] = a.calculate_MASE(y1_rescaled, y2, n3, naieve_early_day)
+    lerr.errors["MASE7-ratio"] = a.calculate_MASE(y1_rescaled, y2, n5, naieve_early_day)
 
     # flat naieve model (30 day)
     lerr.errors["MASE30"] = a.calculate_MASE(y1_rescaled, y2, n2, naieve_training_day)
+    lerr.errors["MASE30-sloped"] = a.calculate_MASE(y1_rescaled, y2, n4, naieve_training_day)
+    lerr.errors["MASE30-ratio"] = a.calculate_MASE(y1_rescaled, y2, n6, naieve_training_day)
 
 
     # Accuracy ratio doesn't work because of 0 values in the data.
     #ln_accuracy_ratio = calculate_ln_accuracy_ratio(y1, y2)
     #ln_accuracy_ratio_30 = calculate_ln_accuracy_ratio(y1[30:], y2[30:])
-    print(out_dir, name, "MASE7: ", lerr.errors["MASE7"], ", MASE30: ", lerr.errors["MASE30"], ", abs. diff. 30: ", np.mean(lerr.errors["absolute difference"]))
+    #print(out_dir, name, "MASE7: ", lerr.errors["MASE7"], ", MASE30: ", lerr.errors["MASE30"], ", abs. diff. 30: ", np.mean(lerr.errors["absolute difference"]))
+    print("%s,%s,%s,%s,%s,%s,%s,%s,%s" % (out_dir, name, lerr.errors["MASE7"],lerr.errors["MASE7-sloped"], lerr.errors["MASE7-ratio"],lerr.errors["MASE30"],lerr.errors["MASE30-sloped"],lerr.errors["MASE30-ratio"],lerr.errors["N"]))
 
   return lerr
 
@@ -238,7 +264,7 @@ def plotme_minimal(out_dir, data, name):
 
   d = handle_refugee_data.DataTable("mali2012/refugees.csv", csvformat="mali-portal")
 
-  #Loop - taking the length of dataset for x and y rays 
+  #Loop - taking the length of dataset for x and y rays
   for day in range(0, len(data["%s data" % name])):
     if d.is_interpolated(name, day) == False:
       #draw a point
@@ -325,7 +351,7 @@ if __name__ == "__main__":
     refugee_data.loc[:,["total refugees (simulation)","refugees in camps (simulation)","raw UNHCR refugee count","refugee_debt"]].plot(linewidth=5)
   else:
     refugee_data.loc[:,["total refugees (simulation)","refugees in camps (UNHCR)","raw UNHCR refugee count"]].plot(linewidth=5)
-  
+
   #Size of plots/figures
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(12, 8)
@@ -340,7 +366,7 @@ if __name__ == "__main__":
   un_refs = refugee_data.loc[:,["refugees in camps (UNHCR)"]].as_matrix().flatten()
   raw_refs = refugee_data.loc[:,["raw UNHCR refugee count"]].as_matrix().flatten()
 
-  """ 
+  """
   offset = 0
 
   if RetroFitting == False:
@@ -370,7 +396,7 @@ if __name__ == "__main__":
   loc_errors = []
 
   for i in location_names:
-  
+
     if not RetroFitting:
       plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4)
       #plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=1)
@@ -382,9 +408,8 @@ if __name__ == "__main__":
       loc_errors.append(plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4))
 
 
-
   if not RetroFitting and PlotOffsets==True:
-  
+
     """for offset in [7,14,30]:
 
       loc_errors_offset = []
@@ -406,6 +431,8 @@ if __name__ == "__main__":
 
   sim_errors = SimulationErrors(loc_errors)
 
+  print("%s & %s & %s & %s & %s & %s & %s\\\\" % (out_dir, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"),sim_errors.get_error("MASE7-ratio"),sim_errors.get_error("MASE30"),sim_errors.get_error("MASE30-sloped"),sim_errors.get_error("MASE30-ratio")))
+
   matplotlib.rcParams.update({'font.size': 20})
 
   plt.clf()
@@ -426,15 +453,20 @@ if __name__ == "__main__":
     diffdata_rescaled = sim_errors.abs_diff() / np.maximum(un_refs, np.ones(len(un_refs)))
     print(out_dir,": Averaged error normal: ", np.mean(diffdata), ", rescaled: ", np.mean(diffdata_rescaled),", len: ", len(diffdata))
 
-    labeldiff, = plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error")
-    labeldiff2, = plt.plot(np.arange(len(diffdata_rescaled)), diffdata_rescaled, linewidth=5, label="error (rescaled)")
+    #labeldiff, = plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error (not rescaled)")
+    labeldiff2, = plt.plot(np.arange(len(diffdata_rescaled)), diffdata_rescaled, linewidth=5, label="error")
     #labeldiff2, = plt.plot(np.arange(len(diffdata)), ref_mismatch_error, linewidth=5, label="total refugee difference")
 
-    plt.legend(handles=[labeldiff, labeldiff2],loc=1,prop={'size':14})
-  
+    plt.legend(handles=[labeldiff2],loc=1,prop={'size':14})
+
     set_margins()
     plt.savefig("%s/error.png" % out_dir)
 
+    labeldiff, = plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error (not rescaled)")
+    plt.legend(handles=[labeldiff, labeldiff2],loc=1,prop={'size':14})
+
+    set_margins()
+    plt.savefig("%s/error-comparison.png" % out_dir)
 
 
   # Plot error using retrofitting if applicable.
@@ -460,7 +492,7 @@ if __name__ == "__main__":
     plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error")
     plt.plot(retrofitted_times[offset:], diffdata_retro[offset:], linewidth=5, label="error (retrofitted)")
     #plt.legend(handles=[labeldiff],loc=2,prop={'size':14})
-  
+
     set_margins()
     plt.legend()
     plt.savefig("%s/error-both.png" % out_dir)
@@ -475,16 +507,16 @@ if __name__ == "__main__":
     plt.plot(np.arange(len(fit_time_data)), fit_time_data, linewidth=5)
     plt.plot(np.arange(len(fit_time_data)), np.arange(len(fit_time_data)), linewidth=3)
     #Size of plots/figures
-  
+
     fig = matplotlib.pyplot.gcf()
     fig.set_size_inches(12, 8)
-  
+
     plt.xlabel("Steps taken in simulation")
     plt.ylabel("Days passed when mapped to UNHCR data")
 
     set_margins()
     plt.savefig("%s/time_evolution.png" % out_dir)
-  
+
 
     # Sim and data comparison.
     plt.clf()
@@ -498,13 +530,13 @@ if __name__ == "__main__":
     plt.plot(range(0,len(sim_refs)), sim_refs, linewidth=5, label="# in camps (sim)")
     plt.plot(range(0,len(un_refs)), un_refs, linewidth=3, label="# in camps (data)")
     #Size of plots/figures
-  
+
     fig = matplotlib.pyplot.gcf()
     fig.set_size_inches(12, 8)
-  
+
     plt.ylabel("Number of refugees in camps")
     plt.xlabel("Simulated (or measured) days")
-    
+
     plt.legend(loc=4)
 
 

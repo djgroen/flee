@@ -9,6 +9,6 @@
 
 - 19 Feb: drop of IDPs in Bangui from 400k to 273k.
 
-- Close borders here: On the 12th of May, Chad closes border altogether.
+- Close borders here: On the 12th of May, Chad closes border altogether. http://www.reuters.com/article/us-centralafrica-chad-idUSBREA4B0M320140512
 
 - Inke, Mbotri (DRC) and Betou (Congo) have counts both inside and outside of the camp. These CSV values should be aggregated.
