@@ -5,8 +5,8 @@ This document provides formats of csv files for loading initial graph. Each conf
     |name| region| country| lat| lon| location_type| conflict_date| pop/cap              |
     |----|-------|--------|----|----|--------------|--------------|----------------------|
     |    |       |        |    |    | -conflict    |              |-population for cities|
-    |    |       |        |    |    | -town        |              |-capacities for camps |
-    |    |       |        |    |    | -camp        |              |                      |
+    |    |       |        |    |    | -town        |              |-population for cities|
+    |    |       |        |    |    | -camp        |              |-capacities for camps |
  
 
  ## 2. routes.csv
