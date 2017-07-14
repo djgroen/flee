@@ -3,7 +3,7 @@ from datamanager import handle_refugee_data
 from datamanager import DataTable
 import numpy as np
 import outputanalysis.analysis as a
-#import analyze_graph
+import analyze_graph
 import sys
 
 """
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
   e = flee.Ecosystem()
 
-  lm = {} 
+  lm = {}
 
   #CAR
   lm["Bangui"] = e.addLocation("Bangui", movechance=0.3, pop=734350-400000) #Subtracting the number of IDPs from the population to reflect local shelter.
@@ -224,8 +224,8 @@ if __name__ == "__main__":
   e.linkUp("Ngam","Adamaoua","272.0", forced_redirection=True)
 
   e.linkUp("Gbadolite","N24","93.0")
-  #e.linkUp("N24","Bossobolo","23.0") #Bossobolo has been taken out (see above).  
-  e.linkUp("Bangui","Mole","42.0") 
+  #e.linkUp("N24","Bossobolo","23.0") #Bossobolo has been taken out (see above).
+  e.linkUp("Bangui","Mole","42.0")
   e.linkUp("Mole","Boyabu","25.0")
   e.linkUp("Zemio","Mboti","174.0")
   e.linkUp("Mobaye","Mboti","662.0")
@@ -269,7 +269,7 @@ if __name__ == "__main__":
   lm["Mole"].capacity = d.getMaxFromData("Mole", last_physical_day)
   lm["Bili"].capacity = d.getMaxFromData("Bili", last_physical_day)
   #lm["Bossobolo"].capacity = d.getMaxFromData("Bossobolo", last_physical_day) #camp excluded
-  lm["Boyabu"].capacity = d.getMaxFromData("Boyabu", last_physical_day) 
+  lm["Boyabu"].capacity = d.getMaxFromData("Boyabu", last_physical_day)
   lm["Mboti"].capacity = d.getMaxFromData("Mboti", last_physical_day)
   lm["Inke"].capacity = d.getMaxFromData("Inke", last_physical_day)
   lm["Betou"].capacity = d.getMaxFromData("Betou", last_physical_day)
@@ -387,6 +387,10 @@ if __name__ == "__main__":
       e.remove_link("Kabo","Belom")
       e.remove_link("Beboura","Gore")
       e.remove_link("RN8","Moyo")
+      #Optional: write graph image for debugging purposes.
+      #vertices, edges = e.export_graph()
+      #analyze_graph.print_graph_nx(vertices, edges, print_dist=True)
+      #sys.exit()
 
     # Bili camp opens on April 1st, 2015.
     if t_data == date_to_sim_days("2015-04-01"):
