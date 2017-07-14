@@ -8,6 +8,7 @@ This document provides formats of csv files for loading initial graph. Each conf
     |    |       |        |    |    | -town        |              |-population for cities|
     |    |       |        |    |    | -camp        |              |-capacities for camps |
  
+ conflict_data is given as an integer, counting the number of days after the simulation start. The value of -1 indicates the end of the simulation, while 0 indicates the start.
 
  ## 2. routes.csv
 
@@ -22,3 +23,5 @@ This document provides formats of csv files for loading initial graph. Each conf
     |------------|------|------|--------------|------------|
     | -country   |      |      |              |            |
     | -location  |      |      |              |            |
+    
+    closure_start and closure_end are given as integers, counting the number of days after the simulation start. The value of -1 indicates the end of the simulation.
