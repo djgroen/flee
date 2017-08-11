@@ -32,12 +32,24 @@ class SimulationSettings:
       for row in values:
         if row[0][0] == "#":
           pass
+        elif row[0] == "AgentLogLevel":
+          AgentLogLevel = int(row[1])
+        elif row[0] == "CampLogLevel":
+          CampLogLevel = int(row[1])
+        elif row[0] == "InitLogLevel":
+          InitLogLevel = int(row[1])
         elif row[0] == "MinMoveSpeed":
           MinMoveSpeed = int(row[1])
         elif row[0] == "MaxMoveSpeed":
           MaxMoveSpeed = int(row[1])
         elif row[0] == "NumberOfSteps":
           number_of_steps = int(row[1])
+        elif row[0] == "CampWeight":
+          CampWeight = int(row[1])
+        elif row[0] == "ConflictWeight":
+          ConflictWeight = int(row[1])
+        elif row[0] == "AwarenessLevel":
+          AwarenessLevel = int(row[1])
         else:
           print("FLEE Initialization Error: unrecognized simulation parameter:",row[0])
           sys.exit()
