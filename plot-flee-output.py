@@ -71,7 +71,7 @@ def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
 
 def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve_model=False):
   """
-  Explain function: what does it do, what do the arguments mean, and possibly an example.
+  Advanced plotting function for validation of refugee registration numbers in camps.
   """
   plt.clf()
 
@@ -100,7 +100,7 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
     labelsim, = plt.plot(retrofitted_times, y1, linewidth=8, label="%s simulation" % (name.title()))
 
   # Plotting line representing UNHCR data.
-  labeldata, = plt.plot(days,y2, linewidth=8, label="%s UNHCR data" % (name.title()))
+  labeldata, = plt.plot(days,y2, 'o-', linewidth=8, label="%s UNHCR data" % (name.title()))
 
   if retrofitted==True:
     plt.xlim(0,retrofitted_times[-1])
