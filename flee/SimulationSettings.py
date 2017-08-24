@@ -45,9 +45,9 @@ class SimulationSettings:
         elif row[0] == "NumberOfSteps":
           number_of_steps = int(row[1])
         elif row[0] == "CampWeight":
-          CampWeight = int(row[1])
+          CampWeight = float(row[1])
         elif row[0] == "ConflictWeight":
-          ConflictWeight = int(row[1])
+          ConflictWeight = float(row[1])
         elif row[0] == "AwarenessLevel":
           AwarenessLevel = int(row[1])
         else:
