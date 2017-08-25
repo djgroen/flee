@@ -47,6 +47,8 @@ if __name__ == "__main__":
 
   e = flee.Ecosystem()
 
+  #print("Conflict weight:",flee.SimulationSettings.SimulationSettings.ConflictWeight)
+
   lm = {}
 
   #CAR

@@ -18,7 +18,7 @@ class Person:
 
     # Set to true when an agent resides on a link.
     self.travelling = False
-    
+
     # Tracks how much distance a Person has been able to travel on the current link.
     self.distance_travelled_on_link = 0
 
@@ -79,11 +79,11 @@ class Person:
         self.travelling = False
         self.distance_travelled_on_link = 0
 
-        if SimulationSettings.SimulationSettings.CampLogLevel > 0: 
+        if SimulationSettings.SimulationSettings.CampLogLevel > 0:
           if self.location.Camp == True:
             self.location.incoming_journey_lengths += [self.timesteps_since_departure]
 
-        # Perform another evolve step. And if it results in travel, then the current 
+        # Perform another evolve step. And if it results in travel, then the current
         # travelled distance needs to be taken into account.
         if evolveMore == True:
           self.evolve()
@@ -92,7 +92,7 @@ class Person:
   def getLinkWeight(self, link, awareness_level):
     """
     Calculate the weight of an adjacent link. Weight = probability that it will be chosen.
-    """  
+    """
 
     # If turning back is NOT allowed, remove weight from the last location.
     #if not SimulationSettings.SimulationSettings.TurnBackAllowed:
@@ -117,7 +117,7 @@ class Person:
         # D = distance, P = population, C = conflict status (1 for conflict zone).
         C = 0
         if self.location.links[i].endpoint.movechance > 0.5:
-          C = 1 
+          C = 1
 
         weights[i] = ( 1 / self.location.links[i].distance ) * self.location.links[i].endpoint.pop * (2-C)
 
@@ -129,11 +129,11 @@ class Person:
         elif self.location.links[i].forced_redirection == True:
           return i
         else:
-          weights[i] = self.getLinkWeight(self.location.links[i], SimulationSettings.SimulationSettings.AwarenessLevel)      
+          weights[i] = self.getLinkWeight(self.location.links[i], SimulationSettings.SimulationSettings.AwarenessLevel)
 
           # Throttle down weight when occupancy is close to peak capacity.
           weights[i] *= self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents)
- 
+
     else:
       for i in range(0,linklen):
         # forced redirection: if this is true for a link, return its value immediately.
@@ -190,7 +190,7 @@ class Location:
     self.NeighbourhoodScore = 1.0 # Value of Neighbourhood. Should be between 0.5 and SimulationSettings.SimulationSettings.CampWeight.
     self.RegionScore = 1.0 # Value of surrounding region. Should be between 0.5 and SimulationSettings.SimulationSettings.CampWeight.
     self.scores = np.array([1.0,1.0,1.0,1.0])
- 
+
     if SimulationSettings.SimulationSettings.CampLogLevel > 0:
       self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
 
@@ -225,7 +225,7 @@ class Location:
       self.LocationScore = SimulationSettings.SimulationSettings.ConflictWeight
     else:
       self.LocationScore = 1.0
-  
+
   def updateNeighbourhoodScore(self):
 
     """ Attractiveness of the local point, based on information from local and adjacent points, weighted by link length. """
@@ -239,13 +239,13 @@ class Location:
     total_link_weight = 0.0
 
     for i in self.links:
-      self.NeighbourhoodScore += i.endpoint.LocationScore / float(i.distance)      
+      self.NeighbourhoodScore += i.endpoint.LocationScore / float(i.distance)
       total_link_weight += 1.0 / float(i.distance)
 
     self.NeighbourhoodScore /= total_link_weight
 
   def updateRegionScore(self):
-    """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points, 
+    """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points,
         weighted by link length. """
     # No links connected or a Camp? Use LocationScore.
     if len(self.links) == 0 or self.Camp:
@@ -256,7 +256,7 @@ class Location:
     total_link_weight = 0.0
 
     for i in self.links:
-      self.RegionScore += i.endpoint.NeighbourhoodScore / float(i.distance)      
+      self.RegionScore += i.endpoint.NeighbourhoodScore / float(i.distance)
       total_link_weight += 1.0 / float(i.distance)
 
     self.RegionScore /= total_link_weight
@@ -311,7 +311,7 @@ class Ecosystem:
     """
     if SimulationSettings.SimulationSettings.CampLogLevel > 0:
       arrival_total = 0
-      tmp_num_arrivals = 0 
+      tmp_num_arrivals = 0
 
       for l in self.locations:
         if l.Camp == True:
@@ -326,7 +326,7 @@ class Ecosystem:
       else:
         self.travel_durations += [0.0]
 
-      #print("New arrivals: ", self.travel_durations[-1], arrival_total, tmp_num_arrivals)    
+      #print("New arrivals: ", self.travel_durations[-1], arrival_total, tmp_num_arrivals)
 
   def remove_link(self, startpoint, endpoint, twoway=True):
     """Remove link when there is border closure between countries"""
@@ -385,7 +385,7 @@ class Ecosystem:
           self.conflict_pop = sum(self.conflict_weights)
           if SimulationSettings.SimulationSettings.InitLogLevel > 0:
             print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
-            print("New total pop. in conflict zones: ", self.conflict_pop) 
+            print("New total pop. in conflict zones: ", self.conflict_pop)
           return
 
     print("Diagnostic: self.locationNames: ", self.locationNames)
@@ -433,13 +433,13 @@ class Ecosystem:
   def evolve(self):
     # update level 1, 2 and 3 location scores
     for l in self.locations:
-      l.updateLocationScore(self.time) 
+      l.updateLocationScore(self.time)
 
     for l in self.locations:
-      l.updateNeighbourhoodScore() 
+      l.updateNeighbourhoodScore()
 
     for l in self.locations:
-      l.updateRegionScore() 
+      l.updateRegionScore()
 
     #update agent locations
     for a in self.agents:
@@ -453,7 +453,14 @@ class Ecosystem:
       self._aggregate_arrivals()
     self.time += 1
 
-  def addLocation(self, name, x="0.0", y="0.0", movechance=0.1, capacity=-1, pop=0, foreign=False):
+  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False):
+    """ Add a location to the ABM network graph """
+
+    if "camp" == movechance or "Camp" == movechance:
+      movechance = SimulationSettings.SimulationSettings.CampMoveChance
+    if "conflict" == movechance or "Conflict" == movechance:
+      movechance = SimulationSettings.SimulationSettings.ConflictMoveChance
+
     l = Location(name, x, y, movechance, capacity, pop, foreign)
     if SimulationSettings.SimulationSettings.InitLogLevel > 0:
       print("Location:", name, x, y, movechance, capacity, ", pop. ", pop, foreign)
@@ -521,4 +528,4 @@ if __name__ == "__main__":
   for t in range(0,end_time):
     e.evolve()
     e.printInfo()
-    
+

@@ -16,6 +16,12 @@ class SimulationSettings:
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
   CapacityBuffer = 1.0
 
+  #default move chances
+  ConflictMoveChance = 1.0
+  CampMoveChance = 0.001
+  DefaultMoveChance = 0.3
+
+
   AwarenessLevel = 1 #-1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
   UseDynamicAwareness = False # Refugees become smarter over time.
   UseIDPMode = False
@@ -33,23 +39,29 @@ class SimulationSettings:
         if row[0][0] == "#":
           pass
         elif row[0] == "AgentLogLevel":
-          AgentLogLevel = int(row[1])
+          SimulationSettings.AgentLogLevel = int(row[1])
         elif row[0] == "CampLogLevel":
-          CampLogLevel = int(row[1])
+          SimulationSettings.CampLogLevel = int(row[1])
         elif row[0] == "InitLogLevel":
-          InitLogLevel = int(row[1])
+          SimulationSettings.InitLogLevel = int(row[1])
         elif row[0] == "MinMoveSpeed":
-          MinMoveSpeed = int(row[1])
+          SimulationSettings.MinMoveSpeed = int(row[1])
         elif row[0] == "MaxMoveSpeed":
-          MaxMoveSpeed = int(row[1])
+          SimulationSettings.MaxMoveSpeed = int(row[1])
         elif row[0] == "NumberOfSteps":
           number_of_steps = int(row[1])
         elif row[0] == "CampWeight":
-          CampWeight = float(row[1])
+          SimulationSettings.CampWeight = float(row[1])
         elif row[0] == "ConflictWeight":
-          ConflictWeight = float(row[1])
+          SimulationSettings.ConflictWeight = float(row[1])
+        elif row[0] == "ConflictMoveChance":
+          SimulationSettings.ConflictMoveChance = float(row[1])
+        elif row[0] == "CampMoveChance":
+          SimulationSettings.CampMoveChance = float(row[1])
+        elif row[0] == "DefaultMoveChance":
+          SimulationSettings.DefaultMoveChance = float(row[1])
         elif row[0] == "AwarenessLevel":
-          AwarenessLevel = int(row[1])
+          SimulationSettings.AwarenessLevel = int(row[1])
         else:
           print("FLEE Initialization Error: unrecognized simulation parameter:",row[0])
           sys.exit()
