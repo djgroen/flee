@@ -182,8 +182,8 @@ class Location:
     self.Camp = False
     self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
 
-    # Automatically tags a location as a Camp if refugees are less than 1% likely to move out on a given day.
-    if movechance < 0.01:
+    # Automatically tags a location as a Camp if refugees are less than 2% likely to move out on a given day.
+    if movechance < 0.02:
       self.Camp = True
 
     self.LocationScore = 1.0 # Value of Location. Should be between 0.5 and SimulationSettings.SimulationSettings.CampWeight.
@@ -193,6 +193,10 @@ class Location:
 
     if SimulationSettings.SimulationSettings.CampLogLevel > 0:
       self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
+
+  def SetCampMoveChance(self):
+    """ Modify move chance to the default value set for camps. """
+    self.movechance = SimulationSettings.SimulationSettings.CampMoveChance
 
   def getCapMultiplier(self, numOnLink):
     """ Checks whether a given location has reached full capacity or is close to it.
@@ -377,7 +381,7 @@ class Ecosystem:
       if self.locationNames[i] == name:
         if name not in self.conflict_zone_names:
           if change_movechance:
-            self.locations[i].movechance = 1.0
+            self.locations[i].movechance = SimulationSettings.SimulationSettings.ConflictMoveChance
             self.locations[i].Conflict = True
           self.conflict_zone_names += [name]
           self.conflict_zones += [self.locations[i]]
@@ -460,6 +464,8 @@ class Ecosystem:
       movechance = SimulationSettings.SimulationSettings.CampMoveChance
     if "conflict" == movechance or "Conflict" == movechance:
       movechance = SimulationSettings.SimulationSettings.ConflictMoveChance
+    if "default" == movechance or "Default" == movechance:
+      movechance = SimulationSettings.SimulationSettings.DefaultMoveChance
 
     l = Location(name, x, y, movechance, capacity, pop, foreign)
     if SimulationSettings.SimulationSettings.InitLogLevel > 0:

@@ -70,42 +70,42 @@ if __name__ == "__main__":
   # Distances are estimated using Bing Maps.
 
   # Mali
-  
+
   lm = {}
 
-  lm["Kidal"] = e.addLocation("Kidal", movechance=0.3, pop=25617)
+  lm["Kidal"] = e.addLocation("Kidal", movechance="default", pop=25617)
   # pop. 25,617. GPS 18.444305 1.401523
-  lm["Gao"] = e.addLocation("Gao", movechance=0.3, pop=86633)
+  lm["Gao"] = e.addLocation("Gao", movechance="default", pop=86633)
   # pop. 86,633. GPS 16.270910 -0.040210
-  lm["Timbuktu"] = e.addLocation("Timbuktu", movechance=0.3, pop=54453)
+  lm["Timbuktu"] = e.addLocation("Timbuktu", movechance="default", pop=54453)
   # pop. 54,453. GPS 16.780260 -3.001590
-  lm["Mopti"] = e.addLocation("Mopti", movechance=0.3, pop=148456) #108456 from Mopti + 40000 from Sevare, which is 10km southeast to Mopti.
+  lm["Mopti"] = e.addLocation("Mopti", movechance="default", pop=148456) #108456 from Mopti + 40000 from Sevare, which is 10km southeast to Mopti.
   # pop. 108,456 (2009 census)
-  lm["Douentza"] = e.addLocation("Douentza", movechance=0.3, pop=28005)
+  lm["Douentza"] = e.addLocation("Douentza", movechance="default", pop=28005)
   # pop. 28,005 (2009 census), fell on 5th of April 2012.
-  lm["Konna"] = e.addLocation("Konna", movechance=0.3, pop=36767)
+  lm["Konna"] = e.addLocation("Konna", movechance="default", pop=36767)
   # pop. 36,767 (2009 census), captured in January 2013 by the Islamists.
-  lm["Menaka"] = e.addLocation("Menaka", movechance=1.0, pop=20702)
+  lm["Menaka"] = e.addLocation("Menaka", movechance="conflict", pop=20702)
   # pop. 20,702 (2009 census), captured in January 2012 by the Islamists.
-  lm["Niafounke"] = e.addLocation("Niafounke", movechance=1.0, pop=1000)  
+  lm["Niafounke"] = e.addLocation("Niafounke", movechance="conflict", pop=1000)
   # pop. negligible. Added because it's a junction point, move chance set to 1.0 for that reason.
-  lm["Bourem"] = e.addLocation("Bourem", movechance=0.3, pop=27486)
+  lm["Bourem"] = e.addLocation("Bourem", movechance="default", pop=27486)
   # pop. 27,486. GPS 16.968122, -0.358435. No information about capture yet, but it's a sizeable town at a junction point.
-  lm["Bamako"] = e.addLocation("Bamako", movechance=0.3, pop=1809106)
+  lm["Bamako"] = e.addLocation("Bamako", movechance="default", pop=1809106)
   # pop. 1,809,106 capital subject to coup d'etat between March 21st and April 8th 2012.
-  lm["Tenenkou"] = e.addLocation("Tenenkou", movechance=0.3, pop=11310)
+  lm["Tenenkou"] = e.addLocation("Tenenkou", movechance="default", pop=11310)
   # pop. 11310. First Battle on 02-03-2012, 14.5004532,-4.8748448.
-  lm["Segou"] = e.addLocation("Segou", movechance=0.3, pop=130690)
+  lm["Segou"] = e.addLocation("Segou", movechance="default", pop=130690)
 
-  lm["Ansongo"] = e.addLocation("Ansongo", movechance=0.3, pop=32709)
+  lm["Ansongo"] = e.addLocation("Ansongo", movechance="default", pop=32709)
   # pop. 32709
-  lm["Lere"] = e.addLocation("Lere", movechance=0.3, pop=16072)
+  lm["Lere"] = e.addLocation("Lere", movechance="default", pop=16072)
   # pop. 16,072.
-  lm["Dire"] = e.addLocation("Dire", movechance=0.3, pop=22365)
+  lm["Dire"] = e.addLocation("Dire", movechance="default", pop=22365)
   # pop. 22,365.
-  lm["Goundam"] = e.addLocation("Goundam", movechance=0.3, pop=16253)
+  lm["Goundam"] = e.addLocation("Goundam", movechance="default", pop=16253)
   # pop. 16,253.
-  
+
 
   """
   Town merges in Mali, as they are <= 10 km away:
@@ -115,8 +115,8 @@ if __name__ == "__main__":
   """
 
   # bing based
-  e.linkUp("Kidal","Bourem", "308.0") 
-  e.linkUp("Gao","Bourem","97.0") 
+  e.linkUp("Kidal","Bourem", "308.0")
+  e.linkUp("Gao","Bourem","97.0")
   e.linkUp("Timbuktu","Bourem","314.0")
 
   e.linkUp("Timbuktu", "Konna","303.0") #Mopti is literally on the way to Bobo-Dioulasso.
@@ -139,11 +139,10 @@ if __name__ == "__main__":
   e.linkUp("Tenenkou","Segou","227.5")
   e.linkUp("Segou","Bamako","239.8")
 
-  camp_movechance = 0.001
 
 # Mauritania
 
-  m1 = e.addLocation("Mbera", movechance=camp_movechance, capacity=103731, foreign=True)
+  m1 = e.addLocation("Mbera", movechance="camp", capacity=103731, foreign=True)
   # GPS 15.639012,-5.751422
   m2 = e.addLocation("Fassala", movechance=0.08, foreign=True)
 
@@ -153,21 +152,21 @@ if __name__ == "__main__":
 
 # Burkina Faso
 
-  b1 = e.addLocation("Mentao", movechance=camp_movechance, capacity=10038, foreign=True)
+  b1 = e.addLocation("Mentao", movechance="camp", capacity=10038, foreign=True)
   # GPS 13.999700,-1.680371
-  b2 = e.addLocation("Bobo-Dioulasso", movechance=camp_movechance, capacity=1926, foreign=True)
+  b2 = e.addLocation("Bobo-Dioulasso", movechance="camp", capacity=1926, foreign=True)
   # GPS 11.178103,-4.291773
 
   # No linking up yet, as BF border was shut prior to March 21st 2012.
 
 # Niger
-  n1 = e.addLocation("Abala", movechance=camp_movechance, capacity=18573, foreign=True)
+  n1 = e.addLocation("Abala", movechance="camp", capacity=18573, foreign=True)
   # GPS 14.927683 3.433727
-  n2 = e.addLocation("Mangaize", movechance=camp_movechance, capacity=4356, foreign=True)
+  n2 = e.addLocation("Mangaize", movechance="camp", capacity=4356, foreign=True)
   # GPS 14.684030 1.882720
-  n3 = e.addLocation("Niamey", movechance=camp_movechance, capacity=6327, foreign=True)
+  n3 = e.addLocation("Niamey", movechance="camp", capacity=6327, foreign=True)
 
-  n4 = e.addLocation("Tabareybarey", movechance=camp_movechance, capacity=9189, foreign=True)
+  n4 = e.addLocation("Tabareybarey", movechance="camp", capacity=9189, foreign=True)
   # GPS 14.754761 0.944773
 
   d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="source_data/mali2012/")
@@ -186,15 +185,15 @@ if __name__ == "__main__":
   n2.capacity = d.getMaxFromData("Mangaize", last_physical_day)
   d.correctLevel1Registrations("Tabareybarey","2012-12-21")
   n4.capacity = d.getMaxFromData("Tabareybarey", last_physical_day)
-  
+
 
   print("Day,Mbera sim,Mbera data,Mbera error,Mentao sim,Mentao data,Mentao error,Bobo-Dioulasso sim,Bobo-Dioulasso data,Bobo-Dioulasso error,Abala sim,Abala data,Abala error,Mangaize sim,Mangaize data,Mangaize error,Niamey sim,Niamey data,Niamey error,Tabareybarey sim,Tabareybarey data,Tabareybarey error,Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),refugee_debt,Total error (retrofitted)")
 
-  # Set up a mechanism to incorporate temporary decreases in refugees 
+  # Set up a mechanism to incorporate temporary decreases in refugees
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
- 
-  # Add initial refugees to the destinations. 
+
+  # Add initial refugees to the destinations.
   AddInitialRefugees(e,d,m1)
   AddInitialRefugees(e,d,m2)
   AddInitialRefugees(e,d,b1)
@@ -221,12 +220,12 @@ if __name__ == "__main__":
       t_data = int(t_retrofitted)
       if t_data > end_time / 10:
         break
-    
+
     # Close/open borders here.
     if t_data == date_to_sim_days("2012-03-19"): #On the 19th of March, Fassala closes altogether, and instead functions as a forward to Mbera (see PDF report 1 and 2).
       m2.movechance = 1.0
     if t_data == date_to_sim_days("2012-03-21"): #On the 21st of March, Burkina Faso opens its borders (see PDF report 3).
-      linkBF(e)   
+      linkBF(e)
     if t_data == date_to_sim_days("2012-04-01"): #Starting from April, refugees appear to enter Niger again (on foot, report 4).
       linkNiger(e)
 
@@ -270,7 +269,7 @@ if __name__ == "__main__":
     if t_data == date_to_sim_days("2012-03-13"):
       e.add_conflict_zone("Dire")
 
- 
+
     # Here we use the random choice to make a weighted choice between the source locations.
     for i in range(0, new_refs):
       e.addAgent(e.pick_conflict_location())
@@ -281,7 +280,7 @@ if __name__ == "__main__":
     camps = [m1,b1,b2,n1,n2,n3,n4]
     camp_names = ["Mbera", "Mentao", "Bobo-Dioulasso", "Abala", "Mangaize", "Niamey", "Tabareybarey"]
     # TODO: refactor camp_names using list comprehension.
- 
+
     # calculate retrofitted time.
     refugees_in_camps_sim = 0
     for c in camps:
@@ -309,7 +308,7 @@ if __name__ == "__main__":
     # Total error is calculated using float(np.sum(abs_errors))/float(refugees_raw))
 
     locations = camps
-    loc_data = camp_pops 
+    loc_data = camp_pops
 
     #if e.numAgents()>0:
     #  print "Total error: ", float(np.sum(abs_errors))/float(e.numAgents())
@@ -326,5 +325,5 @@ if __name__ == "__main__":
       output += ",0,0,0,0,0,0,0"
 
     print(output)
-    
-   
+
+

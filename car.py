@@ -49,58 +49,60 @@ if __name__ == "__main__":
 
   #print("Conflict weight:",flee.SimulationSettings.SimulationSettings.ConflictWeight)
 
+  #default movechance is 0.3
+
   lm = {}
 
   #CAR
-  lm["Bangui"] = e.addLocation("Bangui", movechance=0.3, pop=734350-400000) #Subtracting the number of IDPs from the population to reflect local shelter.
+  lm["Bangui"] = e.addLocation("Bangui", pop=734350-400000) #Subtracting the number of IDPs from the population to reflect local shelter.
 
-  lm["Bimbo"] = e.addLocation("Bimbo", movechance=0.3, pop=267859)
-  lm["Mbaiki"] = e.addLocation("Mbaiki", movechance=0.3)
-  lm["Boda"] = e.addLocation("Boda", movechance=0.3, pop=11688)
-  lm["Nola"] = e.addLocation("Nola", movechance=0.3, pop=41462)
-  lm["Bossembele"] = e.addLocation("Bossembele", movechance=0.3, pop=37849)
+  lm["Bimbo"] = e.addLocation("Bimbo", pop=267859)
+  lm["Mbaiki"] = e.addLocation("Mbaiki")
+  lm["Boda"] = e.addLocation("Boda", pop=11688)
+  lm["Nola"] = e.addLocation("Nola", pop=41462)
+  lm["Bossembele"] = e.addLocation("Bossembele", pop=37849)
 
-  lm["Berberati"] = e.addLocation("Berberati", movechance=0.3, pop=105155)
-  lm["Gamboula"] = e.addLocation("Gamboula", movechance=0.3)
-  lm["Carnot"] = e.addLocation("Carnot", movechance=0.3, pop=54551)
-  lm["Bouar"] = e.addLocation("Bouar", movechance=0.3, pop=39205)
-  lm["Baboua"] = e.addLocation("Baboua", movechance=0.3)
+  lm["Berberati"] = e.addLocation("Berberati", pop=105155)
+  lm["Gamboula"] = e.addLocation("Gamboula")
+  lm["Carnot"] = e.addLocation("Carnot", pop=54551)
+  lm["Bouar"] = e.addLocation("Bouar", pop=39205)
+  lm["Baboua"] = e.addLocation("Baboua")
 
-  lm["Bozoum"] = e.addLocation("Bozoum", movechance=0.3, pop=22284)
-  lm["Paoua"] = e.addLocation("Paoua", movechance=0.3, pop=17370)
-  lm["Bossangoa"] = e.addLocation("Bossangoa", movechance=0.3, pop=38451)
+  lm["Bozoum"] = e.addLocation("Bozoum", pop=22284)
+  lm["Paoua"] = e.addLocation("Paoua", pop=17370)
+  lm["Bossangoa"] = e.addLocation("Bossangoa", pop=38451)
   lm["RN1"] = e.addLocation("RN1", movechance=1.0) #non-city junction, Coordinates = 7.112110, 17.030220
-  lm["Batangafo"] = e.addLocation("Batangafo", movechance=0.3, pop=16420)
+  lm["Batangafo"] = e.addLocation("Batangafo", pop=16420)
 
-  lm["Bouca"] = e.addLocation("Bouca", movechance=0.3, pop=12280)
-  lm["Kabo"] = e.addLocation("Kabo", movechance=0.3)
-  lm["Kaga Bandoro"] = e.addLocation("Kaga Bandoro", movechance=0.3, pop=27797)
-  lm["Sibut"] = e.addLocation("Sibut", movechance=0.3, pop=24527)
-  lm["Bamingui"] = e.addLocation("Bamingui", movechance=0.3, pop=6230)
+  lm["Bouca"] = e.addLocation("Bouca", pop=12280)
+  lm["Kabo"] = e.addLocation("Kabo")
+  lm["Kaga Bandoro"] = e.addLocation("Kaga Bandoro", pop=27797)
+  lm["Sibut"] = e.addLocation("Sibut", pop=24527)
+  lm["Bamingui"] = e.addLocation("Bamingui", pop=6230)
 
-  lm["Dekoa"] = e.addLocation("Dekoa", movechance=0.3, pop=12447)
-  lm["Ndele"] = e.addLocation("Ndele", movechance=0.3, pop=13704)
-  lm["Birao"] = e.addLocation("Birao", movechance=0.3)
-  lm["Bria"] = e.addLocation("Bria", movechance=0.3, pop=43322)
-  lm["Bambari"] = e.addLocation("Bambari", movechance=0.3, pop=41486)
+  lm["Dekoa"] = e.addLocation("Dekoa", pop=12447)
+  lm["Ndele"] = e.addLocation("Ndele", pop=13704)
+  lm["Birao"] = e.addLocation("Birao")
+  lm["Bria"] = e.addLocation("Bria", pop=43322)
+  lm["Bambari"] = e.addLocation("Bambari", pop=41486)
 
-  lm["Grimari"] = e.addLocation("Grimari", movechance=0.3, pop=10822)
-  lm["Bangassou"] = e.addLocation("Bangassou", movechance=0.3, pop=35305)
-  lm["Rafai"] = e.addLocation("Rafai", movechance=0.3, pop=13962)
-  lm["Obo"] = e.addLocation("Obo", movechance=0.3, pop=36029)
-  lm["Mobaye"] = e.addLocation("Mobaye", movechance=0.3)
+  lm["Grimari"] = e.addLocation("Grimari", pop=10822)
+  lm["Bangassou"] = e.addLocation("Bangassou", pop=35305)
+  lm["Rafai"] = e.addLocation("Rafai", pop=13962)
+  lm["Obo"] = e.addLocation("Obo", pop=36029)
+  lm["Mobaye"] = e.addLocation("Mobaye")
 
-  lm["Bohong"] = e.addLocation("Bohong", movechance=0.3, pop=19700)
-  lm["Mbres"] = e.addLocation("Mbres", movechance=0.3, pop=20709)
-  lm["Damara"] = e.addLocation("Damara", movechance=0.3, pop=32321)
-  lm["Bogangolo"] = e.addLocation("Bogangolo", movechance=0.3, pop=9966)
-  lm["Marali"] = e.addLocation("Marali", movechance=0.3)
+  lm["Bohong"] = e.addLocation("Bohong", pop=19700)
+  lm["Mbres"] = e.addLocation("Mbres", pop=20709)
+  lm["Damara"] = e.addLocation("Damara", pop=32321)
+  lm["Bogangolo"] = e.addLocation("Bogangolo", pop=9966)
+  lm["Marali"] = e.addLocation("Marali")
 
-  lm["Beboura"] = e.addLocation("Beboura", movechance=0.3)
+  lm["Beboura"] = e.addLocation("Beboura")
   lm["RN8"] = e.addLocation("RN8", movechance=1.0) #non-city junction, Coordinates = 9.560670, 22.140450
-  lm["Zemio"] = e.addLocation("Zemio", movechance=0.3)
+  lm["Zemio"] = e.addLocation("Zemio")
 
-  camp_movechance = 0.001
+  camp_movechance = flee.SimulationSettings.SimulationSettings.CampMoveChance
 
   #Chad, Cameroon & Demotratic R.of Congo & R. of Congo camps starting at index locations[39] (at time of writing).
   lm["Amboko"] = e.addLocation("Amboko", movechance=camp_movechance, capacity=12405, foreign=True)
@@ -112,7 +114,7 @@ if __name__ == "__main__":
   lm["Lolo"] = e.addLocation("Lolo", movechance=1.0, foreign=True) #forwarding location (to aggreg. camp)
   lm["Mbile"] = e.addLocation("Mbile", movechance=1.0, foreign=True) #forwarding location (to aggreg. camp)
 
-  lm["Batouri"] = e.addLocation("Batouri", movechance=0.3) #city on junction point
+  lm["Batouri"] = e.addLocation("Batouri") #city on junction point
   lm["Timangolo"] = e.addLocation("Timangolo", movechance=1.0, foreign=True, x=4.628170000, y=14.544500000) #forwarding location (to aggreg. camp)
   lm["Gado-Badzere"] = e.addLocation("Gado-Badzere", movechance=1.0, foreign=True) #forwarding location (to aggreg. camp)
   lm["East"] = e.addLocation("East", movechance=camp_movechance, capacity=180485, foreign=True) #regional camp.
@@ -121,7 +123,7 @@ if __name__ == "__main__":
   lm["Ngam"] = e.addLocation("Ngam", movechance=1.0, foreign=True) #forwarding location (to aggreg. camp)
   lm["Adamaoua"] = e.addLocation("Adamaoua", movechance=camp_movechance, capacity=71506, foreign=True)
   lm["Mole"] = e.addLocation("Mole", movechance=camp_movechance, capacity=20454, foreign=True)
-  lm["Gbadolite"] = e.addLocation("Gbadolite", movechance=0.3) #city on junction point
+  lm["Gbadolite"] = e.addLocation("Gbadolite") #city on junction point
   lm["N24"] = e.addLocation("N24", movechance=1.0) #non-city junction, Coordinates = 3.610560, 20.762290
 
   lm["Bili"] = e.addLocation("Bili", movechance=camp_movechance, capacity=10282, foreign=True)

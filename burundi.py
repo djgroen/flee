@@ -43,47 +43,45 @@ if __name__ == "__main__":
   locations = []
 
   #Burundi
-  locations.append(e.addLocation("Bujumbura", movechance=1.0, pop=497166))
-  locations.append(e.addLocation("Bubanza", movechance=0.3))
-  locations.append(e.addLocation("Bukinanyana", movechance=0.3, pop=75750))
-  locations.append(e.addLocation("Cibitoke", movechance=0.3, pop=460435))
-  locations.append(e.addLocation("Isale", movechance=0.3))
+  locations.append(e.addLocation("Bujumbura", movechance="conflict", pop=497166))
+  locations.append(e.addLocation("Bubanza", movechance="default"))
+  locations.append(e.addLocation("Bukinanyana", movechance="default", pop=75750))
+  locations.append(e.addLocation("Cibitoke", movechance="default", pop=460435))
+  locations.append(e.addLocation("Isale", movechance="default"))
 
-  locations.append(e.addLocation("Muramvya", movechance=0.3))
-  locations.append(e.addLocation("Kayanza", movechance=0.3))
-  locations.append(e.addLocation("Kabarore", movechance=0.3, pop=62303)) #This resides in Kayanza province in Burundi. Not to be confused with Kabarore, Rwanda.
-  locations.append(e.addLocation("Mwaro", movechance=0.3, pop=273143))
-  locations.append(e.addLocation("Rumonge", movechance=0.3))
+  locations.append(e.addLocation("Muramvya", movechance="default"))
+  locations.append(e.addLocation("Kayanza", movechance="default"))
+  locations.append(e.addLocation("Kabarore", movechance="default", pop=62303)) #This resides in Kayanza province in Burundi. Not to be confused with Kabarore, Rwanda.
+  locations.append(e.addLocation("Mwaro", movechance="default", pop=273143))
+  locations.append(e.addLocation("Rumonge", movechance="default"))
 
-  locations.append(e.addLocation("Burambi", movechance=0.3, pop=57167))
-  locations.append(e.addLocation("Bururi", movechance=0.3))
-  locations.append(e.addLocation("Rutana", movechance=0.3))
-  locations.append(e.addLocation("Makamba", movechance=0.3))
-  locations.append(e.addLocation("Gitega", movechance=0.3))
+  locations.append(e.addLocation("Burambi", movechance="default", pop=57167))
+  locations.append(e.addLocation("Bururi", movechance="default"))
+  locations.append(e.addLocation("Rutana", movechance="default"))
+  locations.append(e.addLocation("Makamba", movechance="default"))
+  locations.append(e.addLocation("Gitega", movechance="default"))
 
-  locations.append(e.addLocation("Karuzi", movechance=0.3))
-  locations.append(e.addLocation("Ruyigi", movechance=0.3))
-  locations.append(e.addLocation("Gisuru", movechance=0.3, pop=99461))
-  locations.append(e.addLocation("Cankuzo", movechance=0.3))
-  locations.append(e.addLocation("Muyinga", movechance=0.3))
+  locations.append(e.addLocation("Karuzi", movechance="default"))
+  locations.append(e.addLocation("Ruyigi", movechance="default"))
+  locations.append(e.addLocation("Gisuru", movechance="default", pop=99461))
+  locations.append(e.addLocation("Cankuzo", movechance="default"))
+  locations.append(e.addLocation("Muyinga", movechance="default"))
 
-  locations.append(e.addLocation("Kirundo", movechance=0.3))
-  locations.append(e.addLocation("Ngozi", movechance=0.3))
-  locations.append(e.addLocation("Gashoho", movechance=0.3))
-  locations.append(e.addLocation("Gitega-Ruyigi", movechance=0.3))
-  locations.append(e.addLocation("Makebuko", movechance=0.3))
+  locations.append(e.addLocation("Kirundo", movechance="default"))
+  locations.append(e.addLocation("Ngozi", movechance="default"))
+  locations.append(e.addLocation("Gashoho", movechance="default"))
+  locations.append(e.addLocation("Gitega-Ruyigi", movechance="default"))
+  locations.append(e.addLocation("Makebuko", movechance="default"))
 
-  locations.append(e.addLocation("Commune of Mabanda", movechance=0.3))
-
-  camp_movechance = 0.001
+  locations.append(e.addLocation("Commune of Mabanda", movechance="default"))
 
   #Rwanda, Tanzania, Uganda and DRCongo camps
-  locations.append(e.addLocation("Mahama", movechance=camp_movechance, capacity=49451, foreign=True))
-  locations.append(e.addLocation("Nduta", movechance=0.3, capacity=55320, foreign=True)) # Nduta open on 2015-08-10
+  locations.append(e.addLocation("Mahama", movechance="camp", capacity=49451, foreign=True))
+  locations.append(e.addLocation("Nduta", movechance="default", capacity=55320, foreign=True)) # Nduta open on 2015-08-10
   locations.append(e.addLocation("Kagunga", movechance=1/21.0, foreign=True))
-  locations.append(e.addLocation("Nyarugusu", movechance=camp_movechance, capacity=100925, foreign=True))
-  locations.append(e.addLocation("Nakivale", movechance=camp_movechance, capacity=18734, foreign=True))
-  locations.append(e.addLocation("Lusenda", movechance=0.3, capacity=17210, foreign=True))
+  locations.append(e.addLocation("Nyarugusu", movechance="camp", capacity=100925, foreign=True))
+  locations.append(e.addLocation("Nakivale", movechance="camp", capacity=18734, foreign=True))
+  locations.append(e.addLocation("Lusenda", movechance="default", capacity=17210, foreign=True))
 
   #Within Burundi
   e.linkUp("Bujumbura","Bubanza","48.0")
@@ -182,12 +180,12 @@ if __name__ == "__main__":
 
     #Lusenda camp open on the 30th of July 2015
     if t_data == date_to_sim_days("2015-07-30"): #Open Lusenda
-      locations[31].movechance=camp_movechance
+      locations[31].SetCampMoveChance()
       locations[31].Camp=True
       e.linkUp("Bujumbura","Lusenda","53.0") #Only added when the refugee inflow starts at Lusenda, on 30-07-2015
 
     if t_data == date_to_sim_days("2015-08-10"):
-      locations[27].movechance=camp_movechance
+      locations[27].SetCampMoveChance()
       locations[27].Camp=True
       e.remove_link("Nduta","Nyarugusu")
       e.linkUp("Nduta","Nyarugusu","150.0") #Re-add link, but without forced redirection
