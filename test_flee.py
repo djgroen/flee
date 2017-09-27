@@ -11,10 +11,12 @@ if __name__ == "__main__":
   print("Testing basic data handling and simulation kernel.")
 
   end_time = 10
+  flee.SimulationSettings.SimulationSettings.MinMoveSpeed=5000
+  flee.SimulationSettings.SimulationSettings.MaxMoveSpeed=5000
+
   e = flee.Ecosystem()
 
   l1 = e.addLocation("A", movechance=0.3)
-
   l2 = e.addLocation("B", movechance=0.0)
   l3 = e.addLocation("C", movechance=0.0)
   l4 = e.addLocation("D", movechance=0.0)
@@ -32,10 +34,12 @@ if __name__ == "__main__":
     for i in range(0, new_refs):
       e.addAgent(location=l1)
 
+    print(t, l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents, new_refs)
+
     # Propagate the model by one time step.
     e.evolve()
 
-    print(t, l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents)
+    print(t, l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents, new_refs)
 
 
   assert t==9
