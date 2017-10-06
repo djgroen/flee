@@ -69,7 +69,7 @@ def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
   fig.subplots_adjust(bottom=b,top=t,left=l,right=r)
 
 
-def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve_model=False):
+def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve_model=True):
   """
   Advanced plotting function for validation of refugee registration numbers in camps.
   """
