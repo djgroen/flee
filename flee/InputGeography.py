@@ -72,7 +72,7 @@ class InputGeography:
     for l in self.locations:
       if len(l[1]) < 1: #if popolation field is empty, just set it to 0.
         l[1] = "0"
-      print(l)
+      #print(l)
       lm[l[0]] = e.addLocation(l[0], movechance=self.getMoveChanceFromLocationType(l[4]), pop=int(l[1]), x=l[2], y=l[3])
 
     for l in self.links:

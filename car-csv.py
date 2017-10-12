@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
   ig.ReadLinksFromCSV("examples/car_input_csv/routes.csv")
 
-  lm = ig.StoreInputGeographyInEcosystem(e)
+  e,lm = ig.StoreInputGeographyInEcosystem(e)
 
   #print("Network data loaded")
 
@@ -84,9 +84,12 @@ if __name__ == "__main__":
 
   output_header_string = "Day,"
 
-  for l in e.locations:
-    AddInitialRefugees(e,d,l)
-    output_header_string += "%s sim,%s data,%s error," % (l.name, l.name, l.name)
+  camp_locations      = ["Amboko","Belom","Dosseye","Gondje","Moyo","East","Adamaoua","Mole","Bili","Boyabu","Mboti","Inke","Betou","Brazaville"]
+  #TODO: Add Camps from CSV based on their location type.
+
+  for l in camp_locations:
+    AddInitialRefugees(e,d,lm[l])
+    output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
 
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
 
@@ -96,19 +99,15 @@ if __name__ == "__main__":
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
 
-  e.add_conflict_zone("Ndele")
-
-  # Start with a refugee debt to account for the mismatch between camp aggregates and total UNHCR data.
-  #refugee_debt = e.numAgents()
+  e.add_conflict_zone("Ndele") #TODO: remove this one conflict zone placeholder.
 
   for t in range(0,end_time):
 
-    e.refresh_conflict_weights()
+    #TODO: Add Conflict Zones from CSV based on current date.
 
-    t_data = t
+    #TODO: Close Borders from CSV based on current date.
 
-    new_refs = 100
-    """
+
     # Determine number of new refugees to insert into the system.
     new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
     refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
@@ -117,59 +116,63 @@ if __name__ == "__main__":
       new_refs = 0
     elif refugee_debt > 0:
       refugee_debt = 0
-    """
 
-    for l in e.locations:
-      new_IDPs = int(d_spawn.get_field(l.name, t+1) - d_spawn.get_field(l.name, t))
-      if new_IDPs > 0:
-        l.movechance = 1.0
-      else:
-        l.movechance = 0.001
-      for i in range(0, int(new_IDPs/6)):
-        e.addAgent(l)
+    #Insert refugee agents
+    for i in range(0, new_refs):
+      e.addAgent(e.pick_conflict_location())
+
+    e.refresh_conflict_weights()
+
+    t_data = t
 
     e.evolve()
 
-    #e.printInfo()
+    #Calculation of error terms
+    errors = []
+    abs_errors = []
+    loc_data = []
 
-    # Validation / data comparison
-    camps = e.locations
-    camp_names = e.locationNames
-    # TODO: refactor camp_names using list comprehension.
+    camps = []
+    for i in camp_locations:
+      camps += [lm[i]]
+      loc_data += [d.get_field(i, t)]
+
+    camp_pops_retrofitted = []
+    errors_retrofitted = []
+    abs_errors_retrofitted = []
 
     # calculate retrofitted time.
     refugees_in_camps_sim = 0
     for c in camps:
       refugees_in_camps_sim += c.numAgents
 
-    # calculate error terms.
-    camp_pops = []
-    errors = []
-    abs_errors = []
-    for i in range(0, len(camp_names)):
-      # normal 1 step = 1 day errors.
-      camp_pops += [d.get_field(camp_names[i], t, FullInterpolation=True)]
-      errors += [a.rel_error(camps[i].numAgents, camp_pops[-1])]
-      abs_errors += [a.abs_error(camps[i].numAgents, camp_pops[-1])]
+    t_retrofitted = d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_locations)
 
-    # Total error is calculated using float(np.sum(abs_errors))/float(refugees_raw))
+    # calculate errors
+    j=0
+    for i in camp_locations:
+      errors += [a.rel_error(lm[i].numAgents, loc_data[j])]
+      abs_errors += [a.abs_error(lm[i].numAgents, loc_data[j])]
 
-    locations = camps
-    loc_data = camp_pops
+      # errors when using retrofitted time stepping.
+      camp_pops_retrofitted += [d.get_field(i, t_retrofitted, FullInterpolation=True)]
+      errors_retrofitted += [a.rel_error(lm[i].numAgents, camp_pops_retrofitted[-1])]
+      abs_errors_retrofitted += [a.abs_error(lm[i].numAgents, camp_pops_retrofitted[-1])]
 
-    #if e.numAgents()>0:
-    #  print "Total error: ", float(np.sum(abs_errors))/float(e.numAgents())
+      j += 1
 
-    # write output (one line per time step taken.
-    output = "%s" % (t)
-    for i in range(0,len(locations)):
-      output += ",%s,%s,%s" % (locations[i].numAgents, loc_data[i], errors[i])
+    output = "%s" % t
 
-    if float(sum(loc_data))>0:
-      # Reminder: Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,retrofitted time,refugees in camps (simulation),Total error (retrofitted)
-      output += ",%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw+1), int(sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt)
+    for i in range(0,len(errors)):
+      output += ",%s,%s,%s" % (lm[camp_locations[i]].numAgents, loc_data[i], errors[i])
+
+
+    if refugees_raw>0:
+      #output_string += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw)
+      output += ",%s,%s,%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, t_retrofitted, refugees_in_camps_sim, refugee_debt, float(np.sum(abs_errors_retrofitted))/float(refugees_raw))
     else:
       output += ",0,0,0,0,0,0,0"
+      #output_string += ",0"
+
 
     print(output)
-
