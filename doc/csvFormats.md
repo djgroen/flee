@@ -2,7 +2,7 @@ This document provides formats of csv files for loading initial graph. Each conf
 
  ## 1. locations.csv
  
-    |name| region| country| lat| lon| location_type| conflict_date| pop/cap              |
+    |name| region| country| lon| lat| location_type| conflict_date| pop/cap              |
     |----|-------|--------|----|----|--------------|--------------|----------------------|
     |    |       |        |    |    | -conflict    |              |-population for cities|
     |    |       |        |    |    | -town        |              |-population for cities|
