@@ -1,7 +1,7 @@
 from flee import flee
 from datamanager import handle_refugee_data
 from datamanager import DataTable #DataTable.subtract_dates()
-import InputGeography
+from flee import InputGeography
 import numpy as np
 import outputanalysis.analysis as a
 import sys
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadLocationsFromCSV("iraq/iraq-locations.csv")
+  ig.ReadLocationsFromCSV("iraq/iraq-locations.csv", columns=["region","area (km^2)","pop/cap","name","capital pop.","gps_x","gps_y"])
 
   ig.ReadLinksFromCSV("iraq/iraq-links.csv")
 
@@ -59,10 +59,10 @@ if __name__ == "__main__":
 
   print(output_header_string)
 
-  # Set up a mechanism to incorporate temporary decreases in refugees 
+  # Set up a mechanism to incorporate temporary decreases in refugees
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
- 
+
   e.add_conflict_zone("Baghdad")
 
   # Start with a refugee debt to account for the mismatch between camp aggregates and total UNHCR data.
@@ -73,8 +73,8 @@ if __name__ == "__main__":
     e.refresh_conflict_weights()
 
     t_data = t
-   
-    new_refs = 100 
+
+    new_refs = 100
     """
     # Determine number of new refugees to insert into the system.
     new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     """
 
     for l in e.locations:
-      new_IDPs = int(d_spawn.get_field(l.name, t+1) - d_spawn.get_field(l.name, t)) 
+      new_IDPs = int(d_spawn.get_field(l.name, t+1) - d_spawn.get_field(l.name, t))
       if new_IDPs > 0:
         l.movechance = 1.0
       else:
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     camps = e.locations
     camp_names = e.locationNames
     # TODO: refactor camp_names using list comprehension.
- 
+
     # calculate retrofitted time.
     refugees_in_camps_sim = 0
     for c in camps:
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     # Total error is calculated using float(np.sum(abs_errors))/float(refugees_raw))
 
     locations = camps
-    loc_data = camp_pops 
+    loc_data = camp_pops
 
     #if e.numAgents()>0:
     #  print "Total error: ", float(np.sum(abs_errors))/float(e.numAgents())
@@ -138,5 +138,5 @@ if __name__ == "__main__":
     else:
       output += ",0,0,0,0,0,0,0"
 
-    print(output)    
-   
+    print(output)
+

@@ -194,6 +194,10 @@ class Location:
     if SimulationSettings.SimulationSettings.CampLogLevel > 0:
       self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
 
+  def SetConflictMoveChance(self):
+    """ Modify move chance to the default value set for conflict regions. """
+    self.movechance = SimulationSettings.SimulationSettings.ConflictMoveChance
+
   def SetCampMoveChance(self):
     """ Modify move chance to the default value set for camps. """
     self.movechance = SimulationSettings.SimulationSettings.CampMoveChance
