@@ -33,6 +33,7 @@ class Person:
 
     if self.travelling == False:
       movechance = self.location.movechance
+
       outcome = random.random()
       if outcome < movechance:
         # determine here which route to take?
@@ -174,6 +175,7 @@ class Location:
     self.y = y
     self.movechance = movechance
     self.links = [] # paths connecting to other towns
+    self.closed_links = [] #paths connecting to other towns that are closed.
     self.numAgents = 0 # refugee population
     self.capacity = capacity # refugee capacity
     self.pop = pop # non-refugee population
@@ -183,8 +185,23 @@ class Location:
     self.Camp = False
     self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
 
+    if isinstance(movechance, str):
+      #print(name)
+      if "camp" in movechance.lower():
+        self.movechance = SimulationSettings.SimulationSettings.CampMoveChance
+        self.Camp = True
+      elif "conflict" in movechance.lower():
+        self.movechance = SimulationSettings.SimulationSettings.ConflictMoveChance
+      elif "forward" in movechance.lower():
+        self.movechance = 1.0
+      elif "default" in movechance.lower() or "town" in movechance.lower():
+        self.movechance = SimulationSettings.SimulationSettings.DefaultMoveChance
+      else:
+        print("Error in creating Location() object: cannot parse movechance value of ", movechance, " for location object with name ", name, ".")
+    #print ("Created location:", name, movechance)
+
     # Automatically tags a location as a Camp if refugees are less than 2% likely to move out on a given day.
-    if movechance < 0.02:
+    if self.movechance < 0.02:
       self.Camp = True
 
     self.LocationScore = 1.0 # Value of Location. Should be between 0.5 and SimulationSettings.SimulationSettings.CampWeight.
@@ -337,8 +354,11 @@ class Ecosystem:
 
       #print("New arrivals: ", self.travel_durations[-1], arrival_total, tmp_num_arrivals)
 
-  def remove_link(self, startpoint, endpoint, twoway=True):
-    """Remove link when there is border closure between countries"""
+  def _remove_link_1way(self, startpoint, endpoint, close_only=False):
+    """
+    Remove link in one direction (private function, use remove_link instead).
+    close_only: if True will instead move the link to the closed_links list of the location, rendering it inactive.
+    """
     new_links = []
 
     x = -1
@@ -354,29 +374,49 @@ class Ecosystem:
     for i in range(0, len(self.locations[x].links)):
       if self.locations[x].links[i].endpoint.name is not endpoint:
         new_links += [self.locations[x].links[i]]
+      elif close_only:
+        self.locations[x].closed_links += [self.locations[x].links[i]]
 
     self.locations[x].links = new_links
 
-    if twoway: #todo: refactor.
-
-      new_links = []
-
-      # Convert name "endpoint" to index "x".
-      for i in range(0, len(self.locations)):
-        if(self.locations[i].name == endpoint):
-          x = i
-
-      if x<0:
-        print("#Warning: location not found in remove_link")
-        return False
-
-      for i in range(0, len(self.locations[x].links)):
-        if self.locations[x].links[i].endpoint.name is not startpoint:
-          new_links += [self.locations[x].links[i]]
-
-      self.locations[x].links = new_links
-
     return True
+
+  def remove_link(self, startpoint, endpoint, twoway=True, close_only=False):
+    """
+    Removes a link between two location names.
+    twoway: if True, also removes link from endpoint to startpoint.
+    close_only: if True will instead move the link to the closed_links list of the location, rendering it inactive.
+    """
+
+    _remove_link_1way(startpoint, endpoint, close_only)
+    if twoway:
+      _remove_link_1way(endpoint, startpoint, close_only)
+
+  def close_link(self, startpoint, endpoint, twoway=True):
+    """
+    Shorthand call for remove_link, only moving the link to the closed list.
+    """
+    self.remove_link(startpoint, endpoint, twoway=twoway, close_only=True)
+
+
+  def _close_border_1way(self, source_country, dest_country):
+    """
+    Close all links between two countries in one direction.
+    """
+    for i in range(0, len(self.locationNames)):
+      if locations[i].country == source_country:
+        for j in range(0, len(locations[i].links)):
+          if locations[i].links[j].endpoint.country == dest_country:
+            self.close_link(locationNames[i], locations[i].links[j].endpoint.name, twoway=False)
+
+  def close_border(self, source_country, dest_country, twoway=True):
+    """
+    Close all links between two countries. If twoway is set to false, the only links from source to destination will be closed.
+    """
+    self._close_border_1way(source_country, dest_country)
+    if twoway:
+      self._close_border_1way(dest_country, source_country)
+
 
   def add_conflict_zone(self, name, change_movechance=True):
     """
@@ -465,16 +505,9 @@ class Ecosystem:
   def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
     """ Add a location to the ABM network graph """
 
-    if "camp" == movechance or "Camp" == movechance:
-      movechance = SimulationSettings.SimulationSettings.CampMoveChance
-    if "conflict" == movechance or "Conflict" == movechance:
-      movechance = SimulationSettings.SimulationSettings.ConflictMoveChance
-    if "default" == movechance or "Default" == movechance:
-      movechance = SimulationSettings.SimulationSettings.DefaultMoveChance
-
     l = Location(name, x, y, movechance, capacity, pop, foreign)
     if SimulationSettings.SimulationSettings.InitLogLevel > 0:
-      print("Location:", name, x, y, movechance, capacity, ", pop. ", pop, foreign)
+      print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign)
     self.locations.append(l)
     self.locationNames.append(l.name)
     return l
