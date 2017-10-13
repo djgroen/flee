@@ -388,9 +388,11 @@ class Ecosystem:
     close_only: if True will instead move the link to the closed_links list of the location, rendering it inactive.
     """
 
-    _remove_link_1way(startpoint, endpoint, close_only)
     if twoway:
-      _remove_link_1way(endpoint, startpoint, close_only)
+      self._remove_link_1way(endpoint, startpoint, close_only)
+
+    return self._remove_link_1way(startpoint, endpoint, close_only)
+
 
   def close_link(self, startpoint, endpoint, twoway=True):
     """
