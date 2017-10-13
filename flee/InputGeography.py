@@ -54,13 +54,24 @@ class InputGeography:
           #print(row)
           self.links.append([row[name1_col], row[name2_col], row[dist_col]])
 
-  def getMoveChanceFromLocationType(self, l):
-    if l == "conflict":
-      return SimulationSettings.SimulationSettings.ConflictMoveChance
-    if l == "camp":
-      return SimulationSettings.SimulationSettings.CampMoveChance
-    else:
-      return SimulationSettings.SimulationSettings.DefaultMoveChance
+  def ReadClosuresFromCSV(self, csv_name):
+    """
+    Read the closures.csv file. Format is:
+    closure_type,name1,name2,closure_start,closure_end
+    """
+    self.closures = []
+
+    with open(csv_name, newline='') as csvfile:
+      values = csv.reader(csvfile)
+
+      for row in values:
+        if row[0][0] == "#":
+          pass
+        else:
+          #print(row)
+          self.closures.append(row)
+
+    print(self.closures)
 
   def StoreInputGeographyInEcosystem(self, e):
     """
@@ -70,10 +81,12 @@ class InputGeography:
     lm = {}
 
     for l in self.locations:
-      if len(l[1]) < 1: #if popolation field is empty, just set it to 0.
+      if len(l[1]) < 1: #if population field is empty, just set it to 0.
         l[1] = "0"
+      if len(l[7]) < 1: #if population field is empty, just set it to 0.
+        l[7] = "unknown"
       #print(l)
-      lm[l[0]] = e.addLocation(l[0], movechance=self.getMoveChanceFromLocationType(l[4]), pop=int(l[1]), x=l[2], y=l[3])
+      lm[l[0]] = e.addLocation(l[0], movechance=l[4], pop=int(l[1]), x=l[2], y=l[3], country=l[7])
 
     for l in self.links:
       e.linkUp(l[0], l[1], int(l[2]))

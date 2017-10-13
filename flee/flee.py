@@ -168,7 +168,7 @@ class Person:
       return np.random.choice(list(range(0,len(self.location.links))), p=weights)
 
 class Location:
-  def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False):
+  def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
     self.name = name
     self.x = x
     self.y = y
@@ -178,6 +178,7 @@ class Location:
     self.capacity = capacity # refugee capacity
     self.pop = pop # non-refugee population
     self.foreign = foreign
+    self.country = country
     self.Conflict = False
     self.Camp = False
     self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
@@ -461,7 +462,7 @@ class Ecosystem:
       self._aggregate_arrivals()
     self.time += 1
 
-  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False):
+  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
     """ Add a location to the ABM network graph """
 
     if "camp" == movechance or "Camp" == movechance:

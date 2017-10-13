@@ -41,6 +41,8 @@ if __name__ == "__main__":
 
   ig.ReadLinksFromCSV("examples/car_input_csv/routes.csv")
 
+  ig.ReadClosuresFromCSV("examples/car_input_csv/closures.csv")
+
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
   #print("Network data loaded")
