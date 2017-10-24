@@ -2,6 +2,7 @@ import random
 import numpy as np
 import csv
 import sys
+#from multiprocessing import Process,Pool
 from flee import SimulationSettings
 
 class Person:
@@ -59,6 +60,8 @@ class Person:
       #  self.last_location = self.location
 
       self.distance_travelled_on_link += SimulationSettings.SimulationSettings.MaxMoveSpeed
+
+      # If destination has been reached.
       if self.distance_travelled_on_link - distance_moved_this_timestep > self.location.distance:
 
         # update agent logs
@@ -66,7 +69,7 @@ class Person:
           self.places_travelled += 1
           self.distance_travelled += self.location.distance
 
-        # if the person has moved less than the minMoveSpeed, it should go through another evolve() step.
+        # if the person has moved less than the minMoveSpeed, it should go through another evolve() step in the new location.
         evolveMore = False
         if self.location.distance + distance_moved_this_timestep < SimulationSettings.SimulationSettings.MinMoveSpeed:
           distance_moved_this_timestep += self.location.distance
@@ -84,7 +87,7 @@ class Person:
           if self.location.Camp == True:
             self.location.incoming_journey_lengths += [self.timesteps_since_departure]
 
-        # Perform another evolve step. And if it results in travel, then the current
+        # Perform another evolve step if needed. And if it results in travel, then the current
         # travelled distance needs to be taken into account.
         if evolveMore == True:
           self.evolve()
@@ -124,9 +127,9 @@ class Person:
 
     elif not SimulationSettings.SimulationSettings.UseDynamicAwareness:
       for i in range(0,linklen):
-        # forced redirection: if this is true for a link, return its value immediately.
         if self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents) <= 0.000001:
           weights[i] = 0.0
+        # forced redirection: if this is true for a link, return its value immediately.
         elif self.location.links[i].forced_redirection == True:
           return i
         else:
@@ -153,7 +156,7 @@ class Person:
             weights[i] = self.getLinkWeight(self.location.links[i], 3)
 
           # Throttle down weight when occupancy is close to peak capacity.
-          self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents)
+          weights[i] *= self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents)
 
     if len(weights) == 0:
       return -1
@@ -481,6 +484,23 @@ class Ecosystem:
     self.conflict_pop = sum(self.conflict_weights)
 
 
+  #def evolve_object(self, o):
+  #  """
+  #  Bare-bone thread function to call .evolve() on an object
+  #  """
+  #  return o.evolve()
+
+  #def par(self, f, data):
+  #  """
+  #  One-liner function to enable multi-process execution.
+  #  """
+  #  pool = Pool(processes=SimulationSettings.SimulationSettings.NumProcs)
+  #  print("Numprocs: ", SimulationSettings.SimulationSettings.NumProcs)
+  #  results = pool.map(f, data)
+  #  pool.close()
+  #  pool.join()
+
+
   def evolve(self):
     # update level 1, 2 and 3 location scores
     for l in self.locations:
@@ -495,6 +515,7 @@ class Ecosystem:
     #update agent locations
     for a in self.agents:
       a.evolve()
+    #self.par(self.evolve_object, self.agents)
 
     for a in self.agents:
       a.finish_travel()
