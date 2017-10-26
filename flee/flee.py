@@ -466,7 +466,7 @@ class Ecosystem:
           return
 
     print("Diagnostic: self.locationNames: ", self.locationNames)
-    print("ERROR in flee.add_conflict_zone: location with name ", name, " appears not to exist in the FLEE ecosystem (see diagnostic above).")
+    print("ERROR in flee.add_conflict_zone: location with name [%s] appears not to exist in the FLEE ecosystem (see diagnostic above)." % (name))
 
 
   def remove_conflict_zone(self, name):

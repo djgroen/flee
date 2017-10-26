@@ -105,9 +105,7 @@ if __name__ == "__main__":
 
   for t in range(0,end_time):
 
-    #TODO: Add Conflict Zones from CSV based on current date.
-
-    #TODO: Close Borders from CSV based on current date.
+    #TODO: Open Borders from CSV based on current date.
 
 
     # Determine number of new refugees to insert into the system.
@@ -127,6 +125,8 @@ if __name__ == "__main__":
 
     t_data = t
 
+    if t>0:
+      ig.AddNewConflictZones(e,t)
     e.enact_border_closures(t)
     e.evolve()
 

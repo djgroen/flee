@@ -84,6 +84,9 @@ class InputGeography:
       if len(l[7]) < 1: #if population field is empty, just set it to 0.
         l[7] = "unknown"
       #print(l)
+      if "conflict" in l[4].lower() and int(l[5])>0:
+        l[4] = "town"
+
       lm[l[0]] = e.addLocation(l[0], movechance=l[4], pop=int(l[1]), x=l[2], y=l[3], country=l[7])
 
     for l in self.links:
@@ -95,3 +98,7 @@ class InputGeography:
 
     return e, lm
 
+  def AddNewConflictZones(self, e, time):
+    for l in self.locations:
+      if "conflict" in l[4].lower() and int(l[5]) == time:
+        e.add_conflict_zone(l[0])
