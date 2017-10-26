@@ -71,8 +71,6 @@ class InputGeography:
           #print(row)
           self.closures.append(row)
 
-    print(self.closures)
-
   def StoreInputGeographyInEcosystem(self, e):
     """
     Store the geographic information in this class in a FLEE simulation,
@@ -90,6 +88,10 @@ class InputGeography:
 
     for l in self.links:
       e.linkUp(l[0], l[1], int(l[2]))
+
+    e.closures = []
+    for l in self.closures:
+      e.closures.append([l[0], l[1], l[2], int(l[3]), int(l[4])])
 
     return e, lm
 

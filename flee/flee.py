@@ -312,6 +312,7 @@ class Ecosystem:
     self.locations = []
     self.locationNames = []
     self.agents = []
+    self.closures = [] #format [type, source, dest, start, end]
     self.time = 0
 
     # Bring conflict zone management into FLEE.
@@ -356,6 +357,18 @@ class Ecosystem:
         self.travel_durations += [0.0]
 
       #print("New arrivals: ", self.travel_durations[-1], arrival_total, tmp_num_arrivals)
+
+
+  def enact_border_closures(self, time, twoway=True):
+    #print("Enact border closures: ", self.closures)
+    if len(self.closures)>0:
+      for c in self.closures:
+        if time == c[3]:
+          if c[0] == "country":
+            #print("Closing Border: ", c[1], c[2])
+            self.close_border(c[1],c[2], twoway)
+          if c[0] == "location":
+            self.close_border(c[1],c[2], twoway)
 
   def _remove_link_1way(self, startpoint, endpoint, close_only=False):
     """
@@ -408,11 +421,21 @@ class Ecosystem:
     """
     Close all links between two countries in one direction.
     """
+    #print("close border 1 way [%s] [%s]" % (source_country, dest_country))
+    closed_anything = False
     for i in range(0, len(self.locationNames)):
-      if locations[i].country == source_country:
-        for j in range(0, len(locations[i].links)):
-          if locations[i].links[j].endpoint.country == dest_country:
-            self.close_link(locationNames[i], locations[i].links[j].endpoint.name, twoway=False)
+      if self.locations[i].country == source_country:
+
+        j = 0
+        while j < len(self.locations[i].links):
+          if self.locations[i].links[j].endpoint.country == dest_country:
+            closed_anything = True
+            self.close_link(self.locationNames[i], self.locations[i].links[j].endpoint.name, twoway=False)
+            continue
+          j += 1
+
+    if not closed_anything:
+      print("Warning: no link closed when closing borders between", source_country, " and ", dest_country)
 
   def close_border(self, source_country, dest_country, twoway=True):
     """
@@ -528,7 +551,7 @@ class Ecosystem:
   def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
     """ Add a location to the ABM network graph """
 
-    l = Location(name, x, y, movechance, capacity, pop, foreign)
+    l = Location(name, x, y, movechance, capacity, pop, foreign, country)
     if SimulationSettings.SimulationSettings.InitLogLevel > 0:
       print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign)
     self.locations.append(l)

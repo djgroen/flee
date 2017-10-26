@@ -127,6 +127,7 @@ if __name__ == "__main__":
 
     t_data = t
 
+    e.enact_border_closures(t)
     e.evolve()
 
     #Calculation of error terms
