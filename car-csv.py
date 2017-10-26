@@ -60,13 +60,10 @@ if __name__ == "__main__":
   lm["Moyo"].capacity *= d.correctLevel1Registrations("Moyo","2015-06-02") #also "2014-05-11" and "2015-06-02"
   d.correctLevel1Registrations("East","2014-09-28")
   d.correctLevel1Registrations("Adamaoua","2014-10-19")
-  #d.correctLevel1Registrations("Mole","2016-02-29") # no clear decrease visible.
   d.correctLevel1Registrations("Bili","2016-06-30")
-  #d.correctLevel1Registrations("Bossobolo","2016-05-20") #Data is only decreasing over time, so no grounds for a level1 corr.
   d.correctLevel1Registrations("Boyabu","2016-06-30")
   d.correctLevel1Registrations("Inke","2014-06-30")
   d.correctLevel1Registrations("Betou","2014-03-22")
-  #d.correctLevel1Registrations("Brazaville","2016-04-30")
 
   lm["Amboko"].capacity = d.getMaxFromData("Amboko", last_physical_day)
   lm["Belom"].capacity = d.getMaxFromData("Belom", last_physical_day) # set manually.
@@ -172,7 +169,7 @@ if __name__ == "__main__":
 
     if refugees_raw>0:
       #output_string += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw)
-      output += ",%s,%s,%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, t_retrofitted, refugees_in_camps_sim, refugee_debt, float(np.sum(abs_errors_retrofitted))/float(refugees_raw))
+      output += ",%s,%s,%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt)
     else:
       output += ",0,0,0,0,0,0,0"
       #output_string += ",0"
