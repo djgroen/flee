@@ -2,6 +2,7 @@ import random
 import numpy as np
 import csv
 import sys
+import copy
 #from multiprocessing import Process,Pool
 from flee import SimulationSettings
 
@@ -184,17 +185,18 @@ class Location:
     self.pop = pop # non-refugee population
     self.foreign = foreign
     self.country = country
-    self.Conflict = False
-    self.Camp = False
+    self.conflict = False
+    self.camp = False
     self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
+    self.print()
 
     if isinstance(movechance, str):
-      #print(name)
       if "camp" in movechance.lower():
         self.movechance = SimulationSettings.SimulationSettings.CampMoveChance
-        self.Camp = True
+        self.camp = True
       elif "conflict" in movechance.lower():
         self.movechance = SimulationSettings.SimulationSettings.ConflictMoveChance
+        self.conflict = True
       elif "forward" in movechance.lower():
         self.movechance = 1.0
       elif "default" in movechance.lower() or "town" in movechance.lower():
@@ -204,8 +206,9 @@ class Location:
     #print ("Created location:", name, movechance)
 
     # Automatically tags a location as a Camp if refugees are less than 2% likely to move out on a given day.
-    if self.movechance < 0.02:
-      self.Camp = True
+    if self.movechance < 0.02 and not self.camp:
+      print("Warning: automatically setting location %s to camp, as movechance = %s" % (self.name, self.movechance), file=sys.stderr)
+      self.camp = True
 
     self.LocationScore = 1.0 # Value of Location. Should be between 0.5 and SimulationSettings.SimulationSettings.CampWeight.
     self.NeighbourhoodScore = 1.0 # Value of Neighbourhood. Should be between 0.5 and SimulationSettings.SimulationSettings.CampWeight.
@@ -214,6 +217,9 @@ class Location:
 
     if SimulationSettings.SimulationSettings.CampLogLevel > 0:
       self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
+
+  def print(self):
+    print("Location name: %s, X: %s, Y: %s, movechance: %s, cap: %s, pop: %s, country: %s, conflict? %s, camp? %s" % (self.name, self.x, self.y, self.movechance, self.capacity, self.pop, self.country, self.conflict, self.camp))
 
   def SetConflictMoveChance(self):
     """ Modify move chance to the default value set for conflict regions. """
@@ -250,7 +256,7 @@ class Location:
 
     if self.foreign:
       self.LocationScore = SimulationSettings.SimulationSettings.CampWeight
-    elif self.Conflict:
+    elif self.conflict:
       self.LocationScore = SimulationSettings.SimulationSettings.ConflictWeight
     else:
       self.LocationScore = 1.0
@@ -259,7 +265,7 @@ class Location:
 
     """ Attractiveness of the local point, based on information from local and adjacent points, weighted by link length. """
     # No links connected or a Camp? Use LocationScore.
-    if len(self.links) == 0 or self.Camp:
+    if len(self.links) == 0 or self.camp:
       self.NeighbourhoodScore = self.LocationScore
       return
 
@@ -277,7 +283,7 @@ class Location:
     """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points,
         weighted by link length. """
     # No links connected or a Camp? Use LocationScore.
-    if len(self.links) == 0 or self.Camp:
+    if len(self.links) == 0 or self.camp:
       self.RegionScore = self.LocationScore
       return
 
@@ -369,6 +375,28 @@ class Ecosystem:
             self.close_border(c[1],c[2], twoway)
           if c[0] == "location":
             self.close_border(c[1],c[2], twoway)
+        if time == c[4]:
+          if c[0] == "country":
+            #print("Re-opening Border: ", c[1], c[2])
+            self.reopen_border(c[1],c[2], twoway)
+          if c[0] == "location":
+            self.reopen_border(c[1],c[2], twoway)
+
+  def _convert_location_name_to_index(self, name):
+    """
+    Convert a location name to an index number
+    """
+    x = -1
+    # Convert name "startpoint" to index "x".
+    for i in range(0, len(self.locations)):
+      if(self.locations[i].name == name):
+        x = i
+
+    if x<0:
+      print("#Warning: location not found in remove_link")
+      return False
+
+    return x
 
   def _remove_link_1way(self, startpoint, endpoint, close_only=False):
     """
@@ -376,26 +404,47 @@ class Ecosystem:
     close_only: if True will instead move the link to the closed_links list of the location, rendering it inactive.
     """
     new_links = []
-
-    x = -1
-    # Convert name "startpoint" to index "x".
-    for i in range(0, len(self.locations)):
-      if(self.locations[i].name == startpoint):
-        x = i
-
-    if x<0:
-      print("#Warning: location not found in remove_link")
-      return False
+    x = self._convert_location_name_to_index(startpoint)
+    removed = False
 
     for i in range(0, len(self.locations[x].links)):
       if self.locations[x].links[i].endpoint.name is not endpoint:
         new_links += [self.locations[x].links[i]]
+        continue
       elif close_only:
-        self.locations[x].closed_links += [self.locations[x].links[i]]
+        #print("Closing [%s] to [%s]" % (startpoint, endpoint), file=sys.stderr)
+        self.locations[x].closed_links += [copy.copy(self.locations[x].links[i])]
+      removed = True
 
     self.locations[x].links = new_links
+    if not removed:
+      print("Warning: cannot remove link from %s, as there is no link to %s" % (startpoint, endpoint),file=sys.stderr)
+    return removed
 
-    return True
+
+  def _reopen_link_1way(self, startpoint, endpoint):
+    """
+    Reopen a closed link.
+    """
+    new_closed_links = []
+    x = self._convert_location_name_to_index(startpoint)
+    reopened = False
+    #print("Reopening link from %s to %s, closed link list length = %s." % (startpoint, endpoint, len(self.locations[x].closed_links)), file=sys.stderr)
+
+    for i in range(0, len(self.locations[x].closed_links)):
+      if self.locations[x].closed_links[i].endpoint.name is not endpoint:
+        #print("[%s] to [%s] (%s)" % (startpoint, self.locations[x].closed_links[i].endpoint.name, endpoint), file=sys.stderr)
+        new_closed_links += [self.locations[x].closed_links[i]]
+      else:
+        #print("Match: [%s] to [%s] (%s)" % (startpoint, self.locations[x].closed_links[i].endpoint.name, endpoint), file=sys.stderr)
+        self.locations[x].links += [self.locations[x].closed_links[i]]
+        reopened = True
+
+    self.locations[x].closed_links = new_closed_links
+    if not reopened:
+      print("Warning: cannot reopen link from %s, as there is no link to %s" % (startpoint, endpoint),file=sys.stderr)
+    return reopened
+
 
   def remove_link(self, startpoint, endpoint, twoway=True, close_only=False):
     """
@@ -403,11 +452,19 @@ class Ecosystem:
     twoway: if True, also removes link from endpoint to startpoint.
     close_only: if True will instead move the link to the closed_links list of the location, rendering it inactive.
     """
-
     if twoway:
       self._remove_link_1way(endpoint, startpoint, close_only)
-
     return self._remove_link_1way(startpoint, endpoint, close_only)
+
+
+  def reopen_link(self, startpoint, endpoint, twoway=True):
+    """
+    Reopens a previously closed link between two location names.
+    twoway: if True, also removes link from endpoint to startpoint.
+    """
+    if twoway:
+      self._reopen_link_1way(endpoint, startpoint)
+    return self._reopen_link_1way(startpoint, endpoint)
 
 
   def close_link(self, startpoint, endpoint, twoway=True):
@@ -417,33 +474,52 @@ class Ecosystem:
     self.remove_link(startpoint, endpoint, twoway=twoway, close_only=True)
 
 
-  def _close_border_1way(self, source_country, dest_country):
+  def _change_border_1way(self, source_country, dest_country, mode="close"):
     """
     Close all links between two countries in one direction.
     """
-    #print("close border 1 way [%s] [%s]" % (source_country, dest_country))
-    closed_anything = False
+    #print("%s border 1 way [%s] [%s]" % (mode, source_country, dest_country), file=sys.stderr)
+    changed_anything = False
     for i in range(0, len(self.locationNames)):
       if self.locations[i].country == source_country:
 
+        link_set = self.locations[i].links
+        if mode == "reopen":
+          link_set = self.locations[i].closed_links
+
         j = 0
-        while j < len(self.locations[i].links):
-          if self.locations[i].links[j].endpoint.country == dest_country:
-            closed_anything = True
-            self.close_link(self.locationNames[i], self.locations[i].links[j].endpoint.name, twoway=False)
-            continue
+        while j < len(link_set):
+          if link_set[j].endpoint.country == dest_country:
+            print("starting to %s border 1 way [%s/%s] [%s/%s]" % (mode, source_country, self.locations[i].name, dest_country, link_set[j].endpoint.name), file=sys.stderr)
+            changed_anything = True
+            if mode == "close":
+              if self.close_link(self.locationNames[i], link_set[j].endpoint.name, twoway=False):
+                link_set = self.locations[i].links
+                continue
+            elif mode == "reopen":
+              if self.reopen_link(self.locationNames[i], link_set[j].endpoint.name, twoway=False):
+                link_set = self.locations[i].closed_links
+                continue
           j += 1
 
-    if not closed_anything:
-      print("Warning: no link closed when closing borders between", source_country, " and ", dest_country)
+    if not changed_anything:
+      print("Warning: no link closed when closing borders between %s and %s." % (source_country, dest_country), file=sys.stderr)
 
   def close_border(self, source_country, dest_country, twoway=True):
     """
     Close all links between two countries. If twoway is set to false, the only links from source to destination will be closed.
     """
-    self._close_border_1way(source_country, dest_country)
+    self._change_border_1way(source_country, dest_country, mode="close")
     if twoway:
-      self._close_border_1way(dest_country, source_country)
+      self._change_border_1way(dest_country, source_country, mode="close")
+
+  def reopen_border(self, source_country, dest_country, twoway=True):
+    """
+    Re-open all links between two countries. If twoway is set to false, the only links from source to destination will be closed.
+    """
+    self._change_border_1way(source_country, dest_country, mode="reopen")
+    if twoway:
+      self._change_border_1way(dest_country, source_country, mode="reopen")
 
 
   def add_conflict_zone(self, name, change_movechance=True):

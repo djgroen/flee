@@ -87,7 +87,10 @@ class InputGeography:
       if "conflict" in l[4].lower() and int(l[5])>0:
         l[4] = "town"
 
-      lm[l[0]] = e.addLocation(l[0], movechance=l[4], pop=int(l[1]), x=l[2], y=l[3], country=l[7])
+      if "camp" in l[4].lower():
+        lm[l[0]] = e.addLocation(l[0], movechance=l[4], capacity=int(l[1]), x=l[2], y=l[3], country=l[7])
+      else:
+        lm[l[0]] = e.addLocation(l[0], movechance=l[4], pop=int(l[1]), x=l[2], y=l[3], country=l[7])
 
     for l in self.links:
       e.linkUp(l[0], l[1], int(l[2]))
