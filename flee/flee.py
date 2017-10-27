@@ -373,13 +373,13 @@ class Ecosystem:
       for c in self.closures:
         if time == c[3]:
           if c[0] == "country":
-            print("Closing Border between [%s] and [%s]" % (c[1], c[2]), file=sys.stderr)
+            print("Time = %s. Closing Border between [%s] and [%s]" % (time, c[1], c[2]), file=sys.stderr)
             self.close_border(c[1],c[2], twoway)
           if c[0] == "location":
             self.close_border(c[1],c[2], twoway)
         if time == c[4]:
           if c[0] == "country":
-            print("Reopening Border between [%s] and [%s]" % (c[1], c[2]), file=sys.stderr)
+            print("Time = %s. Reopening Border between [%s] and [%s]" % (time, c[1], c[2]), file=sys.stderr)
             self.reopen_border(c[1],c[2], twoway)
           if c[0] == "location":
             self.reopen_border(c[1],c[2], twoway)

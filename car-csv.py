@@ -98,12 +98,9 @@ if __name__ == "__main__":
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
 
-  e.add_conflict_zone("Ndele") #TODO: remove this one conflict zone placeholder.
-
   for t in range(0,end_time):
 
-    #TODO: Open Borders from CSV based on current date.
-
+    ig.AddNewConflictZones(e,t)
 
     # Determine number of new refugees to insert into the system.
     new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
@@ -122,8 +119,6 @@ if __name__ == "__main__":
 
     t_data = t
 
-    if t>0:
-      ig.AddNewConflictZones(e,t)
     e.enact_border_closures(t)
     e.evolve()
 
@@ -137,27 +132,15 @@ if __name__ == "__main__":
       camps += [lm[i]]
       loc_data += [d.get_field(i, t)]
 
-    camp_pops_retrofitted = []
-    errors_retrofitted = []
-    abs_errors_retrofitted = []
-
-    # calculate retrofitted time.
     refugees_in_camps_sim = 0
     for c in camps:
       refugees_in_camps_sim += c.numAgents
-
-    t_retrofitted = d.retrofit_time_to_refugee_count(refugees_in_camps_sim, camp_locations)
 
     # calculate errors
     j=0
     for i in camp_locations:
       errors += [a.rel_error(lm[i].numAgents, loc_data[j])]
       abs_errors += [a.abs_error(lm[i].numAgents, loc_data[j])]
-
-      # errors when using retrofitted time stepping.
-      camp_pops_retrofitted += [d.get_field(i, t_retrofitted, FullInterpolation=True)]
-      errors_retrofitted += [a.rel_error(lm[i].numAgents, camp_pops_retrofitted[-1])]
-      abs_errors_retrofitted += [a.abs_error(lm[i].numAgents, camp_pops_retrofitted[-1])]
 
       j += 1
 
@@ -169,7 +152,7 @@ if __name__ == "__main__":
 
     if refugees_raw>0:
       #output_string += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw)
-      output += ",%s,%s,%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt)
+      output += ",%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt)
     else:
       output += ",0,0,0,0,0,0,0"
       #output_string += ",0"
