@@ -188,12 +188,12 @@ class Location:
     self.conflict = False
     self.camp = False
     self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
-    self.print()
 
     if isinstance(movechance, str):
       if "camp" in movechance.lower():
         self.movechance = SimulationSettings.SimulationSettings.CampMoveChance
         self.camp = True
+        self.foreign = True
       elif "conflict" in movechance.lower():
         self.movechance = SimulationSettings.SimulationSettings.ConflictMoveChance
         self.conflict = True
@@ -203,7 +203,6 @@ class Location:
         self.movechance = SimulationSettings.SimulationSettings.DefaultMoveChance
       else:
         print("Error in creating Location() object: cannot parse movechance value of ", movechance, " for location object with name ", name, ".")
-    #print ("Created location:", name, movechance)
 
     # Automatically tags a location as a Camp if refugees are less than 2% likely to move out on a given day.
     if self.movechance < 0.02 and not self.camp:
@@ -217,6 +216,9 @@ class Location:
 
     if SimulationSettings.SimulationSettings.CampLogLevel > 0:
       self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
+
+    self.print()
+
 
   def print(self):
     print("Location name: %s, X: %s, Y: %s, movechance: %s, cap: %s, pop: %s, country: %s, conflict? %s, camp? %s" % (self.name, self.x, self.y, self.movechance, self.capacity, self.pop, self.country, self.conflict, self.camp), file=sys.stderr)
@@ -371,13 +373,13 @@ class Ecosystem:
       for c in self.closures:
         if time == c[3]:
           if c[0] == "country":
-            #print("Closing Border: ", c[1], c[2])
+            print("Closing Border between [%s] and [%s]" % (c[1], c[2]), file=sys.stderr)
             self.close_border(c[1],c[2], twoway)
           if c[0] == "location":
             self.close_border(c[1],c[2], twoway)
         if time == c[4]:
           if c[0] == "country":
-            #print("Re-opening Border: ", c[1], c[2])
+            print("Reopening Border between [%s] and [%s]" % (c[1], c[2]), file=sys.stderr)
             self.reopen_border(c[1],c[2], twoway)
           if c[0] == "location":
             self.reopen_border(c[1],c[2], twoway)

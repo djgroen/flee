@@ -1,4 +1,5 @@
 import csv
+import sys
 from flee import flee
 from flee import SimulationSettings
 
@@ -83,14 +84,16 @@ class InputGeography:
         l[1] = "0"
       if len(l[7]) < 1: #if population field is empty, just set it to 0.
         l[7] = "unknown"
-      #print(l)
+
+      #print(l, file=sys.stderr)
+      movechance = l[4]
       if "conflict" in l[4].lower() and int(l[5])>0:
-        l[4] = "town"
+        movechance = "town"
 
       if "camp" in l[4].lower():
-        lm[l[0]] = e.addLocation(l[0], movechance=l[4], capacity=int(l[1]), x=l[2], y=l[3], country=l[7])
+        lm[l[0]] = e.addLocation(l[0], movechance=movechance, capacity=int(l[1]), x=l[2], y=l[3], country=l[7])
       else:
-        lm[l[0]] = e.addLocation(l[0], movechance=l[4], pop=int(l[1]), x=l[2], y=l[3], country=l[7])
+        lm[l[0]] = e.addLocation(l[0], movechance=movechance, pop=int(l[1]), x=l[2], y=l[3], country=l[7])
 
     for l in self.links:
       e.linkUp(l[0], l[1], int(l[2]))
@@ -104,4 +107,5 @@ class InputGeography:
   def AddNewConflictZones(self, e, time):
     for l in self.locations:
       if "conflict" in l[4].lower() and int(l[5]) == time:
+        print("Time = %s. Adding a new conflict zone [%s]" % (time, l[0]), file=sys.stderr)
         e.add_conflict_zone(l[0])
