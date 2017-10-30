@@ -178,29 +178,19 @@ yyyy-mm-dd</td>
 
 * Revise **YEAR** column and target chosen simulation period of conflict scenario 
 
-EVENT_TYPE** column has 8 different variations: 
+* EVENT_TYPE** column has 8 different variations: 
 
-  * **Battle **
-
-      * **Battle-No change of territory**
-  
-      * **Battle-Government regains territory**
-
-      * **Battle-Non-state actor overtakes territory**
-
-  * Violence against Civilians
-
-  * Remote Violence
-
-  * Riots and Protests
-
-  * State and Intergovernmental Forces
-
-  * Rebel Forces
-
-  * Political Militias
-
-Here, we focus on three types of **Battles **of conflict situation and remove other **EVENT_TYPE**.
+    - **Battle **
+            * **Battle-No change of territory**
+            * **Battle-Government regains territory**
+            * **Battle-Non-state actor overtakes territory**
+   - Violence against Civilians
+   - Remote Violence
+   - Riots and Protests
+   - State and Intergovernmental Forces
+   - Rebel Forces
+   - Political Militias
+   Here, we focus on three types of **Battles **of conflict situation and remove other **EVENT_TYPE**.
 
 * After clearing some parts of conflict data file, target the **FATALITIES** column and remove fatalities that are equal to 0 (zero). 
 
