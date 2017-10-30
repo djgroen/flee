@@ -33,7 +33,7 @@ The output .png files will then appear in the outcar directory.
 
 ### 2. Download conflict data
 
-* 2.1 We download conflict data from https://www.acleddata.com/data/acled-version-7-1997-2016/ (providing conflict data for countries in .xlsx format) for chosen country
+* We download conflict data from https://www.acleddata.com/data/acled-version-7-1997-2016/ (providing conflict data for countries in .xlsx format) for chosen country
 
 The .xlsx file with conflict data will have various attributes illustrated in Table 1 below. 
 
@@ -174,9 +174,9 @@ yyyy-mm-dd</td>
 </table>
 
 
-* 2.2 Remove unrequired columns
+* Remove unrequired columns
 
-* 2.3 Revise **YEAR** column and target chosen simulation period of conflict scenario 
+* Revise **YEAR** column and target chosen simulation period of conflict scenario 
 
 EVENT_TYPE** column has 8 different variations: 
 
@@ -202,9 +202,9 @@ EVENT_TYPE** column has 8 different variations:
 
 Here, we focus on three types of **Battles **of conflict situation and remove other **EVENT_TYPE**.
 
-* 2.5 After clearing some parts of conflict data file, target the **FATALITIES** column and remove fatalities that are equal to 0 (zero). 
+* After clearing some parts of conflict data file, target the **FATALITIES** column and remove fatalities that are equal to 0 (zero). 
 
-* 2.6 To identify conflict locations for simulation, choose the first occurrence of each location but exclude syndicated (repeated) locations. 
+* To identify conflict locations for simulation, choose the first occurrence of each location but exclude syndicated (repeated) locations. 
 
 Example: 
 
@@ -318,9 +318,9 @@ These filtering of conflict data from ACLED provides conflict location to use in
 </table>
 
 
-* 3.2 After identifying conflict location and producing **location.csv** fill the last column of population for conflict locations. Population distributions can be obtained from https://www.citypopulation.de or other sources.
+* After identifying conflict location and producing **location.csv** fill the last column of population for conflict locations. Population distributions can be obtained from https://www.citypopulation.de or other sources.
 
-* 3.3 Identify destination locations i.e. camps from [UNHCR database](http://data2.unhcr.org/en/situations) and add the information to **location.csv**
+* Identify destination locations i.e. camps from [UNHCR database](http://data2.unhcr.org/en/situations) and add the information to **location.csv**
 
 **location.csv**
 
@@ -388,7 +388,7 @@ These filtering of conflict data from ACLED provides conflict location to use in
 </table>
 
 
-* 3.4 The last column in **location.csv** is capacity for camp location. Camp capacity is the highest number of refugees for each camp and obtained from individual camp csv files. 
+* The last column in **location.csv** is capacity for camp location. Camp capacity is the highest number of refugees for each camp and obtained from individual camp csv files. 
 
 **Example: Camp Z** 
 
@@ -427,7 +427,7 @@ CampZ.csv has the highest number of refugees (12405) on 2015-06-02, so we set th
 
 It is also important to highlight that refugee registrations for camps have corrections to overcome inaccurate registrations. To consider this factor in simulation, identify level 1 registration that is decline in refugee numbers. In the case of this example, there is drop from 11359 to 8129 and thus take into account new registration date – 2015-09-30. **Please note that corrections for Level 1 registrations are not done automatically in the CSV-based simulations, but are present in the hard-coded scripts**.
 
-* 3.5 Identify locations
+* Identify locations
 Identified conflict zones and camps provide origin and destination locations to determine the main routes through which refugees flee. Use [http://www.bing.com/maps](http://www.bing.com/maps) (or other mapping services) to connect conflict zones and camps and add additional locations as town to **location.csv** as illustrated below:
 
 **location.csv**
