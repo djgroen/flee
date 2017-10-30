@@ -591,4 +591,4 @@ Construct network map and create **routes.csv** file for simulation, which has t
 ## 8. Run simulation with the newly created CSV files.
 
 To run a "vanilla" simulation with your newly created CSV files, use:
-```python3 run_csv_vanilla.py <your_directory>/locations.csv <your_directory>/routes.csv <your_directory>/closures.csv <duration in days>```
+```python3 run_csv_vanilla.py <your_directory>/locations.csv <your_directory>/routes.csv <your_directory>/closures.csv <duration in days> > <output_directory>/<output_csv_file>```
