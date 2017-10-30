@@ -333,6 +333,13 @@ class Ecosystem:
       self.num_arrivals = [] # one element per time step.
       self.travel_durations = [] # one element per time step.
 
+  def get_camp_names(self):
+    camp_names = []
+    for l in self.locations:
+      if l.camp:
+        camp_names += [l.name]
+    return camp_names
+
   def export_graph(self, use_ids_instead_of_names=False):
     vertices = []
     edges = []
@@ -671,7 +678,6 @@ class Ecosystem:
     self.locations[endpoint2_index].links.append( Link(self.locations[endpoint1_index], distance) )
 
   def printInfo(self):
-
     print("Time: ", self.time, ", # of agents: ", len(self.agents))
     for l in self.locations:
       print(l.name, l.numAgents)

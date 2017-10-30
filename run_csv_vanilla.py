@@ -53,8 +53,7 @@ if __name__ == "__main__":
 
   output_header_string = "Day,"
 
-  camp_locations      = ["D","E","F"]
-  #TODO: Add Camps from CSV based on their location type.
+  camp_locations      = e.get_camp_names()
 
   for l in camp_locations:
     AddInitialRefugees(e,d,lm[l])
