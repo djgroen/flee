@@ -180,25 +180,25 @@ yyyy-mm-dd</td>
 
 EVENT_TYPE** column has 8 different variations: 
 
-* **Battle **
+  * **Battle **
 
-    * **Battle-No change of territory**
+      * **Battle-No change of territory**
+  
+      * **Battle-Government regains territory**
 
-    * **Battle-Government regains territory**
+      * **Battle-Non-state actor overtakes territory**
 
-    * **Battle-Non-state actor overtakes territory**
+  * Violence against Civilians
 
-* Violence against Civilians
+  * Remote Violence
 
-* Remote Violence
+  * Riots and Protests
 
-* Riots and Protests
+  * State and Intergovernmental Forces
 
-* State and Intergovernmental Forces
+  * Rebel Forces
 
-* Rebel Forces
-
-* Political Militias
+  * Political Militias
 
 Here, we focus on three types of **Battles **of conflict situation and remove other **EVENT_TYPE**.
 
