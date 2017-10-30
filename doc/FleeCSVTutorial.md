@@ -587,8 +587,27 @@ Another required csv file is **closures.csv**, which describes camp or border cl
 
 * *closure_start* and *closure_end* are given as integers, counting the number of days after the simulation start. The value of 0 indicates the start, while -1 indicates the end of the simulation.
 
+### 6. Create data_layout_refugee.csv
 
-### 6. Run simulation with the newly created CSV files.
+Prior to simulation run, specify csv file names for destination locations by creating data_layout_refugee.csv with the following format:
+
+<table>
+  <tr>
+    <td>total</td>
+    <td>refugees.csv</td>
+  </tr>
+  <tr>
+    <td>Z</td>
+    <td>CampZ.csv</td>
+  </tr>
+  <tr>
+    <td>...</td>
+    <td>...</td>
+  </tr>
+</table>
+
+
+### 7. Run simulation with the newly created CSV files.
 
 To run a "vanilla" simulation with your newly created CSV files, use:
 ```
