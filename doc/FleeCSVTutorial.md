@@ -1,10 +1,10 @@
-**Tutorial: Construction of refugee simulation**
+# Tutorial: Construction of refugee simulation
 
-**Detailed description of initial steps:**
+## Detailed description of initial steps:
 
-**1.** Select a conflict scenario (country) and simulation (conflict) period
+### 1. Select a conflict scenario (country) and simulation (conflict) period
 
-**2.** Download conflict data from [https://www.acleddata.com/data/acled-version-7-1997-2016/](https://www.acleddata.com/data/acled-version-7-1997-2016/)  (providing conflict data for countries in .xlsx format) for chosen country
+### 2. Download conflict data from [https://www.acleddata.com/data/acled-version-7-1997-2016/](https://www.acleddata.com/data/acled-version-7-1997-2016/)  (providing conflict data for countries in .xlsx format) for chosen country
 
 **2.1** .xlsx file with conflict data will have various attributes illustrated in Table 1 below. 
 
@@ -237,7 +237,8 @@ B = 23
 
 C = 14
 
-**3. **These filtering of conflict data from ACLED provides conflict location to use in simulation. Use these data construct first **locations.csv** file that has format demonstrated below. 
+### 3. Constructing the CSV files
+These filtering of conflict data from ACLED provides conflict location to use in simulation. Use these data construct first **locations.csv** file that has format demonstrated below. 
 
 **locations.csv**
 
@@ -295,13 +296,13 @@ C = 14
 </table>
 
 
-**4. **After identifying conflict location and producing **location.csv** fill the last column of population for conflict locations. Population distributions can be obtained from 
+### 4. **After identifying conflict location and producing **location.csv** fill the last column of population for conflict locations. Population distributions can be obtained from 
 
 * [https://www.citypopulation.de](https://www.citypopulation.de) 
 
 * or other sources
 
-**5. **Identify destination locations i.e. camps from [UNHCR database](http://data2.unhcr.org/en/situations) and fill further** location.csv**
+### 5. **Identify destination locations i.e. camps from [UNHCR database](http://data2.unhcr.org/en/situations) and fill further** location.csv**
 
 **location.csv**
 
@@ -411,7 +412,8 @@ CampZ.csv has the highest number of refugees of
 
 * It is also important to highlight that refugee registrations for camps have corrections to overcome inaccurate registrations. To consider this factor in simulation, identify level 1 registration that is decline in refugee numbers. In the case of this example, there is drop from **11359 to 8129 **and thus take into account new registration date – **2015-09-30. **
 
-**6. **Identified conflict zones and camps provide origin and destination locations to determine the main routes through which refugees flee. Use [http://www.bing.com/maps](http://www.bing.com/maps) (or other mapping services) to connect conflict zones and camps and add additional locations as town to **location.csv** as illustrated below:
+###6. Idenfitfy locations
+Identified conflict zones and camps provide origin and destination locations to determine the main routes through which refugees flee. Use [http://www.bing.com/maps](http://www.bing.com/maps) (or other mapping services) to connect conflict zones and camps and add additional locations as town to **location.csv** as illustrated below:
 
 **location.csv**
 
@@ -490,8 +492,7 @@ CampZ.csv has the highest number of refugees of
 
 
 Construct network map and create **routes.csv** file for simulation, which has the following format:
-
-**routes.csv								              Network map**
+* **routes.csv Network map**
 
 <table>
   <tr>
@@ -547,7 +548,7 @@ Construct network map and create **routes.csv** file for simulation, which has t
 
 * **forced_redirection **refers to redirection from source location (can be town or camp) to destination location (mainly camp) and source location indicated as forwarding_hub. The value of 0 indicates no redirection, 1 indicates redirection (from name2) to name1and 2 corresponds to redirection (from name1) to name2. 
 
-**7. **Another required csv file is **closures.csv **that describes camp or border closure events at location or country levels.
+### 7. Another required csv file is **closures.csv **that describes camp or border closure events at location or country levels.
 
 **closures.csv**
 
@@ -587,3 +588,7 @@ Construct network map and create **routes.csv** file for simulation, which has t
 
 ***closure_start** and **closure_end** are given as integers, counting the number of days after the simulation start. The value of 0 indicates the start, while -1 indicates the end of the simulation.
 
+## 8. Run simulation with the newly created CSV files.
+
+To run a "vanilla" simulation with your newly created CSV files, use:
+```python3 run_csv_vanilla.py <your_directory>/locations.csv <your_directory>/routes.csv <your_directory>/closures.csv <duration in days>```
