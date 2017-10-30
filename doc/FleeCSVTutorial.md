@@ -181,9 +181,9 @@ yyyy-mm-dd</td>
 * EVENT_TYPE** column has 8 different variations: 
 
     - **Battle **
-            * **Battle-No change of territory**
-            * **Battle-Government regains territory**
-            * **Battle-Non-state actor overtakes territory**
+        -- **Battle-No change of territory**
+        -- **Battle-Government regains territory**
+        -- **Battle-Non-state actor overtakes territory**
    - Violence against Civilians
    - Remote Violence
    - Riots and Protests
@@ -244,10 +244,10 @@ Example:
 </table>
 
 
-In this example, conflict zone A is repeated with fatalities of 3 and 38. Choose the highest and initial fatality (one of each location) as indicated in Table 2. 
-* A = 38
+In this example, conflict zone A is repeated with fatalities of 3 and 38. Choose initial essence of locations (one of each location) as indicated in Table 2. 
+* A = 3
 * B = 23
-* C = 14
+* C = 7
 
 ### 3. Constructing the CSV files
 These filtering of conflict data from ACLED provides conflict location to use in simulation. Use these data construct first **locations.csv** file that has format demonstrated below. 
@@ -268,7 +268,7 @@ These filtering of conflict data from ACLED provides conflict location to use in
   <tr>
     <td>A</td>
     <td>AA</td>
-    <td>AAA</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
     <td>conflict</td>
@@ -278,7 +278,7 @@ These filtering of conflict data from ACLED provides conflict location to use in
   <tr>
     <td>B</td>
     <td>BB</td>
-    <td>BBB</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
     <td>conflict</td>
@@ -288,7 +288,7 @@ These filtering of conflict data from ACLED provides conflict location to use in
   <tr>
     <td>C</td>
     <td>CC</td>
-    <td>CCC</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
     <td>conflict</td>
@@ -328,7 +328,7 @@ These filtering of conflict data from ACLED provides conflict location to use in
   <tr>
     <td>A</td>
     <td>AA</td>
-    <td>AAA</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
     <td>conflict_zone</td>
@@ -338,7 +338,7 @@ These filtering of conflict data from ACLED provides conflict location to use in
   <tr>
     <td>B</td>
     <td>BB</td>
-    <td>BBB</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
     <td>conflict_zone</td>
@@ -348,7 +348,7 @@ These filtering of conflict data from ACLED provides conflict location to use in
   <tr>
     <td>C</td>
     <td>CC</td>
-    <td>CCC</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
     <td>conflict_zone</td>
@@ -393,7 +393,7 @@ These filtering of conflict data from ACLED provides conflict location to use in
   </tr>
   <tr>
     <td>2015-06-02</td>
-    <td>12405</td>
+    <td>**12405**</td>
   </tr>
   <tr>
     <td>2015-07-24</td>
@@ -497,7 +497,7 @@ Identified conflict zones and camps provide origin and destination locations to 
 
 ### 4. Constructing Network Maps
 Construct network map and create **routes.csv** file for simulation, which has the following format:
-* **routes.csv Network map**
+* **routes.csv**
 
 <table>
   <tr>
