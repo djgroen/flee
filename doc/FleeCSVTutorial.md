@@ -594,7 +594,7 @@ Prior to simulation run, specify csv file names for destination locations by cre
 <table>
   <tr>
     <td>total</td>
-    <td>file containing total refugee counts</td>
+    <td>csv file containing total refugee counts</td>
   </tr>
   <tr>
     <td>&lt;Camp Name&gt;</td>
