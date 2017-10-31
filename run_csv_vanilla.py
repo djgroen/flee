@@ -25,7 +25,7 @@ if __name__ == "__main__":
     print("Please run using: python3 run_csv_vanilla.py <your_csv_directory> <your_refugee_data_directory> <duration in days> <optional: simulation_settings.csv> > <output_directory>/<output_csv_filename>")
 
   input_csv_directory = sys.argv[1]
-  refugee_data_directory = sys.argv[2]
+  validation_data_directory = sys.argv[2]
   duration = int(sys.argv[3])
   end_time = int(sys.argv[3])
   last_physical_day = int(sys.argv[3])
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
   #print("Network data loaded")
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=input_data_directory, start_date="2010-01-01", data_layout="data_layout.csv")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date="2010-01-01", data_layout="data_layout.csv")
 
   output_header_string = "Day,"
 
