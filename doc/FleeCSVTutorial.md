@@ -1,15 +1,41 @@
 # Tutorial: Construction of refugee simulation
 
-## Detailed description of initial steps:
+## Quick examples
+
+### Test example
+To run the test example, please run:
+```
+python3 test_csv.py
+```
+
+### CSV-based simulation kernel, with test data
+To run the CSV-based simulation kernel, using the test data, please use:
+```
+python3 run_csv_vanilla.py test_data/test_input_csv/locations.csv test_data/test_input_csv/routes.csv test_data/test_input_csv/closures.csv 5 2>/dev/null
+```
+Here the "2>/dev/null" ensures that any diagnostics are not displayed on the screen. Instead, pure CSV output for the toy model should appear on the screen if this works correctly.
+
+### Simplified simulation of CAR situation, using CSV-based kernel
+To run the (simplified) CAR simulation, please use:
+```
+mkdir outcar
+python3 run_csv_vanilla.py examples/car_input_csv/locations.csv examples/car_input_csv/routes.csv examples/car_input_csv/closures.csv 820 > outcar/out.csv
+```
+The output will be written to outcar/out.csv. You can visualize the output data using:
+
+```python3 plot-flee-output.py outcar```
+
+The output .png files will then appear in the outcar directory.
+
+## Detailed description of steps we have taken
 
 ### 1. Select a conflict scenario (country) and simulation (conflict) period
 
-### 2. Download conflict data from [https://www.acleddata.com/data/acled-version-7-1997-2016/](https://www.acleddata.com/data/acled-version-7-1997-2016/)  (providing conflict data for countries in .xlsx format) for chosen country
+### 2. Download conflict data
 
-**2.1** .xlsx file with conflict data will have various attributes illustrated in Table 1 below. 
+* We download conflict data from https://www.acleddata.com/data/acled-version-7-1997-2016/ (providing conflict data for countries in .xlsx format) for chosen country. The .xlsx file with conflict data will have various attributes illustrated in Table 1 below. 
 
-Table 1: Conflict data in .xlsx file and required data to construct refugee simulation
-
+**Table 1: Conflict data in .xlsx file and required data to construct refugee simulation**
 <table>
   <tr>
     <td>Attribute name</td>
@@ -145,42 +171,32 @@ yyyy-mm-dd</td>
 </table>
 
 
-**2.2** Remove unrequired columns
+* Remove unrequired columns
 
-**2.3** Revise **YEAR** column and target chosen simulation period of conflict scenario 
+* Revise **YEAR** column and target chosen simulation period of conflict scenario 
 
-**2.4 EVENT_TYPE** column has 8 different variations: 
+* **EVENT_TYPE** column has 8 different variations: 
 
-* **Battle **
+    - **Battle**
+    
+         **Battle-No change of territory**
+         **Battle-Government regains territory**
+         **Battle-Non-state actor overtakes territory**
+   - Violence against Civilians
+   - Remote Violence
+   - Riots and Protests
+   - State and Intergovernmental Forces
+   - Rebel Forces
+   - Political Militias
+   Here, we focus on three types of **Battles** of conflict situation and remove other **EVENT_TYPE**.
 
-    * **Battle-No change of territory**
+* After clearing some parts of conflict data file, target the **FATALITIES** column and remove fatalities that are equal to 0 (zero). 
 
-    * **Battle-Government regains territory**
-
-    * **Battle-Non-state actor overtakes territory**
-
-* Violence against Civilians
-
-* Remote Violence
-
-* Riots and Protests
-
-* State and Intergovernmental Forces
-
-* Rebel Forces
-
-* Political Militias
-
-Here, focus on three types of **Battles **of conflict situation and remove other **EVENT_TYPE**.
-
-**2.5 **After clearing some parts of conflict data file, target **FATALITIES **column** **and remove fatalities that are equal to 0 (zero). 
-
-**2.6** To identify conflict locations for simulation, choose the first occurrence of each location but exclude syndicated (repeated) locations. 
+* To identify conflict locations for simulation, choose the first occurrence of each location but exclude syndicated (repeated) locations. 
 
 Example: 
 
-Table 2. Conflict locations for simulation		 	
-
+**Table 2. Conflict locations for simulation**
 <table>
   <tr>
     <td> …</td>
@@ -225,23 +241,15 @@ Table 2. Conflict locations for simulation
 </table>
 
 
-In this example, conflict zone A is repeated 
-
-with fatalities of 3 and 38. Choose the highest 
-
-and initial fatality (one of each location) as indicated in Table 2. 
-
-A = 38
-
-B = 23
-
-C = 14
+In this example, conflict zone A is repeated with fatalities of 3 and 38 as indicated in Table 2. Choose initial essence of locations (one of each location) as illustrated below: 
+* A = 3
+* B = 23
+* C = 7
 
 ### 3. Constructing the CSV files
 These filtering of conflict data from ACLED provides conflict location to use in simulation. Use these data construct first **locations.csv** file that has format demonstrated below. 
 
 **locations.csv**
-
 <table>
   <tr>
     <td>name</td>
@@ -256,30 +264,30 @@ These filtering of conflict data from ACLED provides conflict location to use in
   <tr>
     <td>A</td>
     <td>AA</td>
-    <td>AAA</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
-    <td>conflict</td>
+    <td>conflict_zone</td>
     <td>yyyy/mm/dd</td>
     <td></td>
   </tr>
   <tr>
     <td>B</td>
     <td>BB</td>
-    <td>BBB</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
-    <td>conflict</td>
+    <td>conflict_zone</td>
     <td>yyyy/mm/dd</td>
     <td></td>
   </tr>
   <tr>
     <td>C</td>
     <td>CC</td>
-    <td>CCC</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
-    <td>conflict</td>
+    <td>conflict_zone</td>
     <td>yyyy/mm/dd</td>
     <td></td>
   </tr>
@@ -296,16 +304,11 @@ These filtering of conflict data from ACLED provides conflict location to use in
 </table>
 
 
-### 4. **After identifying conflict location and producing **location.csv** fill the last column of population for conflict locations. Population distributions can be obtained from 
+* After identifying conflict location and producing **locations.csv** fill the last column of population for conflict locations. Population distributions can be obtained from https://www.citypopulation.de or other sources.
 
-* [https://www.citypopulation.de](https://www.citypopulation.de) 
+* Identify destination locations i.e. camps from [UNHCR database](http://data2.unhcr.org/en/situations) and add the information to **locations.csv**
 
-* or other sources
-
-### 5. **Identify destination locations i.e. camps from [UNHCR database](http://data2.unhcr.org/en/situations) and fill further** location.csv**
-
-**location.csv**
-
+**locations.csv**
 <table>
   <tr>
     <td>name</td>
@@ -320,32 +323,32 @@ These filtering of conflict data from ACLED provides conflict location to use in
   <tr>
     <td>A</td>
     <td>AA</td>
-    <td>AAA</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
     <td>conflict_zone</td>
     <td>yyyy/mm/dd</td>
-    <td>Xxx</td>
+    <td>xxx</td>
   </tr>
   <tr>
     <td>B</td>
     <td>BB</td>
-    <td>BBB</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
     <td>conflict_zone</td>
     <td>yyyy/mm/dd</td>
-    <td>Xxx</td>
+    <td>xxx</td>
   </tr>
   <tr>
     <td>C</td>
     <td>CC</td>
-    <td>CCC</td>
+    <td>ABC</td>
     <td>xxx</td>
     <td>xxx</td>
     <td>conflict_zone</td>
     <td>yyyy/mm/dd</td>
-    <td>Xxx</td>
+    <td>xxx</td>
   </tr>
   <tr>
     <td>Z</td>
@@ -370,10 +373,9 @@ These filtering of conflict data from ACLED provides conflict location to use in
 </table>
 
 
-**5.1 **The last column in **location.csv** is capacity for camp location. Camp capacity is the highest number of refugees for each camp and obtained from individual camp csv files. 
+* The last column in **locations.csv** is capacity for camp location. Camp capacity is the highest number of refugees for each camp and obtained from individual camp csv files. 
 
-Example: 							       Camp Z 
-
+**Example: Camp Z** 
 <table>
   <tr>
     <td>…</td>
@@ -405,18 +407,14 @@ Example: 							       Camp Z
   </tr>
 </table>
 
+CampZ.csv has the highest number of refugees (12405) on 2015-06-02, so we set that as the camp capacity in locations.csv for Camp Z. 
 
-CampZ.csv has the highest number of refugees of
+It is also important to highlight that refugee registrations for camps have corrections to overcome inaccurate registrations. To consider this factor in simulation, identify level 1 registration that is decline in refugee numbers. In the case of this example, there is drop from 11359 to 8129 and thus take into account new registration date – 2015-09-30. **Please note that corrections for Level 1 registrations are not done automatically in the CSV-based simulations, but are present in the hard-coded scripts**.
 
-**12405**** **on 2015-06-02 that is camp capacity in location.csv for Camp Z. 
+* Identify locations
+Identified conflict zones and camps provide origin and destination locations to determine the main routes through which refugees flee. Use [http://www.bing.com/maps](http://www.bing.com/maps) (or other mapping services) to connect conflict zones and camps and add additional locations as town to **locations.csv** as illustrated below:
 
-* It is also important to highlight that refugee registrations for camps have corrections to overcome inaccurate registrations. To consider this factor in simulation, identify level 1 registration that is decline in refugee numbers. In the case of this example, there is drop from **11359 to 8129 **and thus take into account new registration date – **2015-09-30. **
-
-###6. Idenfitfy locations
-Identified conflict zones and camps provide origin and destination locations to determine the main routes through which refugees flee. Use [http://www.bing.com/maps](http://www.bing.com/maps) (or other mapping services) to connect conflict zones and camps and add additional locations as town to **location.csv** as illustrated below:
-
-**location.csv**
-
+**locations.csv**
 <table>
   <tr>
     <td>name</td>
@@ -436,7 +434,7 @@ Identified conflict zones and camps provide origin and destination locations to 
     <td>xxx</td>
     <td>conflict_zone</td>
     <td>yyyy/mm/dd</td>
-    <td>Xxx</td>
+    <td>xxx</td>
   </tr>
   <tr>
     <td>B</td>
@@ -446,7 +444,7 @@ Identified conflict zones and camps provide origin and destination locations to 
     <td>xxx</td>
     <td>conflict_zone</td>
     <td>yyyy/mm/dd</td>
-    <td>Xxx</td>
+    <td>xxx</td>
   </tr>
   <tr>
     <td>C</td>
@@ -456,7 +454,7 @@ Identified conflict zones and camps provide origin and destination locations to 
     <td>xxx</td>
     <td>conflict_zone</td>
     <td>yyyy/mm/dd</td>
-    <td>Xxx</td>
+    <td>xxx</td>
   </tr>
   <tr>
     <td>Z</td>
@@ -466,7 +464,7 @@ Identified conflict zones and camps provide origin and destination locations to 
     <td>xxx</td>
     <td>camp</td>
     <td>-</td>
-    <td>Xxx</td>
+    <td>xxx</td>
   </tr>
   <tr>
     <td>N</td>
@@ -490,10 +488,10 @@ Identified conflict zones and camps provide origin and destination locations to 
   </tr>
 </table>
 
-
+### 4. Constructing Network Maps
 Construct network map and create **routes.csv** file for simulation, which has the following format:
-* **routes.csv Network map**
 
+* **routes.csv**
 <table>
   <tr>
     <td>name1</td>
@@ -546,12 +544,13 @@ Construct network map and create **routes.csv** file for simulation, which has t
 </table>
 
 
-* **forced_redirection **refers to redirection from source location (can be town or camp) to destination location (mainly camp) and source location indicated as forwarding_hub. The value of 0 indicates no redirection, 1 indicates redirection (from name2) to name1and 2 corresponds to redirection (from name1) to name2. 
+* forced_redirection refers to redirection from source location (can be town or camp) to destination location (mainly camp) and source location indicated as forwarding_hub. The value of 0 indicates no redirection, 1 indicates redirection (from name2) to name1and 2 corresponds to redirection (from name1) to name2. 
 
-### 7. Another required csv file is **closures.csv **that describes camp or border closure events at location or country levels.
+### 5. Define Border and link closures.
+
+Another required csv file is **closures.csv**, which describes camp or border closure events. These can be specified per country or per location, and have the following format:
 
 **closures.csv**
-
 <table>
   <tr>
     <td>closure_type*</td>
@@ -584,11 +583,35 @@ Construct network map and create **routes.csv** file for simulation, which has t
 </table>
 
 
-***closure_type **has 2 types: *location* corresponding camp closure and *country* referring to border closure
+* closure_type has 2 possible values: *location* corresponding camp closure and *country* referring to border closure
 
-***closure_start** and **closure_end** are given as integers, counting the number of days after the simulation start. The value of 0 indicates the start, while -1 indicates the end of the simulation.
+* *closure_start* and *closure_end* are given as integers, counting the number of days after the simulation start. The value of 0 indicates the start, while -1 indicates the end of the simulation.
 
-## 8. Run simulation with the newly created CSV files.
+### 6. Create data_layout_refugee.csv
+
+Prior to simulation run, specify csv file names for destination locations by creating data_layout_refugee.csv with the following format:
+
+<table>
+  <tr>
+    <td>total</td>
+    <td>csv file containing total refugee counts</td>
+  </tr>
+  <tr>
+    <td>&lt;Camp Name&gt;</td>
+    <td>&lt;CampName.csv&gt;</td>
+  </tr>
+  <tr>
+    <td>...</td>
+    <td>...</td>
+  </tr>
+</table>
+
+
+### 7. Run simulation with the newly created CSV files.
 
 To run a "vanilla" simulation with your newly created CSV files, use:
-```python3 run_csv_vanilla.py <your_directory>/locations.csv <your_directory>/routes.csv <your_directory>/closures.csv <duration in days> > <output_directory>/<output_csv_file>```
+```
+mkdir -p <output_directory>
+python3 run_csv_vanilla.py <your_directory>/locations.csv <your_directory>/routes.csv <your_directory>/closures.csv <duration in days> > <output_directory>/<output_csv_file>
+python3 plot-flee-output.py <output_directory>
+```
