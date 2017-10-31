@@ -21,35 +21,33 @@ if __name__ == "__main__":
   end_time = 100
   last_physical_day = 100
 
-  if len(sys.argv)<5:
-    print("Please run using: python3 run_csv_vanilla.py <your_directory>/locations.csv <your_directory>/routes.csv <your_directory>/closures.csv <duration in days> <optional: simulation_settings.csv> > <output_directory>/<output_csv_filename>")
+  if len(sys.argv)<4:
+    print("Please run using: python3 run_csv_vanilla.py <your_csv_directory> <your_refugee_data_directory> <duration in days> <optional: simulation_settings.csv> > <output_directory>/<output_csv_filename>")
 
-  locations_file = sys.argv[1]
-  routes_file = sys.argv[2]
-  closures_file = sys.argv[3]
-  duration = int(sys.argv[4])
+  input_csv_directory = sys.argv[1]
+  refugee_data_directory = sys.argv[2]
+  duration = int(sys.argv[3])
+  end_time = int(sys.argv[3])
+  last_physical_day = int(sys.argv[3])
 
-  end_time = int(sys.argv[4])
-  last_physical_day = int(sys.argv[4])
-
-  if len(sys.argv)==6:
-    duration = flee.SimulationSettings.SimulationSettings.ReadFromCSV(sys.argv[5])
+  if len(sys.argv)==5:
+    duration = flee.SimulationSettings.SimulationSettings.ReadFromCSV(sys.argv[4])
 
   e = flee.Ecosystem()
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadLocationsFromCSV(locations_file)
+  ig.ReadLocationsFromCSV("%s/locations.csv" % input_csv_directory)
 
-  ig.ReadLinksFromCSV(routes_file)
+  ig.ReadLinksFromCSV("%s/routes.csv" % input_csv_directory)
 
-  ig.ReadClosuresFromCSV(closures_file)
+  ig.ReadClosuresFromCSV("%s/closures.csv" % input_csv_directory)
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
   #print("Network data loaded")
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="test_data/test_input_csv/refugee_data", start_date="2010-01-01", data_layout="data_layout.csv")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=input_data_directory, start_date="2010-01-01", data_layout="data_layout.csv")
 
   output_header_string = "Day,"
 
