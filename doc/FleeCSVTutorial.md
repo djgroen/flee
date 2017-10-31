@@ -11,7 +11,7 @@ python3 test_csv.py
 ### CSV-based simulation kernel, with test data
 To run the CSV-based simulation kernel, using the test data, please use:
 ```
-python3 run_csv_vanilla.py test_data/test_input_csv/locations.csv test_data/test_input_csv/routes.csv test_data/test_input_csv/closures.csv 5 2>/dev/null
+python3 run_csv_vanilla.py test_data/test_input_csv test_data/test_input_csv/refugee_data 5 2>/dev/null
 ```
 Here the "2>/dev/null" ensures that any diagnostics are not displayed on the screen. Instead, pure CSV output for the toy model should appear on the screen if this works correctly.
 
@@ -19,7 +19,7 @@ Here the "2>/dev/null" ensures that any diagnostics are not displayed on the scr
 To run the (simplified) CAR simulation, please use:
 ```
 mkdir outcar
-python3 run_csv_vanilla.py examples/car_input_csv/locations.csv examples/car_input_csv/routes.csv examples/car_input_csv/closures.csv 820 > outcar/out.csv
+python3 run_csv_vanilla.py examples/car_input_csv source_data/car2014 820 > outcar/out.csv
 ```
 The output will be written to outcar/out.csv. You can visualize the output data using:
 
@@ -587,9 +587,10 @@ Another required csv file is **closures.csv**, which describes camp or border cl
 
 * *closure_start* and *closure_end* are given as integers, counting the number of days after the simulation start. The value of 0 indicates the start, while -1 indicates the end of the simulation.
 
-### 6. Create data_layout_refugee.csv
+### 6. Creating the validation data directory 
 
-Prior to simulation run, specify csv file names for destination locations by creating data_layout_refugee.csv with the following format:
+Before starting any simulations, you will first have to specify the data you wish to validate against.
+You can specify csv file names for each camp/destination locations by creating data_layout_refugee.csv in the following format:
 
 <table>
   <tr>
@@ -612,6 +613,6 @@ Prior to simulation run, specify csv file names for destination locations by cre
 To run a "vanilla" simulation with your newly created CSV files, use:
 ```
 mkdir -p <output_directory>
-python3 run_csv_vanilla.py <your_directory>/locations.csv <your_directory>/routes.csv <your_directory>/closures.csv <duration in days> > <output_directory>/<output_csv_file>
+python3 run_csv_vanilla.py <your_csv_input_directory> <your_validation_data_directory> <duration in days> > <output_directory>/<output_csv_file>
 python3 plot-flee-output.py <output_directory>
 ```
