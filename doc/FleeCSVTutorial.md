@@ -610,6 +610,23 @@ You can specify csv file names for each camp/destination locations by creating d
 
 ### 7. Run simulation with the newly created CSV files.
 
+If you created the CSV files correctly, then you should have three input CSV files in:
+```
+<your_csv_input_directory>/locations.csv
+<your_csv_input_directory>/routes.csv
+<your_csv_input_directory>/closures.csv
+```
+
+As well as some refugee data to validate agains in:
+```
+<your_validation_data_directory>/data_layout.csv
+<your_validation_data_directory>/<name_of_camp_csv_file>
+```
+
+...with one data file for each camp, as indicated by the contents you put in data_layout csv. 
+
+**Note that some kind of validation CSV data for each camp is currently required to run the simulations. However, if you want you can circumvent this by using dummy values in your validation CSV files**
+
 To run a "vanilla" simulation with your newly created CSV files, use:
 ```
 mkdir -p <output_directory>
