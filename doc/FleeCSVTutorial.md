@@ -179,8 +179,8 @@ yyyy-mm-dd</td>
 
     - **Battle**
     
-         **Battle-No change of territory**
-         **Battle-Government regains territory**
+         **Battle-No change of territory**,
+         **Battle-Government regains territory**,
          **Battle-Non-state actor overtakes territory**
    - Violence against Civilians
    - Remote Violence
@@ -590,7 +590,7 @@ Another required csv file is **closures.csv**, which describes camp or border cl
 ### 6. Creating the validation data directory 
 
 Before starting any simulations, you will first have to specify the data you wish to validate against.
-You can specify csv file names for each camp/destination locations by creating data_layout_refugee.csv in the following format:
+You can specify csv file names for each camp/destination locations by creating data_layouT.csv in the following format:
 
 <table>
   <tr>
