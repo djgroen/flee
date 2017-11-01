@@ -590,7 +590,7 @@ Another required csv file is **closures.csv**, which describes camp or border cl
 ### 6. Creating the validation data directory 
 
 Before starting any simulations, you will first have to specify the data you wish to validate against.
-You can specify csv file names for each camp/destination locations by creating data_layouT.csv in the following format:
+You can specify csv file names for each camp/destination locations by creating data_layout.csv in the following format:
 
 <table>
   <tr>
