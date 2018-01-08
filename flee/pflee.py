@@ -20,7 +20,7 @@ class MPIManager:
     total = self.CalcCommWorldTotalOnRank0(i)
     total = self.comm.bcast(np.array([total]), root=0)
     total = total[0]
-    print("Rank, Total: ", self.rank, total)
+    #print("Rank, Total: ", self.rank, total)
     return total
 
   def CalcCommWorldTotalOnRank0(self, number):
@@ -30,15 +30,20 @@ class MPIManager:
     # communication
     # Rank 0 receives results from all ranks and sums them
     if self.rank == 0:
+      recv_buf = np.zeros(1)
       total = number
       for i in range(1, self.size):
-        self.comm.Recv(recv_buffer, ANY_SOURCE)
-        total += recv_buffer[0]
+        self.comm.Recv(recv_buf, ANY_SOURCE)
+        total += recv_buf[0]
       return total
     else:
-      comm.Send(num_buf,0)
+      self.comm.Send(num_buf,0)
 
 class Person(flee.Person):
+  def __init__(self, location):
+    super().__init__(location)
+    self.location.numAgentsOnRank += 1
+
 
   def evolve(self):
 
@@ -140,11 +145,16 @@ class Ecosystem(flee.Ecosystem):
       self.travel_durations = [] # one element per time step.
 
   def updateNumAgents(self):
+    total = 0
     for loc in self.locations:
       loc.numAgents = self.mpi.CalcCommWorldTotal(loc.numAgentsOnRank)
-      print("location:", loc.name, loc.numAgents)
+      total += loc.numAgents
+      #print("location:", loc.name, loc.numAgents)
       for link in loc.links:
         link.numAgents = self.mpi.CalcCommWorldTotal(link.numAgentsOnRank)
+        #print("location link:", loc.name, link.numAgents)
+        total += link.numAgents
+    print("Total agents in simulation:", total)
 
   def addAgent(self, location):
     if SimulationSettings.SimulationSettings.TakeRefugeesFromPopulation:

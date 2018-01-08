@@ -6,9 +6,9 @@ import numpy as np
 import outputanalysis.analysis as a
 import sys
 
-def AddInitialRefugees(e, d, loc):
+def AddInitialRefugees(e, loc):
   """ Add the initial refugees to a location, using the location name"""
-  num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
+  num_refugees = 1000
   for i in range(0, num_refugees):
     e.addAgent(location=loc)
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
   #print("Network data loaded")
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="test_data/test_input_csv/refugee_data", start_date="2010-01-01", data_layout="data_layout.csv")
+  #d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="test_data/test_input_csv/refugee_data", start_date="2010-01-01", data_layout="data_layout.csv")
 
   output_header_string = "Day,"
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
   #TODO: Add Camps from CSV based on their location type.
 
   for l in camp_locations:
-    AddInitialRefugees(e,d,lm[l])
+    AddInitialRefugees(e,lm[l])
     output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
 
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
@@ -72,8 +72,8 @@ if __name__ == "__main__":
     ig.AddNewConflictZones(e,t)
 
     # Determine number of new refugees to insert into the system.
-    new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
-    refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
+    new_refs = 100000
+    refugees_raw += new_refs
 
     if new_refs < 0:
       refugee_debt = -new_refs
@@ -94,37 +94,25 @@ if __name__ == "__main__":
     #Calculation of error terms
     errors = []
     abs_errors = []
-    loc_data = []
 
     camps = []
     for i in camp_locations:
       camps += [lm[i]]
-      loc_data += [d.get_field(i, t)]
 
     # calculate retrofitted time.
     refugees_in_camps_sim = 0
     for c in camps:
       refugees_in_camps_sim += c.numAgents
 
-    # calculate errors
-    j=0
-    for i in camp_locations:
-      errors += [a.rel_error(lm[i].numAgents, loc_data[j])]
-      abs_errors += [a.abs_error(lm[i].numAgents, loc_data[j])]
-
-      j += 1
-
     output = "%s" % t
 
-    for i in range(0,len(errors)):
-      output += ",%s,%s,%s" % (lm[camp_locations[i]].numAgents, loc_data[i], errors[i])
+    for i in range(0,len(camp_locations)):
+      output += ",%s" % (lm[camp_locations[i]].numAgents)
 
     if refugees_raw>0:
-      #output_string += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw)
-      output += ",%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt)
+      output += ",%s,%s" % (e.numAgents(), refugees_in_camps_sim)
     else:
-      output += ",0,0,0,0,0,0,0"
-      #output_string += ",0"
+      output += ",0,0"
 
 
     print(output)
