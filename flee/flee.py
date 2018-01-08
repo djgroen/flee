@@ -181,6 +181,7 @@ class Location:
     self.links = [] # paths connecting to other towns
     self.closed_links = [] #paths connecting to other towns that are closed.
     self.numAgents = 0 # refugee population
+    self.numAgentsOnRank = 0 # refugee population on current rank (for pflee).
     self.capacity = capacity # refugee capacity
     self.pop = pop # non-refugee population
     self.foreign = foreign
@@ -310,6 +311,7 @@ class Link:
 
     # number of agents that are in transit.
     self.numAgents = 0
+    self.numAgentsOnRank = 0 # refugee population on current rank (for pflee).
 
     # if True, then all Persons will go down this link.
     self.forced_redirection = forced_redirection
@@ -591,24 +593,6 @@ class Ecosystem:
       self.conflict_weights[i] = self.conflict_zones[i].pop
     self.conflict_pop = sum(self.conflict_weights)
 
-
-  #def evolve_object(self, o):
-  #  """
-  #  Bare-bone thread function to call .evolve() on an object
-  #  """
-  #  return o.evolve()
-
-  #def par(self, f, data):
-  #  """
-  #  One-liner function to enable multi-process execution.
-  #  """
-  #  pool = Pool(processes=SimulationSettings.SimulationSettings.NumProcs)
-  #  print("Numprocs: ", SimulationSettings.SimulationSettings.NumProcs)
-  #  results = pool.map(f, data)
-  #  pool.close()
-  #  pool.join()
-
-
   def evolve(self):
     # update level 1, 2 and 3 location scores
     for l in self.locations:
@@ -623,7 +607,6 @@ class Ecosystem:
     #update agent locations
     for a in self.agents:
       a.evolve()
-    #self.par(self.evolve_object, self.agents)
 
     for a in self.agents:
       a.finish_travel()
