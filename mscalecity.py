@@ -26,10 +26,10 @@ if __name__ == "__main__":
   if len(sys.argv)>1:
     if (sys.argv[1]).isnumeric():
       coupling_reversed = int(sys.argv[1])
-      duration = flee.SimulationSettings.SimulationSettings.ReadFromCSV(sys.argv[1])
-      if duration>0:
-        end_time = duration
-        last_physical_day = end_time
+      #duration = pflee.SimulationSettings.SimulationSettings.ReadFromCSV(sys.argv[1])
+      #if duration>0:
+      #  end_time = duration
+      #  last_physical_day = end_time
 
   e = pflee.Ecosystem()
   c = coupling.CouplingInterface()
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
   for l in camp_locations:
     AddInitialRefugees(e,lm[l])
-    addCoupledLocation(lm[l])
+    c.addCoupledLocation(lm[l], l)
     output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
 
   if e.getRankN(0):
@@ -104,8 +104,8 @@ if __name__ == "__main__":
 
     # calculate retrofitted time.
     refugees_in_camps_sim = 0
-    for c in camps:
-      refugees_in_camps_sim += c.numAgents
+    for camp in camps:
+      refugees_in_camps_sim += camp.numAgents
 
     if e.getRankN(t):
       output = "%s" % t
@@ -121,4 +121,4 @@ if __name__ == "__main__":
       print(output)
 
     #exchange data with other code.
-    Couple()
+    c.Couple(e,t)

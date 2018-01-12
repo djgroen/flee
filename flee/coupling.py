@@ -17,6 +17,7 @@ class CouplingInterface:
 
     # coupling definitions.
     self.locations = []
+    self.location_names = []
     self.names = []
     self.directions = []
     self.intervals = []
@@ -39,14 +40,14 @@ class CouplingInterface:
     self.directions += [direction]
     self.intervals += [interval]
 
-  def Couple(self, e, t):
-    if t % self.intervals[i] == 0:
-      writeOutputToFile(t)
+  def Couple(self, e, t): #TODO: make this code more dynamic/flexible
+    if t % self.intervals[0] == 0: #for the time being all intervals will have to be the same...
+      self.writeOutputToFile(t)
       e.clearLocationsFromAgents(self.location_names) #TODO: make this conditional on coupling type.
       for i in range(0, locations):
         #write departing agents to file
         #read incoming agents from file
-        newAgents = readInputFromFile(t)
+        newAgents = self.readInputFromFile(t)
         e.insertAgents(locations[i], newAgents[names[i]])
 
   # File coupling code
@@ -59,9 +60,9 @@ class CouplingInterface:
     self.inputfilename = inputfilename
 
   def writeOutputToFile(self, t):
-    for i in range(0, locations):
+    for i in range(0, len(self.locations)):
       with open('%s.%s.csv' % (self.outputfilename, t),'wb') as file:
-        file.write("%s,%s" % (names[i],locations[i].numAgents))
+        file.write("%s,%s" % (self.names[i], self.locations[i].numAgents))
 
   def readInputFromFile(self, t):
     """
@@ -81,6 +82,6 @@ class CouplingInterface:
           pass
         else:
           for i in range(0, len(self.locations)):
-            if row[0] == names[i]:
-              newAgents[names[i]] = int(row[1])
+            if row[0] == self.names[i]:
+              newAgents[self.names[i]] = int(row[1])
     return newAgents
