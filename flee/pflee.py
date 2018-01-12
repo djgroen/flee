@@ -17,11 +17,13 @@ class MPIManager:
     self.size = self.comm.Get_size()
 
   def CalcCommWorldTotal(self, i):
-    total = self.CalcCommWorldTotalOnRank0(i)
-    total = self.comm.bcast(np.array([total]), root=0)
-    total = total[0]
+    total = np.array([-1])
+    self.comm.Allreduce(np.array([i]), total, op=MPI.SUM)
+    #total = self.CalcCommWorldTotalOnRank0(i)
+    #total = self.comm.bcast(np.array([total]), root=0)
+    #total = total[0]
     #print("Rank, Total: ", self.rank, total)
-    return total
+    return total[0]
 
   def CalcCommWorldTotalOnRank0(self, number):
 
@@ -43,7 +45,6 @@ class Person(flee.Person):
   def __init__(self, location):
     super().__init__(location)
     self.location.numAgentsOnRank += 1
-
 
   def evolve(self):
 
@@ -144,6 +145,16 @@ class Ecosystem(flee.Ecosystem):
       self.num_arrivals = [] # one element per time step.
       self.travel_durations = [] # one element per time step.
 
+  def getRankN(self, t):
+    """
+    Returns the <rank N> value, which is the rank meant to perform diagnostics at a given time step.
+    Argument t contains the current number of time steps taken by the simulation.
+    """
+    N = t % self.mpi.size
+    if self.mpi.rank == N:
+      return True
+    return False
+
   def updateNumAgents(self):
     total = 0
     for loc in self.locations:
@@ -154,7 +165,14 @@ class Ecosystem(flee.Ecosystem):
         link.numAgents = self.mpi.CalcCommWorldTotal(link.numAgentsOnRank)
         #print("location link:", loc.name, link.numAgents)
         total += link.numAgents
-    print("Total agents in simulation:", total)
+    print("Total agents in simulation:", total, file=sys.stderr)
+
+
+  """
+  Add & insert agent functions.
+  TODO: make addAgent function smarter, to prevent large load imbalances over time
+  due to removals by clearLocationFromAgents?
+  """
 
   def addAgent(self, location):
     if SimulationSettings.SimulationSettings.TakeRefugeesFromPopulation:
@@ -163,6 +181,31 @@ class Ecosystem(flee.Ecosystem):
     self.total_agents += 1
     if self.total_agents % self.mpi.size == self.mpi.rank:
       self.agents.append(Person(location))
+
+  def insertAgent(self, location):
+    """
+    Note: insert Agent does NOT take from Population.
+    """
+    self.total_agents += 1
+    if self.total_agents % self.mpi.size == self.mpi.rank:
+      self.agents.append(Person(location))
+
+  def clearLocationsFromAgents(self, location_names): #TODO:REWRITE!!
+    """
+    Remove all agents from a list of locations by name.
+    Useful for couplings to other simulation codes.
+    """
+
+    new_agents = []
+    for i in range(0, len(self.agents)):
+      if self.agents[i].location.name not in location_names:
+        new_agents += agents[i]
+      else:
+        self.agents[i].location.numAgentsOnRank -= 1 #agent is removed from ecosystem and number of agents in location drops by one.
+
+    self.agents = new_agents
+    self.updateNumAgents() # when numAgentsOnRank has changed, we need to updateNumAgents (1x MPI_Allreduce)
+
 
   def numAgents(self):
     return self.total_agents

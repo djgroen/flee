@@ -302,6 +302,7 @@ class Location:
 
 class Link:
   def __init__(self, endpoint, distance, forced_redirection=False):
+    self.name = "__link__"
 
     # distance in km.
     self.distance = float(distance)
@@ -632,6 +633,26 @@ class Ecosystem:
       if location.pop > 0:
         location.pop -= 1
     self.agents.append(Person(location))
+
+  def insertAgent(self, location):
+    """
+    Note: insert Agent does NOT take from Population.
+    """
+    self.agents.append(Person(location))
+
+  def clearLocationsFromAgents(self, location_names):
+    """
+    Remove all agents from a list of locations by name.
+    Useful for couplings to other simulation codes.
+    """
+
+    new_agents = []
+    for i in range(0, len(self.agents)):
+      if self.agents[i].location.name not in location_names:
+        new_agents += agents[i] #agent is preserved in ecosystem.
+      else:
+        self.agents[i].location.numAgents -= 1 #agent is removed from exosystem and number of agents in location drops by one.
+    self.agents = new_agents
 
   def numAgents(self):
     return len(self.agents)
