@@ -3,6 +3,7 @@
 # Idea is to support a wide range of coupling mechanisms within this Python file.
 import os.path
 import time
+import csv
 
 class CouplingInterface:
 
@@ -44,11 +45,12 @@ class CouplingInterface:
     if t % self.intervals[0] == 0: #for the time being all intervals will have to be the same...
       self.writeOutputToFile(t)
       e.clearLocationsFromAgents(self.location_names) #TODO: make this conditional on coupling type.
-      for i in range(0, locations):
+      for i in range(0, len(self.locations)):
         #write departing agents to file
         #read incoming agents from file
         newAgents = self.readInputFromFile(t)
-        e.insertAgents(locations[i], newAgents[names[i]])
+        if self.names[i] in newAgents:
+          e.insertAgents(e.locations[i], newAgents[self.names[i]])
 
   # File coupling code
 
@@ -61,8 +63,10 @@ class CouplingInterface:
 
   def writeOutputToFile(self, t):
     for i in range(0, len(self.locations)):
-      with open('%s.%s.csv' % (self.outputfilename, t),'wb') as file:
+      with open('%s.%s.csv' % (self.outputfilename, t),'w') as file:
         file.write("%s,%s" % (self.names[i], self.locations[i].numAgents))
+    file.close()
+    print("Couple: output written to %s.%s.csv" % (self.outputfilename, t))
 
   def readInputFromFile(self, t):
     """
@@ -70,6 +74,7 @@ class CouplingInterface:
     """
     in_fname = "%s.%s.csv" % (self.inputfilename, t)
 
+    print("Couple: searching for", in_fname)
     while not os.path.exists(in_fname):
       time.sleep(0.1)
     time.sleep(0.001)

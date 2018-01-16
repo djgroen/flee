@@ -640,6 +640,10 @@ class Ecosystem:
     """
     self.agents.append(Person(location))
 
+  def insertAgents(self, location, number):
+    for i in range(0,number):
+      self.insertAgent(location)
+
   def clearLocationsFromAgents(self, location_names):
     """
     Remove all agents from a list of locations by name.

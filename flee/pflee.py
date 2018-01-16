@@ -199,7 +199,7 @@ class Ecosystem(flee.Ecosystem):
     new_agents = []
     for i in range(0, len(self.agents)):
       if self.agents[i].location.name not in location_names:
-        new_agents += agents[i]
+        new_agents += [self.agents[i]]
       else:
         self.agents[i].location.numAgentsOnRank -= 1 #agent is removed from ecosystem and number of agents in location drops by one.
 
