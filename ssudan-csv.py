@@ -47,14 +47,14 @@ if __name__ == "__main__":
 
   #print("Network data loaded")
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="source_data/ssudan2013/", start_date="2013-12-15", data_layout="data_layout.csv")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="source_data/ssudan2014/", start_date="2013-12-15", data_layout="data_layout.csv")
 
   #Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
   #These errors led to a perceived large drop in refugee population in all of these camps.
   #We correct by linearly scaling the values down to make the last level 1 registration match the first level 2 registration value.
   #To our knowledge, all level 2 registration procedures were put in place by the end of 2016.
   d.correctLevel1Registrations("Tierkidi","2014-08-08")
-  d.correctLevel1Registrations("Pugnido","2015-09-30")
+  d.correctLevel1Registrations("Pugnido","2015-06-26")
   d.correctLevel1Registrations("Jewi","2015-07-31")
   d.correctLevel1Registrations("Kule","2014-09-12")
   d.correctLevel1Registrations("Kakuma","2014-06-26")
@@ -69,10 +69,8 @@ if __name__ == "__main__":
   lm["Jewi"].capacity = d.getMaxFromData("Jewi", last_physical_day)
   lm["Kule"].capacity = d.getMaxFromData("Kule", last_physical_day)
   lm["Kakuma"].capacity = d.getMaxFromData("Kakuma", last_physical_day)
-  lm["Mole"].capacity = d.getMaxFromData("Mole", last_physical_day)
   lm["Khartoum"].capacity = d.getMaxFromData("Khartoum", last_physical_day)
   lm["West_Kordofan"].capacity = d.getMaxFromData("West_Kordofan", last_physical_day)
-  lm["Mboti"].capacity = d.getMaxFromData("Mboti", last_physical_day)
   lm["Adjumani"].capacity = d.getMaxFromData("Adjumani", last_physical_day)
   lm["Rhino"].capacity = d.getMaxFromData("Rhino", last_physical_day)
   lm["Kiryandongo"].capacity = d.getMaxFromData("Kiryandongo", last_physical_day)
