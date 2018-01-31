@@ -8,7 +8,7 @@ import sys
 
 def AddInitialRefugees(e, loc):
   """ Add the initial refugees to a location, using the location name"""
-  num_refugees = 1000
+  num_refugees = 1000000
   for i in range(0, num_refugees):
     e.addAgent(location=loc)
 
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     ig.AddNewConflictZones(e,t)
 
     # Determine number of new refugees to insert into the system.
-    new_refs = 100000
+    new_refs = 1000
     refugees_raw += new_refs
 
     if new_refs < 0:
