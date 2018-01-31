@@ -21,11 +21,11 @@ if __name__ == "__main__":
 
   end_time = 10
   last_physical_day = 10
-  coupling_reversed = 0
+  submodel_id = 0
 
   if len(sys.argv)>1:
     if (sys.argv[1]).isnumeric():
-      coupling_reversed = int(sys.argv[1])
+      submodel_id = int(sys.argv[1])
       #duration = pflee.SimulationSettings.SimulationSettings.ReadFromCSV(sys.argv[1])
       #if duration>0:
       #  end_time = duration
@@ -34,7 +34,7 @@ if __name__ == "__main__":
   e = pflee.Ecosystem()
   c = coupling.CouplingInterface()
   c.setCouplingFilenames("in","out")
-  if(coupling_reversed > 0):
+  if(submodel_id > 0):
     c.setCouplingFilenames("out","in")
 
   ig = InputGeography.InputGeography()
@@ -75,7 +75,9 @@ if __name__ == "__main__":
     ig.AddNewConflictZones(e,t)
 
     # Determine number of new refugees to insert into the system.
-    new_refs = 100000
+    new_refs = 0
+    if submodel_id == 0:
+      new_refs = 10000
     refugees_raw += new_refs
 
     if new_refs < 0:
