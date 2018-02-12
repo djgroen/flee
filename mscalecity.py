@@ -6,10 +6,11 @@ from flee import InputGeography
 import numpy as np
 import outputanalysis.analysis as a
 import sys
+import analyze_graph
 
 def AddInitialRefugees(e, loc):
   """ Add the initial refugees to a location, using the location name"""
-  num_refugees = 1000
+  num_refugees = 100
   for i in range(0, num_refugees):
     e.addAgent(location=loc)
 
@@ -39,13 +40,19 @@ if __name__ == "__main__":
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadLocationsFromCSV("examples/testcity/locations.csv")
+  ig.ReadLocationsFromCSV("examples/testmscale/locations-%s.csv" % submodel_id)
 
-  ig.ReadLinksFromCSV("examples/testcity/routes.csv")
+  ig.ReadLinksFromCSV("examples/testmscale/routes-%s.csv" % submodel_id)
 
-  ig.ReadClosuresFromCSV("examples/testcity/closures.csv")
+  ig.ReadClosuresFromCSV("examples/testmscale/closures-%s.csv" % submodel_id)
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
+
+  #DEBUG: print graph and show it on an image.
+  #vertices, edges = e.export_graph()
+  #analyze_graph.print_graph_nx(vertices, edges, print_dist=True)
+  #sys.exit()
+
 
   #print("Network data loaded")
 
@@ -53,16 +60,27 @@ if __name__ == "__main__":
 
   output_header_string = "Day,"
 
-  camp_locations      = ["N","E","S","W"]
+  coupled_locations      = ["N","E","S","W"]
+  camp_locations = list(lm.keys())
+  #camp_locations      = ["N","E","S","W"]
+  #if(submodel_id > 0):
+  #  camp_locations = ["A","B"]
   #TODO: Add Camps from CSV based on their location type.
+
+  for l in coupled_locations:
+    c.addCoupledLocation(lm[l], l)
 
   for l in camp_locations:
     AddInitialRefugees(e,lm[l])
-    c.addCoupledLocation(lm[l], l)
-    output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
+    output_header_string += "%s sim," % (lm[l].name)
+
+  #for l in camp_locations:
+  #  AddInitialRefugees(e,lm[l])
+  #  c.addCoupledLocation(lm[l], l)
+  #  output_header_string += "%s sim," % (lm[l].name)
 
   if e.getRankN(0):
-    output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
+    output_header_string += "num agents,num agents in camps"
     print(output_header_string)
 
   # Set up a mechanism to incorporate temporary decreases in refugees

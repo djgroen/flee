@@ -4,6 +4,7 @@
 import os.path
 import time
 import csv
+import sys
 
 class CouplingInterface:
 
@@ -44,11 +45,13 @@ class CouplingInterface:
   def Couple(self, e, t): #TODO: make this code more dynamic/flexible
     if t % self.intervals[0] == 0: #for the time being all intervals will have to be the same...
       self.writeOutputToFile(t)
+      newAgents = self.readInputFromFile(t)
       e.clearLocationsFromAgents(self.location_names) #TODO: make this conditional on coupling type.
       for i in range(0, len(self.locations)):
         #write departing agents to file
         #read incoming agents from file
-        newAgents = self.readInputFromFile(t)
+        print(self.names, i, newAgents)
+        print("Couple IN: %s %s" % (self.names[i], newAgents[self.names[i]]), file=sys.stderr)
         if self.names[i] in newAgents:
           e.insertAgents(e.locations[i], newAgents[self.names[i]])
 
@@ -63,10 +66,11 @@ class CouplingInterface:
 
   def writeOutputToFile(self, t):
     for i in range(0, len(self.locations)):
-      with open('%s.%s.csv' % (self.outputfilename, t),'w') as file:
-        file.write("%s,%s" % (self.names[i], self.locations[i].numAgents))
+      with open('%s.%s.csv' % (self.outputfilename, t),'a') as file:
+        file.write("%s,%s\n" % (self.names[i], self.locations[i].numAgents))
+        print("Couple OUT: %s %s" % (self.names[i], self.locations[i].numAgents), file=sys.stderr)
     file.close()
-    print("Couple: output written to %s.%s.csv" % (self.outputfilename, t))
+    print("Couple: output written to %s.%s.csv" % (self.outputfilename, t), file=sys.stderr)
 
   def readInputFromFile(self, t):
     """
@@ -74,7 +78,7 @@ class CouplingInterface:
     """
     in_fname = "%s.%s.csv" % (self.inputfilename, t)
 
-    print("Couple: searching for", in_fname)
+    print("Couple: searching for", in_fname, file=sys.stderr)
     while not os.path.exists(in_fname):
       time.sleep(0.1)
     time.sleep(0.001)

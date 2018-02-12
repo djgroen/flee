@@ -165,6 +165,7 @@ class Ecosystem(flee.Ecosystem):
         link.numAgents = self.mpi.CalcCommWorldTotal(link.numAgentsOnRank)
         #print("location link:", loc.name, link.numAgents)
         total += link.numAgents
+    self.total_agents = total
     print("Total agents in simulation:", total, file=sys.stderr)
 
 
