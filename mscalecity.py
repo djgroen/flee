@@ -33,7 +33,7 @@ if __name__ == "__main__":
       #  last_physical_day = end_time
 
   e = pflee.Ecosystem()
-  c = coupling.CouplingInterface()
+  c = coupling.CouplingInterface(e)
   c.setCouplingFilenames("in","out")
   if(submodel_id > 0):
     c.setCouplingFilenames("out","in")
@@ -62,6 +62,8 @@ if __name__ == "__main__":
 
   coupled_locations      = ["N","E","S","W"]
   camp_locations = list(lm.keys())
+
+  #print(camp_locations)
   #camp_locations      = ["N","E","S","W"]
   #if(submodel_id > 0):
   #  camp_locations = ["A","B"]
@@ -73,11 +75,6 @@ if __name__ == "__main__":
   for l in camp_locations:
     AddInitialRefugees(e,lm[l])
     output_header_string += "%s sim," % (lm[l].name)
-
-  #for l in camp_locations:
-  #  AddInitialRefugees(e,lm[l])
-  #  c.addCoupledLocation(lm[l], l)
-  #  output_header_string += "%s sim," % (lm[l].name)
 
   if e.getRankN(0):
     output_header_string += "num agents,num agents in camps"
@@ -98,12 +95,6 @@ if __name__ == "__main__":
       new_refs = 10000
     refugees_raw += new_refs
 
-    if new_refs < 0:
-      refugee_debt = -new_refs
-      new_refs = 0
-    elif refugee_debt > 0:
-      refugee_debt = 0
-
     #Insert refugee agents
     for i in range(0, new_refs):
       e.addAgent(e.pick_conflict_location())
@@ -111,7 +102,7 @@ if __name__ == "__main__":
     e.refresh_conflict_weights()
     t_data = t
 
-    e.enact_border_closures(t)
+    #e.enact_border_closures(t)
     e.evolve()
 
     #Calculation of error terms
@@ -141,4 +132,4 @@ if __name__ == "__main__":
       print(output)
 
     #exchange data with other code.
-    c.Couple(e,t)
+    c.Couple(t)

@@ -8,8 +8,10 @@ import sys
 
 class CouplingInterface:
 
-  def __init__(self, coupling_type="file"):
-    """ Constructor. Coupling types to support eventually:
+  def __init__(self, e, coupling_type="file"):
+    """ Constructor.
+    e = FLEE ecosystem
+    Coupling types to support eventually:
         - file
         - MPWide
         - one-sided store
@@ -18,7 +20,8 @@ class CouplingInterface:
     self.coupling_type = coupling_type
 
     # coupling definitions.
-    self.locations = []
+    self.e = e
+    self.location_ids = []
     self.location_names = []
     self.names = []
     self.directions = []
@@ -36,24 +39,24 @@ class CouplingInterface:
       - "inout indirect" -> changes in agent numbers are stored in the coupling link. No agents are added or removed.
     * Interval is the timestep interval of the coupling, ensuring that the coupling activity is performed every <interval> time steps.
     """
-    self.locations += [location]
+    self.location_ids += [self.e._convert_location_name_to_index(location.name)]
     self.location_names += [location.name]
     self.names += [name]
     self.directions += [direction]
     self.intervals += [interval]
 
-  def Couple(self, e, t): #TODO: make this code more dynamic/flexible
+  def Couple(self, t): #TODO: make this code more dynamic/flexible
     if t % self.intervals[0] == 0: #for the time being all intervals will have to be the same...
       self.writeOutputToFile(t)
       newAgents = self.readInputFromFile(t)
-      e.clearLocationsFromAgents(self.location_names) #TODO: make this conditional on coupling type.
-      for i in range(0, len(self.locations)):
+      self.e.clearLocationsFromAgents(self.location_names) #TODO: make this conditional on coupling type.
+      for i in range(0, len(self.location_names)):
         #write departing agents to file
         #read incoming agents from file
-        print(self.names, i, newAgents)
+        #print(self.names, i, newAgents)
         print("Couple IN: %s %s" % (self.names[i], newAgents[self.names[i]]), file=sys.stderr)
         if self.names[i] in newAgents:
-          e.insertAgents(e.locations[i], newAgents[self.names[i]])
+          self.e.insertAgents(self.e.locations[self.location_ids[i]], newAgents[self.names[i]])
 
   # File coupling code
 
@@ -65,10 +68,10 @@ class CouplingInterface:
     self.inputfilename = inputfilename
 
   def writeOutputToFile(self, t):
-    for i in range(0, len(self.locations)):
+    for i in range(0, len(self.location_ids)):
       with open('%s.%s.csv' % (self.outputfilename, t),'a') as file:
-        file.write("%s,%s\n" % (self.names[i], self.locations[i].numAgents))
-        print("Couple OUT: %s %s" % (self.names[i], self.locations[i].numAgents), file=sys.stderr)
+        file.write("%s,%s\n" % (self.names[i], self.e.locations[self.location_ids[i]].numAgents))
+        print("Couple OUT: %s %s" % (self.names[i], self.e.locations[self.location_ids[i]].numAgents), file=sys.stderr)
     file.close()
     print("Couple: output written to %s.%s.csv" % (self.outputfilename, t), file=sys.stderr)
 
@@ -90,7 +93,7 @@ class CouplingInterface:
         if row[0][0] == "#":
           pass
         else:
-          for i in range(0, len(self.locations)):
+          for i in range(0, len(self.location_ids)):
             if row[0] == self.names[i]:
               newAgents[self.names[i]] = int(row[1])
     return newAgents

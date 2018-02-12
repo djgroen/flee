@@ -191,6 +191,11 @@ class Ecosystem(flee.Ecosystem):
     if self.total_agents % self.mpi.size == self.mpi.rank:
       self.agents.append(Person(location))
 
+  def insertAgents(self, location, number):
+    for i in range(0,number):
+      self.insertAgent(location)
+
+
   def clearLocationsFromAgents(self, location_names): #TODO:REWRITE!!
     """
     Remove all agents from a list of locations by name.
@@ -202,6 +207,7 @@ class Ecosystem(flee.Ecosystem):
       if self.agents[i].location.name not in location_names:
         new_agents += [self.agents[i]]
       else:
+        #print("Agent removed: ", self.agents[i].location.name)
         self.agents[i].location.numAgentsOnRank -= 1 #agent is removed from ecosystem and number of agents in location drops by one.
 
     self.agents = new_agents
@@ -236,6 +242,8 @@ class Ecosystem(flee.Ecosystem):
 
     for a in self.agents:
       a.finish_travel()
+
+    self.updateNumAgents()
 
     #update link properties
     if SimulationSettings.SimulationSettings.CampLogLevel > 0:
