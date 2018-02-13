@@ -57,6 +57,7 @@ class CouplingInterface:
         print("Couple IN: %s %s" % (self.names[i], newAgents[self.names[i]]), file=sys.stderr)
         if self.names[i] in newAgents:
           self.e.insertAgents(self.e.locations[self.location_ids[i]], newAgents[self.names[i]])
+        self.e.updateNumAgents()
 
   # File coupling code
 

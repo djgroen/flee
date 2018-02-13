@@ -10,7 +10,7 @@ import analyze_graph
 
 def AddInitialRefugees(e, loc):
   """ Add the initial refugees to a location, using the location name"""
-  num_refugees = 100
+  num_refugees = 100000
   for i in range(0, num_refugees):
     e.addAgent(location=loc)
 
@@ -69,11 +69,13 @@ if __name__ == "__main__":
   #  camp_locations = ["A","B"]
   #TODO: Add Camps from CSV based on their location type.
 
+  if submodel_id == 0:
+    AddInitialRefugees(e,lm["A"])
+
   for l in coupled_locations:
     c.addCoupledLocation(lm[l], l)
 
   for l in camp_locations:
-    AddInitialRefugees(e,lm[l])
     output_header_string += "%s sim," % (lm[l].name)
 
   if e.getRankN(0):
@@ -92,7 +94,7 @@ if __name__ == "__main__":
     # Determine number of new refugees to insert into the system.
     new_refs = 0
     if submodel_id == 0:
-      new_refs = 10000
+      new_refs = 0
     refugees_raw += new_refs
 
     #Insert refugee agents
