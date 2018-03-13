@@ -487,9 +487,9 @@ class Ecosystem:
     """
     Shorthand call for remove_link, only moving the link to the closed list.
     """
-    self.remove_link(startpoint, endpoint, twoway=twoway, close_only=True)
+    return self.remove_link(startpoint, endpoint, twoway=twoway, close_only=True)
 
-  def _change_location_1way(self, location_name, mode="close", direction="in"):
+  def _change_location_1way(self, location_name, mode="close", direction="both"):
     """
     Close all links to or from one location.
     mode: close or reopen
@@ -502,10 +502,12 @@ class Ecosystem:
     elif direction == "both":
       dir_mode = 2
 
-    print("%s location 1 way [%s]" % (mode, location_name), file=sys.stderr)
+    print("%s location 1 way [%s] in direction %s (%s)." % (mode, location_name, direction, dir_mode), file=sys.stderr)
     changed_anything = False
+
     for i in range(0, len(self.locationNames)):
       if self.locationNames[i] == location_name:
+        changed_anything = True
 
         link_set = self.locations[i].links
         if mode == "reopen":
@@ -514,25 +516,29 @@ class Ecosystem:
         j = 0
         while j < len(link_set):
           print("starting to %s link 1 way [%s] [%s]" % (mode, location_name, link_set[j].endpoint.name), file=sys.stderr)
-          changed_anything = True
           if mode == "close":
-            if dir_mode > 0:
-              if self.close_link(self.locationNames[i], link_set[j].endpoint.name, twoway=False):
-                link_set = self.locations[i].links # shrink the link list.
-                continue
+
             if dir_mode % 2 == 0:
               self.close_link(link_set[j].endpoint.name, self.locationNames[i], twoway=False)
-              if dir_mode == 0:
-                j += 1 # do not shrink the link list (reversed direction, but increase the iterator ONLY if the list has not already been shrunk)
-          elif mode == "reopen":
+
             if dir_mode > 0:
-              if self.reopen_link(self.locationNames[i], link_set[j].endpoint.name, twoway=False):
-                link_set = self.locations[i].closed_links
-                continue
+              if self.close_link(self.locationNames[i], link_set[j].endpoint.name, twoway=False):
+                link_set = self.locations[i].links # shrink the link list. # This operation affects the overall loop, so no major operations should take place after this.
+
+          elif mode == "reopen":
+
             if dir_mode % 2 == 0:
               self.reopen_link(link_set[j].endpoint.name, self.locationNames[i], twoway=False)
-              if dir_mode == 0:
-                j += 1 # do not shrink the link list (reversed direction, but increase the iterator ONLY if the list has not already been shrunk)
+
+            if dir_mode > 0:
+              if self.reopen_link(self.locationNames[i], link_set[j].endpoint.name, twoway=False):
+                link_set = self.locations[i].links # shrink the link list. # This operation affects the overall loop, so no major operations should take place after this.
+
+          # iterate j ONLY if direction == "in"
+          if dir_mode == 0:
+            j += 1 # do not shrink the link list (reversed direction, but increase the iterator ONLY if the list has not already been shrunk)
+
+    return changed_anything
 
   def _change_border_1way(self, source_country, dest_country, mode="close"):
     """
@@ -585,7 +591,7 @@ class Ecosystem:
     """
     Close in- and outgoing links for a location.
     """
-    self._change_location_1way(location_name, mode="close", direction="both")
+    return self._change_location_1way(location_name, mode="close", direction="both")
 
   def reopen_location(self, location_name):
     """
