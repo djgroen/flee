@@ -386,13 +386,17 @@ class Ecosystem:
             print("Time = %s. Closing Border between [%s] and [%s]" % (time, c[1], c[2]), file=sys.stderr)
             self.close_border(c[1],c[2], twoway)
           if c[0] == "location":
-            self.close_border(c[1],c[2], twoway)
+            self.close_location(c[1],c[2], twoway)
+          if c[0] == "link":
+            self.close_link(c[1],c[2], twoway)
         if time == c[4]:
           if c[0] == "country":
             print("Time = %s. Reopening Border between [%s] and [%s]" % (time, c[1], c[2]), file=sys.stderr)
             self.reopen_border(c[1],c[2], twoway)
           if c[0] == "location":
-            self.reopen_border(c[1],c[2], twoway)
+            self.reopen_location(c[1],c[2], twoway)
+          if c[0] == "link":
+            self.reopen_link(c[1],c[2], twoway)
 
   def _convert_location_name_to_index(self, name):
     """
@@ -485,6 +489,50 @@ class Ecosystem:
     """
     self.remove_link(startpoint, endpoint, twoway=twoway, close_only=True)
 
+  def _change_location_1way(self, location_name, mode="close", direction="in"):
+    """
+    Close all links to or from one location.
+    mode: close or reopen
+    direction: in, out or both.
+    """
+
+    dir_mode = 0
+    if direction == "out":
+      dir_mode = 1
+    elif direction == "both":
+      dir_mode = 2
+
+    print("%s location 1 way [%s]" % (mode, location_name), file=sys.stderr)
+    changed_anything = False
+    for i in range(0, len(self.locationNames)):
+      if self.locationNames[i] == location_name:
+
+        link_set = self.locations[i].links
+        if mode == "reopen":
+          link_set = self.locations[i].closed_links
+
+        j = 0
+        while j < len(link_set):
+          print("starting to %s link 1 way [%s] [%s]" % (mode, location_name, link_set[j].endpoint.name), file=sys.stderr)
+          changed_anything = True
+          if mode == "close":
+            if dir_mode > 0:
+              if self.close_link(self.locationNames[i], link_set[j].endpoint.name, twoway=False):
+                link_set = self.locations[i].links # shrink the link list.
+                continue
+            if dir_mode % 2 == 0:
+              self.close_link(link_set[j].endpoint.name, self.locationNames[i], twoway=False)
+              if dir_mode == 0:
+                j += 1 # do not shrink the link list (reversed direction, but increase the iterator ONLY if the list has not already been shrunk)
+          elif mode == "reopen":
+            if dir_mode > 0:
+              if self.reopen_link(self.locationNames[i], link_set[j].endpoint.name, twoway=False):
+                link_set = self.locations[i].closed_links
+                continue
+            if dir_mode % 2 == 0:
+              self.reopen_link(link_set[j].endpoint.name, self.locationNames[i], twoway=False)
+              if dir_mode == 0:
+                j += 1 # do not shrink the link list (reversed direction, but increase the iterator ONLY if the list has not already been shrunk)
 
   def _change_border_1way(self, source_country, dest_country, mode="close"):
     """
@@ -533,6 +581,17 @@ class Ecosystem:
     if twoway:
       self._change_border_1way(dest_country, source_country, mode="reopen")
 
+  def close_location(self, location_name):
+    """
+    Close in- and outgoing links for a location.
+    """
+    self._change_location_1way(location_name, mode="close", direction="both")
+
+  def reopen_location(self, location_name):
+    """
+    Reopen in- and outgoing links for a location.
+    """
+    self._change_location_1way(location_name, mode="reopen", direction="both")
 
   def add_conflict_zone(self, name, change_movechance=True):
     """
