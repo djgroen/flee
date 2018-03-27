@@ -51,17 +51,22 @@ class CouplingInterface:
     self.intervals += [interval]
 
   def Couple(self, t): #TODO: make this code more dynamic/flexible
-    if self.e.mpi != None:
-      if self.e.mpi.rank > 0:
-        return
     if t % self.intervals[0] == 0: #for the time being all intervals will have to be the same...
       if self.coupling_type=="muscle":
         muscle.send(self.generateOutputCSVString(t), "out", muscle.string)
         #in_csv_string = muscle.receive("in", muscle.string)
         pass #TODO: write muscle code
       else:
-        self.writeOutputToFile(t)
+        if self.e.mpi != None:
+          if self.e.mpi.rank > 0:
+            pass
+          else:
+            self.writeOutputToFile(t)
+        else:
+          self.writeOutputToFile(t)
+
         newAgents = self.readInputFromFile(t)
+
       self.e.clearLocationsFromAgents(self.location_names) #TODO: make this conditional on coupling type.
       for i in range(0, len(self.location_names)):
         #write departing agents to file
@@ -92,9 +97,26 @@ class CouplingInterface:
     out_csv_string = self.generateOutputCSVString(t)
     with open('%s.%s.csv' % (self.outputfilename, t),'a') as file:
       file.write(out_csv_string)
-    file.close()
 
     print("Couple: output written to %s.%s.csv" % (self.outputfilename, t), file=sys.stderr)
+
+  def extractNewAgentsFromCSVString(self, csv_string):
+    """
+    Reads in a CSV string with coupling information, and extracts a list of New Agents.
+    """
+    newAgents = {}
+
+    for line in csv_string:
+      row = line.split(',')
+      if len(row[0]) == 0:
+        continue
+      if row[0][0] == "#":
+        pass
+      else:
+        for i in range(0, len(self.location_ids)):
+          if row[0] == self.names[i]:
+            newAgents[self.names[i]] = int(row[1])
+    return newAgents
 
   def readInputFromFile(self, t):
     """
@@ -107,15 +129,8 @@ class CouplingInterface:
       time.sleep(0.1)
     time.sleep(0.001)
 
-    newAgents = {}
-    with open("%s.%s.csv" % (self.inputfilename, t), newline='') as csvfile:
-      values = csv.reader(csvfile)
-      for row in values:
-        print("ROW:",row)
-        if row[0][0] == "#":
-          pass
-        else:
-          for i in range(0, len(self.location_ids)):
-            if row[0] == self.names[i]:
-              newAgents[self.names[i]] = int(row[1])
-    return newAgents
+    csv_string = ""
+    with open("%s.%s.csv" % (self.inputfilename, t)) as csvfile:
+      csv_string = csvfile.read().split('\n')
+
+    return self.extractNewAgentsFromCSVString(csv_string)
