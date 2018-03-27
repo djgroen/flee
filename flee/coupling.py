@@ -51,9 +51,12 @@ class CouplingInterface:
     self.intervals += [interval]
 
   def Couple(self, t): #TODO: make this code more dynamic/flexible
+    if self.e.mpi != None:
+      if self.e.mpi.rank > 0:
+        return
     if t % self.intervals[0] == 0: #for the time being all intervals will have to be the same...
       if self.coupling_type=="muscle":
-        #muscle.send(out_csv_string, "out", muscle.string)
+        muscle.send(self.generateOutputCSVString(t), "out", muscle.string)
         #in_csv_string = muscle.receive("in", muscle.string)
         pass #TODO: write muscle code
       else:
@@ -108,6 +111,7 @@ class CouplingInterface:
     with open("%s.%s.csv" % (self.inputfilename, t), newline='') as csvfile:
       values = csv.reader(csvfile)
       for row in values:
+        print("ROW:",row)
         if row[0][0] == "#":
           pass
         else:
