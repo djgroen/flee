@@ -16,6 +16,7 @@ class CouplingInterface:
         - MPWide
         - one-sided store
         - repository coupling.
+        - muscle
     """
     self.coupling_type = coupling_type
 
@@ -26,6 +27,10 @@ class CouplingInterface:
     self.names = []
     self.directions = []
     self.intervals = []
+
+    if coupling_type=="muscle":
+      import muscle
+      muscle.init() #add sys.argv?
 
   def addCoupledLocation(self, location, name, direction="inout", interval=1):
     """
@@ -47,8 +52,13 @@ class CouplingInterface:
 
   def Couple(self, t): #TODO: make this code more dynamic/flexible
     if t % self.intervals[0] == 0: #for the time being all intervals will have to be the same...
-      self.writeOutputToFile(t)
-      newAgents = self.readInputFromFile(t)
+      if self.coupling_type=="muscle":
+        #muscle.send(out_csv_string, "out", muscle.string)
+        #in_csv_string = muscle.receive("in", muscle.string)
+        pass #TODO: write muscle code
+      else:
+        self.writeOutputToFile(t)
+        newAgents = self.readInputFromFile(t)
       self.e.clearLocationsFromAgents(self.location_names) #TODO: make this conditional on coupling type.
       for i in range(0, len(self.location_names)):
         #write departing agents to file
@@ -68,12 +78,19 @@ class CouplingInterface:
     self.outputfilename = outputfilename
     self.inputfilename = inputfilename
 
-  def writeOutputToFile(self, t):
+  def generateOutputCSVString(self, t):
+    out_csv_string = ""
     for i in range(0, len(self.location_ids)):
-      with open('%s.%s.csv' % (self.outputfilename, t),'a') as file:
-        file.write("%s,%s\n" % (self.names[i], self.e.locations[self.location_ids[i]].numAgents))
-        print("Couple OUT: %s %s" % (self.names[i], self.e.locations[self.location_ids[i]].numAgents), file=sys.stderr)
+      out_csv_string += "%s,%s\n" % (self.names[i], self.e.locations[self.location_ids[i]].numAgents)
+      print("Couple OUT: %s %s" % (self.names[i], self.e.locations[self.location_ids[i]].numAgents), file=sys.stderr)
+    return out_csv_string
+
+  def writeOutputToFile(self, t):
+    out_csv_string = self.generateOutputCSVString(t)
+    with open('%s.%s.csv' % (self.outputfilename, t),'a') as file:
+      file.write(out_csv_string)
     file.close()
+
     print("Couple: output written to %s.%s.csv" % (self.outputfilename, t), file=sys.stderr)
 
   def readInputFromFile(self, t):
