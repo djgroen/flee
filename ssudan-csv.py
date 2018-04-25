@@ -64,7 +64,7 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Kiryandongo","2014-05-27")
 
   lm["Ituri"].capacity = d.getMaxFromData("Ituri", last_physical_day)
-  lm["Tierkidi"].capacity = d.getMaxFromData("Tierkidi", last_physical_day) 
+  lm["Tierkidi"].capacity = d.getMaxFromData("Tierkidi", last_physical_day)
   lm["Pugnido"].capacity = d.getMaxFromData("Pugnido", last_physical_day)
   lm["Jewi"].capacity = d.getMaxFromData("Jewi", last_physical_day)
   lm["Kule"].capacity = d.getMaxFromData("Kule", last_physical_day)
@@ -148,7 +148,7 @@ if __name__ == "__main__":
       #output_string += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw)
       output += ",%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt)
     else:
-      output += ",0,0,0,0,0,0,0"
+      output += ",0,0,0,0,0,0"
       #output_string += ",0"
 
 
