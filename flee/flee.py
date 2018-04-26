@@ -598,11 +598,14 @@ class Ecosystem:
     else:
       return self._change_location_1way(location_name, mode="close", direction="in")
 
-  def reopen_location(self, location_name):
+  def reopen_location(self, location_name, twoway=True):
     """
     Reopen in- and outgoing links for a location.
     """
-    self._change_location_1way(location_name, mode="reopen", direction="both")
+    if twoway:
+      self._change_location_1way(location_name, mode="reopen", direction="both")
+    else:
+      self._change_location_1way(location_name, mode="reopen", direction="in")
 
   def add_conflict_zone(self, name, change_movechance=True):
     """
