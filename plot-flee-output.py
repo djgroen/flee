@@ -1,7 +1,8 @@
 import pandas as pd
+import matplotlib
+matplotlib.use('Pdf')
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib
 import sys
 import datamanager.handle_refugee_data as handle_refugee_data
 import warnings
@@ -300,7 +301,7 @@ def plotme_minimal(out_dir, data, name):
 
   #Size of plots/graphs
   fig = matplotlib.pyplot.gcf()
-  fig.set_size_inches(8, 6)
+  fig.set_size_inches(7, 6)
   #adjust margins.
   set_margins(l=0.14,b=0.13,r=0.96,t=0.96)
 
