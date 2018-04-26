@@ -388,7 +388,7 @@ class Ecosystem:
             print("Time = %s. Closing Border between [%s] and [%s]" % (time, c[1], c[2]), file=sys.stderr)
             self.close_border(c[1],c[2], twoway)
           if c[0] == "location":
-            self.close_location(c[1],c[2], twoway)
+            self.close_location(c[1], twoway)
           if c[0] == "link":
             self.close_link(c[1],c[2], twoway)
         if time == c[4]:
@@ -396,7 +396,7 @@ class Ecosystem:
             print("Time = %s. Reopening Border between [%s] and [%s]" % (time, c[1], c[2]), file=sys.stderr)
             self.reopen_border(c[1],c[2], twoway)
           if c[0] == "location":
-            self.reopen_location(c[1],c[2], twoway)
+            self.reopen_location(c[1], twoway)
           if c[0] == "link":
             self.reopen_link(c[1],c[2], twoway)
 
@@ -589,11 +589,14 @@ class Ecosystem:
     if twoway:
       self._change_border_1way(dest_country, source_country, mode="reopen")
 
-  def close_location(self, location_name):
+  def close_location(self, location_name, twoway=True):
     """
     Close in- and outgoing links for a location.
     """
-    return self._change_location_1way(location_name, mode="close", direction="both")
+    if twoway:
+      return self._change_location_1way(location_name, mode="close", direction="both")
+    else:
+      return self._change_location_1way(location_name, mode="close", direction="in")
 
   def reopen_location(self, location_name):
     """

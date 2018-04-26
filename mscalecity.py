@@ -10,7 +10,7 @@ import analyze_graph
 
 def AddInitialRefugees(e, loc):
   """ Add the initial refugees to a location, using the location name"""
-  num_refugees = 1000000
+  num_refugees = 10000
   for i in range(0, num_refugees):
     e.addAgent(location=loc)
 
@@ -50,8 +50,8 @@ if __name__ == "__main__":
 
   #DEBUG: print graph and show it on an image.
   vertices, edges = e.export_graph()
-  analyze_graph.print_graph_nx(vertices, edges, print_dist=True)
-  sys.exit()
+  #analyze_graph.print_graph_nx(vertices, edges, print_dist=True)
+  #sys.exit()
 
 
   #print("Network data loaded")

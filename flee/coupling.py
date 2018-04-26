@@ -49,20 +49,24 @@ class CouplingInterface:
     self.names += [name]
     self.directions += [direction]
     self.intervals += [interval]
+    self.coupling_rank = True
+    if self.e.mpi != None:
+      if self.e.mpi.rank > 0:
+        self.coupling_rank = False
 
   def Couple(self, t): #TODO: make this code more dynamic/flexible
+    newAgents = None
     if t % self.intervals[0] == 0: #for the time being all intervals will have to be the same...
       if self.coupling_type=="muscle":
-        muscle.send(self.generateOutputCSVString(t), "out", muscle.string)
-        #in_csv_string = muscle.receive("in", muscle.string)
-        pass #TODO: write muscle code
-      else:
-        if self.e.mpi != None:
-          if self.e.mpi.rank > 0:
-            pass
-          else:
-            self.writeOutputToFile(t)
-        else:
+        if self.coupling_rank: #If MPI is used, this will be the process with rank 0
+          muscle.send(self.generateOutputCSVString(t), "out", muscle.string)
+          newAgents = self.extractNewAgentsFromCSVString(muscle.receive("in", muscle.string))
+
+        if self.e.mpi != None: #If MPI is used, broadcast newAgents to all other processes
+          newAgents = self.e.mpi.comm.bcast(newAgents, root=0)
+
+      else: #default is coupling through file IO.
+        if self.coupling_rank: #If MPI is used, this will be the process with rank 0
           self.writeOutputToFile(t)
 
         newAgents = self.readInputFromFile(t)
