@@ -517,7 +517,7 @@ class Ecosystem:
 
         j = 0
         while j < len(link_set):
-          print("starting to %s link 1 way [%s] [%s]" % (mode, location_name, link_set[j].endpoint.name), file=sys.stderr)
+          print("starting to %s link [%s] [%s] in direction %s" % (mode, location_name, link_set[j].endpoint.name, direction), file=sys.stderr)
           if mode == "close":
 
             if dir_mode % 2 == 0:
@@ -526,6 +526,8 @@ class Ecosystem:
             if dir_mode > 0:
               if self.close_link(self.locationNames[i], link_set[j].endpoint.name, twoway=False):
                 link_set = self.locations[i].links # shrink the link list. # This operation affects the overall loop, so no major operations should take place after this.
+            else:
+              j += 1
 
           elif mode == "reopen":
 
@@ -534,11 +536,9 @@ class Ecosystem:
 
             if dir_mode > 0:
               if self.reopen_link(self.locationNames[i], link_set[j].endpoint.name, twoway=False):
-                link_set = self.locations[i].links # shrink the link list. # This operation affects the overall loop, so no major operations should take place after this.
-
-          # iterate j ONLY if direction == "in"
-          if dir_mode == 0:
-            j += 1 # do not shrink the link list (reversed direction, but increase the iterator ONLY if the list has not already been shrunk)
+                link_set = self.locations[i].closed_links # shrink the closed link list. # This operation affects the overall loop, so no major operations should take place after this.
+              else:
+                j += 1
 
     return changed_anything
 
