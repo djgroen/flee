@@ -155,7 +155,7 @@ class DataTable:
     self.data_table.append(ConvertCsvFileToNumPyTable("%s" % (data_file_name), start_date=self.start_date))
 
 
-  def get_daily_difference(self, day, day_column=0, count_column=1, Debug=False, FullInterpolation=True, ZeroOnDayZero=False):
+  def get_daily_difference(self, day, day_column=0, count_column=1, Debug=False, FullInterpolation=True):
     """
     Extrapolate count of new refugees at a given time point, based on input data.
     count_column = column which contains the relevant difference.
@@ -172,17 +172,14 @@ class DataTable:
 
     # Refugees only come in *after* day 0.
     if int(day) == 0:
-      if ZeroOnDayZero:
-        return 0
-      else:
-        ref_table = self.data_table[0]
+      ref_table = self.data_table[0]
 
-        new_refugees = 0
-        for i in self.header[1:]:
-          new_refugees += self.get_field(i, 0, FullInterpolation)
-          #print("Day 0 data:",i,self.get_field(i, 0, FullInterpolation))
+      new_refugees = 0
+      for i in self.header[1:]:
+        new_refugees += self.get_field(i, 0, FullInterpolation)
+        #print("Day 0 data:",i,self.get_field(i, 0, FullInterpolation))
 
-        return int(new_refugees)
+      return int(new_refugees)
 
     else:
 
