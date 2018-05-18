@@ -97,15 +97,15 @@ if __name__ == "__main__":
     ig.AddNewConflictZones(e,t)
 
     # Determine number of new refugees to insert into the system.
-    new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=True) - refugee_debt
-    refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=True)
+    new_refs = d.get_daily_difference(t, FullInterpolation=True) - refugee_debt
+    refugees_raw += d.get_daily_difference(t, FullInterpolation=True)
     if new_refs < 0:
       refugee_debt = -new_refs
       new_refs = 0
     elif refugee_debt > 0:
       refugee_debt = 0
 
-    #Insert refugee agents
+    # Insert refugee agents
     for i in range(0, new_refs):
       e.addAgent(e.pick_conflict_location())
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     e.enact_border_closures(t)
     e.evolve()
 
-    #Calculation of error terms
+    # Calculation of error terms
     errors = []
     abs_errors = []
     loc_data = []

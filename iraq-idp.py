@@ -77,8 +77,8 @@ if __name__ == "__main__":
     new_refs = 100
     """
     # Determine number of new refugees to insert into the system.
-    new_refs = d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False) - refugee_debt
-    refugees_raw += d.get_daily_difference(t, FullInterpolation=True, ZeroOnDayZero=False)
+    new_refs = d.get_daily_difference(t, FullInterpolation=True) - refugee_debt
+    refugees_raw += d.get_daily_difference(t, FullInterpolation=True)
     if new_refs < 0:
       refugee_debt = -new_refs
       new_refs = 0
