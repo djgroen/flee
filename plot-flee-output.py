@@ -399,7 +399,7 @@ if __name__ == "__main__":
   for i in location_names:
 
     if not RetroFitting:
-      plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4)
+      loc_errors.append(plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4))
       #plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=1)
 
       plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=False)
