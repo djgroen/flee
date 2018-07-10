@@ -314,22 +314,27 @@ def plotme_minimal(out_dir, data, name):
 if __name__ == "__main__":
 
   if len(sys.argv)>1:
-    out_dir = sys.argv[1]
+    in_dir = sys.argv[1]
+  else:
+    in_dir = "out"
+
+  if len(sys.argv)>2:
+    out_dir = sys.argv[2]
   else:
     out_dir = "out"
 
   RetroFitting = False
-  if len(sys.argv)>2:
-    if "-r" in sys.argv[2]:
+  if len(sys.argv)>3:
+    if "-r" in sys.argv[3]:
       RetroFitting = True
 
 
   matplotlib.style.use('ggplot')
   #figsize=(15, 10)
 
-  refugee_data = pd.read_csv("%s/out.csv" % (out_dir), sep=',', encoding='latin1',index_col='Day')
+  refugee_data = pd.read_csv("%s/out.csv" % (in_dir), sep=',', encoding='latin1',index_col='Day')
   if RetroFitting == True:
-    refugee_data = pd.read_csv("%s/out-retrofitted.csv" % (out_dir), sep=',', encoding='latin1',index_col='Day')
+    refugee_data = pd.read_csv("%s/out-retrofitted.csv" % (in_dir), sep=',', encoding='latin1',index_col='Day')
 
   #Identifying location names for graphs
   rd_cols = list(refugee_data.columns.values)

@@ -63,7 +63,6 @@ if __name__ == "__main__":
   d.correctLevel1Registrations("Rhino","2014-05-21")
   d.correctLevel1Registrations("Kiryandongo","2014-05-27")
 
-  lm["Ituri"].capacity = d.getMaxFromData("Ituri", last_physical_day)
   lm["Tierkidi"].capacity = d.getMaxFromData("Tierkidi", last_physical_day)
   lm["Pugnido"].capacity = d.getMaxFromData("Pugnido", last_physical_day)
   lm["Jewi"].capacity = d.getMaxFromData("Jewi", last_physical_day)
@@ -77,7 +76,7 @@ if __name__ == "__main__":
 
   output_header_string = "Day,"
 
-  camp_locations      = ["Ituri","Tierkidi","Pugnido","Jewi","Kule","Kakuma","Khartoum","West_Kordofan","Adjumani","Rhino","Kiryandongo"]
+  camp_locations      = ["Tierkidi","Pugnido","Jewi","Kule","Kakuma","Khartoum","West_Kordofan","Adjumani","Rhino","Kiryandongo"]
   #TODO: Add Camps from CSV based on their location type.
 
   for l in camp_locations:
