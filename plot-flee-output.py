@@ -400,14 +400,15 @@ if __name__ == "__main__":
   # Also populated LocationErrors classes.
 
   loc_errors = []
+  nmodel = False
 
   for i in location_names:
 
     if not RetroFitting:
-      loc_errors.append(plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4))
+      loc_errors.append(plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=nmodel))
       #plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=1)
 
-      plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=False)
+      plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=nmodel)
       #loc_errors.append(plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=True))
 
     else:
@@ -436,8 +437,8 @@ if __name__ == "__main__":
 
 
   sim_errors = SimulationErrors(loc_errors)
-
-  print("%s & %s & %s & %s & %s & %s & %s\\\\" % (out_dir, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"),sim_errors.get_error("MASE7-ratio"),sim_errors.get_error("MASE30"),sim_errors.get_error("MASE30-sloped"),sim_errors.get_error("MASE30-ratio")))
+  if nmodel:
+    print("%s & %s & %s & %s & %s & %s & %s\\\\" % (out_dir, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"),sim_errors.get_error("MASE7-ratio"),sim_errors.get_error("MASE30"),sim_errors.get_error("MASE30-sloped"),sim_errors.get_error("MASE30-ratio")))
 
   matplotlib.rcParams.update({'font.size': 20})
 
