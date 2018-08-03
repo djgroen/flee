@@ -96,7 +96,15 @@ class InputGeography:
         lm[l[0]] = e.addLocation(l[0], movechance=movechance, pop=int(l[1]), x=l[2], y=l[3], country=l[7])
 
     for l in self.links:
-      e.linkUp(l[0], l[1], int(l[2]))
+        if (len(l)>3):
+            if int(l[3]) == 1:
+                e.linkUp(l[0], l[1], int(l[2]), True)
+            if int(l[3]) == 2:
+                e.linkUp(l[1], l[0], int(l[2]), True)
+            else:
+                e.linkUp(l[0], l[1], int(l[2]), False)
+        else:
+            e.linkUp(l[0], l[1], int(l[2]), False)
 
     e.closures = []
     for l in self.closures:
