@@ -145,16 +145,17 @@ def prepare_figure(xlabel):
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(12, 8)
   set_margins()
-  
-  
+  return fig
+
+
 def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
   """
   Advanced plotting function for validation of refugee registration numbers in camps.
   """
-  prepare_figure(xlabel="Days elapsed")
+  fig = prepare_figure(xlabel="Days elapsed")
 
   labelssim = []
-  
+
   for data in datas:
     y1 = data["%s sim" % name].as_matrix()
 
@@ -164,13 +165,13 @@ def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
     #Plotting lines representing simulation results.
     labelsim, = plt.plot(days,y1, linewidth=8, label="%s simulation" % (name.title()))
     labelssim.append(labelsim)
-    
+
     # Plotting line representing UNHCR data.
     #labeldata, = plt.plot(days,y2, 'o-', linewidth=8, label="%s UNHCR data" % (name.title()))
 
 
   # Add label for the naieve model if it is enabled.
-  plt.legend(handles=[labelssim],loc=legend_loc,prop={'size':18})
+  plt.legend(handles=labelssim,loc=legend_loc,prop={'size':18})
 
   fig.savefig("%s/%s-%s.png" % (out_dir, name, legend_loc))
 
@@ -181,9 +182,9 @@ def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
   plt.ylabel("Number of refugees")
 
   labelssim = []
-  
+
   for data in datas:
-  
+
     simtot = data["refugees in camps (simulation)"].as_matrix().flatten()
     untot = data["refugees in camps (UNHCR)"].as_matrix().flatten()
 
@@ -196,16 +197,16 @@ def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
 
     labelsim, = plt.plot(days,y1_rescaled, linewidth=8, label="%s simulation" % (name.title()))
     labelssim.append(labelsim)
-    
+
     #labeldata, = plt.plot(days,y2, linewidth=8, label="%s UNHCR data" % (name.title()))
 
-    
-  plt.legend(handles=[labelsim, labeldata],loc=legend_loc,prop={'size':18})
+
+  plt.legend(handles=[labelsim],loc=legend_loc,prop={'size':18})
 
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(12, 8)
   set_margins()
-  
+
   fig.savefig("%s/%s-%s-rescaled.png" % (out_dir, name, legend_loc))
 
 
@@ -263,7 +264,7 @@ if __name__ == "__main__":
 
   #plot numagents compare by camp.
   for i in location_names:
-    numagents_camp_compare(out_dir, refugee_data, i, legend_loc=4))  
+    numagents_camp_compare(out_dir, refugee_data, i, legend_loc=4)
 
   for i in range(0, len(refugee_data)):
     loc_errors.append([])
@@ -293,14 +294,14 @@ if __name__ == "__main__":
     diffdata_rescaled = (sim_errors[i].abs_diff() / np.maximum(un_refs[i], np.ones(len(un_refs[i]))))
     print(out_dir,": Averaged error normal: ", np.mean(diffdata), ", rescaled: ", np.mean(diffdata_rescaled),", len: ", len(diffdata))
     plt.plot(np.arange(len(diffdata_rescaled)), diffdata_rescaled, linewidth=5, label="error %s" % names[i])
-    
+
   plt.legend(loc=1,prop={'size':14})
 
   set_margins()
   plt.savefig("%s/error-compare-runs.png" % out_dir)
 
   plt.clf()
-  
+
   #Size of plots/figures
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(12, 8)
