@@ -72,7 +72,7 @@ if __name__ == "__main__":
     ig.AddNewConflictZones(e,t)
 
     # Determine number of new refugees to insert into the system.
-    new_refs = 100000
+    new_refs = 1000
     refugees_raw += new_refs
 
     if new_refs < 0:
