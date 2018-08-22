@@ -137,7 +137,7 @@ def calc_errors(out_dir, data, name, naieve_model=True):
 
   return lerr
 
-def prepare_figure(xlabel):
+def prepare_figure(xlabel="Days elapsed"):
   plt.clf()
   plt.xlabel(xlabel)
 
@@ -203,9 +203,7 @@ def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
 
   plt.legend(handles=[labelsim],loc=legend_loc,prop={'size':18})
 
-  fig = matplotlib.pyplot.gcf()
-  fig.set_size_inches(12, 8)
-  set_margins()
+  fig = prepare_figure(xlabel="Days elapsed")
 
   fig.savefig("%s/%s-%s-rescaled.png" % (out_dir, name, legend_loc))
 
@@ -280,8 +278,7 @@ if __name__ == "__main__":
   # ERROR PLOTS
 
   #Size of plots/figures
-  fig = matplotlib.pyplot.gcf()
-  fig.set_size_inches(12, 8)
+  fig = prepare_figure()
 
   #Plotting and saving error (differences) graph
   plt.ylabel("Averaged relative difference")
@@ -297,27 +294,21 @@ if __name__ == "__main__":
 
   plt.legend(loc=1,prop={'size':14})
 
-  set_margins()
+  #set_margins()
   plt.savefig("%s/error-compare-runs.png" % out_dir)
 
   plt.clf()
-
-  #Size of plots/figures
-  fig = matplotlib.pyplot.gcf()
-  fig.set_size_inches(12, 8)
+  fig = prepare_figure()
 
   #Plotting and saving error (differences) graph
-  plt.ylabel("Number of agents")
+  plt.ylabel("Number of agents in camps (simulation)")
   plt.xlabel("Days elapsed")
 
-  handle_list = []
-
   for i in range(0, len(in_dirs)):
-      #refugee_data[i].loc[:,["total refugees (simulation)","refugees in camps (simulation)","raw UNHCR refugee count","refugee_debt"]].plot(linewidth=5, label="refugees in camps (sim) %s" % names[i])
-      refugee_data[i].loc[:,["refugees in camps (simulation)"]].plot(linewidth=5, label="refugees in camps (sim) - %s" % names[i])
+    #refugee_data[i].loc[:,["total refugees (simulation)","refugees in camps (simulation)","raw UNHCR refugee count","refugee_debt"]].plot(linewidth=5, label="refugees in camps (sim) %s" % names[i])
+    plt.plot(np.arange(len(un_refs[i])), refugee_data[i].loc[:,["refugees in camps (simulation)"]], linewidth=5, label=names[i])
 
   plt.legend(loc=1,prop={'size':14})
 
-  set_margins()
   plt.savefig("%s/numsim-compare-runs.png" % out_dir)
 
