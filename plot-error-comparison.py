@@ -222,16 +222,9 @@ if __name__ == "__main__":
   set_margins()
   plt.savefig("%s/error-compare-runs.png" % out_dir)
 
-  #for i in range(0, len(refugee_data)):
-  #  labeldiff, = plt.plot(np.arange(len(diffdata)), diffdata, linewidth=5, label="error (not rescaled)")
-  #  plt.legend(handles=[labeldiff, labeldiff2],loc=1,prop={'size':14})
-
-  #set_margins()
-  #plt.savefig("%s/error-comparison.png" % out_dir)
-
   plt.clf()
   
-    #Size of plots/figures
+  #Size of plots/figures
   fig = matplotlib.pyplot.gcf()
   fig.set_size_inches(12, 8)
 
