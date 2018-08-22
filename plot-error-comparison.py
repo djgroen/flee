@@ -156,6 +156,7 @@ def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
 
   labelssim = []
 
+  n=0
   for data in datas:
     y1 = data["%s sim" % name].as_matrix()
 
@@ -163,12 +164,9 @@ def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
     days = np.arange(len(y1))
 
     #Plotting lines representing simulation results.
-    labelsim, = plt.plot(days,y1, linewidth=8, label="%s simulation" % (name.title()))
+    labelsim, = plt.plot(days,y1, linewidth=8, label="%s" % (names[n]))
     labelssim.append(labelsim)
-
-    # Plotting line representing UNHCR data.
-    #labeldata, = plt.plot(days,y2, 'o-', linewidth=8, label="%s UNHCR data" % (name.title()))
-
+    n+=1
 
   # Add label for the naieve model if it is enabled.
   plt.legend(handles=labelssim,loc=legend_loc,prop={'size':18})
@@ -178,15 +176,22 @@ def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
   # Rescaled values
   plt.clf()
 
+  fig = prepare_figure(xlabel="Days elapsed")
+
   plt.xlabel("Days elapsed")
   plt.ylabel("Number of refugees")
 
   labelssim = []
 
+  n=0
   for data in datas:
+    y1 = data["%s sim" % name].as_matrix()
+    days = np.arange(len(y1))
 
     simtot = data["refugees in camps (simulation)"].as_matrix().flatten()
     untot = data["refugees in camps (UNHCR)"].as_matrix().flatten()
+
+    #print(y1,simtot,untot)
 
     y1_rescaled = np.zeros(len(y1))
     for i in range(0, len(y1_rescaled)):
@@ -194,16 +199,16 @@ def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
       if simtot[i] > 0:
         y1_rescaled[i] = y1[i] * untot[i] / simtot[i]
 
+    print(y1_rescaled)
 
-    labelsim, = plt.plot(days,y1_rescaled, linewidth=8, label="%s simulation" % (name.title()))
+    labelsim, = plt.plot(days, y1_rescaled, linewidth=8, label="%s" % (names[n]))
     labelssim.append(labelsim)
+    n += 1
+    #labeldata, = plt.plot(days, y1, linewidth=8, label="%s UNHCR data" % (name.title()))
 
-    #labeldata, = plt.plot(days,y2, linewidth=8, label="%s UNHCR data" % (name.title()))
 
+  plt.legend(handles=labelssim,loc=legend_loc,prop={'size':18})
 
-  plt.legend(handles=[labelsim],loc=legend_loc,prop={'size':18})
-
-  fig = prepare_figure(xlabel="Days elapsed")
 
   fig.savefig("%s/%s-%s-rescaled.png" % (out_dir, name, legend_loc))
 
