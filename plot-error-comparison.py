@@ -137,6 +137,79 @@ def calc_errors(out_dir, data, name, naieve_model=True):
 
   return lerr
 
+
+def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
+  """
+  Advanced plotting function for validation of refugee registration numbers in camps.
+  """
+  plt.clf()
+  plt.xlabel("Days elapsed")
+
+  matplotlib.rcParams.update({'font.size': 20})
+
+  labelssim = []
+  
+  for data in datas:
+    y1 = data["%s sim" % name].as_matrix()
+
+    y2 = data["%s data" % name].as_matrix()
+    days = np.arange(len(y1))
+
+    #Plotting lines representing simulation results.
+    labelsim, = plt.plot(days,y1, linewidth=8, label="%s simulation" % (name.title()))
+    labelssim.append(labelsim)
+    
+    # Plotting line representing UNHCR data.
+    #labeldata, = plt.plot(days,y2, 'o-', linewidth=8, label="%s UNHCR data" % (name.title()))
+
+
+  # Add label for the naieve model if it is enabled.
+  plt.legend(handles=[labelssim],loc=legend_loc,prop={'size':18})
+
+  fig = matplotlib.pyplot.gcf()
+  fig.set_size_inches(12, 8)
+  #adjust margins
+  set_margins()
+
+  fig.savefig("%s/%s-%s.png" % (out_dir, name, legend_loc))
+
+  # Rescaled values
+  plt.clf()
+
+  plt.xlabel("Days elapsed")
+  plt.ylabel("Number of refugees")
+
+  labelssim = []
+  
+  for data in datas:
+  
+    simtot = data["refugees in camps (simulation)"].as_matrix().flatten()
+    untot = data["refugees in camps (UNHCR)"].as_matrix().flatten()
+
+    y1_rescaled = np.zeros(len(y1))
+    for i in range(0, len(y1_rescaled)):
+      # Only rescale if simtot > 0
+      if simtot[i] > 0:
+        y1_rescaled[i] = y1[i] * untot[i] / simtot[i]
+
+
+    labelsim, = plt.plot(days,y1_rescaled, linewidth=8, label="%s simulation" % (name.title()))
+    labelssim.append(labelsim)
+    
+    #labeldata, = plt.plot(days,y2, linewidth=8, label="%s UNHCR data" % (name.title()))
+
+    
+  plt.legend(handles=[labelsim, labeldata],loc=legend_loc,prop={'size':18})
+
+  fig = matplotlib.pyplot.gcf()
+  fig.set_size_inches(12, 8)
+  set_margins()
+  
+  fig.savefig("%s/%s-%s-rescaled.png" % (out_dir, name, legend_loc))
+
+
+
+
 #Start of the code, assuring arguments of out-folder & csv file are kept
 if __name__ == "__main__":
 
@@ -229,7 +302,7 @@ if __name__ == "__main__":
   fig.set_size_inches(12, 8)
 
   #Plotting and saving error (differences) graph
-  plt.ylabel("Averaged relative difference")
+  plt.ylabel("Number of agents")
   plt.xlabel("Days elapsed")
 
   handle_list = []
