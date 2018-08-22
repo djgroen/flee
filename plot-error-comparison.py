@@ -137,15 +137,21 @@ def calc_errors(out_dir, data, name, naieve_model=True):
 
   return lerr
 
+def prepare_figure(xlabel):
+  plt.clf()
+  plt.xlabel(xlabel)
 
+  matplotlib.rcParams.update({'font.size': 20})
+  fig = matplotlib.pyplot.gcf()
+  fig.set_size_inches(12, 8)
+  set_margins()
+  
+  
 def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
   """
   Advanced plotting function for validation of refugee registration numbers in camps.
   """
-  plt.clf()
-  plt.xlabel("Days elapsed")
-
-  matplotlib.rcParams.update({'font.size': 20})
+  prepare_figure(xlabel="Days elapsed")
 
   labelssim = []
   
@@ -165,11 +171,6 @@ def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
 
   # Add label for the naieve model if it is enabled.
   plt.legend(handles=[labelssim],loc=legend_loc,prop={'size':18})
-
-  fig = matplotlib.pyplot.gcf()
-  fig.set_size_inches(12, 8)
-  #adjust margins
-  set_margins()
 
   fig.savefig("%s/%s-%s.png" % (out_dir, name, legend_loc))
 
@@ -260,6 +261,9 @@ if __name__ == "__main__":
   sim_errors = []
   nmodel = False
 
+  #plot numagents compare by camp.
+  for i in location_names:
+    numagents_camp_compare(out_dir, refugee_data, i, legend_loc=4))  
 
   for i in range(0, len(refugee_data)):
     loc_errors.append([])
