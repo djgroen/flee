@@ -142,9 +142,11 @@ if __name__ == "__main__":
 
 
   in_dirs = []
+  names = []
 
   for i in range(1, len(sys.argv)-1):
     in_dirs.append(sys.argv[i])
+    names.append(sys.argv[i])
 
   out_dir = sys.argv[-1]
 
@@ -213,8 +215,8 @@ if __name__ == "__main__":
     diffdata = (sim_errors[i].abs_diff(rescaled=False) / np.maximum(un_refs[i], np.ones(len(un_refs[i]))))
     diffdata_rescaled = (sim_errors[i].abs_diff() / np.maximum(un_refs[i], np.ones(len(un_refs[i]))))
     print(out_dir,": Averaged error normal: ", np.mean(diffdata), ", rescaled: ", np.mean(diffdata_rescaled),", len: ", len(diffdata))
-    plt.plot(np.arange(len(diffdata_rescaled)), diffdata_rescaled, linewidth=5, label="error %s" % in_dirs[i])
-
+    plt.plot(np.arange(len(diffdata_rescaled)), diffdata_rescaled, linewidth=5, label="error %s" % names[i])
+    
   plt.legend(loc=1,prop={'size':14})
 
   set_margins()
@@ -228,4 +230,23 @@ if __name__ == "__main__":
   #plt.savefig("%s/error-comparison.png" % out_dir)
 
   plt.clf()
+  
+    #Size of plots/figures
+  fig = matplotlib.pyplot.gcf()
+  fig.set_size_inches(12, 8)
+
+  #Plotting and saving error (differences) graph
+  plt.ylabel("Averaged relative difference")
+  plt.xlabel("Days elapsed")
+
+  handle_list = []
+
+  for i in range(0, len(in_dirs)):
+      #refugee_data[i].loc[:,["total refugees (simulation)","refugees in camps (simulation)","raw UNHCR refugee count","refugee_debt"]].plot(linewidth=5, label="refugees in camps (sim) %s" % names[i])
+      refugee_data[i].loc[:,["refugees in camps (simulation)"]].plot(linewidth=5, label="refugees in camps (sim) - %s" % names[i])
+
+  plt.legend(loc=1,prop={'size':14})
+
+  set_margins()
+  plt.savefig("%s/numsim-compare-runs.png" % out_dir)
 
