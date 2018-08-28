@@ -6,7 +6,6 @@ matplotlib.use('Pdf')
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-from datamanager import handle_refugee_data
 import warnings
 import outputanalysis.analysis as a
 
