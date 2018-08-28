@@ -9,53 +9,10 @@ import sys
 import warnings
 import outputanalysis.analysis as a
 
+import diagnostic_datastructures as dd
+
 warnings.filterwarnings("ignore")
 
-class LocationErrors:
-  """
-  Class containing a dictionary of errors and diagnostics pertaining a single location.
-  """
-  def __init__(self):
-    self.errors = {}
-
-
-class SimulationErrors:
-  """
-  Class containing all error measures within a single simulation.
-  It should be initialized with a Python list of the LocationErrors structure
-  for all of the relevant locations.
-  """
-  def __init__(self, location_errors):
-    self.location_errors = location_errors
-
-
-  def abs_diff(self, rescaled=True):
-    #true_total_refs is the number of total refugees according to the data.
-
-    errtype = "absolute difference"
-    if rescaled:
-      errtype = "absolute difference rescaled"
-
-    self.tmp = self.location_errors[0].errors[errtype]
-
-    for lerr in self.location_errors[1:]:
-      self.tmp = np.add(self.tmp, lerr.errors[errtype])
-
-    return self.tmp
-
-  def get_error(self, err_type):
-    """
-    Here err_type is the string name of the error that needs to be aggregated.
-    """
-    self.tmp = self.location_errors[0].errors[err_type] * self.location_errors[0].errors["N"]
-    N = self.location_errors[0].errors["N"]
-
-    for lerr in self.location_errors[1:]:
-      self.tmp = np.add(self.tmp, lerr.errors[err_type] * lerr.errors["N"])
-      N += lerr.errors["N"]
-
-    #print(self.tmp, N, self.tmp/ N)
-    return self.tmp / N
 
 def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
   #adjust margins - Setting margins for graphs
@@ -98,7 +55,7 @@ def calc_errors(out_dir, data, name, naieve_model=True):
   - Quantify the errors and mismatches for this camp.
   """
 
-  lerr = LocationErrors()
+  lerr = dd.LocationErrors()
 
   # absolute difference
   lerr.errors["absolute difference"] = a.abs_diffs(y1, y2)
@@ -273,7 +230,7 @@ if __name__ == "__main__":
     for j in location_names:
       loc_errors[i].append(calc_errors(out_dir, refugee_data[i], j, naieve_model=nmodel))
 
-    sim_errors.append(SimulationErrors(loc_errors[i]))
+    sim_errors.append(dd.SimulationErrors(loc_errors[i]))
 
   matplotlib.rcParams.update({'font.size': 20})
 
