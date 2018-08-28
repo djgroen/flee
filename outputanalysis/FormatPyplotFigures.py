@@ -1,3 +1,6 @@
+import matplotlib
+import matplotlib.pyplot as plt
+
 def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
   #adjust margins - Setting margins for graphs
   fig = plt.gcf()
