@@ -9,7 +9,7 @@ import sys
 import warnings
 import outputanalysis.analysis as a
 
-import diagnostic_datastructures as dd
+import StoreDiagnostics as dd
 
 warnings.filterwarnings("ignore")
 
