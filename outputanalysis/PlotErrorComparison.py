@@ -10,14 +10,9 @@ import warnings
 import outputanalysis.analysis as a
 
 import StoreDiagnostics as dd
+import FormatPyplotFigures as fpf
 
 warnings.filterwarnings("ignore")
-
-
-def set_margins(l=0.13,b=0.13,r=0.96,t=0.96):
-  #adjust margins - Setting margins for graphs
-  fig = plt.gcf()
-  fig.subplots_adjust(bottom=b,top=t,left=l,right=r)
 
 
 def calc_errors(out_dir, data, name, naieve_model=True):
@@ -93,22 +88,11 @@ def calc_errors(out_dir, data, name, naieve_model=True):
 
   return lerr
 
-def prepare_figure(xlabel="Days elapsed"):
-  plt.clf()
-  plt.xlabel(xlabel)
-
-  matplotlib.rcParams.update({'font.size': 20})
-  fig = matplotlib.pyplot.gcf()
-  fig.set_size_inches(12, 8)
-  set_margins()
-  return fig
-
-
 def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
   """
   Advanced plotting function for validation of refugee registration numbers in camps.
   """
-  fig = prepare_figure(xlabel="Days elapsed")
+  fig = fpf.prepare_figure(xlabel="Days elapsed")
 
   labelssim = []
 
@@ -132,7 +116,7 @@ def numagents_camp_compare(out_dir, datas, name, legend_loc=4):
   # Rescaled values
   plt.clf()
 
-  fig = prepare_figure(xlabel="Days elapsed")
+  fig = fpf.prepare_figure(xlabel="Days elapsed")
 
   plt.xlabel("Days elapsed")
   plt.ylabel("Number of refugees")
@@ -239,7 +223,7 @@ if __name__ == "__main__":
   # ERROR PLOTS
 
   #Size of plots/figures
-  fig = prepare_figure()
+  fig = fpf.prepare_figure()
 
   #Plotting and saving error (differences) graph
   plt.ylabel("Averaged relative difference")
@@ -255,11 +239,10 @@ if __name__ == "__main__":
 
   plt.legend(loc=1,prop={'size':14})
 
-  #set_margins()
   plt.savefig("%s/error-compare-runs.png" % out_dir)
 
   plt.clf()
-  fig = prepare_figure()
+  fig = fpf.prepare_figure()
 
   #Plotting and saving error (differences) graph
   plt.ylabel("Number of agents in camps (simulation)")
