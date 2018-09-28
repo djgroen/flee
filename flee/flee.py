@@ -235,7 +235,7 @@ class Location:
     self.movechance = SimulationSettings.SimulationSettings.CampMoveChance
 
 
-  def CalculateResidualWeightingFactor(residual, cap_limit, nearly_full_occ):
+  def CalculateResidualWeightingFactor(self, residual, cap_limit, nearly_full_occ):
     """
     Calculate the residual weighting factor, when pop is between 0.9 and 1.0 of capacity (with default settings).
     Weight should be 1.0 at 0.9, and 0.0 at 1.0 capacity level.
@@ -268,7 +268,7 @@ class Location:
 
     residual = self.numAgents - (nearly_full_occ * cap_limit) # should be a number equal in range [0 to 0.1*self.numAgents].
     
-    return CalculateResidualWeightingFactor(residual, cap_limit, nearly_full_occ)
+    return self.CalculateResidualWeightingFactor(residual, cap_limit, nearly_full_occ)
 
 
   def updateLocationScore(self, time):
