@@ -32,7 +32,7 @@ def compare_numagents_camp(out_dir, datas, name, legend_loc=4):
     days = np.arange(len(y1))
 
     #Plotting lines representing simulation results.
-    labelsim, = plt.plot(days,y1, linewidth=8, label="%s" % (names[n]))
+    labelsim, = plt.plot(days,y1, linewidth=8, label="%s (%s)" % (names[n], name))
     labelssim.append(labelsim)
     n+=1
 
@@ -69,7 +69,7 @@ def compare_numagents_camp(out_dir, datas, name, legend_loc=4):
 
     print(y1_rescaled)
 
-    labelsim, = plt.plot(days, y1_rescaled, linewidth=8, label="%s" % (names[n]))
+    labelsim, = plt.plot(days, y1_rescaled, linewidth=8, label="%s (%s)" % (names[n], name))
     labelssim.append(labelsim)
     n += 1
     #labeldata, = plt.plot(days, y1, linewidth=8, label="%s UNHCR data" % (name.title()))
@@ -90,9 +90,15 @@ if __name__ == "__main__":
   in_dirs = []
   names = []
 
+  if len(sys.argv) == 1:
+    print("Usage: python3 <this_script> <outdir1> <label1> <outdir2> <label2> ... <outdirN> <labelN> <output directory for plot files>")
+
   for i in range(1, len(sys.argv)-1):
-    in_dirs.append(sys.argv[i])
-    names.append(sys.argv[i])
+    if i%2 == 1:
+      in_dirs.append(sys.argv[i])
+    else:
+      names.append(sys.argv[i])
+    
 
   out_dir = sys.argv[-1]
 
