@@ -790,7 +790,7 @@ class Ecosystem:
 if __name__ == "__main__":
   print("Flee, prototype version.")
 
-  end_time = 50
+  end_time = 604
   e = Ecosystem()
 
   l1 = e.addLocation("Source")
