@@ -37,6 +37,8 @@ class Person:
       movechance = self.location.movechance
 
       outcome = random.random()
+      #print(movechance)
+
       if outcome < movechance:
         # determine here which route to take?
         chosenRoute = self.selectRoute()
