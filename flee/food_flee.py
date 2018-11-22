@@ -27,7 +27,8 @@ def line42day(t,current_i):
 
 class Location(flee.Location):
   def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown", region="unknown", IPC=0):
-    super().__init__(name, x, y, movechance, capacity, pop, foreign, country, region)
+    super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
+    self.region = region
     self.IPC = IPC
 
 class Ecosystem(flee.Ecosystem):
