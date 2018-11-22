@@ -27,22 +27,7 @@ def line42day(t,current_i):
 
 class Location(flee.Location):
   def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown", region="unknown", IPC=0):
-    self.name = name
-    self.x = x
-    self.y = y
-    self.movechance = movechance
-    self.links = [] # paths connecting to other towns
-    self.closed_links = [] #paths connecting to other towns that are closed.
-    self.numAgents = 0 # refugee population
-    self.numAgentsOnRank = 0 # refugee population on current rank (for pflee).
-    self.capacity = capacity # refugee capacity
-    self.pop = pop # non-refugee population
-    self.foreign = foreign
-    self.country = country
-    self.region = region
-    self.conflict = False
-    self.camp = False
-    self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
+    super().__init__(name, x, y, movechance, capacity, pop, foreign, country, region)
     self.IPC = IPC
 
 class Ecosystem(flee.Ecosystem):
