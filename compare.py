@@ -13,13 +13,22 @@ def compare(out_dir_1,out_dir_2):
 
   for i in cols[1:len(cols)]:
     comp[i]=flee[i]-food[i]
-    plt.plot(comp["Day"],comp[i])
+    plt.plot(comp["Day"],comp[i],'b',label="Flee - Food")
+    plt.plot(comp["Day"],food[i],'r',label="Food")
+    plt.plot(comp["Day"],flee[i],'g',label="Flee")
     plt.plot([0,len(comp["Day"])],[0,0],'k--')
-    plt.xlabel("Day")
     plt.ylabel("flee - food")
     plt.title(i)
     plt.tight_layout()
     spl=i.split()
+    if len(spl)==2:
+      if spl[1]=="error":
+        plt.ylabel("Error")
+      elif spl[1]=="sim":
+        plt.ylabel("Number of refugees")
+    else:
+      plt.ylabel("Number of refugees")
+    plt.legend()
     name=spl[0]
     for j in range(len(spl)-1):
       name=name+"_"+spl[j+1]
