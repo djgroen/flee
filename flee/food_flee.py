@@ -36,7 +36,7 @@ class Ecosystem(flee.Ecosystem):
     for i in range(0,len(self.locationNames)):
       if self.locations[i].country=="South_Sudan":                       #needed??
         self.locations[i].IPC=IPC_all.loc[line_IPC,self.locations[i].region]
-        if not self.locations[i].conflict and not self.locations[i].camp:
+        if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
           new_mc=self.locations[i].IPC/100
           if new_mc>SimulationSettings.SimulationSettings.DefaultMoveChance:
             self.locations[i].movechance=new_mc

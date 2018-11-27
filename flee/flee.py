@@ -190,6 +190,7 @@ class Location:
     self.country = country
     self.conflict = False
     self.camp = False
+    self.forward = False
     self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
 
     if isinstance(movechance, str):
@@ -202,6 +203,7 @@ class Location:
         self.conflict = True
       elif "forward" in movechance.lower():
         self.movechance = 1.0
+        self.forward = True
       elif "default" in movechance.lower() or "town" in movechance.lower():
         self.movechance = SimulationSettings.SimulationSettings.DefaultMoveChance
       else:
