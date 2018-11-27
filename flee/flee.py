@@ -790,24 +790,3 @@ class Ecosystem:
       print("Location name %s, number of agents %s" % (l.name, l.numAgents), file=sys.stderr)
       l.print()
 
-
-if __name__ == "__main__":
-  print("Flee, prototype version.")
-
-  end_time = 604
-  e = Ecosystem()
-
-  l1 = e.addLocation("Source")
-  l2 = e.addLocation("Sink1")
-  l3 = e.addLocation("Sink2")
-
-  e.linkUp("Source","Sink1","10.0")
-  e.linkUp("Source","Sink2","5.0")
-
-  for i in range(0,100):
-    e.addAgent(location=l1)
-
-  for t in range(0,end_time):
-    e.evolve()
-    e.printInfo()
-
