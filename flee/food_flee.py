@@ -12,13 +12,13 @@ import pandas as pd
 def initiate_food():
   #critict=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv")["Dates"]
   #IPC_all=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv",index_col=0)
-  critict=pd.read_csv("../source_data/ssudan2014/food/IPC.csv")["Dates"]
-  IPC_all=pd.read_csv("../source_data/ssudan2014/food/IPC.csv",index_col=0)
+  critict=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv")["Dates"]
+  IPC_all=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv",index_col=0)
   current_i=0
 
   return [critict,IPC_all,current_i]
 
-def line42day(t,current_i):
+def line42day(t,current_i,critict):
   current_critict=critict[current_i]
   while current_critict<t:
     current_i=current_i+1
@@ -32,11 +32,11 @@ class Location(flee.Location):
     self.IPC = IPC
 
 class Ecosystem(flee.Ecosystem):
-  def update_IPC_MC(self,line_IPC):                        #maybe better (less computation time)
+  def update_IPC_MC(self,line_IPC,IPC_all):                        #maybe better (less computation time)
     for i in range(0,len(self.locationNames)):
-      if not self.locations[i].foreign:                       #needed??
+      if self.locations[i].country=="South_Sudan":                       #needed??
         self.locations[i].IPC=IPC_all.loc[line_IPC,self.locations[i].region]
-        if not self.locations[i].conflict and not self.locations[i].camp:
+        if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
           new_mc=self.locations[i].IPC/100
           if new_mc>SimulationSettings.SimulationSettings.DefaultMoveChance:
             self.locations[i].movechance=new_mc
@@ -54,7 +54,7 @@ class Ecosystem(flee.Ecosystem):
     return l
 
   def printInfo(self):
-    print("Time: ", self.time, ", # of agents: ", len(self.agents))
+    #print("Time: ", self.time, ", # of agents: ", len(self.agents))
     for l in self.locations:
       print(l.name, "Agents: ", l.numAgents, "State: ", l.region, "IPC: ", l.IPC, "movechance: ", l.movechance, file=sys.stderr)
 
@@ -84,9 +84,10 @@ if __name__ == "__main__":
   old_line=0
 
   for t in range(0,end_time):
-    line_IPC=line42day(t,current_i)           #has to go in the time count of flee to choose the values of IPC according to t
+    line_IPC=line42day(t,current_i,critict)           #has to go in the time count of flee to choose the values of IPC according to t
     if not old_line==line_IPC:
-      e.update_IPC_MC(line_IPC)                 #update all locations in the ecosystem: IPC indexes and movechances (inside t loop)
+      print("Time = %d. Updating IPC indexes and movechances"%(t), file=sys.stderr)
+      e.update_IPC_MC(line_IPC,IPC_all)                 #update all locations in the ecosystem: IPC indexes and movechances (inside t loop)
       print("After updating IPC and movechance:")
       e.printInfo()
     e.evolve()
