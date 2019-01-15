@@ -37,6 +37,9 @@ if __name__ == "__main__":
 
   ig = InputGeography.InputGeography()
 
+  ig.ReadFlareConflictInputCSV("test_data/test_input_csv/flare-out.csv")
+  sys.exit()
+
   ig.ReadLocationsFromCSV("test_data/test_input_csv/locations.csv")
 
   ig.ReadLinksFromCSV("test_data/test_input_csv/routes.csv")

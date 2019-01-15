@@ -12,6 +12,35 @@ class InputGeography:
     self.links = []
 
 
+  def ReadFlareConflictInputCSV(self,csv_name):
+    """
+    Reads a Flare input file, to set conflict information.
+    """
+    self.conflicts = {}
+
+    row_count = 0
+    headers = []
+
+    with open(csv_name, newline='') as csvfile:
+      values = csv.reader(csvfile)
+
+      for row in values:
+        print(row)
+        if row_count == 0:
+          headers = row
+          for i in range(0,len(headers)):
+            headers[i] = headers[i].strip()
+            self.conflicts[headers[i]] = []
+        else:
+          for i in range(0,len(row)):
+            print(row[0])
+            self.conflicts[headers[i]].append(int(row[i].strip()))
+        row_count += 1
+
+    print(self.conflicts)
+    print(list(self.conflicts.keys())[1:])
+
+
   def ReadLocationsFromCSV(self,csv_name, columns=["name","region","country","gps_x","gps_y","location_type","conflict_date","pop/cap"]):
     """
     Converts a CSV file to a locations information table
@@ -113,7 +142,12 @@ class InputGeography:
     return e, lm
 
   def AddNewConflictZones(self, e, time):
-    for l in self.locations:
-      if "conflict" in l[4].lower() and int(l[5]) == time:
-        print("Time = %s. Adding a new conflict zone [%s]" % (time, l[0]), file=sys.stderr)
-        e.add_conflict_zone(l[0])
+    if len(SimulationSettings.FlareConflictInputFile) == 0:
+      for l in self.locations:
+        if "conflict" in l[4].lower() and int(l[5]) == time:
+          print("Time = %s. Adding a new conflict zone [%s]" % (time, l[0]), file=sys.stderr)
+          e.add_conflict_zone(l[0])
+    else:
+      pass
+      #for l in self.conflicts.keys()[1:]
+      #  if l.name in self.conflicts.keys():
