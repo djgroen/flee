@@ -161,12 +161,12 @@ class InputGeography:
       confl_names = self.getConflictLocationNames()
       #print(confl_names)
       for l in confl_names:
-        #print("L:", self.conflicts[l], time)
+        #print("L:", l, self.conflicts[l], time)
         if self.conflicts[l][time] == 1:
           if time > 0:
             if self.conflicts[l][time-1] == 0:
-              print("Time = %s. Adding a new conflict zone [%s]" % (time, l[0]), file=sys.stderr)
+              print("Time = %s. Adding a new conflict zone [%s]" % (time, l), file=sys.stderr)
               e.add_conflict_zone(l)
           else:
-            print("Time = %s. Adding a new conflict zone [%s]" % (time, l[0]), file=sys.stderr)
+            print("Time = %s. Adding a new conflict zone [%s]" % (time, l), file=sys.stderr)
             e.add_conflict_zone(l)

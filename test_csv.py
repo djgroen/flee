@@ -40,11 +40,13 @@ if __name__ == "__main__":
   flee.SimulationSettings.SimulationSettings.FlareConflictInputFile = "test_data/test_input_csv/flare-out.csv"
   ig.ReadFlareConflictInputCSV(flee.SimulationSettings.SimulationSettings.FlareConflictInputFile)
 
+  print(ig.conflicts)
+
   assert ig.conflicts["C"][49] == 0
   assert ig.conflicts["C"][50] == 1
 
   assert ig.conflicts["A"][0] == 1
-  assert ig.conflicts["D"][94] == 0
+  assert ig.conflicts["C2"][94] == 0
 
   ig.ReadLocationsFromCSV("test_data/test_input_csv/locations.csv")
 
