@@ -25,7 +25,7 @@ class InputGeography:
       values = csv.reader(csvfile)
 
       for row in values:
-        print(row)
+        #print(row)
         if row_count == 0:
           headers = row
           for i in range(0,len(headers)):
@@ -33,12 +33,15 @@ class InputGeography:
             self.conflicts[headers[i]] = []
         else:
           for i in range(0,len(row)):
-            print(row[0])
+            #print(row[0])
             self.conflicts[headers[i]].append(int(row[i].strip()))
         row_count += 1
 
-    print(self.conflicts)
-    print(list(self.conflicts.keys())[1:])
+    #print(self.conflicts)
+    ### TODO: make test verifying this in test_csv.py
+
+  def getConflictLocationNames(self):
+    return list(self.conflicts.keys())[1:]
 
 
   def ReadLocationsFromCSV(self,csv_name, columns=["name","region","country","gps_x","gps_y","location_type","conflict_date","pop/cap"]):
@@ -142,12 +145,28 @@ class InputGeography:
     return e, lm
 
   def AddNewConflictZones(self, e, time):
-    if len(SimulationSettings.FlareConflictInputFile) == 0:
+    """
+    Adds new conflict zones according to information about the current time step.
+    If there is no Flare input file, then the values from locations.csv are used.
+    If there is one, then the data from Flare is used instead.
+    Note: there is no support for *removing* conflict zones at this stage.
+    """
+
+    if len(SimulationSettings.SimulationSettings.FlareConflictInputFile) == 0:
       for l in self.locations:
         if "conflict" in l[4].lower() and int(l[5]) == time:
           print("Time = %s. Adding a new conflict zone [%s]" % (time, l[0]), file=sys.stderr)
           e.add_conflict_zone(l[0])
     else:
-      pass
-      #for l in self.conflicts.keys()[1:]
-      #  if l.name in self.conflicts.keys():
+      confl_names = self.getConflictLocationNames()
+      #print(confl_names)
+      for l in confl_names:
+        #print("L:", self.conflicts[l], time)
+        if self.conflicts[l][time] == 1:
+          if time > 0:
+            if self.conflicts[l][time-1] == 0:
+              print("Time = %s. Adding a new conflict zone [%s]" % (time, l[0]), file=sys.stderr)
+              e.add_conflict_zone(l)
+          else:
+            print("Time = %s. Adding a new conflict zone [%s]" % (time, l[0]), file=sys.stderr)
+            e.add_conflict_zone(l)

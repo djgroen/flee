@@ -37,8 +37,8 @@ if __name__ == "__main__":
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadFlareConflictInputCSV("test_data/test_input_csv/flare-out.csv")
-  sys.exit()
+  flee.SimulationSettings.SimulationSettings.FlareConflictInputFile = "test_data/test_input_csv/flare-out.csv"
+  ig.ReadFlareConflictInputCSV(flee.SimulationSettings.SimulationSettings.FlareConflictInputFile)
 
   ig.ReadLocationsFromCSV("test_data/test_input_csv/locations.csv")
 
