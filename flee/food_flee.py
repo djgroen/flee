@@ -32,17 +32,55 @@ class Location(flee.Location):
     self.IPC = IPC
 
 class Ecosystem(flee.Ecosystem):
+  
+  def __init__(self):
+    super().__init__()  
+    
+    # IPC specific configuration variables.
+    self.IPCAffectsMoveChance = False # IPC modified move chances 
+    #(Warning: lower validation error correlates with higher average move chances)
+    
+    self.IPCAffectsSpawnLocation = True # IPC affects Spawn location distribution.
+  
   def update_IPC_MC(self,line_IPC,IPC_all):                        #maybe better (less computation time)
+    self.IPC_location_weights = []
+    self.IPC_locations = []
+    self.total_weight = 0.0
     for i in range(0,len(self.locationNames)):
       if self.locations[i].country=="South_Sudan":                       #needed??
-        self.locations[i].IPC=IPC_all.loc[line_IPC,self.locations[i].region]
-        if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
-          new_mc=self.locations[i].IPC/100
-          if new_mc>SimulationSettings.SimulationSettings.DefaultMoveChance:
-            self.locations[i].movechance=new_mc
-          else:
-            self.locations[i].movechance=SimulationSettings.SimulationSettings.DefaultMoveChance
 
+        #1. Update IPC scores for all locations
+        self.locations[i].IPC=IPC_all.loc[line_IPC,self.locations[i].region]
+        
+        #2. Update IPC spawning weights for all locations
+        if self.IPCAffectsSpawnLocation:
+          self.IPC_locations.append(self.locations[i])
+          if not self.locations[i].conflict:
+            self.IPC_location_weights.append((self.locations[i].IPC / 100.0) * self.locations[i].pop)
+          else:
+            self.IPC_location_weights.append(self.locations[i].pop) # Conflict zones already have their full population as weight
+            # so food security should not increase it beyond that amount.
+          self.total_weight += self.IPC_location_weights[-1]
+        
+        #3. Adjust move chances, taking into account IPC scores.
+        if self.IPCAffectsMoveChance:
+          if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
+            new_mc=self.locations[i].IPC/100.0
+            if new_mc>SimulationSettings.SimulationSettings.DefaultMoveChance:
+              self.locations[i].movechance=new_mc
+            else:
+              self.locations[i].movechance=SimulationSettings.SimulationSettings.DefaultMoveChance
+
+  def pick_conflict_location(self):
+    """
+    Returns a weighted random element from the list of conflict locations.
+    This function returns a number, which is an index in the array of conflict locations.
+    """
+    if self.IPCAffectsSpawnLocation:
+      return np.random.choice(self.IPC_locations, p=self.IPC_location_weights/self.total_weight)
+    else:
+      return np.random.choice(self.conflict_zones, p=self.conflict_weights/self.conflict_pop)            
+            
   def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown", region="unknown", IPC=0):
     """ Add a location to the ABM network graph """
 
