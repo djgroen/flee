@@ -65,11 +65,7 @@ class Ecosystem(flee.Ecosystem):
         #3. Adjust move chances, taking into account IPC scores.
         if self.IPCAffectsMoveChance:
           if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
-            new_mc=self.locations[i].IPC/100.0
-            if new_mc>SimulationSettings.SimulationSettings.DefaultMoveChance:
-              self.locations[i].movechance=new_mc
-            else:
-              self.locations[i].movechance=SimulationSettings.SimulationSettings.DefaultMoveChance
+            self.locations[i].movechance=self.locations[i].IPC/100.0+SimulationSettings.SimulationSettings.DefaultMoveChance*(1-self.locations[i].IPC/100.0)
 
   def pick_conflict_location(self):
     """
@@ -93,8 +89,12 @@ class Ecosystem(flee.Ecosystem):
 
   def printInfo(self):
     #print("Time: ", self.time, ", # of agents: ", len(self.agents))
-    for l in self.locations:
-      print(l.name, "Agents: ", l.numAgents, "State: ", l.region, "IPC: ", l.IPC, "movechance: ", l.movechance, file=sys.stderr)
+    if self.IPCAffectsSpawnLocation:
+      for l in range(len(self.IPC_locations)):
+        print(self.IPC_locations[l].name, "Conflict:", self.locations[l].conflict, "Pop:", self.IPC_locations[l].pop, "IPC:", self.IPC_locations[l].IPC, "mc:", self.IPC_locations[l].movechance, "weight:", self.IPC_location_weights[l], file=sys.stderr)
+    else:
+      for l in self.locations:
+        print(l.name, "Agents: ", l.numAgents, "State: ", l.region, "IPC: ", l.IPC, "movechance: ", l.movechance, file=sys.stderr)
 
 if __name__ == "__main__":
   print("Flee, prototype version.")
