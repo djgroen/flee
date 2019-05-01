@@ -216,6 +216,7 @@ def plotme(out_dir, data, name, retrofitted=True, offset=0, legend_loc=4, naieve
 
   # absolute difference (rescaled)
   lerr.errors["absolute difference rescaled"] = a.abs_diffs(y1_rescaled, y2)
+  
 
   # ratio difference
   lerr.errors["ratio difference"] = a.abs_diffs(y1, y2) / (np.maximum(untot, np.ones(len(untot))))
@@ -408,7 +409,7 @@ if __name__ == "__main__":
       loc_errors.append(plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=nmodel))
       #plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=1)
 
-      plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=nmodel)
+      #plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=nmodel)
       #loc_errors.append(plotme(out_dir, refugee_data, i, retrofitted=RetroFitting, legend_loc=4, naieve_model=True))
 
     else:
@@ -437,6 +438,7 @@ if __name__ == "__main__":
 
 
   sim_errors = SimulationErrors(loc_errors)
+  #print(sim_errors.abs_diff())
   if nmodel:
     print("%s & %s & %s & %s & %s & %s & %s\\\\" % (out_dir, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"),sim_errors.get_error("MASE7-ratio"),sim_errors.get_error("MASE30"),sim_errors.get_error("MASE30-sloped"),sim_errors.get_error("MASE30-ratio")))
 
