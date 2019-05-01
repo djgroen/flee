@@ -30,7 +30,8 @@ class InputGeography:
           headers = row
           for i in range(0,len(headers)):
             headers[i] = headers[i].strip()
-            self.conflicts[headers[i]] = []
+            if len(headers[i])>0:
+              self.conflicts[headers[i]] = []
         else:
           for i in range(0,len(row)):
             #print(row[0])
@@ -161,7 +162,7 @@ class InputGeography:
       confl_names = self.getConflictLocationNames()
       #print(confl_names)
       for l in confl_names:
-        #print("L:", l, self.conflicts[l], time)
+        #print("L:", l, self.conflicts[l], time, file=sys.stderr)
         if self.conflicts[l][time] == 1:
           if time > 0:
             if self.conflicts[l][time-1] == 0:
