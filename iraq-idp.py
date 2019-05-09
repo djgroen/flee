@@ -25,12 +25,6 @@ if __name__ == "__main__":
     end_time = 300
     last_physical_day = 300
 
-  RetroFitting = False
-  if len(sys.argv)>2:
-    if "-r" in sys.argv[2]:
-      RetroFitting = True
-      end_time *= 10
-
   e = flee.Ecosystem()
   flee.SimulationSettings.UseIDPMode = True
 
