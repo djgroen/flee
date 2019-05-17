@@ -28,12 +28,12 @@ class InputGeography:
         #print(row)
         if row_count == 0:
           headers = row
-          for i in range(0,len(headers)):
+          for i in range(1,len(headers)): # field 0 is day.
             headers[i] = headers[i].strip()
             if len(headers[i])>0:
               self.conflicts[headers[i]] = []
         else:
-          for i in range(0,len(row)):
+          for i in range(1,len(row)): # field 0 is day.
             #print(row[0])
             self.conflicts[headers[i]].append(int(row[i].strip()))
         row_count += 1
