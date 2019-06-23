@@ -123,26 +123,22 @@ class Person(flee.Person):
       return 1.0
 
 
-    return float(__scores[(link.endpoint.id * __NumAwarenessLevels) + awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+    return float(self.allscores[(link.endpoint.id * self.NumAwarenessLevels) + awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
 
-
-__NumAwarenessLevels = 4
-__scores = np.array([1.0,1.0,1.0,1.0]) # single array holding all the location-related scores.
-__cur_id = 0
 
 class Location(flee.Location):
 
-  def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
+  def __init__(self, cur_id, scores, NumAwarenessLevels, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
     super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
-    self.id = __cur_id
+
+    self.id = cur_id
     if self.id > 0:
-      np.append(__scores, np.array([1.0,1.0,1.0,1.0]))
+      np.append(scores, np.array([1.0,1.0,1.0,1.0]))
 
     self.scores = [] # Emptying this array, as it is not used in the parallel version.
     # If it is referred to in Flee in any way, the code should crash.
-
-    __cur_id += 1
-
+    self.allscores = scores
+    self.NumAwarenessLevels = NumAwarenessLevels
 
   def updateRegionScore(self):
     """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points,
@@ -161,7 +157,7 @@ class Location(flee.Location):
       total_link_weight += 1.0 / float(i.distance)
 
     self.RegionScore /= total_link_weight
-    __scores[self.id * __NumAwarenessLevels + 3] = self.RegionScore
+    self.allscores[self.id * self.NumAwarenessLevels + 3] = self.RegionScore
 
 
   def updateNeighbourhoodScore(self):
@@ -180,7 +176,7 @@ class Location(flee.Location):
       total_link_weight += 1.0 / float(i.distance)
 
     self.NeighbourhoodScore /= total_link_weight
-    __scores[self.id * __NumAwarenessLevels + 2] = self.NeighbourhoodScore
+    self.allscores[self.id * self.NumAwarenessLevels + 2] = self.NeighbourhoodScore
 
 
   def updateLocationScore(self, time):
@@ -198,8 +194,8 @@ class Location(flee.Location):
     else:
       self.LocationScore = 1.0
 
-    __scores[self.id * __NumAwarenessLevels] = 1.0
-    __scores[self.id * __NumAwarenessLevels + 1] = self.LocationScore
+    self.allscores[self.id * self.NumAwarenessLevels] = 1.0
+    self.allscores[self.id * self.NumAwarenessLevels + 1] = self.LocationScore
 
 
   def updateAllScores(self, time):
@@ -219,6 +215,7 @@ class Link(flee.Link):
 
 class Ecosystem(flee.Ecosystem):
   def __init__(self):
+
     self.locations = []
     self.locationNames = []
     self.agents = []
@@ -226,6 +223,11 @@ class Ecosystem(flee.Ecosystem):
     self.closures = [] #format [type, source, dest, start, end]
     self.time = 0
     self.mpi = MPIManager()
+
+    self.cur_loc_id = 0
+    self.NumAwarenessLevels = 4
+    self.scores = np.array([1.0,1.0,1.0,1.0]) # single array holding all the location-related scores.
+
 
     # Bring conflict zone management into FLEE.
     self.conflict_zones = []
@@ -320,11 +322,11 @@ class Ecosystem(flee.Ecosystem):
       """
 
       # Populate scores array
-      scores_start = start_loc_local * __NumAwarenessLevels
-      scores_end = end_loc_local * __NumAwarenessLevels
-      local_scores = __scores[scores_start:scores_end]
+      scores_start = start_loc_local * self.NumAwarenessLevels
+      scores_end = end_loc_local * self.NumAwarenessLevels
+      local_scores = self.scores[scores_start:scores_end]
 
-      self.mpi.AllGather(local_scores, __scores)
+      self.mpi.AllGather(local_scores, self.scores)
 
 
   def evolve(self):
@@ -387,7 +389,9 @@ class Ecosystem(flee.Ecosystem):
   def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
     """ Add a location to the ABM network graph """
 
-    l = Location(name, x, y, movechance, capacity, pop, foreign, country)
+    l = Location(self.cur_loc_id, self.scores, self.NumAwarenessLevels, name, x, y, movechance, capacity, pop, foreign, country)
+    self.cur_loc_id += 1
+
     if SimulationSettings.SimulationSettings.InitLogLevel > 0:
       print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign)
     self.locations.append(l)
