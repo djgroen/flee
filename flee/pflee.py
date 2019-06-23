@@ -109,21 +109,113 @@ class Person(flee.Person):
           self.evolve()
           self.finish_travel(distance_moved_this_timestep)
 
+  def getLinkWeight(self, link, awareness_level):
+    """
+    Calculate the weight of an adjacent link. Weight = probability that it will be chosen.
+    """
 
+    # If turning back is NOT allowed, remove weight from the last location.
+    #if not SimulationSettings.SimulationSettings.TurnBackAllowed:
+    #  if link.endpoint == self.last_location:
+    #    return 0.0 #float(0.1 / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+
+    if awareness_level < 0:
+      return 1.0
+
+
+    return float(__scores[(link.endpoint.id * __NumAwarenessLevels) + awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+
+
+__NumAwarenessLevels = 4
+__scores = np.array([1.0,1.0,1.0,1.0]) # single array holding all the location-related scores.
+__cur_id = 0
 
 class Location(flee.Location):
-  pass
-  #code below is deprecated, as I added the variable to flee.py instead to retain easy compatibility with the CSV framework (same for Link).
-  #I may wish to revise this design decision in the future.
-  #def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
-  #  self.numAgentsOnRank = 0
-  #  super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
+
+   def __init__(self, location):
+     super().__init__(location)
+     self.id = __cur_id
+     if self.id > 0:
+         np.append(__scores, np.array([1.0,1.0,1.0,1.0]
+
+     self.scores = [] # Emptying this array, as it is not used in the parallel version.
+     # If it is referred to in Flee in any way, the code should crash.
+
+     __cur_id += 1
+
+
+  def updateRegionScore(self):
+    """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points,
+        weighted by link length. """
+
+    # No links connected or a Camp? Use LocationScore.
+    if len(self.links) == 0 or self.camp:
+      self.RegionScore = self.LocationScore
+      return
+
+    self.RegionScore = 0.0
+    total_link_weight = 0.0
+
+    for i in self.links:
+      self.RegionScore += i.endpoint.NeighbourhoodScore / float(i.distance)
+      total_link_weight += 1.0 / float(i.distance)
+
+    self.RegionScore /= total_link_weight
+    __scores[self.id * __NumAwarenessLevels + 3] = self.RegionScore
+
+
+  def updateNeighbourhoodScore(self):
+
+    """ Attractiveness of the local point, based on information from local and adjacent points, weighted by link length. """
+    # No links connected or a Camp? Use LocationScore.
+    if len(self.links) == 0 or self.camp:
+      self.NeighbourhoodScore = self.LocationScore
+      return
+
+    self.NeighbourhoodScore = 0.0
+    total_link_weight = 0.0
+
+    for i in self.links:
+      self.NeighbourhoodScore += i.endpoint.LocationScore / float(i.distance)
+      total_link_weight += 1.0 / float(i.distance)
+
+    self.NeighbourhoodScore /= total_link_weight
+    __scores[self.id * __NumAwarenessLevels + 2] = self.NeighbourhoodScore
+
+
+  def updateLocationScore(self, time):
+    """ 
+    Attractiveness of the local point, based on local point information only. 
+    Time arg is redundant here, but I keep it here for now to ensure the serial version
+    cannot be accessed in pflee. 
+    """
+
+
+    if self.foreign:
+      self.LocationScore = SimulationSettings.SimulationSettings.CampWeight
+    elif self.conflict:
+      self.LocationScore = SimulationSettings.SimulationSettings.ConflictWeight
+    else:
+      self.LocationScore = 1.0
+
+    __scores[self.id * __NumAwarenessLevels] = 1.0
+    __scores[self.id * __NumAwarenessLevels + 1] = self.LocationScore
+
+
+  def updateAllScores(self, time):
+    """ Updates all scores of a particular location. Not available in Serial Flee, due to the reversed order there. """
+    self.time = time
+    self.updateRegionScore()
+    self.updateNeighbourhoodScore()
+    self.updateLocationScore(self.time)
+
 
 class Link(flee.Link):
   pass
   #def __init__(self, endpoint, distance, forced_redirection=False):
   #  self.numAgentsOnRank = 0
   #  super().__init__(endpoint, distance, forced_redirection)
+
 
 class Ecosystem(flee.Ecosystem):
   def __init__(self):
@@ -140,6 +232,8 @@ class Ecosystem(flee.Ecosystem):
     self.conflict_zone_names = []
     self.conflict_weights = np.array([])
     self.conflict_pop = 0
+
+    self.parallel_mode = "loc-par" #classic or loc-par
 
     if SimulationSettings.SimulationSettings.CampLogLevel > 0:
       self.num_arrivals = [] # one element per time step.
@@ -220,19 +314,48 @@ class Ecosystem(flee.Ecosystem):
   def numAgentsOnRank(self):
     return len(self.agents)
 
+  def synchronize_locations(self):
+      """
+      Gathers the scores from all the updated locations, and propagates them across the processes.
+      """
+      p = self.mpi.size
+
+      # Populate scores array
+
+
+
   def evolve(self):
     if self.time == 0:
         print("rank, num_agents:", self.mpi.rank, len(self.agents))
 
-    # update level 1, 2 and 3 location scores
-    for l in self.locations:
-      l.updateLocationScore(self.time)
+        # Update all scores three times to ensure code starts with updated scores.
+        for times in range(0, 3):
+          for i in range(0, self.locations):
+            if i % self.mpi.size == self.mpi.rank:
+              l[i].updateAllScores(self.time)
 
-    for l in self.locations:
-      l.updateNeighbourhoodScore()
+    if self.parallel_mode = "classic":
+      # update level 1, 2 and 3 location scores.
+      # Scores remain perfectly updated in classic mode.
+      for l in self.locations:
+        l.time = self.time
+        l.updateLocationScore(self.time)
 
-    for l in self.locations:
-      l.updateRegionScore()
+      for l in self.locations:
+        l.updateNeighbourhoodScore()
+
+      for l in self.locations:
+        l.updateRegionScore()
+
+    elif self.parallel_mode = "loc-par":
+      # update scores in reverse order for efficiency.
+      # Neighbourhood and Region score will be outdated by 1 and 2 time steps resp.
+      
+      for i in range(0,self.locations):
+        if i % self.mpi.size == self.mpi.rank:
+          l[i].updateAllScores(self.time)
+
+      self.synchronize_locations()
 
     #update agent locations
     for a in self.agents:

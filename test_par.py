@@ -8,7 +8,7 @@ import sys
 
 def AddInitialRefugees(e, loc):
   """ Add the initial refugees to a location, using the location name"""
-  num_refugees = 1000000
+  num_refugees = 10000
   for i in range(0, num_refugees):
     e.addAgent(location=loc)
 
