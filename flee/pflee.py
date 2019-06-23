@@ -132,16 +132,16 @@ __cur_id = 0
 
 class Location(flee.Location):
 
-   def __init__(self, location):
-     super().__init__(location)
-     self.id = __cur_id
-     if self.id > 0:
-         np.append(__scores, np.array([1.0,1.0,1.0,1.0]
+  def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
+    super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
+    self.id = __cur_id
+    if self.id > 0:
+      np.append(__scores, np.array([1.0,1.0,1.0,1.0]))
 
-     self.scores = [] # Emptying this array, as it is not used in the parallel version.
-     # If it is referred to in Flee in any way, the code should crash.
+    self.scores = [] # Emptying this array, as it is not used in the parallel version.
+    # If it is referred to in Flee in any way, the code should crash.
 
-     __cur_id += 1
+    __cur_id += 1
 
 
   def updateRegionScore(self):
@@ -333,11 +333,11 @@ class Ecosystem(flee.Ecosystem):
 
         # Update all scores three times to ensure code starts with updated scores.
         for times in range(0, 3):
-          for i in range(0, self.locations):
+          for i in range(0, len(self.locations)):
             if i % self.mpi.size == self.mpi.rank:
-              l[i].updateAllScores(self.time)
+              self.locations[i].updateAllScores(self.time)
 
-    if self.parallel_mode = "classic":
+    if self.parallel_mode == "classic":
       # update level 1, 2 and 3 location scores.
       # Scores remain perfectly updated in classic mode.
       for l in self.locations:
@@ -350,7 +350,7 @@ class Ecosystem(flee.Ecosystem):
       for l in self.locations:
         l.updateRegionScore()
 
-    elif self.parallel_mode = "loc-par":
+    elif self.parallel_mode == "loc-par":
       # update scores in reverse order for efficiency.
       # Neighbourhood and Region score will be outdated by 1 and 2 time steps resp.
       
@@ -363,7 +363,7 @@ class Ecosystem(flee.Ecosystem):
         num_locs_on_this_rank += 1
 
       for i in range(offset, offset + num_locs_on_this_rank):
-        l[i].updateAllScores(self.time)
+        self.locations[i].updateAllScores(self.time)
 
       self.synchronize_locations(offset, offset + num_locs_on_this_rank)
 
@@ -383,6 +383,16 @@ class Ecosystem(flee.Ecosystem):
       self._aggregate_arrivals()
 
     self.time += 1
+
+  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
+    """ Add a location to the ABM network graph """
+
+    l = Location(name, x, y, movechance, capacity, pop, foreign, country)
+    if SimulationSettings.SimulationSettings.InitLogLevel > 0:
+      print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign)
+    self.locations.append(l)
+    self.locationNames.append(l.name)
+    return l
 
 
 if __name__ == "__main__":
