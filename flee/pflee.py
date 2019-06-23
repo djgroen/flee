@@ -314,14 +314,17 @@ class Ecosystem(flee.Ecosystem):
   def numAgentsOnRank(self):
     return len(self.agents)
 
-  def synchronize_locations(self):
+  def synchronize_locations(self, start_loc_local, end_loc_local):
       """
       Gathers the scores from all the updated locations, and propagates them across the processes.
       """
-      p = self.mpi.size
 
       # Populate scores array
+      scores_start = start_loc_local * __NumAwarenessLevels
+      scores_end = end_loc_local * __NumAwarenessLevels
+      local_scores = __scores[scores_start:scores_end]
 
+      self.mpi.AllGather(local_scores, __scores)
 
 
   def evolve(self):
@@ -351,11 +354,18 @@ class Ecosystem(flee.Ecosystem):
       # update scores in reverse order for efficiency.
       # Neighbourhood and Region score will be outdated by 1 and 2 time steps resp.
       
-      for i in range(0,self.locations):
-        if i % self.mpi.size == self.mpi.rank:
-          l[i].updateAllScores(self.time)
+      loc_per_rank = len(self.locations) / self.mpi.size
+      lpr_remainder = len(self.locations) % self.mpi.size
 
-      self.synchronize_locations()
+      offset = self.mpi.rank * loc_per_rank + min(self.mpi.rank, lpr_remainder)
+      num_locs_on_this_rank = loc_per_rank
+      if self.mpi.rank < lpr_remainder:
+        num_locs_on_this_rank += 1
+
+      for i in range(offset, offset + num_locs_on_this_rank):
+        l[i].updateAllScores(self.time)
+
+      self.synchronize_locations(offset, offset + num_locs_on_this_rank)
 
     #update agent locations
     for a in self.agents:
