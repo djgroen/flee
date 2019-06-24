@@ -42,9 +42,10 @@ class MPIManager:
       self.comm.Send(num_buf,0)
 
 class Person(flee.Person):
-  def __init__(self, location):
+  def __init__(self, e, location):
     super().__init__(location)
     self.location.numAgentsOnRank += 1
+    self.e = e
 
   def evolve(self):
 
@@ -123,22 +124,19 @@ class Person(flee.Person):
       return 1.0
 
 
-    return float(self.allscores[(link.endpoint.id * self.NumAwarenessLevels) + awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+    return float(self.e.scores[(link.endpoint.id * self.NumAwarenessLevels) + awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
 
 
 class Location(flee.Location):
 
-  def __init__(self, cur_id, scores, NumAwarenessLevels, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
+  def __init__(self, e, cur_id, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
     super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
 
     self.id = cur_id
-    if self.id > 0:
-      np.append(scores, np.array([1.0,1.0,1.0,1.0]))
 
     self.scores = [] # Emptying this array, as it is not used in the parallel version.
     # If it is referred to in Flee in any way, the code should crash.
-    self.allscores = scores
-    self.NumAwarenessLevels = NumAwarenessLevels
+    self.e = e
 
   def updateRegionScore(self):
     """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points,
@@ -157,7 +155,7 @@ class Location(flee.Location):
       total_link_weight += 1.0 / float(i.distance)
 
     self.RegionScore /= total_link_weight
-    self.allscores[self.id * self.NumAwarenessLevels + 3] = self.RegionScore
+    self.e.scores[self.id * self.e.NumAwarenessLevels + 3] = self.RegionScore
 
 
   def updateNeighbourhoodScore(self):
@@ -176,7 +174,7 @@ class Location(flee.Location):
       total_link_weight += 1.0 / float(i.distance)
 
     self.NeighbourhoodScore /= total_link_weight
-    self.allscores[self.id * self.NumAwarenessLevels + 2] = self.NeighbourhoodScore
+    self.e.scores[self.id * self.e.NumAwarenessLevels + 2] = self.NeighbourhoodScore
 
 
   def updateLocationScore(self, time):
@@ -194,8 +192,8 @@ class Location(flee.Location):
     else:
       self.LocationScore = 1.0
 
-    self.allscores[self.id * self.NumAwarenessLevels] = 1.0
-    self.allscores[self.id * self.NumAwarenessLevels + 1] = self.LocationScore
+    self.e.scores[self.id * self.e.NumAwarenessLevels] = 1.0
+    self.e.scores[self.id * self.e.NumAwarenessLevels + 1] = self.LocationScore
 
 
   def updateAllScores(self, time):
@@ -277,7 +275,7 @@ class Ecosystem(flee.Ecosystem):
         location.pop -= 1
     self.total_agents += 1
     if self.total_agents % self.mpi.size == self.mpi.rank:
-      self.agents.append(Person(location))
+      self.agents.append(Person(self, location))
 
   def insertAgent(self, location):
     """
@@ -285,7 +283,7 @@ class Ecosystem(flee.Ecosystem):
     """
     self.total_agents += 1
     if self.total_agents % self.mpi.size == self.mpi.rank:
-      self.agents.append(Person(location))
+      self.agents.append(Person(self, location))
 
   def insertAgents(self, location, number):
     for i in range(0,number):
@@ -326,7 +324,7 @@ class Ecosystem(flee.Ecosystem):
       scores_end = end_loc_local * self.NumAwarenessLevels
       local_scores = self.scores[scores_start:scores_end]
 
-      self.mpi.AllGather(local_scores, self.scores)
+      self.mpi.comm.Allgather(local_scores, self.scores)
 
 
   def evolve(self):
@@ -359,8 +357,8 @@ class Ecosystem(flee.Ecosystem):
       loc_per_rank = len(self.locations) / self.mpi.size
       lpr_remainder = len(self.locations) % self.mpi.size
 
-      offset = self.mpi.rank * loc_per_rank + min(self.mpi.rank, lpr_remainder)
-      num_locs_on_this_rank = loc_per_rank
+      offset = int(self.mpi.rank * loc_per_rank + min(self.mpi.rank, lpr_remainder))
+      num_locs_on_this_rank = int(loc_per_rank)
       if self.mpi.rank < lpr_remainder:
         num_locs_on_this_rank += 1
 
@@ -389,7 +387,13 @@ class Ecosystem(flee.Ecosystem):
   def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
     """ Add a location to the ABM network graph """
 
-    l = Location(self.cur_loc_id, self.scores, self.NumAwarenessLevels, name, x, y, movechance, capacity, pop, foreign, country)
+    l = Location(self, self.cur_loc_id, name, x, y, movechance, capacity, pop, foreign, country)
+
+    # Enlarge the scores array in Ecosystem to reflect the new location. Pflee only.
+    if self.cur_loc_id > 0:
+      self.scores = np.append(self.scores, np.array([1.0,1.0,1.0,1.0]))
+    print(len(self.scores))
+
     self.cur_loc_id += 1
 
     if SimulationSettings.SimulationSettings.InitLogLevel > 0:
