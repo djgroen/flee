@@ -1,4 +1,4 @@
-from flee import pflee
+from flee import flee
 from datamanager import handle_refugee_data
 from datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         end_time = duration
         last_physical_day = end_time
 
-  e = pflee.Ecosystem()
+  e = flee.Ecosystem()
 
   ig = InputGeography.InputGeography()
 
@@ -58,11 +58,9 @@ if __name__ == "__main__":
     AddInitialRefugees(e,lm[l])
     output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
 
-
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
 
-  if e.getRankN(0):
-    print(output_header_string)
+  print(output_header_string)
 
   # Set up a mechanism to incorporate temporary decreases in refugees
   refugee_debt = 0
@@ -116,5 +114,5 @@ if __name__ == "__main__":
     else:
       output += ",0,0"
 
-    if e.getRankN(t):
-      print(output)
+
+    print(output)

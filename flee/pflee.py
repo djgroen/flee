@@ -124,7 +124,7 @@ class Person(flee.Person):
       return 1.0
 
 
-    return float(self.e.scores[(link.endpoint.id * self.NumAwarenessLevels) + awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+    return float(self.e.scores[(link.endpoint.id * self.e.NumAwarenessLevels) + awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
 
 
 class Location(flee.Location):
@@ -338,7 +338,7 @@ class Ecosystem(flee.Ecosystem):
 
   def evolve(self):
     if self.time == 0:
-        print("rank, num_agents:", self.mpi.rank, len(self.agents))
+        #print("rank, num_agents:", self.mpi.rank, len(self.agents))
 
         # Update all scores three times to ensure code starts with updated scores.
         for times in range(0, 3):
@@ -401,12 +401,12 @@ class Ecosystem(flee.Ecosystem):
     # Enlarge the scores array in Ecosystem to reflect the new location. Pflee only.
     if self.cur_loc_id > 0:
       self.scores = np.append(self.scores, np.array([1.0,1.0,1.0,1.0]))
-    print(len(self.scores))
+    #print(len(self.scores))
 
     self.cur_loc_id += 1
 
     if SimulationSettings.SimulationSettings.InitLogLevel > 0:
-      print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign)
+      print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign, file=sys.stderr)
     self.locations.append(l)
     self.locationNames.append(l.name)
     return l
