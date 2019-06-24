@@ -319,12 +319,21 @@ class Ecosystem(flee.Ecosystem):
       Gathers the scores from all the updated locations, and propagates them across the processes.
       """
 
-      # Populate scores array
-      scores_start = start_loc_local * self.NumAwarenessLevels
-      scores_end = end_loc_local * self.NumAwarenessLevels
-      local_scores = self.scores[scores_start:scores_end]
+      # thanks to tarwan.de for this bit.
+      base = len(self.scores) / self.mpi.size
+      leftover = len(self.scores)% self.mpi.size
 
-      self.mpi.comm.Allgather(local_scores, self.scores)
+      sizes = np.ones(self.mpi.size)*base
+      sizes[:leftover] += 1
+      offsets = np.zeros(self.mpi.size)
+      offsets[1:] = np.cumsum(sizes)[:-1]
+
+      # Populate scores array
+      scores_start = int(offsets[self.mpi.rank])
+      local_scores_size = int(sizes[self.mpi.rank])
+      local_scores = self.scores[scores_start:scores_start+local_scores_size]
+
+      self.mpi.comm.Allgatherv(local_scores, [self.scores, sizes, offsets, MPI.DOUBLE])
 
 
   def evolve(self):
