@@ -86,29 +86,40 @@ class Person(flee.Person):
           self.places_travelled += 1
           self.distance_travelled += self.location.distance
 
-        # if the person has moved less than the minMoveSpeed, it should go through another evolve() step in the new location.
-        evolveMore = False
-        if self.location.distance + distance_moved_this_timestep < SimulationSettings.SimulationSettings.MinMoveSpeed:
-          distance_moved_this_timestep += self.location.distance
-          evolveMore = True
+        # if link is closed, bring agent to start point and return.
+        if self.location.closed = True
+          self.location.numAgentsOnRank -= 1
+          self.location = self.location.startpoint
+          self.location.numAgentsOnRank += 1
+          self.travelling = False
+          self.distance_travelled_on_link = 0
 
-        # update location (which is on a link) to link endpoint
-        self.location.numAgentsOnRank -= 1
-        self.location = self.location.endpoint
-        self.location.numAgentsOnRank += 1
+        else:
 
-        self.travelling = False
-        self.distance_travelled_on_link = 0
+          # if the person has moved less than the minMoveSpeed, it should go through another evolve() step in the new location.
+          evolveMore = False
+          if self.location.distance + distance_moved_this_timestep < SimulationSettings.SimulationSettings.MinMoveSpeed:
+            distance_moved_this_timestep += self.location.distance
+            evolveMore = True
 
-        if SimulationSettings.SimulationSettings.CampLogLevel > 0:
-          if self.location.Camp == True:
-            self.location.incoming_journey_lengths += [self.timesteps_since_departure]
+          # update location (which is on a link) to link endpoint
+          self.location.numAgentsOnRank -= 1
+          self.location = self.location.endpoint
+          self.location.numAgentsOnRank += 1
 
-        # Perform another evolve step if needed. And if it results in travel, then the current
-        # travelled distance needs to be taken into account.
-        if evolveMore == True:
-          self.evolve()
-          self.finish_travel(distance_moved_this_timestep)
+          self.travelling = False
+          self.distance_travelled_on_link = 0
+
+          if SimulationSettings.SimulationSettings.CampLogLevel > 0:
+            if self.location.Camp == True:
+              self.location.incoming_journey_lengths += [self.timesteps_since_departure]
+
+
+          # Perform another evolve step if needed. And if it results in travel, then the current
+          # travelled distance needs to be taken into account.
+          if evolveMore == True:
+            self.evolve()
+            self.finish_travel(distance_moved_this_timestep)
 
   def getLinkWeight(self, link, awareness_level):
     """
@@ -305,6 +316,7 @@ class Ecosystem(flee.Ecosystem):
         self.agents[i].location.numAgentsOnRank -= 1 #agent is removed from ecosystem and number of agents in location drops by one.
 
     self.agents = new_agents
+    print("clearLocationsFromAgents()", file=sys.stderr)
     self.updateNumAgents() # when numAgentsOnRank has changed, we need to updateNumAgents (1x MPI_Allreduce)
 
 
@@ -380,11 +392,13 @@ class Ecosystem(flee.Ecosystem):
     for a in self.agents:
       a.evolve()
 
+    print("NumAgents after evolve:", file=sys.stderr)
     self.updateNumAgents()
 
     for a in self.agents:
       a.finish_travel()
 
+    print("NumAgents after finish_travel:", file=sys.stderr)
     self.updateNumAgents()
 
     #update link properties
