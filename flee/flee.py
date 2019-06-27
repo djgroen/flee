@@ -72,29 +72,39 @@ class Person:
           self.places_travelled += 1
           self.distance_travelled += self.location.distance
 
-        # if the person has moved less than the minMoveSpeed, it should go through another evolve() step in the new location.
-        evolveMore = False
-        if self.location.distance + distance_moved_this_timestep < SimulationSettings.SimulationSettings.MinMoveSpeed:
-          distance_moved_this_timestep += self.location.distance
-          evolveMore = True
+        # if link is closed, bring agent to start point instead of the destination and return.
+        if self.location.closed == True:
+          self.location.numAgentsOnRank -= 1
+          self.location = self.location.startpoint
+          self.location.numAgentsOnRank += 1
+          self.travelling = False
+          self.distance_travelled_on_link = 0
 
-        # update location (which is on a link) to link endpoint
-        self.location.numAgents -= 1
-        self.location = self.location.endpoint
-        self.location.numAgents += 1
+        else:
 
-        self.travelling = False
-        self.distance_travelled_on_link = 0
+          # if the person has moved less than the minMoveSpeed, it should go through another evolve() step in the new location.
+          evolveMore = False
+          if self.location.distance + distance_moved_this_timestep < SimulationSettings.SimulationSettings.MinMoveSpeed:
+            distance_moved_this_timestep += self.location.distance
+            evolveMore = True
 
-        if SimulationSettings.SimulationSettings.CampLogLevel > 0:
-          if self.location.Camp == True:
-            self.location.incoming_journey_lengths += [self.timesteps_since_departure]
+          # update location (which is on a link) to link endpoint
+          self.location.numAgents -= 1
+          self.location = self.location.endpoint
+          self.location.numAgents += 1
 
-        # Perform another evolve step if needed. And if it results in travel, then the current
-        # travelled distance needs to be taken into account.
-        if evolveMore == True:
-          self.evolve()
-          self.finish_travel(distance_moved_this_timestep)
+          self.travelling = False
+          self.distance_travelled_on_link = 0
+
+          if SimulationSettings.SimulationSettings.CampLogLevel > 0:
+            if self.location.Camp == True:
+              self.location.incoming_journey_lengths += [self.timesteps_since_departure]
+
+          # Perform another evolve step if needed. And if it results in travel, then the current
+          # travelled distance needs to be taken into account.
+          if evolveMore == True:
+            self.evolve()
+            self.finish_travel(distance_moved_this_timestep)
 
   def getLinkWeight(self, link, awareness_level):
     """
@@ -324,13 +334,15 @@ class Location:
     self.scores = np.array([1.0, self.LocationScore, self.NeighbourhoodScore, self.RegionScore])
 
 class Link:
-  def __init__(self, endpoint, distance, forced_redirection=False):
+  def __init__(self, startpoint, endpoint, distance, forced_redirection=False):
     self.name = "__link__"
+    self.closed = False
 
     # distance in km.
     self.distance = float(distance)
 
     # links for now always connect two endpoints
+    self.startpoint = startpoint
     self.endpoint = endpoint
 
     # number of agents that are in transit.
@@ -452,7 +464,12 @@ class Ecosystem:
         continue
       elif close_only:
         #print("Closing [%s] to [%s]" % (startpoint, endpoint), file=sys.stderr)
-        self.locations[x].closed_links += [copy.copy(self.locations[x].links[i])]
+        self.locations[x].links[i].closed = True
+        self.locations[x].closed_links += [copy.copy(self.locations[x].links[i])] # we copy the route link to have a backup. 
+        # The original object might still be used by agents as part of finish_travel, but will be orphaned eventually.
+
+        self.locations[x].closed_links[-1].numAgents = 0 # make sure agent counts are set to 0.
+        self.locations[x].closed_links[-1].numAgentsOnRank = 0 # ditto.
       removed = True
 
     self.locations[x].links = new_links
@@ -477,6 +494,7 @@ class Ecosystem:
       else:
         #print("Match: [%s] to [%s] (%s)" % (startpoint, self.locations[x].closed_links[i].endpoint.name, endpoint), file=sys.stderr)
         self.locations[x].links += [self.locations[x].closed_links[i]]
+        self.locations[x].links[-1].closed = False
         reopened = True
 
     self.locations[x].closed_links = new_closed_links
@@ -776,8 +794,8 @@ class Ecosystem:
       print("Error: link created to non-existent destination: ", endpoint2, " with source ", endpoint1)
       sys.exit()
 
-    self.locations[endpoint1_index].links.append( Link(self.locations[endpoint2_index], distance, forced_redirection) )
-    self.locations[endpoint2_index].links.append( Link(self.locations[endpoint1_index], distance) )
+    self.locations[endpoint1_index].links.append( Link(self.locations[endpoint1_index], self.locations[endpoint2_index], distance, forced_redirection) )
+    self.locations[endpoint2_index].links.append( Link(self.locations[endpoint2_index], self.locations[endpoint1_index], distance) )
 
   def printInfo(self):
     print("Time: ", self.time, ", # of agents: ", len(self.agents))
