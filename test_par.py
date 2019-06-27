@@ -37,9 +37,11 @@ if __name__ == "__main__":
         end_time = duration
         last_physical_day = end_time
   else:
-    print("Usage: python3 test_par.py <duration>")
-    print("Or: python3 test_par.py <csv_input_directory>")
-    print("(Default duration is 10 days, default input is test_data/test_input_csv)")
+    print("Usage: mpirun -np <cores> python3 test_par.py <duration>", file=sys.stderr)
+    print("Or: mpirun -np <cores> python3 test_par.py <csv_input_directory>", file=sys.stderr)
+    print("(Default duration is 10 days, default input is test_data/test_input_csv)", file=sys.stderr)
+    print("Execution will continue with default settings.", file=sys.stderr)
+    print("------------------------------------------------------------------------", file=sys.stderr)
 
   e = pflee.Ecosystem()
 
