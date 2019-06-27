@@ -72,8 +72,8 @@ class Person:
           self.places_travelled += 1
           self.distance_travelled += self.location.distance
 
-        # if link is closed, bring agent to start point and return.
-        if self.location.closed = True
+        # if link is closed, bring agent to start point instead of the destination and return.
+        if self.location.closed == True:
           self.location.numAgentsOnRank -= 1
           self.location = self.location.startpoint
           self.location.numAgentsOnRank += 1
@@ -334,7 +334,7 @@ class Location:
     self.scores = np.array([1.0, self.LocationScore, self.NeighbourhoodScore, self.RegionScore])
 
 class Link:
-  def __init__(self, endpoint, distance, forced_redirection=False):
+  def __init__(self, startpoint, endpoint, distance, forced_redirection=False):
     self.name = "__link__"
     self.closed = False
 
@@ -342,6 +342,7 @@ class Link:
     self.distance = float(distance)
 
     # links for now always connect two endpoints
+    self.startpoint = startpoint
     self.endpoint = endpoint
 
     # number of agents that are in transit.
@@ -462,9 +463,13 @@ class Ecosystem:
         new_links += [self.locations[x].links[i]]
         continue
       elif close_only:
-        print("Closing [%s] to [%s]" % (startpoint, endpoint), file=sys.stderr)
+        #print("Closing [%s] to [%s]" % (startpoint, endpoint), file=sys.stderr)
         self.locations[x].links[i].closed = True
-        self.locations[x].closed_links += [copy.copy(self.locations[x].links[i])]
+        self.locations[x].closed_links += [copy.copy(self.locations[x].links[i])] # we copy the route link to have a backup. 
+        # The original object might still be used by agents as part of finish_travel, but will be orphaned eventually.
+
+        self.locations[x].closed_links[-1].numAgents = 0 # make sure agent counts are set to 0.
+        self.locations[x].closed_links[-1].numAgentsOnRank = 0 # ditto.
       removed = True
 
     self.locations[x].links = new_links
@@ -789,8 +794,8 @@ class Ecosystem:
       print("Error: link created to non-existent destination: ", endpoint2, " with source ", endpoint1)
       sys.exit()
 
-    self.locations[endpoint1_index].links.append( Link(self.locations[endpoint2_index], distance, forced_redirection) )
-    self.locations[endpoint2_index].links.append( Link(self.locations[endpoint1_index], distance) )
+    self.locations[endpoint1_index].links.append( Link(self.locations[endpoint1_index], self.locations[endpoint2_index], distance, forced_redirection) )
+    self.locations[endpoint2_index].links.append( Link(self.locations[endpoint2_index], self.locations[endpoint1_index], distance) )
 
   def printInfo(self):
     print("Time: ", self.time, ", # of agents: ", len(self.agents))

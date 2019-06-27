@@ -87,7 +87,8 @@ class Person(flee.Person):
           self.distance_travelled += self.location.distance
 
         # if link is closed, bring agent to start point and return.
-        if self.location.closed = True
+        if self.location.closed == True:
+          #print("agent moved out of closed link.", file=sys.stderr)
           self.location.numAgentsOnRank -= 1
           self.location = self.location.startpoint
           self.location.numAgentsOnRank += 1
@@ -260,16 +261,21 @@ class Ecosystem(flee.Ecosystem):
       return True
     return False
 
-  def updateNumAgents(self):
+  def updateNumAgents(self, CountClosed=False):
     total = 0
     for loc in self.locations:
       loc.numAgents = self.mpi.CalcCommWorldTotal(loc.numAgentsOnRank)
       total += loc.numAgents
-      #print("location:", loc.name, loc.numAgents)
+      #print("location:", self.time, loc.name, loc.numAgents, file=sys.stderr)
       for link in loc.links:
         link.numAgents = self.mpi.CalcCommWorldTotal(link.numAgentsOnRank)
-        #print("location link:", loc.name, link.numAgents)
+        #print(self.time, "link:", loc.name, link.numAgents, file=sys.stderr)
         total += link.numAgents
+      if CountClosed:
+        for link in loc.closed_links:
+          link.numAgents = self.mpi.CalcCommWorldTotal(link.numAgentsOnRank)
+          #print(self.time, "link [closed]:", loc.name, link.numAgents, file=sys.stderr)
+          total += link.numAgents
     self.total_agents = total
     print("Total agents in simulation:", total, file=sys.stderr)
 
@@ -392,13 +398,13 @@ class Ecosystem(flee.Ecosystem):
     for a in self.agents:
       a.evolve()
 
-    print("NumAgents after evolve:", file=sys.stderr)
-    self.updateNumAgents()
+    #print("NumAgents after evolve:", file=sys.stderr)
+    self.updateNumAgents(CountClosed = True)
 
     for a in self.agents:
       a.finish_travel()
 
-    print("NumAgents after finish_travel:", file=sys.stderr)
+    #print("NumAgents after finish_travel:", file=sys.stderr)
     self.updateNumAgents()
 
     #update link properties
