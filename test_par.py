@@ -21,10 +21,14 @@ if __name__ == "__main__":
   end_time = 10
   last_physical_day = 10
 
+  input_dir = "test_data/test_input_csv"
+
   if len(sys.argv)>1:
     if (sys.argv[1]).isnumeric():
       end_time = int(sys.argv[1])
       last_physical_day = int(sys.argv[1])
+    elif len(sys.argv)>1:
+      input_dir = sys.argv[1]
     else:
       end_time = 10
       last_physical_day = 10
@@ -32,6 +36,10 @@ if __name__ == "__main__":
       if duration>0:
         end_time = duration
         last_physical_day = end_time
+  else:
+    print("Usage: python3 test_par.py <duration>")
+    print("Or: python3 test_par.py <csv_input_directory>")
+    print("(Default duration is 10 days, default input is test_data/test_input_csv)")
 
   e = pflee.Ecosystem()
 
