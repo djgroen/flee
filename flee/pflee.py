@@ -349,7 +349,7 @@ class Ecosystem(flee.Ecosystem):
       # Populate scores array
       scores_start = int(offsets[self.mpi.rank])
       local_scores_size = int(sizes[self.mpi.rank])
-      local_scores = self.scores[scores_start:scores_start+local_scores_size]
+      local_scores = self.scores[scores_start:scores_start+local_scores_size].copy()
 
       self.mpi.comm.Allgatherv(local_scores, [self.scores, sizes, offsets, MPI.DOUBLE])
 
