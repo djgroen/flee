@@ -16,30 +16,20 @@ class MPIManager:
     self.rank = self.comm.Get_rank()
     self.size = self.comm.Get_size()
 
-  def CalcCommWorldTotal(self, i):
+  def CalcCommWorldTotalSingle(self, i):
+
     total = np.array([-1])
+    # If you want this number on rank 0, just use Reduce.
     self.comm.Allreduce(np.array([i]), total, op=MPI.SUM)
-    #total = self.CalcCommWorldTotalOnRank0(i)
-    #total = self.comm.bcast(np.array([total]), root=0)
-    #total = total[0]
-    #print("Rank, Total: ", self.rank, total)
     return total[0]
 
-  def CalcCommWorldTotalOnRank0(self, number):
+  def CalcCommWorldTotal(self, np_array):
+    assert np_array.size > 0
 
-    total = -1
-    num_buf = np.array([number])
-    # communication
-    # Rank 0 receives results from all ranks and sums them
-    if self.rank == 0:
-      recv_buf = np.zeros(1)
-      total = number
-      for i in range(1, self.size):
-        self.comm.Recv(recv_buf, ANY_SOURCE)
-        total += recv_buf[0]
-      return total
-    else:
-      self.comm.Send(num_buf,0)
+    total = np.empty(np_array.size, dtype='i')
+    # If you want this number on rank 0, just use Reduce.
+    self.comm.Allreduce(np_array, total, op=MPI.SUM)
+    return total
 
 class Person(flee.Person):
   def __init__(self, e, location):
@@ -245,7 +235,8 @@ class Ecosystem(flee.Ecosystem):
     self.conflict_weights = np.array([])
     self.conflict_pop = 0
 
-    self.parallel_mode = "loc-par" #classic or loc-par
+    self.parallel_mode = "loc-par" # classic for replicated locations or loc-par for distributed locations.
+    self.latency_mode = "high_latency" # high_latency for fewer MPI calls with more prep, or low_latency for more MPI calls with less prep.
 
     if SimulationSettings.SimulationSettings.CampLogLevel > 0:
       self.num_arrivals = [] # one element per time step.
@@ -261,23 +252,65 @@ class Ecosystem(flee.Ecosystem):
       return True
     return False
 
-  def updateNumAgents(self, CountClosed=False):
+  def updateNumAgents(self, CountClosed=False, mode="high_latency"):
     total = 0
-    for loc in self.locations:
-      loc.numAgents = self.mpi.CalcCommWorldTotal(loc.numAgentsOnRank)
-      total += loc.numAgents
-      #print("location:", self.time, loc.name, loc.numAgents, file=sys.stderr)
-      for link in loc.links:
-        link.numAgents = self.mpi.CalcCommWorldTotal(link.numAgentsOnRank)
-        #print(self.time, "link:", loc.name, link.numAgents, file=sys.stderr)
-        total += link.numAgents
-      if CountClosed:
-        for link in loc.closed_links:
-          link.numAgents = self.mpi.CalcCommWorldTotal(link.numAgentsOnRank)
-          #print(self.time, "link [closed]:", loc.name, link.numAgents, file=sys.stderr)
+
+    if mode=="low_latency":
+      for loc in self.locations:
+        loc.numAgents = self.mpi.CalcCommWorldTotalSingle(loc.numAgentsOnRank)
+        total += loc.numAgents
+        #print("location:", self.time, loc.name, loc.numAgents, file=sys.stderr)
+        for link in loc.links:
+          link.numAgents = self.mpi.CalcCommWorldTotalSingle(link.numAgentsOnRank)
+          #print(self.time, "link:", loc.name, link.numAgents, file=sys.stderr)
           total += link.numAgents
-    self.total_agents = total
-    print("Total agents in simulation:", total, file=sys.stderr)
+        if CountClosed:
+          for link in loc.closed_links:
+            link.numAgents = self.mpi.CalcCommWorldTotalSingle(link.numAgentsOnRank)
+            #print(self.time, "link [closed]:", loc.name, link.numAgents, file=sys.stderr)
+            total += link.numAgents
+      self.total_agents = total
+      print("Total agents in simulation:", total, file=sys.stderr)
+    elif mode == "high_latency":
+      buf_len = 0
+        
+      buf_len += len(self.locations)
+      for loc in self.locations:
+          buf_len += len(loc.links)
+          if CountClosed:
+            buf_len += len(loc.closed_links)
+       
+      numAgent_buffer = np.empty(buf_len, dtype='i')
+      new_buffer = np.empty(buf_len, dtype='i')
+
+      index = 0
+      for loc in self.locations:
+        numAgent_buffer[index] = loc.numAgentsOnRank
+        index += 1
+        for link in loc.links:
+          numAgent_buffer[index] = link.numAgentsOnRank
+          index += 1
+        if CountClosed:
+          for link in loc.closed_links:
+            numAgent_buffer[index] = link.numAgentsOnRank
+            index += 1
+            
+      new_buffer = self.mpi.CalcCommWorldTotal(numAgent_buffer)
+
+      index = 0
+      for loc in self.locations:
+        loc.numAgents = new_buffer[index]
+        index += 1
+        for link in loc.links:
+          link.numAgents = new_buffer[index]
+          index += 1
+        if CountClosed:
+          for link in loc.closed_links:
+            link.numAgents = new_buffer[index]
+            index += 1
+            
+      self.total_agents = np.sum(new_buffer)
+      print("Total agents in simulation:", self.total_agents, file=sys.stderr)
 
 
   """
@@ -405,7 +438,7 @@ class Ecosystem(flee.Ecosystem):
       a.finish_travel()
 
     #print("NumAgents after finish_travel:", file=sys.stderr)
-    self.updateNumAgents()
+    self.updateNumAgents(mode=self.latency_mode)
 
     #update link properties
     if SimulationSettings.SimulationSettings.CampLogLevel > 0:
