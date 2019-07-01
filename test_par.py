@@ -24,8 +24,8 @@ if __name__ == "__main__":
   input_dir = "test_data/test_input_csv"
 
   parser = argparse.ArgumentParser(description='Run a parallel Flee benchmark.')
-  parser.add_argument("-p", "--parallelmode", type=string, default="advanced"
-          help="Parallelization mode (advanced, classic, cl-lowlat OR adv-hilat)")
+  parser.add_argument("-p", "--parallelmode", type=str, default="advanced",
+          help="Parallelization mode (advanced, classic, cl-hilat OR adv-lowlat)")
   parser.add_argument("-N", "--initialagents", type=int, default=100000,
           help="Number of agents at the start of the simulation.")
   parser.add_argument("-d", "--newagentsperstep", type=int, default=1000,
@@ -40,7 +40,17 @@ if __name__ == "__main__":
 
   e = pflee.Ecosystem()
 
-  e.parallel_mode
+  if args.parallelmode is "advanced" or "adv-lowlat":
+    e.parallel_mode = "loc-par"
+  else:
+    e.parallel_mode = "classic"
+
+  if args.parallelmode is "advanced" or "cl-hilat":
+    e.latency_mode = "high_latency"
+  else:
+    e.latency_mode = "low_latency"
+
+  print("MODE: ", args, file=sys.stderr)
 
   ig = InputGeography.InputGeography()
 
@@ -61,8 +71,10 @@ if __name__ == "__main__":
   camp_locations      = ["D","E","F"]
   #TODO: Add Camps from CSV based on their location type.
 
+  # All initial refugees start in location A.
+  AddInitialRefugees(e,lm["A"], args.initialagents)
+
   for l in camp_locations:
-    AddInitialRefugees(e,lm[l], args.initialagents)
     output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
 
 
@@ -72,7 +84,6 @@ if __name__ == "__main__":
     print(output_header_string)
 
   # Set up a mechanism to incorporate temporary decreases in refugees
-  refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
 
   for t in range(0,end_time):
@@ -83,12 +94,6 @@ if __name__ == "__main__":
     # Determine number of new refugees to insert into the system.
     new_refs = args.newagentsperstep
     refugees_raw += new_refs
-
-    if new_refs < 0:
-      refugee_debt = -new_refs
-      new_refs = 0
-    elif refugee_debt > 0:
-      refugee_debt = 0
 
     #Insert refugee agents
     for i in range(0, new_refs):
