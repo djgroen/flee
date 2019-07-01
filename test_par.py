@@ -21,8 +21,6 @@ if __name__ == "__main__":
   end_time = 10
   last_physical_day = 10
 
-  input_dir = "test_data/test_input_csv"
-
   parser = argparse.ArgumentParser(description='Run a parallel Flee benchmark.')
   parser.add_argument("-p", "--parallelmode", type=str, default="advanced",
           help="Parallelization mode (advanced, classic, cl-hilat OR adv-lowlat)")
@@ -32,6 +30,8 @@ if __name__ == "__main__":
           help="Number of agents added per time step.")
   parser.add_argument("-t", "--simulationperiod", type=int, default=10,
           help="Duration of the simulation in days.")
+  parser.add_argument("-i", "--inputdir", type=str, default="test_data/test_input_csv",
+          help="Directory with parallel test input. Must have locations named 'A','D','E' and 'F'.")
 
   args = parser.parse_args()
 
@@ -54,11 +54,11 @@ if __name__ == "__main__":
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadLocationsFromCSV("test_data/test_input_csv/locations.csv")
+  ig.ReadLocationsFromCSV("%s/locations.csv" % args.inputdir)
 
-  ig.ReadLinksFromCSV("test_data/test_input_csv/routes.csv")
+  ig.ReadLinksFromCSV("%s/routes.csv" % args.inputdir)
 
-  ig.ReadClosuresFromCSV("test_data/test_input_csv/closures.csv")
+  ig.ReadClosuresFromCSV("%s/closures.csv" % args.inputdir)
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
