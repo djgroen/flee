@@ -5,11 +5,11 @@ from flee import InputGeography
 import numpy as np
 import outputanalysis.analysis as a
 import sys
+import argparse
 
-def AddInitialRefugees(e, loc):
+def AddInitialRefugees(e, loc, initial_agents):
   """ Add the initial refugees to a location, using the location name"""
-  num_refugees = 10000
-  for i in range(0, num_refugees):
+  for i in range(0, initial_agents):
     e.addAgent(location=loc)
 
 def date_to_sim_days(date):
@@ -23,27 +23,24 @@ if __name__ == "__main__":
 
   input_dir = "test_data/test_input_csv"
 
-  if len(sys.argv)>1:
-    if (sys.argv[1]).isnumeric():
-      end_time = int(sys.argv[1])
-      last_physical_day = int(sys.argv[1])
-    elif len(sys.argv)>1:
-      input_dir = sys.argv[1]
-    else:
-      end_time = 10
-      last_physical_day = 10
-      duration = flee.SimulationSettings.SimulationSettings.ReadFromCSV(sys.argv[1])
-      if duration>0:
-        end_time = duration
-        last_physical_day = end_time
-  else:
-    print("Usage: mpirun -np <cores> python3 test_par.py <duration>", file=sys.stderr)
-    print("Or: mpirun -np <cores> python3 test_par.py <csv_input_directory>", file=sys.stderr)
-    print("(Default duration is 10 days, default input is test_data/test_input_csv)", file=sys.stderr)
-    print("Execution will continue with default settings.", file=sys.stderr)
-    print("------------------------------------------------------------------------", file=sys.stderr)
+  parser = argparse.ArgumentParser(description='Run a parallel Flee benchmark.')
+  parser.add_argument("-p", "--parallelmode", type=string, default="advanced"
+          help="Parallelization mode (advanced, classic, cl-lowlat OR adv-hilat)")
+  parser.add_argument("-N", "--initialagents", type=int, default=100000,
+          help="Number of agents at the start of the simulation.")
+  parser.add_argument("-d", "--newagentsperstep", type=int, default=1000,
+          help="Number of agents added per time step.")
+  parser.add_argument("-t", "--simulationperiod", type=int, default=10,
+          help="Duration of the simulation in days.")
+
+  args = parser.parse_args()
+
+  end_time = args.simulationperiod
+  last_physical_day = args.simulationperiod
 
   e = pflee.Ecosystem()
+
+  e.parallel_mode
 
   ig = InputGeography.InputGeography()
 
@@ -65,7 +62,7 @@ if __name__ == "__main__":
   #TODO: Add Camps from CSV based on their location type.
 
   for l in camp_locations:
-    AddInitialRefugees(e,lm[l])
+    AddInitialRefugees(e,lm[l], args.initialagents)
     output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
 
 
@@ -84,7 +81,7 @@ if __name__ == "__main__":
     ig.AddNewConflictZones(e,t)
 
     # Determine number of new refugees to insert into the system.
-    new_refs = 1000
+    new_refs = args.newagentsperstep
     refugees_raw += new_refs
 
     if new_refs < 0:
