@@ -5,6 +5,7 @@ import sys
 import copy
 #from multiprocessing import Process,Pool
 from flee import SimulationSettings
+from flee.Diagnostics import write_agents
 
 class Person:
   def __init__(self, location):
@@ -727,6 +728,10 @@ class Ecosystem:
     #update link properties
     if SimulationSettings.SimulationSettings.CampLogLevel > 0:
       self._aggregate_arrivals()
+
+    if SimulationSettings.SimulationSettings.AgentLogLevel > 0:
+      write_agents(self.agents, self.time)
+
     self.time += 1
 
   def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
