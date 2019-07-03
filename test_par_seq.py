@@ -1,15 +1,15 @@
-from flee import pflee
+from flee import flee
 from datamanager import handle_refugee_data
 from datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
 import numpy as np
 import outputanalysis.analysis as a
 import sys
-import argparse
 
-def AddInitialRefugees(e, loc, initial_agents):
+def AddInitialRefugees(e, loc):
   """ Add the initial refugees to a location, using the location name"""
-  for i in range(0, initial_agents):
+  num_refugees = 10000
+  for i in range(0, num_refugees):
     e.addAgent(location=loc)
 
 def date_to_sim_days(date):
@@ -21,44 +21,35 @@ if __name__ == "__main__":
   end_time = 10
   last_physical_day = 10
 
-  parser = argparse.ArgumentParser(description='Run a parallel Flee benchmark.')
-  parser.add_argument("-p", "--parallelmode", type=str, default="advanced",
-          help="Parallelization mode (advanced, classic, cl-hilat OR adv-lowlat)")
-  parser.add_argument("-N", "--initialagents", type=int, default=100000,
-          help="Number of agents at the start of the simulation.")
-  parser.add_argument("-d", "--newagentsperstep", type=int, default=1000,
-          help="Number of agents added per time step.")
-  parser.add_argument("-t", "--simulationperiod", type=int, default=10,
-          help="Duration of the simulation in days.")
-  parser.add_argument("-i", "--inputdir", type=str, default="test_data/test_input_csv",
-          help="Directory with parallel test input. Must have locations named 'A','D','E' and 'F'.")
-
-  args = parser.parse_args()
-
-  end_time = args.simulationperiod
-  last_physical_day = args.simulationperiod
-
-  e = pflee.Ecosystem()
-
-  if args.parallelmode is "advanced" or "adv-lowlat":
-    e.parallel_mode = "loc-par"
+  if len(sys.argv)>1:
+    if (sys.argv[1]).isnumeric():
+      end_time = int(sys.argv[1])
+      last_physical_day = int(sys.argv[1])
+    elif len(sys.argv)>1:
+      input_dir = sys.argv[1]
+    else:
+      end_time = 10
+      last_physical_day = 10
+      duration = flee.SimulationSettings.SimulationSettings.ReadFromCSV(sys.argv[1])
+      if duration>0:
+        end_time = duration
+        last_physical_day = end_time
   else:
-    e.parallel_mode = "classic"
+    print("Usage: python3 test_par.py <duration>", file=sys.stderr)
+    print("Or: python3 test_par.py <csv_input_directory>", file=sys.stderr)
+    print("(Default duration is 10 days, default input is test_data/test_input_csv)", file=sys.stderr)
+    print("Execution will continue with default settings.", file=sys.stderr)
+    print("------------------------------------------------------------------------", file=sys.stderr)
 
-  if args.parallelmode is "advanced" or "cl-hilat":
-    e.latency_mode = "high_latency"
-  else:
-    e.latency_mode = "low_latency"
-
-  print("MODE: ", args, file=sys.stderr)
+  e = flee.Ecosystem()
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadLocationsFromCSV("%s/locations.csv" % args.inputdir)
+  ig.ReadLocationsFromCSV("test_data/test_input_csv/locations.csv")
 
-  ig.ReadLinksFromCSV("%s/routes.csv" % args.inputdir)
+  ig.ReadLinksFromCSV("test_data/test_input_csv/routes.csv")
 
-  ig.ReadClosuresFromCSV("%s/closures.csv" % args.inputdir)
+  ig.ReadClosuresFromCSV("test_data/test_input_csv/closures.csv")
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
@@ -71,19 +62,16 @@ if __name__ == "__main__":
   camp_locations      = ["D","E","F"]
   #TODO: Add Camps from CSV based on their location type.
 
-  # All initial refugees start in location A.
-  AddInitialRefugees(e,lm["A"], args.initialagents)
-
   for l in camp_locations:
+    AddInitialRefugees(e,lm[l])
     output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
-
 
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
 
-  if e.getRankN(0):
-    print(output_header_string)
+  print(output_header_string)
 
   # Set up a mechanism to incorporate temporary decreases in refugees
+  refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
 
   for t in range(0,end_time):
@@ -92,8 +80,14 @@ if __name__ == "__main__":
     ig.AddNewConflictZones(e,t)
 
     # Determine number of new refugees to insert into the system.
-    new_refs = args.newagentsperstep
+    new_refs = 1000
     refugees_raw += new_refs
+
+    if new_refs < 0:
+      refugee_debt = -new_refs
+      new_refs = 0
+    elif refugee_debt > 0:
+      refugee_debt = 0
 
     #Insert refugee agents
     for i in range(0, new_refs):
@@ -128,5 +122,5 @@ if __name__ == "__main__":
     else:
       output += ",0,0"
 
-    if e.getRankN(t):
-      print(output)
+
+    print(output)

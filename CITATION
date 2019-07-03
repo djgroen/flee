@@ -1,15 +1,16 @@
-At this time, when using FLEE as part of a publication, please cite the ICCS publication that first presented the FLEE code.
+At this time, when using FLEE as part of a publication, please cite the first journal publication that presented the FLEE code.
 
 BibTex:
-@article{Groen:2016,
-  title={Simulating refugee movements: Where would you go?},
-  author={Groen, Derek},
-  journal={Procedia Computer Science},
-  volume={80},
-  pages={2251--2255},
-  year={2016},
-  publisher={Elsevier}
+@article{suleimenova2017generalized,
+  title={A generalized simulation development approach for predicting refugee destinations},
+  author={Suleimenova, Diana and Bell, David and Groen, Derek},
+  journal={Scientific reports},
+  volume={7},
+  number={1},
+  pages={13377},
+  year={2017},
+  publisher={Nature Publishing Group}
 }
 
 Plain Text (Harvard style):
-Groen, D., 2016. Simulating refugee movements: Where would you go?. Procedia Computer Science, 80, pp.2251-2255.
+Suleimenova, D., Bell, D. and Groen, D., 2017. A generalized simulation development approach for predicting refugee destinations. Scientific reports, 7(1), p.13377.
