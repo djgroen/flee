@@ -127,21 +127,18 @@ def plotme(data, name, naieve_model=True):
 
   lerr = LocationErrors()
 
-  if offset > 0:
-    y1 = y1[offset:]
-    y1_rescaled = y1_rescaled[offset:]
-    y2 = y2[:-offset]
-    untot = untot[:-offset]
-
   # absolute difference
   lerr.errors["absolute difference"] = a.abs_diffs(y1, y2)
+  lerr.errors["absolute difference ave"] = np.mean(lerr.errors["absolute difference"])
 
   # absolute difference (rescaled)
   lerr.errors["absolute difference rescaled"] = a.abs_diffs(y1_rescaled, y2)
+  lerr.errors["absolute difference rescaled ave"] = np.mean(lerr.errors["absolute difference rescaled"])
   
 
   # ratio difference
   lerr.errors["ratio difference"] = a.abs_diffs(y1, y2) / (np.maximum(untot, np.ones(len(untot))))
+  lerr.errors["ratio difference ave"] = np.mean(lerr.errors["ratio difference"])
 
   """ Errors of which I'm usure whether to report:
    - accuracy ratio (forecast / true value), because it crashes if denominator is 0.
@@ -164,7 +161,9 @@ def plotme(data, name, naieve_model=True):
     lerr.errors["MASE30-sloped"] = a.calculate_MASE(y1_rescaled, y2, n4, naieve_training_day)
     lerr.errors["MASE30-ratio"] = a.calculate_MASE(y1_rescaled, y2, n6, naieve_training_day)
 
-    print("%s,%s,%s,%s,%s,%s,%s,%s" % (name, lerr.errors["MASE7"],lerr.errors["MASE7-sloped"], lerr.errors["MASE7-ratio"],lerr.errors["MASE30"],lerr.errors["MASE30-sloped"],lerr.errors["MASE30-ratio"],lerr.errors["N"]))
+    print("  %s:\n    mase7: %s\n    mase7-sloped: %s\n    mase7-ratio: %s\n    mase30: %s\n    mase30-sloped: %s\n    mase30-ratio: %s\n    N: %s" % (name, lerr.errors["MASE7"],lerr.errors["MASE7-sloped"], lerr.errors["MASE7-ratio"],lerr.errors["MASE30"],lerr.errors["MASE30-sloped"],lerr.errors["MASE30-ratio"],lerr.errors["N"]))
+    print("    absolute difference ave: {absolute difference ave}\n    absolute difference rescaled ave: {absolute difference rescaled ave}\n    ratio difference ave: {ratio difference ave}".format(**lerr.errors))
+    #print("  absolute difference: {absolute difference}\n  absolute difference rescaled: {absolute difference rescaled}\n  ratio difference: {ratio difference}".format(**lerr.errors))
 
   return lerr
 
@@ -205,16 +204,20 @@ if __name__ == "__main__":
   loc_errors = []
   nmodel = True
 
+  print("locations:")
   for i in location_names:
-      loc_errors.append(plotme(refugee_data, i, legend_loc=4, naieve_model=nmodel))
-      plotme(refugee_data, i, naieve_model=nmodel)
+      loc_errors.append(plotme(refugee_data, i, naieve_model=nmodel))
 
   sim_errors = SimulationErrors(loc_errors)
-  #print(sim_errors.abs_diff())
+  
+  print("input directory: {}".format(in_dir))
+
+  print("totals:")
   if nmodel:
-    print("%s & %s & %s & %s & %s & %s & %s\\\\" % (in_dir, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"),sim_errors.get_error("MASE7-ratio"),sim_errors.get_error("MASE30"),sim_errors.get_error("MASE30-sloped"),sim_errors.get_error("MASE30-ratio")))
+    print("  mase7: %s\n  mase7-sloped: %s\n  mase7-ratio: %s\n  mase30: %s\n  mase30-sloped: %s\n  mase30-ratio: %s\n  N: %s" % (name, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"), sim_errors.get_error("MASE7-ratio"), sim_errors.get_error("MASE30"), sim_errors.get_error("MASE30-sloped"), sim_errors.get_error("MASE30-ratio")))
+    #print("%s & %s & %s & %s & %s & %s & %s\\\\" % (in_dir, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"),sim_errors.get_error("MASE7-ratio"),sim_errors.get_error("MASE30"),sim_errors.get_error("MASE30-sloped"),sim_errors.get_error("MASE30-ratio")))
 
   diffdata = sim_errors.abs_diff(rescaled=False) / np.maximum(un_refs, np.ones(len(un_refs)))
   diffdata_rescaled = sim_errors.abs_diff() / np.maximum(un_refs, np.ones(len(un_refs)))
-  print(in_dir,": Averaged error normal: ", np.mean(diffdata), ", rescaled: ", np.mean(diffdata_rescaled),", len: ", len(diffdata))
+  print("  Error (normal): {}\n  Error (rescaled): {}".format(np.mean(diffdate), np.mean(diffdata_rescaled), len(diffdate)))
 
