@@ -219,5 +219,5 @@ if __name__ == "__main__":
 
   diffdata = sim_errors.abs_diff(rescaled=False) / np.maximum(un_refs, np.ones(len(un_refs)))
   diffdata_rescaled = sim_errors.abs_diff() / np.maximum(un_refs, np.ones(len(un_refs)))
-  print("  Error (normal): {}\n  Error (rescaled): {}".format(np.mean(diffdate), np.mean(diffdata_rescaled), len(diffdate)))
+  print("  Error (normal): {}\n  Error (rescaled): {}\n  Simulation Period: {}".format(np.mean(diffdata), np.mean(diffdata_rescaled), len(diffdata)))
 
