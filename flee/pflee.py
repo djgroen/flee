@@ -417,7 +417,7 @@ class Ecosystem(flee.Ecosystem):
       loc_per_rank = len(self.locations) / self.mpi.size
       lpr_remainder = len(self.locations) % self.mpi.size
 
-      offset = int(self.mpi.rank * loc_per_rank + min(self.mpi.rank, lpr_remainder))
+      offset = int(self.mpi.rank) * int(loc_per_rank) + int(min(self.mpi.rank, lpr_remainder))
       num_locs_on_this_rank = int(loc_per_rank)
       if self.mpi.rank < lpr_remainder:
         num_locs_on_this_rank += 1
