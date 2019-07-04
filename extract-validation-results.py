@@ -64,7 +64,7 @@ class SimulationErrors:
     #print(self.tmp, N, self.tmp/ N)
     return self.tmp / N
 
-def plotme(out_dir, data, name, naieve_model=True):
+def plotme(data, name, naieve_model=True):
   """
   Advanced plotting function for validation of refugee registration numbers in camps.
   """
@@ -164,7 +164,7 @@ def plotme(out_dir, data, name, naieve_model=True):
     lerr.errors["MASE30-sloped"] = a.calculate_MASE(y1_rescaled, y2, n4, naieve_training_day)
     lerr.errors["MASE30-ratio"] = a.calculate_MASE(y1_rescaled, y2, n6, naieve_training_day)
 
-    print("%s,%s,%s,%s,%s,%s,%s,%s,%s" % (out_dir, name, lerr.errors["MASE7"],lerr.errors["MASE7-sloped"], lerr.errors["MASE7-ratio"],lerr.errors["MASE30"],lerr.errors["MASE30-sloped"],lerr.errors["MASE30-ratio"],lerr.errors["N"]))
+    print("%s,%s,%s,%s,%s,%s,%s,%s" % (name, lerr.errors["MASE7"],lerr.errors["MASE7-sloped"], lerr.errors["MASE7-ratio"],lerr.errors["MASE30"],lerr.errors["MASE30-sloped"],lerr.errors["MASE30-ratio"],lerr.errors["N"]))
 
   return lerr
 
@@ -176,11 +176,6 @@ if __name__ == "__main__":
     in_dir = sys.argv[1]
   else:
     in_dir = "out"
-
-  if len(sys.argv)>2:
-    out_dir = sys.argv[2]
-  else:
-    out_dir = "out"
 
   refugee_data = pd.read_csv("%s/out.csv" % (in_dir), sep=',', encoding='latin1',index_col='Day')
 
@@ -211,15 +206,15 @@ if __name__ == "__main__":
   nmodel = True
 
   for i in location_names:
-      loc_errors.append(plotme(out_dir, refugee_data, i, legend_loc=4, naieve_model=nmodel))
-      plotme(out_dir, refugee_data, i, naieve_model=nmodel)
+      loc_errors.append(plotme(refugee_data, i, legend_loc=4, naieve_model=nmodel))
+      plotme(refugee_data, i, naieve_model=nmodel)
 
   sim_errors = SimulationErrors(loc_errors)
   #print(sim_errors.abs_diff())
   if nmodel:
-    print("%s & %s & %s & %s & %s & %s & %s\\\\" % (out_dir, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"),sim_errors.get_error("MASE7-ratio"),sim_errors.get_error("MASE30"),sim_errors.get_error("MASE30-sloped"),sim_errors.get_error("MASE30-ratio")))
+    print("%s & %s & %s & %s & %s & %s & %s\\\\" % (in_dir, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"),sim_errors.get_error("MASE7-ratio"),sim_errors.get_error("MASE30"),sim_errors.get_error("MASE30-sloped"),sim_errors.get_error("MASE30-ratio")))
 
   diffdata = sim_errors.abs_diff(rescaled=False) / np.maximum(un_refs, np.ones(len(un_refs)))
   diffdata_rescaled = sim_errors.abs_diff() / np.maximum(un_refs, np.ones(len(un_refs)))
-  print(out_dir,": Averaged error normal: ", np.mean(diffdata), ", rescaled: ", np.mean(diffdata_rescaled),", len: ", len(diffdata))
+  print(in_dir,": Averaged error normal: ", np.mean(diffdata), ", rescaled: ", np.mean(diffdata_rescaled),", len: ", len(diffdata))
 
