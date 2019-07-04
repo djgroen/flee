@@ -204,7 +204,7 @@ if __name__ == "__main__":
   loc_errors = []
   nmodel = True
 
-  print("locations:")
+  print("measurements:")
   for i in location_names:
       loc_errors.append(plotme(refugee_data, i, naieve_model=nmodel))
 
