@@ -214,7 +214,7 @@ if __name__ == "__main__":
 
   print("totals:")
   if nmodel:
-    print("  mase7: %s\n  mase7-sloped: %s\n  mase7-ratio: %s\n  mase30: %s\n  mase30-sloped: %s\n  mase30-ratio: %s\n  N: %s" % (name, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"), sim_errors.get_error("MASE7-ratio"), sim_errors.get_error("MASE30"), sim_errors.get_error("MASE30-sloped"), sim_errors.get_error("MASE30-ratio")))
+    print("  mase7: %s\n  mase7-sloped: %s\n  mase7-ratio: %s\n  mase30: %s\n  mase30-sloped: %s\n  mase30-ratio: %s" % (sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"), sim_errors.get_error("MASE7-ratio"), sim_errors.get_error("MASE30"), sim_errors.get_error("MASE30-sloped"), sim_errors.get_error("MASE30-ratio")))
     #print("%s & %s & %s & %s & %s & %s & %s\\\\" % (in_dir, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"),sim_errors.get_error("MASE7-ratio"),sim_errors.get_error("MASE30"),sim_errors.get_error("MASE30-sloped"),sim_errors.get_error("MASE30-ratio")))
 
   diffdata = sim_errors.abs_diff(rescaled=False) / np.maximum(un_refs, np.ones(len(un_refs)))
