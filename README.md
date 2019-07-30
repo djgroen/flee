@@ -21,6 +21,6 @@ Here are a few settings good for benchmarking:
 
 * `mpirun -np <cores> python3 test_par.py -N 500000 -p advanced -d 10000 -t 10`
 * `mpirun -np <cores> python3 test_par.py -N 500000 -p classic -d 10000 -t 10`
-* `mpirun -np <cores> python3 test_par.py -N 500000 -p cl-hilar -d 10000 -t 10`
+* `mpirun -np <cores> python3 test_par.py -N 500000 -p cl-hilat -d 10000 -t 10`
 * `mpirun -np <cores> python3 test_par.py -N 500000 -p adv-lowlat -d 10000 -t 10`
 
