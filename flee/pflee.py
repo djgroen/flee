@@ -220,6 +220,9 @@ class Link(flee.Link):
 class Ecosystem(flee.Ecosystem):
   def __init__(self):
 
+    if self.getRankN(0):
+      print("Creating Flee Ecosystem.", file=sys.stderr)
+
     self.locations = []
     self.locationNames = []
     self.agents = []
