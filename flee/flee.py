@@ -695,6 +695,8 @@ class Ecosystem:
     Returns a weighted random element from the list of conflict locations.
     This function returns a number, which is an index in the array of conflict locations.
     """
+    assert self.conflict_pop > 0
+
     return np.random.choice(self.conflict_zones, p=self.conflict_weights/self.conflict_pop)
 
 
@@ -749,6 +751,10 @@ class Ecosystem:
     if SimulationSettings.SimulationSettings.TakeRefugeesFromPopulation:
       if location.pop > 0:
         location.pop -= 1
+      else:
+        print("ERROR: Number of agents in the simulation is larger than the combined population of the conflict zones. Please amend locations.csv.")
+        assert location.pop > 1
+
     self.agents.append(Person(location))
 
   def insertAgent(self, location):

@@ -111,6 +111,7 @@ class InputGeography:
     overwriting existing entries.
     """
     lm = {}
+    num_conflict_zones = 0
 
     for l in self.locations:
       if len(l[1]) < 1: #if population field is empty, just set it to 0.
@@ -120,8 +121,10 @@ class InputGeography:
 
       #print(l, file=sys.stderr)
       movechance = l[4]
-      if "conflict" in l[4].lower() and int(l[5])>0:
-        movechance = "town"
+      if "conflict" in l[4].lower(): 
+        num_conflict_zones += 1
+        if int(l[5])>0:
+          movechance = "town"
 
       if "camp" in l[4].lower():
         lm[l[0]] = e.addLocation(l[0], movechance=movechance, capacity=int(l[1]), x=l[2], y=l[3], country=l[7])
@@ -143,6 +146,9 @@ class InputGeography:
     for l in self.closures:
       e.closures.append([l[0], l[1], l[2], int(l[3]), int(l[4])])
 
+    if num_conflict_zones < 1:
+      print("Warning: location graph has 0 conflict zones (ignore if conflicts.csv is used).", file=sys.stderr)
+
     return e, lm
 
   def AddNewConflictZones(self, e, time):
@@ -152,11 +158,10 @@ class InputGeography:
     If there is one, then the data from Flare is used instead.
     Note: there is no support for *removing* conflict zones at this stage.
     """
-
     if len(SimulationSettings.SimulationSettings.FlareConflictInputFile) == 0:
       for l in self.locations:
         if "conflict" in l[4].lower() and int(l[5]) == time:
-          print("Time = %s. Adding a new conflict zone [%s]" % (time, l[0]), file=sys.stderr)
+          print("Time = %s. Adding a new conflict zone [%s] with pop. %s" % (time, l[0], int(l[1])), file=sys.stderr)
           e.add_conflict_zone(l[0])
     else:
       confl_names = self.getConflictLocationNames()

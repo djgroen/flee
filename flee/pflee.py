@@ -12,6 +12,9 @@ from mpi4py.MPI import ANY_SOURCE
 
 class MPIManager:
   def __init__(self):
+    if not MPI.Is_initialized():
+      print("Manual MPI_Init performed.")
+      MPI.Init()
     self.comm = MPI.COMM_WORLD
     self.rank = self.comm.Get_rank()
     self.size = self.comm.Get_size()
@@ -139,6 +142,7 @@ class Location(flee.Location):
     self.scores = [] # Emptying this array, as it is not used in the parallel version.
     # If it is referred to in Flee in any way, the code should crash.
     self.e = e
+
 
   def updateRegionScore(self):
     """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points,
@@ -321,8 +325,11 @@ class Ecosystem(flee.Ecosystem):
 
   def addAgent(self, location):
     if SimulationSettings.SimulationSettings.TakeRefugeesFromPopulation:
-      if location.pop > 0:
+      if location.pop > 1:
         location.pop -= 1
+      else:
+        print("ERROR: Number of agents in the simulation is larger than the combined population of the conflict zones. Please amend locations.csv.")
+        assert location.pop > 1
     self.total_agents += 1
     if self.total_agents % self.mpi.size == self.mpi.rank:
       self.agents.append(Person(self, location))
