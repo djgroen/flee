@@ -29,9 +29,12 @@ class MPIManager:
   def CalcCommWorldTotal(self, np_array):
     assert np_array.size > 0
 
-    total = np.empty(np_array.size, dtype='i')
+    total = np.zeros(np_array.size, dtype='i')
+
+    #print(self.rank, type(total), type(np_array), total, np_array, np_array.size)
     # If you want this number on rank 0, just use Reduce.
-    self.comm.Allreduce(np_array, total, op=MPI.SUM)
+    self.comm.Allreduce([np_array, MPI.INT], [total, MPI.INT], op=MPI.SUM)
+
     return total
 
 class Person(flee.Person):
