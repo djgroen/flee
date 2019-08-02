@@ -384,12 +384,12 @@ class Ecosystem(flee.Ecosystem):
       """
 
       # thanks to tarwan.de for this bit.
-      base = len(self.scores) / self.mpi.size
-      leftover = len(self.scores)% self.mpi.size
+      base = (len(self.scores/4) / self.mpi.size)*4
+      leftover = (len(self.scores/4)% self.mpi.size)*4
 
-      sizes = np.ones(self.mpi.size)*base
+      sizes = np.ones(self.mpi.size, dtype='i')*base
       sizes[:leftover] += 1
-      offsets = np.zeros(self.mpi.size)
+      offsets = np.zeros(self.mpi.size, dtype='i')
       offsets[1:] = np.cumsum(sizes)[:-1]
 
       # Populate scores array
