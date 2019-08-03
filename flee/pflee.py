@@ -395,6 +395,9 @@ class Ecosystem(flee.Ecosystem):
       offsets = np.zeros(self.mpi.size, dtype='i')
       offsets[1:] = np.cumsum(sizes)[:-1]
 
+      assert np.sum(sizes) == len(self.scores)
+      assert offsets[-1] + sizes[-1] == len(self.scores)
+
       # Populate scores array
       scores_start = int(offsets[self.mpi.rank])
       local_scores_size = int(sizes[self.mpi.rank])
