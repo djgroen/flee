@@ -223,8 +223,6 @@ class Link(flee.Link):
 class Ecosystem(flee.Ecosystem):
   def __init__(self):
 
-    if self.getRankN(0):
-      print("Creating Flee Ecosystem.", file=sys.stderr)
 
     self.locations = []
     self.locationNames = []
@@ -233,6 +231,9 @@ class Ecosystem(flee.Ecosystem):
     self.closures = [] #format [type, source, dest, start, end]
     self.time = 0
     self.mpi = MPIManager()
+
+    if self.getRankN(0):
+      print("Creating Flee Ecosystem.", file=sys.stderr)
 
     self.cur_loc_id = 0
     self.NumAwarenessLevels = 4
@@ -383,12 +384,14 @@ class Ecosystem(flee.Ecosystem):
       Gathers the scores from all the updated locations, and propagates them across the processes.
       """
 
-      # thanks to tarwan.de for this bit.
-      base = (len(self.scores/4) / self.mpi.size)*4
-      leftover = (len(self.scores/4)% self.mpi.size)*4
+      base = int((len(self.scores)/4) / self.mpi.size)
+      leftover = int((len(self.scores)/4) % self.mpi.size)
+
+      #print(self.mpi.rank, base, leftover, len(self.scores))
 
       sizes = np.ones(self.mpi.size, dtype='i')*base
       sizes[:leftover] += 1
+      sizes *= 4
       offsets = np.zeros(self.mpi.size, dtype='i')
       offsets[1:] = np.cumsum(sizes)[:-1]
 
@@ -397,6 +400,7 @@ class Ecosystem(flee.Ecosystem):
       local_scores_size = int(sizes[self.mpi.rank])
       local_scores = self.scores[scores_start:scores_start+local_scores_size].copy()
 
+      #print(self.mpi.rank, local_scores, self.scores, sizes, offsets)
       self.mpi.comm.Allgatherv(local_scores, [self.scores, sizes, offsets, MPI.DOUBLE])
 
 
