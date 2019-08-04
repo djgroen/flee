@@ -281,7 +281,6 @@ class Ecosystem(flee.Ecosystem):
             #print(self.time, "link [closed]:", loc.name, link.numAgents, file=sys.stderr)
             total += link.numAgents
       self.total_agents = total
-      print("Total agents in simulation:", total, file=sys.stderr)
     elif mode == "high_latency":
       buf_len = 0
         
@@ -321,6 +320,8 @@ class Ecosystem(flee.Ecosystem):
             index += 1
             
       self.total_agents = np.sum(new_buffer)
+
+    if self.mpi.rank == 0:
       print("Total agents in simulation:", self.total_agents, file=sys.stderr)
 
 
