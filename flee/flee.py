@@ -749,11 +749,13 @@ class Ecosystem:
 
   def addAgent(self, location):
     if SimulationSettings.SimulationSettings.TakeRefugeesFromPopulation:
-      if location.pop > 0:
-        location.pop -= 1
-      else:
-        print("ERROR: Number of agents in the simulation is larger than the combined population of the conflict zones. Please amend locations.csv.")
-        assert location.pop > 1
+      if location.conflict:  
+        if location.pop > 0:
+          location.pop -= 1
+        else:
+          print("ERROR: Number of agents in the simulation is larger than the combined population of the conflict zones. Please amend locations.csv.")
+          location.print()
+          assert location.pop > 1
 
     self.agents.append(Person(location))
 

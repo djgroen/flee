@@ -332,11 +332,13 @@ class Ecosystem(flee.Ecosystem):
 
   def addAgent(self, location):
     if SimulationSettings.SimulationSettings.TakeRefugeesFromPopulation:
-      if location.pop > 1:
-        location.pop -= 1
-      else:
-        print("ERROR: Number of agents in the simulation is larger than the combined population of the conflict zones. Please amend locations.csv.")
-        assert location.pop > 1
+      if location.conflict:  
+        if location.pop > 1:
+          location.pop -= 1
+        else:
+          print("ERROR: Number of agents in the simulation is larger than the combined population of the conflict zones. Please amend locations.csv.")
+          location.print()
+          assert location.pop > 1
     self.total_agents += 1
     if self.total_agents % self.mpi.size == self.mpi.rank:
       self.agents.append(Person(self, location))
@@ -434,8 +436,8 @@ class Ecosystem(flee.Ecosystem):
       # update scores in reverse order for efficiency.
       # Neighbourhood and Region score will be outdated by 1 and 2 time steps resp.
       
-      loc_per_rank = len(self.locations) / self.mpi.size
-      lpr_remainder = len(self.locations) % self.mpi.size
+      loc_per_rank = int(len(self.locations) / self.mpi.size)
+      lpr_remainder = int(len(self.locations) % self.mpi.size)
 
       offset = int(self.mpi.rank) * int(loc_per_rank) + int(min(self.mpi.rank, lpr_remainder))
       num_locs_on_this_rank = int(loc_per_rank)
