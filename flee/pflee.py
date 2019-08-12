@@ -9,7 +9,6 @@ from flee import flee
 from mpi4py import MPI
 from mpi4py.MPI import ANY_SOURCE
 
-
 class MPIManager:
   def __init__(self):
     if not MPI.Is_initialized():
@@ -36,6 +35,7 @@ class MPIManager:
     self.comm.Allreduce([np_array, MPI.INT], [total, MPI.INT], op=MPI.SUM)
 
     return total
+
 
 class Person(flee.Person):
   def __init__(self, e, location):
@@ -132,7 +132,7 @@ class Person(flee.Person):
       return 1.0
 
 
-    return float(self.e.scores[(link.endpoint.id * self.e.NumAwarenessLevels) + awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+    return float(self.e.scores[(link.endpoint.id * self.e.scores_per_location) + awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
 
 
 class Location(flee.Location):
@@ -141,6 +141,7 @@ class Location(flee.Location):
     super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
 
     self.id = cur_id
+    self.numAgentsSpawnedOnRank = 0
 
     self.scores = [] # Emptying this array, as it is not used in the parallel version.
     # If it is referred to in Flee in any way, the code should crash.
@@ -164,7 +165,7 @@ class Location(flee.Location):
       total_link_weight += 1.0 / float(i.distance)
 
     self.RegionScore /= total_link_weight
-    self.e.scores[self.id * self.e.NumAwarenessLevels + 3] = self.RegionScore
+    self.e.scores[self.id * self.e.scores_per_location + 3] = self.RegionScore
 
 
   def updateNeighbourhoodScore(self):
@@ -183,7 +184,7 @@ class Location(flee.Location):
       total_link_weight += 1.0 / float(i.distance)
 
     self.NeighbourhoodScore /= total_link_weight
-    self.e.scores[self.id * self.e.NumAwarenessLevels + 2] = self.NeighbourhoodScore
+    self.e.scores[self.id * self.e.scores_per_location + 2] = self.NeighbourhoodScore
 
 
   def updateLocationScore(self, time):
@@ -201,8 +202,9 @@ class Location(flee.Location):
     else:
       self.LocationScore = 1.0
 
-    self.e.scores[self.id * self.e.NumAwarenessLevels] = 1.0
-    self.e.scores[self.id * self.e.NumAwarenessLevels + 1] = self.LocationScore
+    self.e.scores[self.id * self.e.scores_per_location] = 1.0
+    self.e.scores[self.id * self.e.scores_per_location + 1] = self.LocationScore
+    #self.e.scores[self.id * self.e.scores_per_location + 4] = self.numAgentsSpawnedOnRank
 
 
   def updateAllScores(self, time):
@@ -236,7 +238,7 @@ class Ecosystem(flee.Ecosystem):
       print("Creating Flee Ecosystem.", file=sys.stderr)
 
     self.cur_loc_id = 0
-    self.NumAwarenessLevels = 4
+    self.scores_per_location = 4
     self.scores = np.array([1.0,1.0,1.0,1.0]) # single array holding all the location-related scores.
 
 
@@ -257,9 +259,11 @@ class Ecosystem(flee.Ecosystem):
     """
     Returns the <rank N> value, which is the rank meant to perform diagnostics at a given time step.
     Argument t contains the current number of time steps taken by the simulation.
+    NOTE: This is overwritten to just give rank 0, to prevent garbage output ordering...
     """
-    N = t % self.mpi.size
-    if self.mpi.rank == N:
+    #N = t % self.mpi.size
+    #if self.mpi.rank == N:
+    if self.mpi.rank == 0:
       return True
     return False
 
@@ -336,6 +340,8 @@ class Ecosystem(flee.Ecosystem):
       if location.conflict:  
         if location.pop > 1:
           location.pop -= 1
+          location.numAgentsSpawnedOnRank += 1
+          location.numAgentsSpawned += 1
         else:
           print("ERROR: Number of agents in the simulation is larger than the combined population of the conflict zones. Please amend locations.csv.")
           location.print()
@@ -387,14 +393,14 @@ class Ecosystem(flee.Ecosystem):
       Gathers the scores from all the updated locations, and propagates them across the processes.
       """
 
-      base = int((len(self.scores)/4) / self.mpi.size)
-      leftover = int((len(self.scores)/4) % self.mpi.size)
+      base = int((len(self.scores)/self.scores_per_location) / self.mpi.size)
+      leftover = int((len(self.scores)/self.scores_per_location) % self.mpi.size)
 
       #print(self.mpi.rank, base, leftover, len(self.scores))
 
       sizes = np.ones(self.mpi.size, dtype='i')*base
       sizes[:leftover] += 1
-      sizes *= 4
+      sizes *= self.scores_per_location
       offsets = np.zeros(self.mpi.size, dtype='i')
       offsets[1:] = np.cumsum(sizes)[:-1]
 
@@ -449,6 +455,19 @@ class Ecosystem(flee.Ecosystem):
         self.locations[i].updateAllScores(self.time)
 
       self.synchronize_locations(offset, offset + num_locs_on_this_rank)
+
+    # SYNCHRONIZE SPAWN COUNTS IN LOCATIONS (needed for all versions).
+    spawn_counts = np.zeros(len(self.locations), dtype='i')
+    for i, le in enumerate(self.locations):
+      #print(i, spawn_counts.size)
+      spawn_counts[i] = le.numAgentsSpawnedOnRank
+
+    #allreduce (sum up) spawn counts.
+    spawn_totals = self.mpi.CalcCommWorldTotal(spawn_counts)
+    
+    #update location spawn total.
+    for i, le in enumerate(self.locations):
+      le.numAgentsSpawned = spawn_totals[i]
 
     #update agent locations
     for a in self.agents:

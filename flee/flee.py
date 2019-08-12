@@ -203,6 +203,7 @@ class Location:
     self.camp = False
     self.forward = False
     self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
+    self.numAgentsSpawned = 0
 
     if isinstance(movechance, str):
       if "camp" in movechance.lower():
@@ -752,6 +753,7 @@ class Ecosystem:
       if location.conflict:  
         if location.pop > 0:
           location.pop -= 1
+          location.numAgentsSpawned += 1
         else:
           print("ERROR: Number of agents in the simulation is larger than the combined population of the conflict zones. Please amend locations.csv.")
           location.print()
