@@ -68,11 +68,11 @@ if __name__ == "__main__":
 
   output_header_string = "Day,"
 
-  camp_locations      = ["D","E","F"]
-  #TODO: Add Camps from CSV based on their location type.
+  camp_locations      = e.get_camp_names()
 
+  ig.AddNewConflictZones(e,0)
   # All initial refugees start in location A.
-  AddInitialRefugees(e,lm["A"], args.initialagents)
+  AddInitialRefugees(e, e.pick_conflict_location(), args.initialagents)
 
   for l in camp_locations:
     output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
@@ -88,8 +88,8 @@ if __name__ == "__main__":
 
   for t in range(0,end_time):
 
-    #if t>0:
-    ig.AddNewConflictZones(e,t)
+    if t>0:
+      ig.AddNewConflictZones(e,t)
 
     # Determine number of new refugees to insert into the system.
     new_refs = args.newagentsperstep
