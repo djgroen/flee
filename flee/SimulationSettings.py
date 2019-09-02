@@ -49,9 +49,9 @@ class SimulationSettings:
         elif row[0].lower() == "initloglevel":
           SimulationSettings.InitLogLevel = int(row[1])
         elif row[0].lower() == "minmovespeed":
-          SimulationSettings.MinMoveSpeed = int(row[1])
+          SimulationSettings.MinMoveSpeed = float(row[1])
         elif row[0].lower() == "maxmovespeed":
-          SimulationSettings.MaxMoveSpeed = int(row[1])
+          SimulationSettings.MaxMoveSpeed = float(row[1])
         elif row[0].lower() == "numberofsteps":
           number_of_steps = int(row[1])
         elif row[0].lower() == "campweight":
