@@ -42,31 +42,31 @@ class SimulationSettings:
       for row in values:
         if row[0][0] == "#":
           pass
-        elif row[0] == "AgentLogLevel":
+        elif row[0].lower() == "agentloglevel":
           SimulationSettings.AgentLogLevel = int(row[1])
-        elif row[0] == "CampLogLevel":
+        elif row[0].lower() == "camploglevel":
           SimulationSettings.CampLogLevel = int(row[1])
-        elif row[0] == "InitLogLevel":
+        elif row[0].lower() == "initloglevel":
           SimulationSettings.InitLogLevel = int(row[1])
-        elif row[0] == "MinMoveSpeed":
+        elif row[0].lower() == "minmovespeed":
           SimulationSettings.MinMoveSpeed = int(row[1])
-        elif row[0] == "MaxMoveSpeed":
+        elif row[0].lower() == "maxmovespeed":
           SimulationSettings.MaxMoveSpeed = int(row[1])
-        elif row[0] == "NumberOfSteps":
+        elif row[0].lower() == "numberofsteps":
           number_of_steps = int(row[1])
-        elif row[0] == "CampWeight":
+        elif row[0].lower() == "campweight":
           SimulationSettings.CampWeight = float(row[1])
-        elif row[0] == "ConflictWeight":
+        elif row[0].lower() == "conflictweight":
           SimulationSettings.ConflictWeight = float(row[1])
-        elif row[0] == "ConflictMoveChance":
+        elif row[0].lower() == "conflictmovechance":
           SimulationSettings.ConflictMoveChance = float(row[1])
-        elif row[0] == "CampMoveChance":
+        elif row[0].lower() == "campmovechance":
           SimulationSettings.CampMoveChance = float(row[1])
-        elif row[0] == "DefaultMoveChance":
+        elif row[0].lower() == "defaultmovechance":
           SimulationSettings.DefaultMoveChance = float(row[1])
-        elif row[0] == "AwarenessLevel":
+        elif row[0].lower() == "awarenesslevel":
           SimulationSettings.AwarenessLevel = int(row[1])
-        elif row[0] == "FlareConflictInputFile":
+        elif row[0].lower() == "flareconflictinputfile":
           SimulationSettings.FlareConflictInputFile = row[1]
         else:
           print("FLEE Initialization Error: unrecognized simulation parameter:",row[0])
