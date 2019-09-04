@@ -6,6 +6,7 @@ import numpy as np
 import outputanalysis.analysis as a
 import sys
 import argparse
+import time
 
 def AddInitialRefugees(e, loc, initial_agents):
   """ Add the initial refugees to a location, using the location name"""
@@ -17,6 +18,8 @@ def date_to_sim_days(date):
 
 
 if __name__ == "__main__":
+
+  t_exec_start = time.time()
 
   end_time = 10
   last_physical_day = 10
@@ -86,6 +89,11 @@ if __name__ == "__main__":
   # Set up a mechanism to incorporate temporary decreases in refugees
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
 
+  t_exec_init = time.time()
+  if e.getRankN(0):
+    my_file = open('perf.log', 'w', encoding='utf-8')
+    print("Init time,{}", (t_exec_init - t_exec_start), file=my_file)
+
   for t in range(0,end_time):
 
     if t>0:
@@ -130,3 +138,8 @@ if __name__ == "__main__":
 
     if e.getRankN(t):
       print(output)
+
+  t_exec_end = time.time()
+  if e.getRankN(0):
+    my_file = open('perf.log', 'a', encoding='utf-8')
+    print("Time in main loop,{}", (t_exec_end - t_exec_init), file=my_file)
