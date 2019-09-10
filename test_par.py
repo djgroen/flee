@@ -142,4 +142,4 @@ if __name__ == "__main__":
   t_exec_end = time.time()
   if e.getRankN(0):
     my_file = open('perf.log', 'a', encoding='utf-8')
-    print("Time in main loop,{}", (t_exec_end - t_exec_init), file=my_file)
+    print("Time in main loop,{}".format(t_exec_end - t_exec_init), file=my_file)
