@@ -12,7 +12,7 @@ def AddInitialRefugees(e, initial_agents):
   """ Add the initial refugees to a location, using the location name"""
 
   while initial_agents > 10000:
-    cl = e.pick_conflict_location
+    cl = e.pick_conflict_location()
     for i in range(0, 1000):
       e.addAgent(location=cl)
     initial_agents -= 1000
