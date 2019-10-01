@@ -99,7 +99,7 @@ if __name__ == "__main__":
   t_exec_init = time.time()
   if e.getRankN(0):
     my_file = open('perf.log', 'w', encoding='utf-8')
-    print("Init time,{}", (t_exec_init - t_exec_start), file=my_file)
+    print("Init time,{}".format(t_exec_init - t_exec_start), file=my_file)
 
   for t in range(0,end_time):
 

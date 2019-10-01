@@ -167,7 +167,7 @@ class InputGeography:
       confl_names = self.getConflictLocationNames()
       #print(confl_names)
       for l in confl_names:
-        #print("L:", l, self.conflicts[l], time, file=sys.stderr)
+        print("L:", l, self.conflicts[l], time, file=sys.stderr)
         if self.conflicts[l][time] == 1:
           if time > 0:
             if self.conflicts[l][time-1] == 0:
