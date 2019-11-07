@@ -126,51 +126,17 @@ class Person:
     linklen = len(self.location.links)
     weights = np.zeros(linklen)
 
-    if SimulationSettings.SimulationSettings.UseIDPMode:
-      """
-      Use this ruleset to model IDPs.
-      """
-      for i in range(0,linklen):
-        # calculate (1/D) * P * 2-C
-        # D = distance, P = population, C = conflict status (1 for conflict zone).
-        C = 0
-        if self.location.links[i].endpoint.movechance > 0.5:
-          C = 1
+    for i in range(0,linklen):
+      if self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents) <= 0.000001:
+        weights[i] = 0.0
+      # forced redirection: if this is true for a link, return its value immediately.
+      elif self.location.links[i].forced_redirection == True:
+        return i
+      else:
+        weights[i] = self.getLinkWeight(self.location.links[i], SimulationSettings.SimulationSettings.AwarenessLevel)
 
-        weights[i] = ( 1 / self.location.links[i].distance ) * self.location.links[i].endpoint.pop * (2-C)
-
-    elif not SimulationSettings.SimulationSettings.UseDynamicAwareness:
-      for i in range(0,linklen):
-        if self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents) <= 0.000001:
-          weights[i] = 0.0
-        # forced redirection: if this is true for a link, return its value immediately.
-        elif self.location.links[i].forced_redirection == True:
-          return i
-        else:
-          weights[i] = self.getLinkWeight(self.location.links[i], SimulationSettings.SimulationSettings.AwarenessLevel)
-
-          # Throttle down weight when occupancy is close to peak capacity.
-          weights[i] *= self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents)
-
-    else:
-      for i in range(0,linklen):
-        # forced redirection: if this is true for a link, return its value immediately.
-        if self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents) <= 0.000001:
-          weights[i] = 0.0
-        elif self.location.links[i].forced_redirection == True:
-          return i
-        else:
-          if self.timesteps_since_departure < 1:
-            weights[i] = self.getLinkWeight(self.location.links[i], 0)
-          elif self.timesteps_since_departure < 2:
-            weights[i] = self.getLinkWeight(self.location.links[i], 1)
-          elif self.timesteps_since_departure < 4:
-            weights[i] = self.getLinkWeight(self.location.links[i], 2)
-          else:
-            weights[i] = self.getLinkWeight(self.location.links[i], 3)
-
-          # Throttle down weight when occupancy is close to peak capacity.
-          weights[i] *= self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents)
+        # Throttle down weight when occupancy is close to peak capacity.
+        weights[i] *= self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents)
 
     if len(weights) == 0:
       return -1
@@ -414,13 +380,14 @@ class Ecosystem:
       #print("New arrivals: ", self.travel_durations[-1], arrival_total, tmp_num_arrivals)
 
 
-  def enact_border_closures(self, time, twoway=True):
+  def enact_border_closures(self, time, twoway=True, Debug=False):
     #print("Enact border closures: ", self.closures)
     if len(self.closures)>0:
       for c in self.closures:
         if time == c[3]:
           if c[0] == "country":
-            print("Time = %s. Closing Border between [%s] and [%s]" % (time, c[1], c[2]), file=sys.stderr)
+            if Debug:
+              print("Time = %s. Closing Border between [%s] and [%s]" % (time, c[1], c[2]), file=sys.stderr)
             self.close_border(c[1],c[2], twoway)
           if c[0] == "location":
             self.close_location(c[1], twoway)
@@ -428,7 +395,8 @@ class Ecosystem:
             self.close_link(c[1],c[2], twoway)
         if time == c[4]:
           if c[0] == "country":
-            print("Time = %s. Reopening Border between [%s] and [%s]" % (time, c[1], c[2]), file=sys.stderr)
+            if Debug:
+              print("Time = %s. Reopening Border between [%s] and [%s]" % (time, c[1], c[2]), file=sys.stderr)
             self.reopen_border(c[1],c[2], twoway)
           if c[0] == "location":
             self.reopen_location(c[1], twoway)
@@ -532,7 +500,7 @@ class Ecosystem:
     """
     return self.remove_link(startpoint, endpoint, twoway=twoway, close_only=True)
 
-  def _change_location_1way(self, location_name, mode="close", direction="both"):
+  def _change_location_1way(self, location_name, mode="close", direction="both", Debug=False):
     """
     Close all links to or from one location.
     mode: close or reopen
@@ -558,7 +526,8 @@ class Ecosystem:
 
         j = 0
         while j < len(link_set):
-          print("starting to %s link [%s] [%s] in direction %s" % (mode, location_name, link_set[j].endpoint.name, direction), file=sys.stderr)
+          if Debug:
+            print("starting to %s link [%s] [%s] in direction %s" % (mode, location_name, link_set[j].endpoint.name, direction), file=sys.stderr)
           if mode == "close":
 
             if dir_mode % 2 == 0:
@@ -583,7 +552,7 @@ class Ecosystem:
 
     return changed_anything
 
-  def _change_border_1way(self, source_country, dest_country, mode="close"):
+  def _change_border_1way(self, source_country, dest_country, mode="close", Debug=False):
     """
     Close all links between two countries in one direction.
     """
@@ -599,7 +568,8 @@ class Ecosystem:
         j = 0
         while j < len(link_set):
           if link_set[j].endpoint.country == dest_country:
-            print("starting to %s border 1 way [%s/%s] [%s/%s]" % (mode, source_country, self.locations[i].name, dest_country, link_set[j].endpoint.name), file=sys.stderr)
+            if Debug:
+              print("starting to %s border 1 way [%s/%s] [%s/%s]" % (mode, source_country, self.locations[i].name, dest_country, link_set[j].endpoint.name), file=sys.stderr)
             changed_anything = True
             if mode == "close":
               if self.close_link(self.locationNames[i], link_set[j].endpoint.name, twoway=False):
@@ -614,39 +584,39 @@ class Ecosystem:
     if not changed_anything:
       print("Warning: no link closed when closing borders between %s and %s." % (source_country, dest_country), file=sys.stderr)
 
-  def close_border(self, source_country, dest_country, twoway=True):
+  def close_border(self, source_country, dest_country, twoway=True, Debug=False):
     """
     Close all links between two countries. If twoway is set to false, the only links from source to destination will be closed.
     """
-    self._change_border_1way(source_country, dest_country, mode="close")
+    self._change_border_1way(source_country, dest_country, mode="close", Debug=Debug)
     if twoway:
-      self._change_border_1way(dest_country, source_country, mode="close")
+      self._change_border_1way(dest_country, source_country, mode="close", Debug=Debug)
 
-  def reopen_border(self, source_country, dest_country, twoway=True):
+  def reopen_border(self, source_country, dest_country, twoway=True, Debug=False):
     """
     Re-open all links between two countries. If twoway is set to false, the only links from source to destination will be closed.
     """
-    self._change_border_1way(source_country, dest_country, mode="reopen")
+    self._change_border_1way(source_country, dest_country, mode="reopen", Debug=Debug)
     if twoway:
-      self._change_border_1way(dest_country, source_country, mode="reopen")
+      self._change_border_1way(dest_country, source_country, mode="reopen", Debug=Debug)
 
-  def close_location(self, location_name, twoway=True):
+  def close_location(self, location_name, twoway=True, Debug=False):
     """
     Close in- and outgoing links for a location.
     """
     if twoway:
-      return self._change_location_1way(location_name, mode="close", direction="both")
+      return self._change_location_1way(location_name, mode="close", direction="both", Debug=Debug)
     else:
-      return self._change_location_1way(location_name, mode="close", direction="in")
+      return self._change_location_1way(location_name, mode="close", direction="in", Debug=Debug)
 
-  def reopen_location(self, location_name, twoway=True):
+  def reopen_location(self, location_name, twoway=True, Debug=False):
     """
     Reopen in- and outgoing links for a location.
     """
     if twoway:
-      self._change_location_1way(location_name, mode="reopen", direction="both")
+      self._change_location_1way(location_name, mode="reopen", direction="both", Debug=Debug)
     else:
-      self._change_location_1way(location_name, mode="reopen", direction="in")
+      self._change_location_1way(location_name, mode="reopen", direction="in", Debug=Debug)
 
   def add_conflict_zone(self, name, change_movechance=True):
     """

@@ -138,6 +138,7 @@ class Person(flee.Person):
 class Location(flee.Location):
 
   def __init__(self, e, cur_id, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
+    self.e = e
     super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
 
     self.id = cur_id
@@ -145,7 +146,10 @@ class Location(flee.Location):
 
     self.scores = [] # Emptying this array, as it is not used in the parallel version.
     # If it is referred to in Flee in any way, the code should crash.
-    self.e = e
+
+  def print(self):
+    if self.e.mpi.rank == 0:
+      super().print() 
 
 
   def updateRegionScore(self):
@@ -388,7 +392,7 @@ class Ecosystem(flee.Ecosystem):
   def numAgentsOnRank(self):
     return len(self.agents)
 
-  def synchronize_locations(self, start_loc_local, end_loc_local):
+  def synchronize_locations(self, start_loc_local, end_loc_local, Debug=True):
       """
       Gathers the scores from all the updated locations, and propagates them across the processes.
       """
@@ -396,7 +400,8 @@ class Ecosystem(flee.Ecosystem):
       base = int((len(self.scores)/self.scores_per_location) / self.mpi.size)
       leftover = int((len(self.scores)/self.scores_per_location) % self.mpi.size)
 
-      #print(self.mpi.rank, base, leftover, len(self.scores))
+      if Debug:
+        print("Sync Locs:", self.mpi.rank, base, leftover, len(self.scores), file=sys.stderr)
 
       sizes = np.ones(self.mpi.size, dtype='i')*base
       sizes[:leftover] += 1
@@ -412,9 +417,13 @@ class Ecosystem(flee.Ecosystem):
       local_scores_size = int(sizes[self.mpi.rank])
       local_scores = self.scores[scores_start:scores_start+local_scores_size].copy()
 
-      #print(self.mpi.rank, local_scores, self.scores, sizes, offsets)
+      if Debug and self.mpi.rank == 0:
+        print("start of synchronize_locations MPI call.", file=sys.stderr)
+        #print(self.mpi.rank, local_scores, self.scores, sizes, offsets)
       self.mpi.comm.Allgatherv(local_scores, [self.scores, sizes, offsets, MPI.DOUBLE])
 
+      if Debug and self.mpi.rank == 0:
+        print("end of synchronize_locations", file=sys.stderr)
 
   def evolve(self):
     if self.time == 0:
@@ -506,6 +515,13 @@ class Ecosystem(flee.Ecosystem):
     self.locationNames.append(l.name)
     return l
 
+  def printComplete(self):
+    if self.mpi.rank == 0:
+      super().printComplete() 
+
+  def printInfo(self):
+    if self.mpi.rank == 0:
+      super().printInfo() 
 
 if __name__ == "__main__":
   print("No testing functionality here yet.")
