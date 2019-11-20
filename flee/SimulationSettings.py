@@ -9,8 +9,10 @@ class SimulationSettings:
   InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
   TakeRefugeesFromPopulation = True
 
-  CampWeight = 2.0 # attraction factor for camps.
-  ConflictWeight = 0.25 # reduction factor for refugees entering conflict zones.
+  sqrt_ten = 3.16227766017 # square root of ten (10^0.5).
+
+  CampWeight = sqrt_ten # attraction factor for camps.
+  ConflictWeight = 1.0 / sqrt_ten # reduction factor for refugees entering conflict zones.
   MinMoveSpeed = 200 # least number of km that we expect refugees to traverse per time step.
   MaxMoveSpeed = 200 # most number of km that we expect refugees to traverse per time step.
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
