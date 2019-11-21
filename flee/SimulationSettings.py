@@ -14,14 +14,17 @@ class SimulationSettings:
   CampWeight = sqrt_ten # attraction factor for camps.
   ConflictWeight = 1.0 / sqrt_ten # reduction factor for refugees entering conflict zones.
   MinMoveSpeed = 200 # least number of km that we expect refugees to traverse per time step.
-  MaxMoveSpeed = 200 # most number of km that we expect refugees to traverse per time step.
+  MaxMoveSpeed = 420 # most number of km that we expect refugees to traverse per time step (35 km/h * 12 hours).
+  MaxWalkSpeed = 42 # most number of km that we expect refugees to traverse per time step on foot (3.5 km/h * 12 hours).
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
+  StartOnFoot = True # Agents walk on foot when they travers their very first link.
   CapacityBuffer = 1.0
 
   #default move chances
   ConflictMoveChance = 1.0
   CampMoveChance = 0.001
   DefaultMoveChance = 0.3
+  UseDynamicDefaultMoveChance = True
 
   FlareConflictInputFile = ""
 

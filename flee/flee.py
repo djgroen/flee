@@ -18,6 +18,7 @@ class Person:
     self.home_location = location
     self.location.numAgents += 1
     self.timesteps_since_departure = 0
+    self.places_travelled = 1
 
     # Set to true when an agent resides on a link.
     self.travelling = False
@@ -30,12 +31,14 @@ class Person:
 
     if SimulationSettings.SimulationSettings.AgentLogLevel > 0:
       self.distance_travelled = 0
-      self.places_travelled = 1
 
   def evolve(self):
 
     if self.travelling == False:
-      movechance = self.location.movechance
+      if self.location.town = True and SimulationSettings.SimulationSettings.UseDynamicDefaultMoveChance:
+        movechance = self.location.numAgents / self.location.pop
+      else:
+        movechance = self.location.movechance
 
       outcome = random.random()
       #print(movechance)
@@ -63,14 +66,17 @@ class Person:
       #if not SimulationSettings.SimulationSettings.TurnBackAllowed:
       #  self.last_location = self.location
 
-      self.distance_travelled_on_link += SimulationSettings.SimulationSettings.MaxMoveSpeed
+      if self.places_travelled == 1: # First journey
+        self.distance_travelled_on_link += SimulationSettings.SimulationSettings.MaxWalkSpeed
+      else:
+        self.distance_travelled_on_link += SimulationSettings.SimulationSettings.MaxMoveSpeed
 
       # If destination has been reached.
       if self.distance_travelled_on_link - distance_moved_this_timestep > self.location.distance:
 
+        self.places_travelled += 1
         # update agent logs
         if SimulationSettings.SimulationSettings.AgentLogLevel > 0:
-          self.places_travelled += 1
           self.distance_travelled += self.location.distance
 
         # if link is closed, bring agent to start point instead of the destination and return.
@@ -101,6 +107,9 @@ class Person:
             if self.location.Camp == True:
               self.location.incoming_journey_lengths += [self.timesteps_since_departure]
 
+          # Perform another evolve step if needed. And if it results in travel, then the current
+          # travelled distance needs to be taken into account.
+          if evolveMore == True:
           # Perform another evolve step if needed. And if it results in travel, then the current
           # travelled distance needs to be taken into account.
           if evolveMore == True:
@@ -167,6 +176,7 @@ class Location:
     self.country = country
     self.conflict = False
     self.camp = False
+    self.town = False
     self.forward = False
     self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
     self.numAgentsSpawned = 0
@@ -183,7 +193,8 @@ class Location:
         self.movechance = 1.0
         self.forward = True
       elif "default" in movechance.lower() or "town" in movechance.lower():
-        self.movechance = SimulationSettings.SimulationSettings.DefaultMoveChance
+        self.town = True
+        self.movechance = SimulationSettings.SimulationSettings.DefaultMoveChance # will be overridden if UseDynamicDefaultMoveChance is enabled.
       else:
         print("Error in creating Location() object: cannot parse movechance value of ", movechance, " for location object with name ", name, ".")
 
@@ -191,6 +202,7 @@ class Location:
     if self.movechance < 0.02 and not self.camp:
       print("Warning: automatically setting location %s to camp, as movechance = %s" % (self.name, self.movechance), file=sys.stderr)
       self.camp = True
+      self.town = False
 
     self.LocationScore = 1.0 # Value of Location. Should be between 0.5 and SimulationSettings.SimulationSettings.CampWeight.
     self.NeighbourhoodScore = 1.0 # Value of Neighbourhood. Should be between 0.5 and SimulationSettings.SimulationSettings.CampWeight.
@@ -750,9 +762,6 @@ class Ecosystem:
     new_agents = []
     for i in range(0, len(self.agents)):
       if self.agents[i].location.name not in location_names:
-        new_agents += agents[i] #agent is preserved in ecosystem.
-      else:
-        self.agents[i].location.numAgents -= 1 #agent is removed from exosystem and number of agents in location drops by one.
     self.agents = new_agents
 
   def numAgents(self):
