@@ -642,7 +642,8 @@ class Ecosystem:
         if name not in self.conflict_zone_names:
           if change_movechance:
             self.locations[i].movechance = SimulationSettings.ConflictMoveChance
-            self.locations[i].Conflict = True
+            self.locations[i].conflict = True
+            self.locations[i].town = False
           self.conflict_zone_names += [name]
           self.conflict_zones += [self.locations[i]]
           self.conflict_weights = np.append(self.conflict_weights, [self.locations[i].pop])
