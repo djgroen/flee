@@ -25,6 +25,8 @@ class SimulationSettings:
   CampMoveChance = 0.001
   DefaultMoveChance = 0.3
   UseDynamicDefaultMoveChance = True
+  GuestRatio = 0.5 # Used when UseDynamicDefaultMoveChance = True, decides how many guests a settlement can accommodate, based on a per habitant metric.
+
 
   FlareConflictInputFile = ""
 
