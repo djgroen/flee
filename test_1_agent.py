@@ -27,13 +27,14 @@ if __name__ == "__main__":
   e.linkUp("A","D","536.0")
 
   d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="test_data", start_date="2010-01-01", data_layout="data_layout.csv")
+  
+  new_refs = 1
+
+  # Insert refugee agents
+  for i in range(0, new_refs):
+    e.addAgent(location=l1)
 
   for t in range(0,end_time):
-    new_refs = d.get_new_refugees(t)
-
-    # Insert refugee agents
-    for i in range(0, new_refs):
-      e.addAgent(location=l1)
 
     # Propagate the model by one time step.
     e.evolve()
@@ -42,8 +43,7 @@ if __name__ == "__main__":
 
 
   assert t==9
-  assert l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents==635 # This includes refugee counts from Fassala as well
-  #79 746 24601 14784 38188
+  assert l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents==1 
 
   print("Test successful!")
 
