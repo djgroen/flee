@@ -26,7 +26,7 @@ class SimulationSettings:
   DefaultMoveChance = 0.3
   UseDynamicDefaultMoveChance = True
   GuestRatio = 0.5 # Used when UseDynamicDefaultMoveChance = True, decides how many guests a settlement can accommodate, based on a per habitant metric.
-
+  AvoidShortStings = True # Displaced people will not take a break unless they at least travelled for a full day's distance in the last two days.
 
   FlareConflictInputFile = ""
 

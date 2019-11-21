@@ -15,7 +15,7 @@ class Person:
     self.timesteps_since_departure = 0
     self.places_travelled = 1
 
-    self.recent_travel_distance = 0.0 # An index of how much the agent has recently travelled.
+    self.recent_travel_distance = 0.0 # An index of how much the agent has recently travelled (range 0.0-1.0).
     self.distance_moved_this_timestep = 0.0 # Number of km moved this timestep.
 
     # Set to true when an agent resides on a link.
@@ -30,10 +30,12 @@ class Person:
     if SimulationSettings.AgentLogLevel > 0:
       self.distance_travelled = 0
 
-  def evolve(self):
+  def evolve(self, ForceTownMove=False):
 
     if self.travelling == False:
-      if self.location.town = True and SimulationSettings.UseDynamicDefaultMoveChance:
+      if self.location.town and ForceTownMove:
+        movechance = 1.0
+      if self.location.town and SimulationSettings.UseDynamicDefaultMoveChance:
         movechance = self.location.numAgents / self.location.pop*SimulationSettings.GuestRatio
       else:
         movechance = self.location.movechance
@@ -112,7 +114,12 @@ class Person:
           # Perform another evolve step if needed. And if it results in travel, then the current
           # travelled distance needs to be taken into account.
           if evolveMore == True:
-            self.evolve()
+            ForceTownMove = False
+            if SimulationSettings.AvoidShortStints:
+              if (self.recent_travel_distance + ( self.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0 < 0.5: # Flee 2.0 Changeset 1, factor 2.
+              ForceTownMove = True
+
+            self.evolve(ForceTownMove)
             self.finish_travel()
 
   def getLinkWeight(self, link, awareness_level):
@@ -709,7 +716,7 @@ class Ecosystem:
     for a in self.agents:
       a.finish_travel()
       a.timesteps_since_departure += 1
-      a.recent_travel_distance = a.
+      a.recent_travel_distance = (a.recent_travel_distance + ( a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0
 
     #update link properties
     if SimulationSettings.CampLogLevel > 0:
