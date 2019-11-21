@@ -115,9 +115,9 @@ class Person:
             if SimulationSettings.AvoidShortStints:
               if (self.recent_travel_distance + ( self.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0 < 0.5: # Flee 2.0 Changeset 1, factor 2.
                 ForceTownMove = True
-
             self.evolve(ForceTownMove)
             self.finish_travel()
+
 
   def getLinkWeight(self, link, awareness_level):
     """
