@@ -114,7 +114,7 @@ class Person:
             ForceTownMove = False
             if SimulationSettings.AvoidShortStints:
               if (self.recent_travel_distance + ( self.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0 < 0.5: # Flee 2.0 Changeset 1, factor 2.
-              ForceTownMove = True
+                ForceTownMove = True
 
             self.evolve(ForceTownMove)
             self.finish_travel()
@@ -763,11 +763,14 @@ class Ecosystem:
     Remove all agents from a list of locations by name.
     Useful for couplings to other simulation codes.
     """
-
     new_agents = []
     for i in range(0, len(self.agents)):
       if self.agents[i].location.name not in location_names:
+        new_agents += agents[i] # agent is preserved in ecosystem
+      else:
+        self.agents[i].location.numAgents -= 1 # agent is removed from the ecosystem and number of agents drops by one.
     self.agents = new_agents
+
 
   def numAgents(self):
     return len(self.agents)
