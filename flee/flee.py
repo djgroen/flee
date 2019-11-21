@@ -111,9 +111,6 @@ class Person:
           # Perform another evolve step if needed. And if it results in travel, then the current
           # travelled distance needs to be taken into account.
           if evolveMore == True:
-          # Perform another evolve step if needed. And if it results in travel, then the current
-          # travelled distance needs to be taken into account.
-          if evolveMore == True:
             ForceTownMove = False
             if SimulationSettings.AvoidShortStints:
               if (self.recent_travel_distance + ( self.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0 < 0.5: # Flee 2.0 Changeset 1, factor 2.
