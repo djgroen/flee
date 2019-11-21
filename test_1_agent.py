@@ -39,6 +39,8 @@ if __name__ == "__main__":
     # Propagate the model by one time step.
     e.evolve()
 
+    print(e.agents[0].location.name)
+
     print(t, l1.numAgents+l2.numAgents+l3.numAgents+l4.numAgents, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents)
 
 
