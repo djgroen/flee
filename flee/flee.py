@@ -9,16 +9,14 @@ from flee.Diagnostics import write_agents
 
 class Person:
   def __init__(self, location):
-    self.health = 1
-
-    self.injured = 0
-
-    self.age = 35
     self.location = location
     self.home_location = location
     self.location.numAgents += 1
     self.timesteps_since_departure = 0
     self.places_travelled = 1
+
+    self.recent_travel_distance = 0.0 # An index of how much the agent has recently travelled.
+    self.distance_moved_this_timestep = 0.0 # Number of km moved this timestep.
 
     # Set to true when an agent resides on a link.
     self.travelling = False
@@ -56,10 +54,8 @@ class Person:
           self.travelling = True
           self.distance_travelled_on_link = 0
 
-    self.timesteps_since_departure += 1
 
-
-  def finish_travel(self, distance_moved_this_timestep=0):
+  def finish_travel(self):
     if self.travelling:
 
       # update last location of agent.
@@ -68,13 +64,17 @@ class Person:
 
       if self.places_travelled == 1: # First journey
         self.distance_travelled_on_link += SimulationSettings.MaxWalkSpeed
+        self.distance_moved_this_timestep += SimulationSettings.MaxWalkSpeed
       else:
         self.distance_travelled_on_link += SimulationSettings.MaxMoveSpeed
+        self.distance_moved_this_timestep += SimulationSettings.MaxMoveSpeed
 
       # If destination has been reached.
-      if self.distance_travelled_on_link - distance_moved_this_timestep > self.location.distance:
+      if self.distance_travelled_on_link > self.location.distance:
 
         self.places_travelled += 1
+        self.distance_moved_this_timestep += self.location.distance - self.distance_travelled_on_link # remove the excess km tracked by the distance_moved_this_timestep var.
+
         # update agent logs
         if SimulationSettings.AgentLogLevel > 0:
           self.distance_travelled += self.location.distance
@@ -91,8 +91,7 @@ class Person:
 
           # if the person has moved less than the minMoveSpeed, it should go through another evolve() step in the new location.
           evolveMore = False
-          if self.location.distance + distance_moved_this_timestep < SimulationSettings.MinMoveSpeed:
-            distance_moved_this_timestep += self.location.distance
+          if self.distance_moved_this_timestep < SimulationSettings.MinMoveSpeed:
             evolveMore = True
 
           # update location (which is on a link) to link endpoint
@@ -114,7 +113,7 @@ class Person:
           # travelled distance needs to be taken into account.
           if evolveMore == True:
             self.evolve()
-            self.finish_travel(distance_moved_this_timestep)
+            self.finish_travel()
 
   def getLinkWeight(self, link, awareness_level):
     """
@@ -709,6 +708,8 @@ class Ecosystem:
 
     for a in self.agents:
       a.finish_travel()
+      a.timesteps_since_departure += 1
+      a.recent_travel_distance = a.
 
     #update link properties
     if SimulationSettings.CampLogLevel > 0:
