@@ -343,6 +343,7 @@ class Ecosystem:
     self.agents = []
     self.closures = [] #format [type, source, dest, start, end]
     self.time = 0
+    self.print_location_output = True # print location output data
 
     # Bring conflict zone management into FLEE.
     self.conflict_zones = []
@@ -729,7 +730,7 @@ class Ecosystem:
     """ Add a location to the ABM network graph """
 
     l = Location(name, x, y, movechance, capacity, pop, foreign, country)
-    if SimulationSettings.InitLogLevel > 0:
+    if SimulationSettings.InitLogLevel > 0 and self.print_location_output:
       print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign)
     self.locations.append(l)
     self.locationNames.append(l.name)
@@ -807,7 +808,8 @@ class Ecosystem:
 
   def printComplete(self):
     print("Time: ", self.time, ", # of agents: ", len(self.agents))
-    for l in self.locations:
-      print("Location name %s, number of agents %s" % (l.name, l.numAgents), file=sys.stderr)
-      l.print()
+    if self.print_location_output:
+      for l in self.locations:
+        print("Location name %s, number of agents %s" % (l.name, l.numAgents), file=sys.stderr)
+        l.print()
 

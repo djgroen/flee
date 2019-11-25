@@ -236,6 +236,7 @@ class Ecosystem(flee.Ecosystem):
     self.total_agents = 0
     self.closures = [] #format [type, source, dest, start, end]
     self.time = 0
+    self.print_location_output = False
     self.mpi = MPIManager()
 
     if self.getRankN(0):
