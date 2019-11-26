@@ -65,58 +65,9 @@ class Person(flee.Person):
     self.timesteps_since_departure += 1
 
 
-  def finish_travel(self, distance_moved_this_timestep=0):
-    if self.travelling:
+  def finish_travel(self):
+    super().finish_travel()
 
-      # update last location of agent.
-      #if not SimulationSettings.SimulationSettings.TurnBackAllowed:
-      #  self.last_location = self.location
-
-      self.distance_travelled_on_link += SimulationSettings.SimulationSettings.MaxMoveSpeed
-
-      # If destination has been reached.
-      if self.distance_travelled_on_link - distance_moved_this_timestep > self.location.distance:
-
-        # update agent logs
-        if SimulationSettings.SimulationSettings.AgentLogLevel > 0:
-          self.places_travelled += 1
-          self.distance_travelled += self.location.distance
-
-        # if link is closed, bring agent to start point and return.
-        if self.location.closed == True:
-          #print("agent moved out of closed link.", file=sys.stderr)
-          self.location.numAgentsOnRank -= 1
-          self.location = self.location.startpoint
-          self.location.numAgentsOnRank += 1
-          self.travelling = False
-          self.distance_travelled_on_link = 0
-
-        else:
-
-          # if the person has moved less than the minMoveSpeed, it should go through another evolve() step in the new location.
-          evolveMore = False
-          if self.location.distance + distance_moved_this_timestep < SimulationSettings.SimulationSettings.MinMoveSpeed:
-            distance_moved_this_timestep += self.location.distance
-            evolveMore = True
-
-          # update location (which is on a link) to link endpoint
-          self.location.numAgentsOnRank -= 1
-          self.location = self.location.endpoint
-          self.location.numAgentsOnRank += 1
-
-          self.travelling = False
-          self.distance_travelled_on_link = 0
-
-          if SimulationSettings.SimulationSettings.CampLogLevel > 0:
-            if self.location.Camp == True:
-              self.location.incoming_journey_lengths += [self.timesteps_since_departure]
-
-
-          # Perform another evolve step if needed. And if it results in travel, then the current
-          # travelled distance needs to be taken into account.
-          if evolveMore == True:
-            self.evolve()
-            self.finish_travel(distance_moved_this_timestep)
 
   def getLinkWeight(self, link, awareness_level):
     """
@@ -146,6 +97,15 @@ class Location(flee.Location):
 
     self.scores = [] # Emptying this array, as it is not used in the parallel version.
     # If it is referred to in Flee in any way, the code should crash.
+
+
+  def DecrementNumAgents():
+    self.numAgentsOnRank -= 1
+
+
+  def IncrementNumAgents():
+    self.numAgentsOnRank += 1
+
 
   def print(self):
     if self.e.mpi.rank == 0:

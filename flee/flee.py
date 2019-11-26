@@ -45,7 +45,7 @@ class Person:
 
       if outcome < movechance:
         # determine here which route to take?
-        chosenRoute = self.selectRoute()
+        chosenRoute = self.selectRouteRuleset1()
 
         # if there is a viable route to a different location.
         if chosenRoute >= 0:
@@ -59,10 +59,6 @@ class Person:
 
   def finish_travel(self):
     if self.travelling:
-
-      # update last location of agent.
-      #if not SimulationSettings.TurnBackAllowed:
-      #  self.last_location = self.location
 
       if self.places_travelled == 1: # First journey
         self.distance_travelled_on_link += SimulationSettings.MaxWalkSpeed
@@ -83,23 +79,22 @@ class Person:
 
         # if link is closed, bring agent to start point instead of the destination and return.
         if self.location.closed == True:
-          self.location.numAgentsOnRank -= 1
+          self.location.DecrementNumAgents()
           self.location = self.location.startpoint
-          self.location.numAgentsOnRank += 1
+          self.location.IncrementNumAgents()
           self.travelling = False
           self.distance_travelled_on_link = 0
 
         else:
-
           # if the person has moved less than the minMoveSpeed, it should go through another evolve() step in the new location.
           evolveMore = False
-          if self.distance_moved_this_timestep < SimulationSettings.MinMoveSpeed:
+          if self.distance_moved_this_timestep < SimulationSettings.MaxMoveSpeed:
             evolveMore = True
 
           # update location (which is on a link) to link endpoint
-          self.location.numAgents -= 1
+          self.location.DecrementNumAgents()
           self.location = self.location.endpoint
-          self.location.numAgents += 1
+          self.location.IncrementNumAgents()
 
           self.travelling = False
           self.distance_travelled_on_link = 0
@@ -134,7 +129,7 @@ class Person:
 
     return float(link.endpoint.scores[awareness_level] / float(SimulationSettings.Softening + link.distance))
 
-  def selectRoute(self):
+  def selectRouteRuleset1(self):
     linklen = len(self.location.links)
     weights = np.zeros(linklen)
 
@@ -217,6 +212,12 @@ class Location:
 
     self.print()
 
+
+  def DecrementNumAgents():
+    self.numAgents -= 1
+
+  def IncrementNumAgents():
+    self.numAgents += 1
 
   def print(self):
     print("Location name: %s, X: %s, Y: %s, movechance: %s, cap: %s, pop: %s, country: %s, conflict? %s, camp? %s" % (self.name, self.x, self.y, self.movechance, self.capacity, self.pop, self.country, self.conflict, self.camp), file=sys.stderr)
@@ -677,6 +678,7 @@ class Ecosystem:
     self.conflict_weights =  new_weights
     self.conflict_pop = sum(self.conflict_weights)
 
+
   def pick_conflict_locations(self):
     print("Warning: this function is now deprecated as of ruleset 2.0. Please use pick_conflict_locations() instead in your scripts.", file=sys.stderr)
     self.pick_conflict_locations(1)
@@ -812,10 +814,12 @@ class Ecosystem:
     self.locations[endpoint1_index].links.append( Link(self.locations[endpoint1_index], self.locations[endpoint2_index], distance, forced_redirection) )
     self.locations[endpoint2_index].links.append( Link(self.locations[endpoint2_index], self.locations[endpoint1_index], distance) )
 
+
   def printInfo(self):
     print("Time: ", self.time, ", # of agents: ", len(self.agents))
     for l in self.locations:
       print(l.name, l.numAgents, file=sys.stderr)
+
 
   def printComplete(self):
     print("Time: ", self.time, ", # of agents: ", len(self.agents))
@@ -823,6 +827,7 @@ class Ecosystem:
       for l in self.locations:
         print("Location name %s, number of agents %s" % (l.name, l.numAgents), file=sys.stderr)
         l.print()
+
 
   def getRankN(self, i):
     """

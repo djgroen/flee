@@ -13,7 +13,6 @@ class SimulationSettings:
 
   CampWeight = sqrt_ten # attraction factor for camps.
   ConflictWeight = 1.0 / sqrt_ten # reduction factor for refugees entering conflict zones.
-  MinMoveSpeed = 200 # least number of km that we expect refugees to traverse per time step.
   MaxMoveSpeed = 420 # most number of km that we expect refugees to traverse per time step (35 km/h * 12 hours).
   MaxWalkSpeed = 42 # most number of km that we expect refugees to traverse per time step on foot (3.5 km/h * 12 hours).
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
@@ -24,6 +23,9 @@ class SimulationSettings:
   ConflictMoveChance = 1.0
   CampMoveChance = 0.001
   DefaultMoveChance = 0.3
+
+  # Specific enhancements for the 2.0 ruleset.
+  # This includes a movespeed of 420 and a walk speed of 42.
   UseDynamicDefaultMoveChance = True
   GuestRatio = 0.5 # Used when UseDynamicDefaultMoveChance = True, decides how many guests a settlement can accommodate, based on a per habitant metric.
   AvoidShortStints = True # Displaced people will not take a break unless they at least travelled for a full day's distance in the last two days.
