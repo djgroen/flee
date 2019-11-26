@@ -81,11 +81,11 @@ class Location(flee.Location):
     # If it is referred to in Flee in any way, the code should crash.
 
 
-  def DecrementNumAgents():
+  def DecrementNumAgents(self):
     self.numAgentsOnRank -= 1
 
 
-  def IncrementNumAgents():
+  def IncrementNumAgents(self):
     self.numAgentsOnRank += 1
 
 
