@@ -4,7 +4,7 @@
 import numpy as np
 import sys
 import random
-from flee import SimulationSettings
+from flee.SimulationSettings import SimulationSettings
 from flee import flee
 from mpi4py import MPI
 from mpi4py.MPI import ANY_SOURCE
@@ -75,15 +75,15 @@ class Person(flee.Person):
     """
 
     # If turning back is NOT allowed, remove weight from the last location.
-    #if not SimulationSettings.SimulationSettings.TurnBackAllowed:
+    #if not SimulationsSettings.TurnBackAllowed:
     #  if link.endpoint == self.last_location:
-    #    return 0.0 #float(0.1 / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+    #    return 0.0 #float(0.1 / float(SimulationsSettings.Softening + link.distance))
 
     if awareness_level < 0:
       return 1.0
 
 
-    return float(self.e.scores[(link.endpoint.id * self.e.scores_per_location) + awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+    return float(self.e.scores[(link.endpoint.id * self.e.scores_per_location) + awareness_level] / float(SimulationsSettings.Softening + link.distance))
 
 
 class Location(flee.Location):
@@ -160,9 +160,9 @@ class Location(flee.Location):
 
 
     if self.foreign:
-      self.LocationScore = SimulationSettings.SimulationSettings.CampWeight
+      self.LocationScore = SimulationsSettings.CampWeight
     elif self.conflict:
-      self.LocationScore = SimulationSettings.SimulationSettings.ConflictWeight
+      self.LocationScore = SimulationsSettings.ConflictWeight
     else:
       self.LocationScore = 1.0
 
@@ -216,7 +216,7 @@ class Ecosystem(flee.Ecosystem):
     self.parallel_mode = "loc-par" # classic for replicated locations or loc-par for distributed locations.
     self.latency_mode = "high_latency" # high_latency for fewer MPI calls with more prep, or low_latency for more MPI calls with less prep.
 
-    if SimulationSettings.SimulationSettings.CampLogLevel > 0:
+    if SimulationsSettings.CampLogLevel > 0:
       self.num_arrivals = [] # one element per time step.
       self.travel_durations = [] # one element per time step.
 
@@ -301,7 +301,7 @@ class Ecosystem(flee.Ecosystem):
   """
 
   def addAgent(self, location):
-    if SimulationSettings.SimulationSettings.TakeRefugeesFromPopulation:
+    if SimulationsSettings.TakeRefugeesFromPopulation:
       if location.conflict:  
         if location.pop > 1:
           location.pop -= 1
@@ -353,7 +353,7 @@ class Ecosystem(flee.Ecosystem):
   def numAgentsOnRank(self):
     return len(self.agents)
 
-  def synchronize_locations(self, start_loc_local, end_loc_local, Debug=True):
+  def synchronize_locations(self, start_loc_local, end_loc_local, Debug=False):
       """
       Gathers the scores from all the updated locations, and propagates them across the processes.
       """
@@ -453,12 +453,12 @@ class Ecosystem(flee.Ecosystem):
     self.updateNumAgents(mode=self.latency_mode)
 
     #update link properties
-    if SimulationSettings.SimulationSettings.CampLogLevel > 0:
+    if SimulationsSettings.CampLogLevel > 0:
       self._aggregate_arrivals()
 
     self.time += 1
 
-  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
+  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationsSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
     """ Add a location to the ABM network graph """
 
     l = Location(self, self.cur_loc_id, name, x, y, movechance, capacity, pop, foreign, country)
@@ -470,7 +470,7 @@ class Ecosystem(flee.Ecosystem):
 
     self.cur_loc_id += 1
 
-    if SimulationSettings.SimulationSettings.InitLogLevel > 0:
+    if SimulationsSettings.InitLogLevel > 0:
       print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign, file=sys.stderr)
     self.locations.append(l)
     self.locationNames.append(l.name)
