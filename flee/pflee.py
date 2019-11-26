@@ -44,25 +44,7 @@ class Person(flee.Person):
     self.e = e
 
   def evolve(self):
-
-    if self.travelling == False:
-      movechance = self.location.movechance
-
-      outcome = random.random()
-      if outcome < movechance:
-        # determine here which route to take?
-        chosenRoute = self.selectRoute()
-
-        # if there is a viable route to a different location.
-        if chosenRoute >= 0:
-          # update location to link endpoint
-          self.location.numAgentsOnRank -= 1
-          self.location = self.location.links[chosenRoute]
-          self.location.numAgentsOnRank += 1
-          self.travelling = True
-          self.distance_travelled_on_link = 0
-
-    self.timesteps_since_departure += 1
+    super().evolve()
 
 
   def finish_travel(self):

@@ -50,9 +50,9 @@ class Person:
         # if there is a viable route to a different location.
         if chosenRoute >= 0:
           # update location to link endpoint
-          self.location.numAgents -= 1
+          self.location.DecrementNumAgents()
           self.location = self.location.links[chosenRoute]
-          self.location.numAgents += 1
+          self.location.IncrementNumAgents()
           self.travelling = True
           self.distance_travelled_on_link = 0
 
