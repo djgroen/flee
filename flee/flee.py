@@ -678,15 +678,22 @@ class Ecosystem:
     self.conflict_pop = sum(self.conflict_weights)
 
 
-  def pick_conflict_location(self):
+  def pick_conflict_locations(self, number=1):
     """
     Returns a weighted random element from the list of conflict locations.
     This function returns a number, which is an index in the array of conflict locations.
     """
     assert self.conflict_pop > 0
 
-    return np.random.choice(self.conflict_zones, p=self.conflict_weights/self.conflict_pop)
+    return np.random.choice(self.conflict_zones, number, p=self.conflict_weights/self.conflict_pop)
 
+  def add_agents_to_conflict_zones(self, number):
+    """
+    Add a group of agents, distributed across conflict zones.
+    """
+    cl = self.pick_conflict_locations(number)
+    for i in range (0, number):
+      self.addAgent(cl[i])
 
   def refresh_conflict_weights(self):
     """
@@ -813,3 +820,8 @@ class Ecosystem:
         print("Location name %s, number of agents %s" % (l.name, l.numAgents), file=sys.stderr)
         l.print()
 
+  def getRankN(self, i):
+    """
+    Returns whether this process should do a task. Always returns true, as flee.py is sequential.
+    """
+    return True
