@@ -130,7 +130,7 @@ class Person:
     return float(link.endpoint.scores[awareness_level] / float(SimulationSettings.Softening + link.distance))
 
   
-  def normalizeWeights(self):
+  def normalizeWeights(self, weights):
     if np.sum(weights) > 0.0:
       weights /= np.sum(weights)
     else: # if all have zero weight, then we do equal weighting.
@@ -162,10 +162,10 @@ class Person:
         # Throttle down weight when occupancy is close to peak capacity.
         weights[i] *= self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents)
 
-    return chooseFromWeights(weights, self.location.links)
+    return self.chooseFromWeights(weights, self.location.links)
 
 
-  def calculateLinkWeight(link, prior_distance, origin_names, step):
+  def calculateLinkWeight(self, link, prior_distance, origin_names, step):
     """
     Calculates Link Weights recursively based on awareness level.
     Loops are avoided.
@@ -178,7 +178,7 @@ class Person:
         if e.endpoint.name in origin_names: # Link points back to an origin, so ignore.
             pass
         else:
-            weight += calculateLinkWeight(e, link.distance, origin_names + [link.endpoint.name], step+1)
+            weight += self.calculateLinkWeight(e, link.distance, origin_names + [link.endpoint.name], step+1)
 
     return weight
 
@@ -188,12 +188,12 @@ class Person:
     weights = np.zeros(linklen)
 
     if SimulationSettings.AwarenessLevel == 0:
-      return np.random.(0, linklen)
+      return np.random.randint(0, linklen)
 
     for k,e in enumerate(self.location.links):
-      weights[k] = calculateLinkWeight(e, 0.0, [self.location.name], 1)
+      weights[k] = self.calculateLinkWeight(e, 0.0, [self.location.name], 1)
     
-    return chooseFromWeights(weights, self.location.links)
+    return self.chooseFromWeights(weights, self.location.links)
 
 
 class Location:
@@ -251,10 +251,10 @@ class Location:
     self.print()
 
 
-  def DecrementNumAgents():
+  def DecrementNumAgents(self):
     self.numAgents -= 1
 
-  def IncrementNumAgents():
+  def IncrementNumAgents(self):
     self.numAgents += 1
 
   def print(self):
@@ -373,6 +373,12 @@ class Link:
 
     # if True, then all Persons will go down this link.
     self.forced_redirection = forced_redirection
+
+  def DecrementNumAgents(self):
+    self.numAgents -= 1
+
+  def IncrementNumAgents(self):
+    self.numAgents += 1
 
 
 class Ecosystem:
