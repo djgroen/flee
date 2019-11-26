@@ -129,6 +129,23 @@ class Person:
 
     return float(link.endpoint.scores[awareness_level] / float(SimulationSettings.Softening + link.distance))
 
+  
+  def normalizeWeights(self):
+    if np.sum(weights) > 0.0:
+      weights /= np.sum(weights)
+    else: # if all have zero weight, then we do equal weighting.
+      weights += 1.0/float(len(weights))
+    return weights
+
+
+  def chooseFromWeights(self, weights, linklist):
+    if len(weights) == 0:
+      return -1
+    else:
+      weights = self.normalizeWeights(weights)
+      return np.random.choice(list(range(0,len(linklist))), p=weights)
+
+
   def selectRouteRuleset1(self):
     linklen = len(self.location.links)
     weights = np.zeros(linklen)
@@ -145,18 +162,21 @@ class Person:
         # Throttle down weight when occupancy is close to peak capacity.
         weights[i] *= self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents)
 
-    if len(weights) == 0:
-      return -1
-    else:
-      if np.sum(weights) > 0.0:
-        weights /= np.sum(weights)
-      else: # if all have zero weight, then we do equal weighting.
-        weights += 1.0/float(len(weights))
+    return chooseFromWeights(weights, self.location.links)
 
-      #if len(weights) != len(list(range(0,len(self.location.links)))):
-      #  print(weights, list(range(0,len(self.location.links))))
 
-      return np.random.choice(list(range(0,len(self.location.links))), p=weights)
+  def selectRouteRuleset2(self):
+    linklen = len(self.location.links)
+    weights = np.zeros(linklen)
+
+    if SimulationSettings.AwarenessLevel == 0:
+      return np.random.(0, linklen)
+
+    for k,e in enumerate(self.location.links):
+      weights[k] = calculateLinkWeight(e, 0.0)
+    
+    return chooseFromWeights(weights, self.location.links)
+
 
 class Location:
   def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
