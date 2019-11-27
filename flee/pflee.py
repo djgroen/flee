@@ -43,8 +43,8 @@ class Person(flee.Person):
     self.location.numAgentsOnRank += 1
     self.e = e
 
-  def evolve(self):
-    super().evolve()
+  def evolve(self, ForceTownMove=False):
+    super().evolve(ForceTownMove)
 
 
   def finish_travel(self):
