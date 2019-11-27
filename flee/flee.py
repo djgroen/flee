@@ -35,7 +35,7 @@ class Person:
     if self.travelling == False:
       if self.location.town and ForceTownMove:
         movechance = 1.0
-      if self.location.town and SimulationSettings.UseDynamicDefaultMoveChance:
+      elif self.location.town and SimulationSettings.UseDynamicDefaultMoveChance:
         movechance = self.location.numAgents / self.location.pop*SimulationSettings.GuestRatio
       else:
         movechance = self.location.movechance
