@@ -725,7 +725,7 @@ class Ecosystem:
 
   def pick_conflict_location(self):
     print("Warning: this function is now deprecated as of ruleset 2.0. Please use pick_conflict_locations() instead in your scripts.", file=sys.stderr)
-    self.pick_conflict_locations(1)
+    return self.pick_conflict_locations(1)
 
 
   def pick_conflict_locations(self, number=1):
