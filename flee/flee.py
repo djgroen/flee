@@ -250,6 +250,12 @@ class Location:
 
     self.print()
 
+  def SetCamp(self):
+    self.movechance = SimulationSettings.CampMoveChance
+    self.camp = True
+    self.foreign = True
+    self.conflict = False
+    self.town = False
 
   def DecrementNumAgents(self):
     self.numAgents -= 1
@@ -724,7 +730,7 @@ class Ecosystem:
 
 
   def pick_conflict_location(self):
-    print("Warning: this function is now deprecated as of ruleset 2.0. Please use pick_conflict_locations() instead in your scripts.", file=sys.stderr)
+    #print("Warning: this function is now deprecated as of ruleset 2.0. Please use pick_conflict_locations() instead in your scripts.", file=sys.stderr)
     return self.pick_conflict_locations(1)[0]
 
 
