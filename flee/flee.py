@@ -11,7 +11,7 @@ class Person:
   def __init__(self, location):
     self.location = location
     self.home_location = location
-    self.location.numAgents += 1
+    self.location.IncrementNumAgents()
     self.timesteps_since_departure = 0
     self.places_travelled = 1
 
@@ -836,7 +836,7 @@ class Ecosystem:
       if self.agents[i].location.name not in location_names:
         new_agents += agents[i] # agent is preserved in ecosystem
       else:
-        self.agents[i].location.numAgents -= 1 # agent is removed from the ecosystem and number of agents drops by one.
+        self.agents[i].location.DecrementNumAgents() # agent is removed from the ecosystem and number of agents drops by one.
     self.agents = new_agents
 
 
