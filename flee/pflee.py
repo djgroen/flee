@@ -40,7 +40,6 @@ class MPIManager:
 class Person(flee.Person):
   def __init__(self, e, location):
     super().__init__(location)
-    self.location.numAgentsOnRank += 1
     self.e = e
 
   def evolve(self, ForceTownMove=False):
