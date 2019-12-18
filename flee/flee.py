@@ -60,7 +60,7 @@ class Person:
   def finish_travel(self):
     if self.travelling:
 
-      if self.places_travelled == 1: # First journey
+      if self.places_travelled == 1 and SimulationSettings.StartOnFoot: # First journey
         self.distance_travelled_on_link += SimulationSettings.MaxWalkSpeed
         self.distance_moved_this_timestep += SimulationSettings.MaxWalkSpeed
       else:
