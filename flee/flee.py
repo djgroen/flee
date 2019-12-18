@@ -45,7 +45,10 @@ class Person:
 
       if outcome < movechance:
         # determine here which route to take?
-        chosenRoute = self.selectRouteRuleset1()
+        if SimulationSettings.UseV1Rules:
+          chosenRoute = self.selectRouteRuleset1()
+        else:
+          chosenRoute = self.selectRouteRuleset2()
 
         # if there is a viable route to a different location.
         if chosenRoute >= 0:
