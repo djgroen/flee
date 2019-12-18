@@ -34,7 +34,7 @@ class SimulationSettings:
 
   #NumProcs = 1 #This is not supported at the moment.
 
-  UseV1Rules = True
+  UseV1Rules = False
 
   if UseV1Rules:
     MaxMoveSpeed = 200
