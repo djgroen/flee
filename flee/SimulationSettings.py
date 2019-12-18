@@ -36,7 +36,7 @@ class SimulationSettings:
 
   UseV1Rules = False
 
-  if UseV1Rules:
+  if UseV1Rules == True:
     MaxMoveSpeed = 200
     StartOnFoot = False
     UseDynamicDefaultMoveChance = False
