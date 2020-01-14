@@ -26,8 +26,6 @@ class SimulationSettings:
 
   # Specific enhancements for the 2.0 ruleset.
   # This includes a movespeed of 420 and a walk speed of 42.
-  UseDynamicDefaultMoveChance = True
-  GuestRatio = 0.5 # Used when UseDynamicDefaultMoveChance = True, decides how many guests a settlement can accommodate, based on a per habitant metric.
   AvoidShortStints = True # Displaced people will not take a break unless they at least travelled for a full day's distance in the last two days.
 
   FlareConflictInputFile = ""
@@ -39,7 +37,6 @@ class SimulationSettings:
   if UseV1Rules == True:
     MaxMoveSpeed = 200
     StartOnFoot = False
-    UseDynamicDefaultMoveChance = False
     AvoidShortStints = False # Displaced people will not take a break unless they at least travelled for a full day's distance in the last two days.
     CampWeight = 2.0 # attraction factor for camps.
     ConflictWeight = 0.25 # reduction factor for refugees entering conflict zones.

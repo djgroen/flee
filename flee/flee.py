@@ -35,8 +35,6 @@ class Person:
     if self.travelling == False:
       if self.location.town and ForceTownMove:
         movechance = 1.0
-      elif self.location.town and SimulationSettings.UseDynamicDefaultMoveChance:
-        movechance = self.location.numAgents / self.location.pop*SimulationSettings.GuestRatio
       else:
         movechance = self.location.movechance
 
@@ -233,7 +231,7 @@ class Location:
         self.forward = True
       elif "default" in movechance.lower() or "town" in movechance.lower():
         self.town = True
-        self.movechance = SimulationSettings.DefaultMoveChance # will be overridden if UseDynamicDefaultMoveChance is enabled.
+        self.movechance = SimulationSettings.DefaultMoveChance 
       else:
         print("Error in creating Location() object: cannot parse movechance value of ", movechance, " for location object with name ", name, ".")
 
