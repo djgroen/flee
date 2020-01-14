@@ -37,6 +37,7 @@ if __name__ == "__main__":
 
   assert t==99
   assert l2.numAgents==3 # Location is closed after 3 steps, refugees underway will still arrive but others are blocked.
+  assert l1.numAgents==97
 
   print("Test successful!")
 
