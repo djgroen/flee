@@ -161,10 +161,9 @@ class Location(flee.Location):
 
 
 class Link(flee.Link):
-  pass
-  #def __init__(self, endpoint, distance, forced_redirection=False):
-  #  self.numAgentsOnRank = 0
-  #  super().__init__(endpoint, distance, forced_redirection)
+
+  def __init__(self, endpoint, distance, forced_redirection=False):
+    super().__init__(endpoint, distance, forced_redirection)
 
   def DecrementNumAgents():
     self.numAgentsOnRank -= 1
