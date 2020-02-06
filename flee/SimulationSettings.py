@@ -16,7 +16,7 @@ class SimulationSettings:
   MaxMoveSpeed = 420 # most number of km that we expect refugees to traverse per time step (35 km/h * 12 hours).
   MaxWalkSpeed = 42 # most number of km that we expect refugees to traverse per time step on foot (3.5 km/h * 12 hours).
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
-  StartOnFoot = True # Agents walk on foot when they travers their very first link.
+  StartOnFoot = False # Agents walk on foot when they travers their very first link.
   CapacityBuffer = 1.0
 
   #default move chances
@@ -32,7 +32,7 @@ class SimulationSettings:
 
   #NumProcs = 1 #This is not supported at the moment.
 
-  UseV1Rules = True
+  UseV1Rules = False
 
   if UseV1Rules == True:
     MaxMoveSpeed = 200

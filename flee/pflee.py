@@ -66,6 +66,37 @@ class Person(flee.Person):
 
     return float(self.e.scores[(link.endpoint.id * self.e.scores_per_location) + awareness_level] / float(SimulationSettings.Softening + link.distance))
 
+  def calculateLinkWeight(self, link, prior_distance, origin_names, step):
+    """
+    Calculates Link Weights recursively based on awareness level.
+    Loops are avoided.
+    """
+    weight = float(float(self.e.scores[(link.endpoint.id * self.e.scores_per_location) + 1]) / float(SimulationSettings.Softening + link.distance))
+
+    if SimulationSettings.AwarenessLevel > step:
+      # Traverse the tree one step further.
+      for k,e in enumerate(link.endpoint.links):
+        if e.endpoint.name in origin_names: # Link points back to an origin, so ignore.
+            pass
+        else:
+            weight += self.calculateLinkWeight(e, link.distance, origin_names + [link.endpoint.name], step+1)
+
+    return weight
+
+
+  def selectRouteRuleset2(self):
+    linklen = len(self.location.links)
+    weights = np.zeros(linklen)
+
+    if SimulationSettings.AwarenessLevel == 0:
+      return np.random.randint(0, linklen)
+
+    for k,e in enumerate(self.location.links):
+      weights[k] = self.calculateLinkWeight(e, 0.0, [self.location.name], 1)
+
+    return self.chooseFromWeights(weights, self.location.links)
+
+
 
 class Location(flee.Location):
 
