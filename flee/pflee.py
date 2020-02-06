@@ -434,6 +434,9 @@ class Ecosystem(flee.Ecosystem):
 
     for a in self.agents:
       a.finish_travel()
+      a.timesteps_since_departure += 1
+      a.recent_travel_distance = (a.recent_travel_distance + ( a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0
+      a.distance_moved_this_timestep = 0
 
     #print("NumAgents after finish_travel:", file=sys.stderr)
     self.updateNumAgents(mode=self.latency_mode)
