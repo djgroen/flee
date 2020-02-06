@@ -780,6 +780,7 @@ class Ecosystem:
       a.finish_travel()
       a.timesteps_since_departure += 1
       a.recent_travel_distance = (a.recent_travel_distance + ( a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0
+      a.distance_moved_this_timestep = 0
 
     #update link properties
     if SimulationSettings.CampLogLevel > 0:
