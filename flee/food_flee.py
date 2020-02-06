@@ -12,8 +12,8 @@ import pandas as pd
 def initiate_food():
   #critict=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv")["Dates"]
   #IPC_all=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv",index_col=0)
-  critict=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv")["Dates"]
-  IPC_all=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv",index_col=0)
+  critict=pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food_inverse/input_csv/IPC.csv")["Dates"]
+  IPC_all=pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food_inverse/input_csv/IPC.csv",index_col=0)
   current_i=0
 
   return [critict,IPC_all,current_i]
@@ -37,7 +37,7 @@ class Ecosystem(flee.Ecosystem):
     super().__init__()  
     
     # IPC specific configuration variables.
-    self.IPCAffectsMoveChance = False # IPC modified move chances 
+    self.IPCAffectsMoveChance = True # IPC modified move chances 
     #(Warning: lower validation error correlates with higher average move chances)
     
     self.IPCAffectsSpawnLocation = True # IPC affects Spawn location distribution.
@@ -103,7 +103,8 @@ if __name__ == "__main__":
 
   end_time = 604
   e = Ecosystem()
-
+  #line_IPC=line42day(0,current_i,critict)
+  e.update_IPC_MC(line_IPC,IPC_all)
   l1 = e.addLocation("Source",region="Unity")
   l2 = e.addLocation("Sink1",region="Upper Nile")
   l3 = e.addLocation("Sink2",region="Jonglei")
