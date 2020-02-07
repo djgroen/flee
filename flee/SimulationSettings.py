@@ -15,7 +15,6 @@ class SimulationSettings:
   ConflictWeight = 1.0 / sqrt_ten # reduction factor for refugees entering conflict zones.
   MaxMoveSpeed = 360 # most number of km that we expect refugees to traverse per time step (30 km/h * 12 hours).
   MaxWalkSpeed = 35 # most number of km that we expect refugees to traverse per time step on foot (3.5 km/h * 10 hours).
-  #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
   StartOnFoot = True # Agents walk on foot when they travers their very first link.
   CapacityBuffer = 1.0
 
@@ -82,6 +81,12 @@ class SimulationSettings:
           SimulationSettings.AwarenessLevel = int(row[1])
         elif row[0].lower() == "flareconflictinputfile":
           SimulationSettings.FlareConflictInputFile = row[1]
+        elif row[0].lower() == "usev1rules":
+          SimulationSettings.UseV1Rules = (row[1].lower() == "true")
+        elif row[0].lower() == "startonfoot":
+          SimulationSettings.StartOnFoot = (row[1].lower() == "true")
+        elif row[0].lower() == "avoidshortstints":
+          SimulationSettings.AvoidShortStints = (row[1].lower() == "true")
         else:
           print("FLEE Initialization Error: unrecognized simulation parameter:",row[0])
           sys.exit()
