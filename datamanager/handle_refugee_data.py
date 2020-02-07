@@ -18,7 +18,8 @@ class RefugeeTable(DataTable.DataTable):
       with open(csvname) as csvfile:
         l1reader = csv.reader(csvfile, delimiter=',')
         for row in l1reader:
-          self.correctLevel1Registrations(row[0],row[1])
+          if len(row)>1:
+            self.correctLevel1Registrations(row[0],row[1])
 
   def correctLevel1Registrations(self, name, date):
     """
