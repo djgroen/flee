@@ -2,7 +2,7 @@ import sys
 import csv
 
 class SimulationSettings:
-  Softening = 0.0
+  Softening = 10.0 # KM added to every link distance to eliminate needless distinction between very short routes.
   #TurnBackAllowed = True # feature disabled for now.
   AgentLogLevel = 0 # set to 1 for basic agent information.
   CampLogLevel = 0  # set to 1 to obtain average times for agents to reach camps at any time step (aggregate info).
@@ -13,10 +13,10 @@ class SimulationSettings:
 
   CampWeight = sqrt_ten # attraction factor for camps.
   ConflictWeight = 1.0 / sqrt_ten # reduction factor for refugees entering conflict zones.
-  MaxMoveSpeed = 420 # most number of km that we expect refugees to traverse per time step (35 km/h * 12 hours).
-  MaxWalkSpeed = 42 # most number of km that we expect refugees to traverse per time step on foot (3.5 km/h * 12 hours).
+  MaxMoveSpeed = 360 # most number of km that we expect refugees to traverse per time step (30 km/h * 12 hours).
+  MaxWalkSpeed = 35 # most number of km that we expect refugees to traverse per time step on foot (3.5 km/h * 10 hours).
   #UseDynamicCampWeights = True # overrides CampWeight depending on characteristics of the ecosystem.
-  StartOnFoot = False # Agents walk on foot when they travers their very first link.
+  StartOnFoot = True # Agents walk on foot when they travers their very first link.
   CapacityBuffer = 1.0
 
   #default move chances
