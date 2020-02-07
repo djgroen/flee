@@ -84,20 +84,6 @@ class Person(flee.Person):
     return weight
 
 
-  def selectRouteRuleset2(self):
-    linklen = len(self.location.links)
-    weights = np.zeros(linklen)
-
-    if SimulationSettings.AwarenessLevel == 0:
-      return np.random.randint(0, linklen)
-
-    for k,e in enumerate(self.location.links):
-      weights[k] = self.calculateLinkWeight(e, 0.0, [self.location.name], 1)
-
-    return self.chooseFromWeights(weights, self.location.links)
-
-
-
 class Location(flee.Location):
 
   def __init__(self, e, cur_id, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
