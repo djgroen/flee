@@ -48,6 +48,8 @@ class Ecosystem(flee.Ecosystem):
         # this variable is a new one i've added which will trigger the speed changes.
         self.IPCAffectsMovementSpeed = True  # IPC data affects the speed of the agents.
 
+        self.IPCAffectsSpawnLocation = False
+
     # this function i've created will implement my speed hypothesis.
     def update_IPC_speed(self, line_IPC, IPC_all):
         # first, cycle through each location in the simulation and give each an IPC value

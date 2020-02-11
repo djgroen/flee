@@ -1,6 +1,8 @@
 # food_flee.py
 # A modified implementation of FLEE to account for the food security conditions. Movechances are modified.
 
+# changes from the original food_flee file have been made by chris vassiliou
+
 import numpy as np
 import sys
 import random
@@ -42,19 +44,26 @@ class Ecosystem(flee.Ecosystem):
 
     def __init__(self):
         super().__init__()
+        
         # IPC specific configuration variables.
+        self.total_weight = 0.0
+        self.IPC_locations = []
+        self.IPC_location_weights = []
+
         self.IPCAffectsMoveChance = True  # IPC modified move chances
         # (Warning: lower validation error correlates with higher average move chances)
 
-        self.IPCAffectsSpawnLocation = True  # IPC affects Spawn location distribution.
+        self.IPCAffectsSpawnLocation = False  # IPC affects Spawn location distribution.
 
     def update_IPC_MC(self, line_IPC, IPC_all):  # maybe better (less computation time)
-
+        print("yay!")
+        print("line_IPC")
+        print(line_IPC)
+        print("IPC_all")
+        print(IPC_all)
         for i in range(0, len(self.locationNames)):
+
             if self.locations[i].country == "South_Sudan":  # needed??
-                self.IPC_location_weights = []
-                self.IPC_locations = []
-                self.total_weight = 0.0
                 # 1. Update IPC scores for all locations
                 self.locations[i].IPC = IPC_all.loc[line_IPC, self.locations[i].region]
 
@@ -74,7 +83,7 @@ class Ecosystem(flee.Ecosystem):
                     if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
                         self.locations[i].movechance = self.locations[
                                                            i].IPC / 100.0 + SimulationSettings.SimulationSettings.DefaultMoveChance * (
-                                                                   1 - self.locations[i].IPC / 100.0)
+                                                               1 - self.locations[i].IPC / 100.0)
 
     def pick_conflict_location(self):
         """
@@ -118,7 +127,6 @@ if __name__ == "__main__":
 
     end_time = 604
     e = Ecosystem()
-    # line_IPC=line42day(0,current_i,critict)
     e.update_IPC_MC(line_IPC, IPC_all)
     l1 = e.addLocation("Source", region="Unity")
     l2 = e.addLocation("Sink1", region="Upper Nile")

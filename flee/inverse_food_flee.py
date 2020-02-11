@@ -1,7 +1,8 @@
 # food_flee.py
 
 
-# chris' version of food flee. this involves new movechances based on new formula,and some new comments.
+# chris' version of food flee implementing an inverse food hypothesis. this involves new movechances based on new
+# formula,and some new comments.
 
 import numpy as np
 import sys
@@ -74,7 +75,7 @@ class Ecosystem(flee.Ecosystem):
                         # so food security should not increase it beyond that amount.
                     self.total_weight += self.IPC_location_weights[-1]
 
-                # 4. Adjust move chances, based on hypothesis 5: "the greater the food insecurity, the less likely
+                # 3. Adjust move chances, based on hypothesis 5: "the greater the food insecurity, the less likely
                 # migrants are to move" default move chance, multiplied by 1-percentage of people with severe food
                 # insecurity
                 if self.IPCAffectsMoveChance:
@@ -124,7 +125,8 @@ if __name__ == "__main__":
 
     end_time = 604
     e = Ecosystem()
-    # below line was first attempt at a solution for the "object has no attribute 'IPC_locations'" error. doesn't seem to make a difference to output.
+    # below line was first attempt at a solution for the "object has no attribute 'IPC_locations'" error. doesn't
+    # seem to make a difference to output.
     line_IPC = line42day(0, current_i, critict)
     e.update_IPC_MC(line_IPC, IPC_all)
     l1 = e.addLocation("Source", region="Unity")
