@@ -42,7 +42,7 @@ class InputGeography:
     ### TODO: make test verifying this in test_csv.py
 
   def getConflictLocationNames(self):
-    return list(self.conflicts.keys())[1:]
+    return list(self.conflicts.keys())
 
 
   def ReadLocationsFromCSV(self,csv_name, columns=["name","region","country","gps_x","gps_y","location_type","conflict_date","pop/cap"]):
