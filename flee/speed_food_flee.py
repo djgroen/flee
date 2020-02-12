@@ -16,11 +16,17 @@ import pandas as pd
 # this function finds the IPC food data and assigns it to two variables, critict and IPC_all. critict is the just the
 # dates column. IPC_all stores every cell in the file.
 def initiate_food():
-    critict = pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food_inverse/input_csv/IPC.csv")[
+    critict = pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food/input_csv/IPC.csv")[
         "Dates"]
-    IPC_all = pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food_inverse/input_csv/IPC.csv",
+    IPC_all = pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food/input_csv/IPC.csv",
                           index_col=0)
     current_i = 0
+
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', None)
+    pd.set_option('display.max_colwidth', -1)
+
     return [critict, IPC_all, current_i]
 
     # this is the function that cycles through the IPC files
@@ -51,11 +57,14 @@ class Ecosystem(flee.Ecosystem):
         self.IPCAffectsSpawnLocation = False
 
     # this function i've created will implement my speed hypothesis.
-    def update_IPC_speed(self, line_IPC, IPC_all):
+    def update_IPC(self, line_IPC, IPC_all):
         # first, cycle through each location in the simulation and give each an IPC value
         for i in range(0, len(self.locationNames)):
             if self.locations[i].country == "South_Sudan":
-                self.locations[i].IPC = IPC_all.loc[line_IPC, self.locations[i].region]
+                # 1. Update IPC scores for all locations
+                self.locations[i].IPC = IPC_all.loc[line_IPC][self.locations[i].region]
+                print(self.locations[i].name)
+                print(self.locations[i].IPC)
 
         # next step, we need to cycle through each agent in the sim and give them a speed value based on their location.
         # the formula involves multiplying the maximum move speed of the agents by the IPC of that agent's location.
@@ -109,7 +118,7 @@ if __name__ == "__main__":
     end_time = 604
     e = Ecosystem()
     line_IPC = line42day(0, current_i, critict)
-    e.update_IPC_speed(line_IPC, IPC_all)
+    e.update_IPC(line_IPC, IPC_all)
     l1 = e.addLocation("Source", region="Unity")
     l2 = e.addLocation("Sink1", region="Upper Nile")
     l3 = e.addLocation("Sink2", region="Jonglei")
@@ -130,7 +139,7 @@ if __name__ == "__main__":
                              critict)  # has to go in the time count of flee to choose the values of IPC according to t
         if not old_line == line_IPC:
             print("Time = %d. Updating IPC indexes and movechances" % (t), file=sys.stderr)
-            e.update_IPC_speed(line_IPC,
+            e.update_IPC(line_IPC,
                                IPC_all)  # update all locations in the ecosystem: IPC indexes and movechances (inside t
             # loop)
             print("After updating IPC and movechance:")

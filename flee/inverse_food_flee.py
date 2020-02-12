@@ -17,11 +17,16 @@ import pandas as pd
 # column. IPC_all treats the dates column as the index.
 def initiate_food():
     # the location of the IPC data in my file layout
-    critict = pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food_inverse/input_csv/IPC.csv")[
+    critict = pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food/input_csv/IPC.csv")[
         "Dates"]
-    IPC_all = pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food_inverse/input_csv/IPC.csv",
+    IPC_all = pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food/input_csv/IPC.csv",
                           index_col=0)
     current_i = 0
+
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', None)
+    pd.set_option('display.max_colwidth', -1)
 
     return [critict, IPC_all, current_i]
 
@@ -48,36 +53,32 @@ class Ecosystem(flee.Ecosystem):
 
     def __init__(self):
         super().__init__()
-        self.IPC_location_weights = []
-        self.IPC_locations = []
-        self.total_weight = 0.0
+
         # IPC specific configuration variables.
+        self.total_weight = 0.0
+        self.IPC_locations = []
+        self.IPC_location_weights = []
+
         self.IPCAffectsMoveChance = True  # IPC modified move chances
         # (Warning: lower validation error correlates with higher average move chances)
+
         self.IPCAffectsSpawnLocation = False  # IPC affects Spawn location distribution.
 
-    def update_IPC_MC(self, line_IPC, IPC_all):  # maybe better (less computation time)
+    def update_IPC(self, line_IPC, IPC_all):  # maybe better (less computation time)
 
         for i in range(0, len(self.locationNames)):
-            if self.locations[i].country == "South_Sudan":  # needed??
+            if self.locations[i].country == "South_Sudan":
 
                 # 1. Update IPC scores for all locations
-                self.locations[i].IPC = IPC_all.loc[line_IPC, self.locations[i].region]
+                self.locations[i].IPC = IPC_all.loc[line_IPC][self.locations[i].region]
+                print(self.locations[i].name)
+                print(self.locations[i].IPC)
 
-                # 2. Update IPC spawning weights for all locations
-                if self.IPCAffectsSpawnLocation:
-                    self.IPC_locations.append(self.locations[i])
-                    if not self.locations[i].conflict:
-                        self.IPC_location_weights.append((self.locations[i].IPC / 100.0) * self.locations[i].pop)
-                    else:
-                        self.IPC_location_weights.append(
-                            self.locations[i].pop)  # Conflict zones already have their full population as weight
-                        # so food security should not increase it beyond that amount.
-                    self.total_weight += self.IPC_location_weights[-1]
-
+                # added by chris vassiliou
                 # 3. Adjust move chances, based on hypothesis 5: "the greater the food insecurity, the less likely
                 # migrants are to move" default move chance, multiplied by 1-percentage of people with severe food
                 # insecurity
+
                 if self.IPCAffectsMoveChance:
                     if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
                         self.locations[i].movechance = SimulationSettings.SimulationSettings.DefaultMoveChance * (
@@ -128,7 +129,7 @@ if __name__ == "__main__":
     # below line was first attempt at a solution for the "object has no attribute 'IPC_locations'" error. doesn't
     # seem to make a difference to output.
     line_IPC = line42day(0, current_i, critict)
-    e.update_IPC_MC(line_IPC, IPC_all)
+    e.update_IPC(line_IPC, IPC_all)
     l1 = e.addLocation("Source", region="Unity")
     l2 = e.addLocation("Sink1", region="Upper Nile")
     l3 = e.addLocation("Sink2", region="Jonglei")
@@ -149,7 +150,7 @@ if __name__ == "__main__":
                              critict)  # has to go in the time count of flee to choose the values of IPC according to t
         if not old_line == line_IPC:
             print("Time = %d. Updating IPC indexes and movechances" % (t), file=sys.stderr)
-            e.update_IPC_MC(line_IPC,
+            e.update_IPC(line_IPC,
                             IPC_all)  # update all locations in the ecosystem: IPC indexes and movechances (inside t loop)
             print("After updating IPC and movechance:")
             e.printInfo()
