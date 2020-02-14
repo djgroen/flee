@@ -28,6 +28,7 @@ class SimulationSettings:
   AvoidShortStints = True # Displaced people will not take a break unless they at least travelled for a full day's distance in the last two days.
 
   FlareConflictInputFile = ""
+  AwarenessLevel = 7 #-1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
 
   #NumProcs = 1 #This is not supported at the moment.
 
@@ -41,7 +42,6 @@ class SimulationSettings:
     ConflictWeight = 0.25 # reduction factor for refugees entering conflict zones.
 
 
-  AwarenessLevel = 1 #-1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
 
   def ReadFromCSV(csv_name):
     """

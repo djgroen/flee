@@ -171,6 +171,7 @@ class Person:
     Calculates Link Weights recursively based on awareness level.
     Loops are avoided.
     """
+    #print("cLW", step)
     weight = float(link.endpoint.scores[1] / float(SimulationSettings.Softening + link.distance)) * link.endpoint.getCapMultiplier(link.numAgents)
 
     if SimulationSettings.AwarenessLevel > step:
