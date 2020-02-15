@@ -71,8 +71,6 @@ class Ecosystem(flee.Ecosystem):
 
                 # 1. Update IPC scores for all locations
                 self.locations[i].IPC = IPC_all.loc[line_IPC][self.locations[i].region]
-                print(self.locations[i].name)
-                print(self.locations[i].IPC)
 
                 # added by chris vassiliou
                 # 3. Adjust move chances, based on hypothesis 5: "the greater the food insecurity, the less likely
@@ -83,6 +81,12 @@ class Ecosystem(flee.Ecosystem):
                     if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
                         self.locations[i].movechance = SimulationSettings.SimulationSettings.DefaultMoveChance * (
                                 1 - self.locations[i].IPC / 100.0)
+                # quick print test:
+                # print(self.locations[i].name)
+                # print("IPC is:")
+                # print(self.locations[i].IPC)
+                # print("movechance is")
+                # print(self.locations[i].movechance)
 
     def pick_conflict_location(self):
         """

@@ -48,6 +48,13 @@ class Location(flee.Location):
         self.IPC = IPC
 
 
+# this code takes the Person class from the original Flee file and adds a custom speed variable.
+class Person(flee.Person):
+    def __init__(self, location):
+        super().__init__(location)
+        self.custom_speed = 0
+
+
 class Ecosystem(flee.Ecosystem):
     def __init__(self):
         super().__init__()
@@ -58,23 +65,42 @@ class Ecosystem(flee.Ecosystem):
 
     # this function i've created will implement my speed hypothesis.
     def update_IPC(self, line_IPC, IPC_all):
-        # first, cycle through each location in the simulation and give each an IPC value
+        # first, cycle through each location in the simulation and give each an IPC value, which changes with the time:
         for i in range(0, len(self.locationNames)):
             if self.locations[i].country == "South_Sudan":
                 # 1. Update IPC scores for all locations
                 self.locations[i].IPC = IPC_all.loc[line_IPC][self.locations[i].region]
-                print(self.locations[i].name)
-                print(self.locations[i].IPC)
 
         # next step, we need to cycle through each agent in the sim and give them a speed value based on their location.
         # the formula involves multiplying the maximum move speed of the agents by the IPC of that agent's location.
         for i in range(0, len(self.agents)):
             if self.IPCAffectsMovementSpeed:
-                # find the location IPC value for the agent i:
+
+                # find the location for the current agent:
                 agent_location = self.agents[i].location
-                agent_location_IPC = self.locations[agent_location].IPC
-                self.agents[i].custom_speed = SimulationSettings.SimulationSettings.MaxMoveSpeed * (
-                        agent_location_IPC / 100.0)
+
+                # some of agents act as link objects, and these cannot be given an IPC value.
+                if not isinstance(agent_location, flee.Link):
+
+                    # find the IPC value for the current agent's current location:
+                    agent_location_IPC = agent_location.IPC
+
+                    # this was a test i was running so i could see the output for each agent in the sim.
+                    # agent_location_name = agent_location.name
+                    # agent_region = agent_location.region
+                    # test_string = "for agent %i the location is %a the region is %r the IPC is %f and the speed is " \
+                    #               "below." % (i, agent_location_name, agent_region, agent_location_IPC)
+                    # print(test_string)
+
+                    # if IPC is zero, give the agent a minimum speed:
+                    if agent_location_IPC == 0:
+                        self.agents[i].custom_speed = 10
+                    # else, check the agent's new speed by multiplying the max speed by the IPC value as a decimal.
+                    else:
+                        self.agents[i].custom_speed = SimulationSettings.SimulationSettings.MaxMoveSpeed * \
+                                                      (agent_location_IPC / 100.0)
+
+                    # print(self.agents[i].custom_speed)
 
     def pick_conflict_location(self):
         """
@@ -140,7 +166,7 @@ if __name__ == "__main__":
         if not old_line == line_IPC:
             print("Time = %d. Updating IPC indexes and movechances" % (t), file=sys.stderr)
             e.update_IPC(line_IPC,
-                               IPC_all)  # update all locations in the ecosystem: IPC indexes and movechances (inside t
+                         IPC_all)  # update all locations in the ecosystem: IPC indexes and movechances (inside t
             # loop)
             print("After updating IPC and movechance:")
             e.printInfo()

@@ -64,8 +64,6 @@ class Ecosystem(flee.Ecosystem):
             if self.locations[i].country == "South_Sudan":
                 # 1. Update IPC scores for all locations
                 self.locations[i].IPC = IPC_all.loc[line_IPC][self.locations[i].region]
-                print(self.locations[i].name)
-                print(self.locations[i].IPC)
                 # 2. Update IPC spawning weights for all locations
                 if self.IPCAffectsSpawnLocation:
                     self.IPC_locations.append(self.locations[i])
@@ -80,8 +78,7 @@ class Ecosystem(flee.Ecosystem):
                 # 3. Adjust move chances, taking into account IPC scores.
                 if self.IPCAffectsMoveChance:
                     if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
-                        self.locations[i].movechance = self.locations[
-                                                           i].IPC / 100.0 + SimulationSettings.SimulationSettings.DefaultMoveChance * (
+                        self.locations[i].movechance = self.locations[i].IPC / 100.0 + SimulationSettings.SimulationSettings.DefaultMoveChance * (
                                                                1 - self.locations[i].IPC / 100.0)
 
     def pick_conflict_location(self):

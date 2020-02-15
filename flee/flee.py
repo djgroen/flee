@@ -32,9 +32,6 @@ class Person:
       self.distance_travelled = 0
       self.places_travelled = 1
 
-    #added by chris vassiliou. a value for the speed of the agents:
-    self.custom_speed = 0
-
   def evolve(self):
 
     if self.travelling == False:
