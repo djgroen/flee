@@ -1,4 +1,4 @@
-# food_flee.py
+# inverse_food_flee.py
 
 
 # chris' version of food flee implementing an inverse food hypothesis. this involves new movechances based on new
@@ -103,9 +103,9 @@ class Ecosystem(flee.Ecosystem):
         """ Add a location to the ABM network graph """
 
         l = Location(name, x, y, movechance, capacity, pop, foreign, country, region, IPC)
-        if SimulationSettings.SimulationSettings.InitLogLevel > 0:
-            print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign, "State: ", l.region,
-                  "IPC: ", l.IPC)
+        # if SimulationSettings.SimulationSettings.InitLogLevel > 0:
+            # print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign, "State: ", l.region,
+            #       "IPC: ", l.IPC)
         self.locations.append(l)
         self.locationNames.append(l.name)
         return l
