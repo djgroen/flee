@@ -34,8 +34,10 @@ if __name__ == "__main__":
   e.linkUp("A","C","834.0")
   e.linkUp("A","D","834.0")
   e.linkUp("C","C2","834.0")
+  e.linkUp("C","D2","834.0")
   e.linkUp("D","D2","834.0")
   e.linkUp("D2","D3","834.0")
+  e.linkUp("C2","D3","834.0")
 
   e.addAgent(location=l1)
 

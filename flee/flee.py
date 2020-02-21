@@ -325,9 +325,9 @@ class Location:
     self.time = time
 
     if self.foreign:
-      self.LocationScore = SimulationSettings.CampWeight
+      self.LocationScore = SimulationSettings.CampWeight * max(1.0,SimulationSettings.AwarenessLevel)
     elif self.conflict:
-      self.LocationScore = SimulationSettings.ConflictWeight
+      self.LocationScore = SimulationSettings.ConflictWeight * max(1.0,SimulationSettings.AwarenessLevel)
     else:
       self.LocationScore = 1.0
 
