@@ -104,7 +104,7 @@ class Location(flee.Location):
   def getScore(self, index):
     return self.e.scores[self.id * self.e.scores_per_location + index]
 
-  def setScore(index, value):
+  def setScore(self, index, value):
     self.e.scores[self.id * self.e.scores_per_location + index]= value
 
 
