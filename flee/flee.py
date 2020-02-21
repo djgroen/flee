@@ -175,7 +175,8 @@ class Person:
     Loops are avoided.
     """
     weight = float(self.getEndPointScore(link) / float(SimulationSettings.Softening + link.distance + prior_distance)) * link.endpoint.getCapMultiplier(link.numAgents)
-    print("step {}, dest {}, dist {}, prior_dist {}, score {}, weight {}".format(step, link.endpoint.name, link.distance, prior_distance, self.getEndPointScore(link), weight))
+    if debug:
+      print("step {}, dest {}, dist {}, prior_dist {}, score {}, weight {}".format(step, link.endpoint.name, link.distance, prior_distance, self.getEndPointScore(link), weight))
 
     if SimulationSettings.AwarenessLevel > step:
       # Traverse the tree one step further.
@@ -184,8 +185,9 @@ class Person:
             pass
         else:
             weight += self.calculateLinkWeight(e, prior_distance + link.distance, origin_names + [link.endpoint.name], step+1)
-
-    print("step {}, total weight returned {}".format(step, weight))
+    
+    if debug:
+      print("step {}, total weight returned {}".format(step, weight))
     return weight
 
 
