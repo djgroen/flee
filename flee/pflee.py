@@ -109,11 +109,11 @@ class Location(flee.Location):
 
 
   def updateAllScores(self, time):
-    """ Updates all scores of a particular location. Not available in Serial Flee, due to the reversed order there. """
+    """ Updates all scores of a particular location. Different to Serial Flee, due to the reversed order there. """
     self.time = time
     self.updateRegionScore()
     self.updateNeighbourhoodScore()
-    self.updateLocationScore(self.time)
+    self.updateLocationScore()
 
 
 class Link(flee.Link):
@@ -343,7 +343,7 @@ class Ecosystem(flee.Ecosystem):
       # Scores remain perfectly updated in classic mode.
       for l in self.locations:
         l.time = self.time
-        l.updateLocationScore(self.time)
+        l.updateLocationScore()
 
       for l in self.locations:
         l.updateNeighbourhoodScore()
@@ -406,12 +406,12 @@ class Ecosystem(flee.Ecosystem):
   def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
     """ Add a location to the ABM network graph """
 
-    l = Location(self, self.cur_loc_id, name, x, y, movechance, capacity, pop, foreign, country)
-
     # Enlarge the scores array in Ecosystem to reflect the new location. Pflee only.
     if self.cur_loc_id > 0:
       self.scores = np.append(self.scores, np.array([1.0,1.0,1.0,1.0]))
     #print(len(self.scores))
+
+    l = Location(self, self.cur_loc_id, name, x, y, movechance, capacity, pop, foreign, country)
 
     self.cur_loc_id += 1
 

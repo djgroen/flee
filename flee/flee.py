@@ -254,7 +254,7 @@ class Location:
     self.RegionScore = 1.0 # Value of surrounding region. Should be between 0.5 and SimulationSettings.CampWeight.
     self.scores = np.array([1.0,1.0,1.0,1.0])
 
-    self.updateLocationScore(0)
+    self.updateLocationScore()
     self.updateNeighbourhoodScore()
     self.updateRegionScore()
 
@@ -332,10 +332,8 @@ class Location:
   def setScore(self, index, value):
     self.scores[index] = value
 
-  def updateLocationScore(self, time):
+  def updateLocationScore(self):
     """ Attractiveness of the local point, based on local point information only. """
-
-    self.time = time
 
     if self.foreign or self.camp:
       self.LocationScore = SimulationSettings.CampWeight * max(1.0,SimulationSettings.AwarenessLevel)
@@ -384,6 +382,8 @@ class Location:
 
     self.RegionScore /= total_link_weight
     self.setScore(3, self.RegionScore)
+
+
 
 class Link:
   def __init__(self, startpoint, endpoint, distance, forced_redirection=False):
@@ -787,7 +787,8 @@ class Ecosystem:
   def evolve(self):
     # update level 1, 2 and 3 location scores
     for l in self.locations:
-      l.updateLocationScore(self.time)
+      l.time = self.time
+      l.updateLocationScore()
 
     for l in self.locations:
       l.updateNeighbourhoodScore()
