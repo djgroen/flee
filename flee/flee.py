@@ -329,7 +329,7 @@ class Location:
   def getScores(self, index):
     return self.scores[index]
 
-  def setScore(index, value):
+  def setScore(self, index, value):
     self.scores[index] = value
 
   def updateLocationScore(self, time):
