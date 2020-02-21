@@ -79,14 +79,14 @@ class Location(flee.Location):
 
   def __init__(self, e, cur_id, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
     self.e = e
-    super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
 
     self.id = cur_id
     self.numAgentsSpawnedOnRank = 0
 
-    self.scores = [] # Emptying this array, as it is not used in the parallel version.
     # If it is referred to in Flee in any way, the code should crash.
+    super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
 
+    self.scores = [] # Emptying this array, as it is not used in the parallel version.
 
   def DecrementNumAgents(self):
     self.numAgentsOnRank -= 1
@@ -101,63 +101,11 @@ class Location(flee.Location):
       super().print() 
 
 
-  def updateRegionScore(self):
-    """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points,
-        weighted by link length. """
+  def getScore(self, index):
+    return self.e.scores[self.id * self.e.scores_per_location + index]
 
-    # No links connected or a Camp? Use LocationScore.
-    if len(self.links) == 0 or self.camp:
-      self.RegionScore = self.LocationScore
-      return
-
-    self.RegionScore = 0.0
-    total_link_weight = 0.0
-
-    for i in self.links:
-      self.RegionScore += i.endpoint.NeighbourhoodScore / float(i.distance)
-      total_link_weight += 1.0 / float(i.distance)
-
-    self.RegionScore /= total_link_weight
-    self.e.scores[self.id * self.e.scores_per_location + 3] = self.RegionScore
-
-
-  def updateNeighbourhoodScore(self):
-
-    """ Attractiveness of the local point, based on information from local and adjacent points, weighted by link length. """
-    # No links connected or a Camp? Use LocationScore.
-    if len(self.links) == 0 or self.camp:
-      self.NeighbourhoodScore = self.LocationScore
-      return
-
-    self.NeighbourhoodScore = 0.0
-    total_link_weight = 0.0
-
-    for i in self.links:
-      self.NeighbourhoodScore += i.endpoint.LocationScore / float(i.distance)
-      total_link_weight += 1.0 / float(i.distance)
-
-    self.NeighbourhoodScore /= total_link_weight
-    self.e.scores[self.id * self.e.scores_per_location + 2] = self.NeighbourhoodScore
-
-
-  def updateLocationScore(self, time):
-    """ 
-    Attractiveness of the local point, based on local point information only. 
-    Time arg is redundant here, but I keep it here for now to ensure the serial version
-    cannot be accessed in pflee. 
-    """
-
-
-    if self.foreign:
-      self.LocationScore = SimulationSettings.CampWeight
-    elif self.conflict:
-      self.LocationScore = SimulationSettings.ConflictWeight
-    else:
-      self.LocationScore = 1.0
-
-    self.e.scores[self.id * self.e.scores_per_location] = 1.0
-    self.e.scores[self.id * self.e.scores_per_location + 1] = self.LocationScore
-    #self.e.scores[self.id * self.e.scores_per_location + 4] = self.numAgentsSpawnedOnRank
+  def setScore(index, value):
+    self.e.scores[self.id * self.e.scores_per_location + index]= value
 
 
   def updateAllScores(self, time):

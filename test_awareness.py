@@ -28,7 +28,7 @@ if __name__ == "__main__":
   l4 = e.addLocation("D", movechance=0.3)
   l5 = e.addLocation("C2", movechance=0.3)
   l6 = e.addLocation("D2", movechance=0.3)
-  l7 = e.addLocation("D3", movechance=0.3)
+  l7 = e.addLocation("D3", movechance="camp")
 
   e.linkUp("A","B","834.0")
   e.linkUp("A","C","834.0")

@@ -167,6 +167,7 @@ class Person:
 
 
   def getEndPointScore(self, link):
+    #print(link.endpoint.name, link.endpoint.scores)
     return link.endpoint.scores[1]
 
   def calculateLinkWeight(self, link, prior_distance, origin_names, step, debug=False):
@@ -184,7 +185,7 @@ class Person:
         if e.endpoint.name in origin_names: # Link points back to an origin, so ignore.
             pass
         else:
-            weight += self.calculateLinkWeight(e, prior_distance + link.distance, origin_names + [link.endpoint.name], step+1)
+            weight += self.calculateLinkWeight(e, prior_distance + link.distance, origin_names + [link.endpoint.name], step+1, debug)
     
     if debug:
       print("step {}, total weight returned {}".format(step, weight))
@@ -252,6 +253,10 @@ class Location:
     self.NeighbourhoodScore = 1.0 # Value of Neighbourhood. Should be between 0.5 and SimulationSettings.CampWeight.
     self.RegionScore = 1.0 # Value of surrounding region. Should be between 0.5 and SimulationSettings.CampWeight.
     self.scores = np.array([1.0,1.0,1.0,1.0])
+
+    self.updateLocationScore(0)
+    self.updateNeighbourhoodScore()
+    self.updateRegionScore()
 
     if SimulationSettings.CampLogLevel > 0:
       self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
@@ -321,17 +326,27 @@ class Location:
     return self.CalculateResidualWeightingFactor(residual, cap_limit, nearly_full_occ)
 
 
+  def getScores(self, index):
+    return self.scores[index]
+
+  def setScore(index, value):
+    self.scores[index] = value
+
   def updateLocationScore(self, time):
     """ Attractiveness of the local point, based on local point information only. """
 
     self.time = time
 
-    if self.foreign:
+    if self.foreign or self.camp:
       self.LocationScore = SimulationSettings.CampWeight * max(1.0,SimulationSettings.AwarenessLevel)
     elif self.conflict:
       self.LocationScore = SimulationSettings.ConflictWeight * max(1.0,SimulationSettings.AwarenessLevel)
     else:
       self.LocationScore = 1.0
+
+    self.setScore(0, 1.0)
+    self.setScore(1, self.LocationScore)
+    #print(self.name,self.camp,self.foreign,self.LocationScore)
 
   def updateNeighbourhoodScore(self):
 
@@ -350,6 +365,7 @@ class Location:
       total_link_weight += 1.0 / float(i.distance)
 
     self.NeighbourhoodScore /= total_link_weight
+    self.setScore(2, self.NeighbourhoodScore)
 
   def updateRegionScore(self):
     """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points,
@@ -367,7 +383,7 @@ class Location:
       total_link_weight += 1.0 / float(i.distance)
 
     self.RegionScore /= total_link_weight
-    self.scores = np.array([1.0, self.LocationScore, self.NeighbourhoodScore, self.RegionScore])
+    self.setScore(3, self.RegionScore)
 
 class Link:
   def __init__(self, startpoint, endpoint, distance, forced_redirection=False):
