@@ -169,12 +169,13 @@ class Person:
   def getEndPointScore(self, link):
     return link.endpoint.scores[1]
 
-  def calculateLinkWeight(self, link, prior_distance, origin_names, step):
+  def calculateLinkWeight(self, link, prior_distance, origin_names, step, debug=False):
     """
     Calculates Link Weights recursively based on awareness level.
     Loops are avoided.
     """
     weight = float(self.getEndPointScore(link) / float(SimulationSettings.Softening + link.distance + prior_distance)) * link.endpoint.getCapMultiplier(link.numAgents)
+    print("step {}, dest {}, dist {}, prior_dist {}, score {}, weight {}".format(step, link.endpoint.name, link.distance, prior_distance, self.getEndPointScore(link), weight))
 
     if SimulationSettings.AwarenessLevel > step:
       # Traverse the tree one step further.
@@ -184,10 +185,11 @@ class Person:
         else:
             weight += self.calculateLinkWeight(e, prior_distance + link.distance, origin_names + [link.endpoint.name], step+1)
 
+    print("step {}, total weight returned {}".format(step, weight))
     return weight
 
 
-  def selectRouteRuleset2(self):
+  def selectRouteRuleset2(self, debug=False):
     linklen = len(self.location.links)
     weights = np.zeros(linklen)
 
@@ -195,7 +197,7 @@ class Person:
       return np.random.randint(0, linklen)
 
     for k,e in enumerate(self.location.links):
-      weights[k] = self.calculateLinkWeight(e, 0.0, [self.location.name], 1)
+      weights[k] = self.calculateLinkWeight(e, 0.0, [self.location.name], 1, debug)
     
     return self.chooseFromWeights(weights, self.location.links)
 
