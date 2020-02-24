@@ -336,9 +336,9 @@ class Location:
     """ Attractiveness of the local point, based on local point information only. """
 
     if self.foreign or self.camp:
-      self.LocationScore = SimulationSettings.CampWeight * max(1.0,SimulationSettings.AwarenessLevel)
+      self.LocationScore = SimulationSettings.CampWeight #* max(1.0,SimulationSettings.AwarenessLevel)
     elif self.conflict:
-      self.LocationScore = SimulationSettings.ConflictWeight * max(1.0,SimulationSettings.AwarenessLevel)
+      self.LocationScore = SimulationSettings.ConflictWeight #* max(1.0,SimulationSettings.AwarenessLevel)
     else:
       self.LocationScore = 1.0
 
