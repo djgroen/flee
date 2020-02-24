@@ -185,7 +185,7 @@ class Person:
         if e.endpoint.name in origin_names: # Link points back to an origin, so ignore.
             pass
         else:
-            weight += self.calculateLinkWeight(e, prior_distance + link.distance, origin_names + [link.endpoint.name], step+1, debug)
+            weight = max(weight, self.calculateLinkWeight(e, prior_distance + link.distance, origin_names + [link.endpoint.name], step+1, debug))
     
     if debug:
       print("step {}, total weight returned {}".format(step, weight))
