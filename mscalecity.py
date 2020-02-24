@@ -98,7 +98,8 @@ if __name__ == "__main__":
     refugees_raw += new_refs
 
     #Insert refugee agents
-    e.add_agents_to_conflict_zones(new_refs)
+    if submodel_id == 0:
+      e.add_agents_to_conflict_zones(new_refs)
 
     e.refresh_conflict_weights()
     t_data = t
