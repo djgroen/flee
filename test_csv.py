@@ -28,7 +28,7 @@ if __name__ == "__main__":
     else:
       end_time = 100
       last_physical_day = 100
-      duration = flee.SimulationSettings.SimulationSettings.ReadFromCSV(sys.argv[1])
+      duration = flee.SimulationSettings.ReadFromCSV(sys.argv[1])
       if duration>0:
         end_time = duration
         last_physical_day = end_time
@@ -37,8 +37,8 @@ if __name__ == "__main__":
 
   ig = InputGeography.InputGeography()
 
-  flee.SimulationSettings.SimulationSettings.FlareConflictInputFile = "test_data/test_input_csv/flare-out.csv"
-  ig.ReadFlareConflictInputCSV(flee.SimulationSettings.SimulationSettings.FlareConflictInputFile)
+  flee.SimulationSettings.FlareConflictInputFile = "test_data/test_input_csv/flare-out.csv"
+  ig.ReadFlareConflictInputCSV(flee.SimulationSettings.FlareConflictInputFile)
 
   print(ig.conflicts)
 
