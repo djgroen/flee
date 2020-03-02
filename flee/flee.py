@@ -168,6 +168,7 @@ class Location:
     self.conflict = False
     self.camp = False
     self.forward = False
+    self.marker = False
     self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
     self.numAgentsSpawned = 0
 
@@ -182,6 +183,9 @@ class Location:
       elif "forward" in movechance.lower():
         self.movechance = 1.0
         self.forward = True
+      elif "marker" in movechance.lower():
+        self.movechance = 1.0
+        self.marker= True
       elif "default" in movechance.lower() or "town" in movechance.lower():
         self.movechance = SimulationSettings.SimulationSettings.DefaultMoveChance
       else:

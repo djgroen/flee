@@ -21,8 +21,9 @@ class Location(flee.Location):
 
 
 class Link(flee.Link):
-  def __init__(self, endpoint, distance, forced_redirection=False):
+  def __init__(self, endpoint, distance, link_type="drive", forced_redirection=False):
     super().__init__(endpoint, distance, forced_redirection)
+    self.link_type = link_type
 
 
 class Ecosystem(flee.Ecosystem):
