@@ -27,8 +27,6 @@ if __name__ == "__main__":
   e.linkUp("A","C","100.0")
   e.linkUp("A","D","100.0")
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="test_data", start_date="2010-01-01", data_layout="data_layout.csv")
-
   new_refs = 1
 
   # Insert refugee agents
