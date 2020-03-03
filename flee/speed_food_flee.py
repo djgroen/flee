@@ -1,8 +1,9 @@
 # speed_food_flee.py
 
-# modified version of food flee implementation by Chris Vassiliou. This version implements my hypotheses for speed:
+# Modified version of food flee implementation by Chris Vassiliou. This version implements my hypotheses for speed:
 # "The higher the food insecurity, the faster migrants are likely to move."
-# instead of adjusting movechance, we adjust the movespeed of the agents.
+# Instead of adjusting movechance, I adjust the speed of the agents.
+# All comments are by chris vassiliou.
 
 import numpy as np
 import sys
@@ -13,8 +14,8 @@ import csv
 import pandas as pd
 
 
-# this function finds the IPC food data and assigns it to two variables, critict and IPC_all. critict is the just the
-# dates column. IPC_all stores every cell in the file.
+# This function finds the IPC food data and assigns it to two variables, critict and IPC_all. critict is the just the
+# dates column. IPC_all stores the whole matrix. This is done using pandas, an external python library.
 def initiate_food():
     critict = pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food/input_csv/IPC.csv")[
         "Dates"]
@@ -22,19 +23,20 @@ def initiate_food():
                           index_col=0)
     current_i = 0
 
-    # added for testing output by chris vassiliou
+    # added for testing output
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     pd.set_option('display.width', None)
     pd.set_option('display.max_colwidth', -1)
 
-    # for the speed simulations, i need the minmovespeed in SimulationSettings.py to be 0.
+    # for the speed simulations, i need the minimum agent move speed in SimulationSettings.py to be 0.
     SimulationSettings.SimulationSettings.MinMoveSpeed = 0
     # print(new_min_speed)
 
     return [critict, IPC_all, current_i]
 
 
+# this basic function from the original food_flee.py file is what iterates through the IPC data matrix rows.
 def line42day(t, current_i, critict):
     current_critict = critict[current_i]
     while current_critict < t:
@@ -43,20 +45,25 @@ def line42day(t, current_i, critict):
     return current_critict
 
 
+# import the location class from flee and give it attributes for region (because IPC data is provided by
+# South Sudan regions) and IPC.
 class Location(flee.Location):
     def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown",
                  region="unknown", IPC=0):
         super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
-        self.region = region
-        self.IPC = IPC
+        self.region = region  # the IPC data is stored in a matrix, organised by region. each location in the
+        # simulation resides in one of these regions.
+        self.IPC = IPC  # This is where the IPC value is stored for each location.
 
 
 # this code imports the Person class from the original Flee.py file and adds a custom speed variable.
 class Person(flee.Person):
     def __init__(self, location):
         super().__init__(location)
-        self.custom_speed = 200
+        self.custom_speed = 200  # this speed variable is updated by the Update_IPC function.
 
+    # this function is almost identical as when it appears in flee.py - however, it now uses my new speed value (
+    # custom_speed) instead of the static max speed that was originally used.
     def finish_travel(self, distance_moved_this_timestep=0):
         if self.travelling:
 
