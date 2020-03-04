@@ -15,10 +15,11 @@ class SimulationSettings:
   ConflictWeight = 1.0 / sqrt_ten # reduction factor for refugees entering conflict zones.
   MaxMoveSpeed = 360 # most number of km that we expect refugees to traverse per time step (30 km/h * 12 hours).
   MaxWalkSpeed = 35 # most number of km that we expect refugees to traverse per time step on foot (3.5 km/h * 10 hours).
+  MaxCrossingSpeed = 20 # most number of km that we expect refugees to traverse per time step on boat/walk to cross river (2 km/h * 10 hours).
   StartOnFoot = True # Agents walk on foot when they travers their very first link.
   CapacityBuffer = 1.0
-
-  #default move chances
+  
+  # default move chance
   ConflictMoveChance = 1.0
   CampMoveChance = 0.001
   DefaultMoveChance = 0.3
