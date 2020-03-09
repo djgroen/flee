@@ -4,20 +4,19 @@ import csv
 import sys
 import copy
 #from multiprocessing import Process,Pool
-from flee import SimulationSettings
+from flee.SimulationSettings import SimulationSettings
 from flee.Diagnostics import write_agents
 
 class Person:
   def __init__(self, location):
-    self.health = 1
-
-    self.injured = 0
-
-    self.age = 35
     self.location = location
     self.home_location = location
-    self.location.numAgents += 1
+    self.location.IncrementNumAgents()
     self.timesteps_since_departure = 0
+    self.places_travelled = 1
+
+    self.recent_travel_distance = 0.0 # An index of how much the agent has recently travelled (range 0.0-1.0).
+    self.distance_moved_this_timestep = 0.0 # Number of km moved this timestep.
 
     # Set to true when an agent resides on a link.
     self.travelling = False
@@ -25,87 +24,96 @@ class Person:
     # Tracks how much distance a Person has been able to travel on the current link.
     self.distance_travelled_on_link = 0
 
-    #if not SimulationSettings.SimulationSettings.TurnBackAllowed:
+    #if not SimulationSettings.TurnBackAllowed:
     #  self.last_location = None
 
-    if SimulationSettings.SimulationSettings.AgentLogLevel > 0:
+    if SimulationSettings.AgentLogLevel > 0:
       self.distance_travelled = 0
-      self.places_travelled = 1
 
-  def evolve(self):
+  def evolve(self, ForceTownMove=False):
 
     if self.travelling == False:
-      movechance = self.location.movechance
+      if self.location.town and ForceTownMove:
+        movechance = 1.0
+      else:
+        movechance = self.location.movechance
 
       outcome = random.random()
       #print(movechance)
 
       if outcome < movechance:
         # determine here which route to take?
-        chosenRoute = self.selectRoute()
+        if SimulationSettings.UseV1Rules:
+          chosenRoute = self.selectRouteRuleset1()
+        else:
+          chosenRoute = self.selectRouteRuleset2()
 
         # if there is a viable route to a different location.
         if chosenRoute >= 0:
           # update location to link endpoint
-          self.location.numAgents -= 1
+          self.location.DecrementNumAgents()
           self.location = self.location.links[chosenRoute]
-          self.location.numAgents += 1
+          self.location.IncrementNumAgents()
           self.travelling = True
           self.distance_travelled_on_link = 0
 
-    self.timesteps_since_departure += 1
 
-
-  def finish_travel(self, distance_moved_this_timestep=0):
+  def finish_travel(self):
     if self.travelling:
 
-      # update last location of agent.
-      #if not SimulationSettings.SimulationSettings.TurnBackAllowed:
-      #  self.last_location = self.location
-
-      self.distance_travelled_on_link += SimulationSettings.SimulationSettings.MaxMoveSpeed
+      if self.places_travelled == 1 and SimulationSettings.StartOnFoot: # First journey
+        self.distance_travelled_on_link += SimulationSettings.MaxWalkSpeed
+        self.distance_moved_this_timestep += SimulationSettings.MaxWalkSpeed
+      else:
+        self.distance_travelled_on_link += SimulationSettings.MaxMoveSpeed
+        self.distance_moved_this_timestep += SimulationSettings.MaxMoveSpeed
 
       # If destination has been reached.
-      if self.distance_travelled_on_link - distance_moved_this_timestep > self.location.distance:
+      if self.distance_travelled_on_link > self.location.distance:
+
+        self.places_travelled += 1
+        self.distance_moved_this_timestep += self.location.distance - self.distance_travelled_on_link # remove the excess km tracked by the distance_moved_this_timestep var.
 
         # update agent logs
-        if SimulationSettings.SimulationSettings.AgentLogLevel > 0:
-          self.places_travelled += 1
+        if SimulationSettings.AgentLogLevel > 0:
           self.distance_travelled += self.location.distance
 
         # if link is closed, bring agent to start point instead of the destination and return.
         if self.location.closed == True:
-          self.location.numAgentsOnRank -= 1
+          self.location.DecrementNumAgents()
           self.location = self.location.startpoint
-          self.location.numAgentsOnRank += 1
+          self.location.IncrementNumAgents()
           self.travelling = False
           self.distance_travelled_on_link = 0
 
         else:
-
           # if the person has moved less than the minMoveSpeed, it should go through another evolve() step in the new location.
           evolveMore = False
-          if self.location.distance + distance_moved_this_timestep < SimulationSettings.SimulationSettings.MinMoveSpeed:
-            distance_moved_this_timestep += self.location.distance
+          if self.distance_moved_this_timestep < SimulationSettings.MaxMoveSpeed:
             evolveMore = True
 
           # update location (which is on a link) to link endpoint
-          self.location.numAgents -= 1
+          self.location.DecrementNumAgents()
           self.location = self.location.endpoint
-          self.location.numAgents += 1
+          self.location.IncrementNumAgents()
 
           self.travelling = False
           self.distance_travelled_on_link = 0
 
-          if SimulationSettings.SimulationSettings.CampLogLevel > 0:
+          if SimulationSettings.CampLogLevel > 0:
             if self.location.Camp == True:
               self.location.incoming_journey_lengths += [self.timesteps_since_departure]
 
           # Perform another evolve step if needed. And if it results in travel, then the current
           # travelled distance needs to be taken into account.
           if evolveMore == True:
-            self.evolve()
-            self.finish_travel(distance_moved_this_timestep)
+            ForceTownMove = False
+            if SimulationSettings.AvoidShortStints:
+              if (self.recent_travel_distance + ( self.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0 < 0.5: # Flee 2.0 Changeset 1, factor 2.
+                ForceTownMove = True
+            self.evolve(ForceTownMove)
+            self.finish_travel()
+
 
   def getLinkWeight(self, link, awareness_level):
     """
@@ -113,16 +121,33 @@ class Person:
     """
 
     # If turning back is NOT allowed, remove weight from the last location.
-    #if not SimulationSettings.SimulationSettings.TurnBackAllowed:
+    #if not SimulationSettings.TurnBackAllowed:
     #  if link.endpoint == self.last_location:
-    #    return 0.0 #float(0.1 / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+    #    return 0.0 #float(0.1 / float(SimulationSettings.Softening + link.distance))
 
     if awareness_level < 0:
       return 1.0
 
-    return float(link.endpoint.scores[awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+    return float(link.endpoint.scores[awareness_level] / float(SimulationSettings.Softening + link.distance))
 
-  def selectRoute(self):
+  
+  def normalizeWeights(self, weights):
+    if np.sum(weights) > 0.0:
+      weights /= np.sum(weights)
+    else: # if all have zero weight, then we do equal weighting.
+      weights += 1.0/float(len(weights))
+    return weights
+
+
+  def chooseFromWeights(self, weights, linklist):
+    if len(weights) == 0:
+      return -1
+    else:
+      weights = self.normalizeWeights(weights)
+      return np.random.choice(list(range(0,len(linklist))), p=weights)
+
+
+  def selectRouteRuleset1(self):
     linklen = len(self.location.links)
     weights = np.zeros(linklen)
 
@@ -133,23 +158,52 @@ class Person:
       elif self.location.links[i].forced_redirection == True:
         return i
       else:
-        weights[i] = self.getLinkWeight(self.location.links[i], SimulationSettings.SimulationSettings.AwarenessLevel)
+        weights[i] = self.getLinkWeight(self.location.links[i], SimulationSettings.AwarenessLevel)
 
         # Throttle down weight when occupancy is close to peak capacity.
         weights[i] *= self.location.links[i].endpoint.getCapMultiplier(self.location.links[i].numAgents)
 
-    if len(weights) == 0:
-      return -1
-    else:
-      if np.sum(weights) > 0.0:
-        weights /= np.sum(weights)
-      else: # if all have zero weight, then we do equal weighting.
-        weights += 1.0/float(len(weights))
+    return self.chooseFromWeights(weights, self.location.links)
 
-      #if len(weights) != len(list(range(0,len(self.location.links)))):
-      #  print(weights, list(range(0,len(self.location.links))))
 
-      return np.random.choice(list(range(0,len(self.location.links))), p=weights)
+  def getEndPointScore(self, link):
+    #print(link.endpoint.name, link.endpoint.scores)
+    return link.endpoint.scores[1]
+
+  def calculateLinkWeight(self, link, prior_distance, origin_names, step, debug=False):
+    """
+    Calculates Link Weights recursively based on awareness level.
+    Loops are avoided.
+    """
+    weight = float(self.getEndPointScore(link) / float(SimulationSettings.Softening + link.distance + prior_distance)) * link.endpoint.getCapMultiplier(link.numAgents)
+    if debug:
+      print("step {}, dest {}, dist {}, prior_dist {}, score {}, weight {}".format(step, link.endpoint.name, link.distance, prior_distance, self.getEndPointScore(link), weight))
+
+    if SimulationSettings.AwarenessLevel > step:
+      # Traverse the tree one step further.
+      for k,e in enumerate(link.endpoint.links):
+        if e.endpoint.name in origin_names: # Link points back to an origin, so ignore.
+            pass
+        else:
+            weight = max(weight, self.calculateLinkWeight(e, prior_distance + link.distance, origin_names + [link.endpoint.name], step+1, debug))
+    
+    if debug:
+      print("step {}, total weight returned {}".format(step, weight))
+    return weight
+
+
+  def selectRouteRuleset2(self, debug=False):
+    linklen = len(self.location.links)
+    weights = np.zeros(linklen)
+
+    if SimulationSettings.AwarenessLevel == 0:
+      return np.random.randint(0, linklen)
+
+    for k,e in enumerate(self.location.links):
+      weights[k] = self.calculateLinkWeight(e, 0.0, [self.location.name], 1, debug)
+    
+    return self.chooseFromWeights(weights, self.location.links)
+
 
 class Location:
   def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
@@ -167,23 +221,25 @@ class Location:
     self.country = country
     self.conflict = False
     self.camp = False
+    self.town = False
     self.forward = False
     self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
     self.numAgentsSpawned = 0
 
     if isinstance(movechance, str):
       if "camp" in movechance.lower():
-        self.movechance = SimulationSettings.SimulationSettings.CampMoveChance
+        self.movechance = SimulationSettings.CampMoveChance
         self.camp = True
         self.foreign = True
       elif "conflict" in movechance.lower():
-        self.movechance = SimulationSettings.SimulationSettings.ConflictMoveChance
+        self.movechance = SimulationSettings.ConflictMoveChance
         self.conflict = True
       elif "forward" in movechance.lower():
         self.movechance = 1.0
         self.forward = True
       elif "default" in movechance.lower() or "town" in movechance.lower():
-        self.movechance = SimulationSettings.SimulationSettings.DefaultMoveChance
+        self.town = True
+        self.movechance = SimulationSettings.DefaultMoveChance 
       else:
         print("Error in creating Location() object: cannot parse movechance value of ", movechance, " for location object with name ", name, ".")
 
@@ -191,17 +247,34 @@ class Location:
     if self.movechance < 0.02 and not self.camp:
       print("Warning: automatically setting location %s to camp, as movechance = %s" % (self.name, self.movechance), file=sys.stderr)
       self.camp = True
+      self.town = False
 
-    self.LocationScore = 1.0 # Value of Location. Should be between 0.5 and SimulationSettings.SimulationSettings.CampWeight.
-    self.NeighbourhoodScore = 1.0 # Value of Neighbourhood. Should be between 0.5 and SimulationSettings.SimulationSettings.CampWeight.
-    self.RegionScore = 1.0 # Value of surrounding region. Should be between 0.5 and SimulationSettings.SimulationSettings.CampWeight.
+    self.LocationScore = 1.0 # Value of Location. Should be between 0.5 and SimulationSettings.CampWeight.
+    self.NeighbourhoodScore = 1.0 # Value of Neighbourhood. Should be between 0.5 and SimulationSettings.CampWeight.
+    self.RegionScore = 1.0 # Value of surrounding region. Should be between 0.5 and SimulationSettings.CampWeight.
     self.scores = np.array([1.0,1.0,1.0,1.0])
 
-    if SimulationSettings.SimulationSettings.CampLogLevel > 0:
+    self.updateLocationScore()
+    self.updateNeighbourhoodScore()
+    self.updateRegionScore()
+
+    if SimulationSettings.CampLogLevel > 0:
       self.incoming_journey_lengths = [] # reinitializes every time step. Contains individual journey lengths from incoming agents.
 
     self.print()
 
+  def SetCamp(self):
+    self.movechance = SimulationSettings.CampMoveChance
+    self.camp = True
+    self.foreign = True
+    self.conflict = False
+    self.town = False
+
+  def DecrementNumAgents(self):
+    self.numAgents -= 1
+
+  def IncrementNumAgents(self):
+    self.numAgents += 1
 
   def print(self):
     print("Location name: %s, X: %s, Y: %s, movechance: %s, cap: %s, pop: %s, country: %s, conflict? %s, camp? %s" % (self.name, self.x, self.y, self.movechance, self.capacity, self.pop, self.country, self.conflict, self.camp), file=sys.stderr)
@@ -210,11 +283,11 @@ class Location:
 
   def SetConflictMoveChance(self):
     """ Modify move chance to the default value set for conflict regions. """
-    self.movechance = SimulationSettings.SimulationSettings.ConflictMoveChance
+    self.movechance = SimulationSettings.ConflictMoveChance
 
   def SetCampMoveChance(self):
     """ Modify move chance to the default value set for camps. """
-    self.movechance = SimulationSettings.SimulationSettings.CampMoveChance
+    self.movechance = SimulationSettings.CampMoveChance
 
 
   def CalculateResidualWeightingFactor(self, residual, cap_limit, nearly_full_occ):
@@ -239,7 +312,7 @@ class Location:
         returns a value in between for intermediate values
     """
     nearly_full_occ = 0.9 #occupancy rate to be considered nearly full.
-    cap_limit = self.capacity * SimulationSettings.SimulationSettings.CapacityBuffer #full occupancy limit (should be equal to self.capacity).
+    cap_limit = self.capacity * SimulationSettings.CapacityBuffer #full occupancy limit (should be equal to self.capacity).
 
     if self.capacity < 0:
       return 1.0
@@ -253,17 +326,25 @@ class Location:
     return self.CalculateResidualWeightingFactor(residual, cap_limit, nearly_full_occ)
 
 
-  def updateLocationScore(self, time):
+  def getScores(self, index):
+    return self.scores[index]
+
+  def setScore(self, index, value):
+    self.scores[index] = value
+
+  def updateLocationScore(self):
     """ Attractiveness of the local point, based on local point information only. """
 
-    self.time = time
-
-    if self.foreign:
-      self.LocationScore = SimulationSettings.SimulationSettings.CampWeight
+    if self.foreign or self.camp:
+      self.LocationScore = SimulationSettings.CampWeight #* max(1.0,SimulationSettings.AwarenessLevel)
     elif self.conflict:
-      self.LocationScore = SimulationSettings.SimulationSettings.ConflictWeight
+      self.LocationScore = SimulationSettings.ConflictWeight #* max(1.0,SimulationSettings.AwarenessLevel)
     else:
       self.LocationScore = 1.0
+
+    self.setScore(0, 1.0)
+    self.setScore(1, self.LocationScore)
+    #print(self.name,self.camp,self.foreign,self.LocationScore)
 
   def updateNeighbourhoodScore(self):
 
@@ -282,6 +363,7 @@ class Location:
       total_link_weight += 1.0 / float(i.distance)
 
     self.NeighbourhoodScore /= total_link_weight
+    self.setScore(2, self.NeighbourhoodScore)
 
   def updateRegionScore(self):
     """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points,
@@ -299,7 +381,9 @@ class Location:
       total_link_weight += 1.0 / float(i.distance)
 
     self.RegionScore /= total_link_weight
-    self.scores = np.array([1.0, self.LocationScore, self.NeighbourhoodScore, self.RegionScore])
+    self.setScore(3, self.RegionScore)
+
+
 
 class Link:
   def __init__(self, startpoint, endpoint, distance, forced_redirection=False):
@@ -320,6 +404,12 @@ class Link:
     # if True, then all Persons will go down this link.
     self.forced_redirection = forced_redirection
 
+  def DecrementNumAgents(self):
+    self.numAgents -= 1
+
+  def IncrementNumAgents(self):
+    self.numAgents += 1
+
 
 class Ecosystem:
   def __init__(self):
@@ -328,6 +418,7 @@ class Ecosystem:
     self.agents = []
     self.closures = [] #format [type, source, dest, start, end]
     self.time = 0
+    self.print_location_output = True # print location output data
 
     # Bring conflict zone management into FLEE.
     self.conflict_zones = []
@@ -335,7 +426,7 @@ class Ecosystem:
     self.conflict_weights = np.array([])
     self.conflict_pop = 0
 
-    if SimulationSettings.SimulationSettings.CampLogLevel > 0:
+    if SimulationSettings.CampLogLevel > 0:
       self.num_arrivals = [] # one element per time step.
       self.travel_durations = [] # one element per time step.
 
@@ -360,7 +451,7 @@ class Ecosystem:
     """
     Add up arrival statistics, to find out travel durations and total number of camp arrivals.
     """
-    if SimulationSettings.SimulationSettings.CampLogLevel > 0:
+    if SimulationSettings.CampLogLevel > 0:
       arrival_total = 0
       tmp_num_arrivals = 0
 
@@ -626,13 +717,15 @@ class Ecosystem:
       if self.locationNames[i] == name:
         if name not in self.conflict_zone_names:
           if change_movechance:
-            self.locations[i].movechance = SimulationSettings.SimulationSettings.ConflictMoveChance
+            self.locations[i].movechance = SimulationSettings.ConflictMoveChance
             self.locations[i].conflict = True
+            self.locations[i].town = False
+
           self.conflict_zone_names += [name]
           self.conflict_zones += [self.locations[i]]
           self.conflict_weights = np.append(self.conflict_weights, [self.locations[i].pop])
           self.conflict_pop = sum(self.conflict_weights)
-          if SimulationSettings.SimulationSettings.InitLogLevel > 0:
+          if SimulationSettings.InitLogLevel > 0:
             print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
             print("New total pop. in conflict zones: ", self.conflict_pop)
           return
@@ -662,18 +755,30 @@ class Ecosystem:
 
 
   def pick_conflict_location(self):
+    #print("Warning: this function is now deprecated as of ruleset 2.0. Please use pick_conflict_locations() instead in your scripts.", file=sys.stderr)
+    return self.pick_conflict_locations(1)[0]
+
+
+  def pick_conflict_locations(self, number=1):
     """
     Returns a weighted random element from the list of conflict locations.
     This function returns a number, which is an index in the array of conflict locations.
     """
     assert self.conflict_pop > 0
 
-    return np.random.choice(self.conflict_zones, p=self.conflict_weights/self.conflict_pop)
+    return np.random.choice(self.conflict_zones, number, p=self.conflict_weights/self.conflict_pop)
 
+  def add_agents_to_conflict_zones(self, number):
+    """
+    Add a group of agents, distributed across conflict zones.
+    """
+    cl = self.pick_conflict_locations(number)
+    for i in range (0, number):
+      self.addAgent(cl[i])
 
   def refresh_conflict_weights(self):
     """
-    This function needs to be called when SimulationSettings.SimulationSettings.TakeRefugeesFromPopulation is set to True.
+    This function needs to be called when SimulationSettings.TakeRefugeesFromPopulation is set to True.
     It will update the weights to reflect the new population numbers.
     """
     for i in range(0,len(self.conflict_zones)):
@@ -683,7 +788,8 @@ class Ecosystem:
   def evolve(self):
     # update level 1, 2 and 3 location scores
     for l in self.locations:
-      l.updateLocationScore(self.time)
+      l.time = self.time
+      l.updateLocationScore()
 
     for l in self.locations:
       l.updateNeighbourhoodScore()
@@ -697,21 +803,24 @@ class Ecosystem:
 
     for a in self.agents:
       a.finish_travel()
+      a.timesteps_since_departure += 1
+      a.recent_travel_distance = (a.recent_travel_distance + ( a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0
+      a.distance_moved_this_timestep = 0
 
     #update link properties
-    if SimulationSettings.SimulationSettings.CampLogLevel > 0:
+    if SimulationSettings.CampLogLevel > 0:
       self._aggregate_arrivals()
 
-    if SimulationSettings.SimulationSettings.AgentLogLevel > 0:
+    if SimulationSettings.AgentLogLevel > 0:
       write_agents(self.agents, self.time)
 
     self.time += 1
 
-  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
+  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
     """ Add a location to the ABM network graph """
 
     l = Location(name, x, y, movechance, capacity, pop, foreign, country)
-    if SimulationSettings.SimulationSettings.InitLogLevel > 0:
+    if SimulationSettings.InitLogLevel > 0 and self.print_location_output:
       print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign)
     self.locations.append(l)
     self.locationNames.append(l.name)
@@ -719,7 +828,7 @@ class Ecosystem:
 
 
   def addAgent(self, location):
-    if SimulationSettings.SimulationSettings.TakeRefugeesFromPopulation:
+    if SimulationSettings.TakeRefugeesFromPopulation:
       if location.conflict:  
         if location.pop > 0:
           location.pop -= 1
@@ -746,14 +855,14 @@ class Ecosystem:
     Remove all agents from a list of locations by name.
     Useful for couplings to other simulation codes.
     """
-
     new_agents = []
     for i in range(0, len(self.agents)):
       if self.agents[i].location.name not in location_names:
-        new_agents += agents[i] #agent is preserved in ecosystem.
+        new_agents += agents[i] # agent is preserved in ecosystem
       else:
-        self.agents[i].location.numAgents -= 1 #agent is removed from exosystem and number of agents in location drops by one.
+        self.agents[i].location.DecrementNumAgents() # agent is removed from the ecosystem and number of agents drops by one.
     self.agents = new_agents
+
 
   def numAgents(self):
     return len(self.agents)
@@ -782,14 +891,23 @@ class Ecosystem:
     self.locations[endpoint1_index].links.append( Link(self.locations[endpoint1_index], self.locations[endpoint2_index], distance, forced_redirection) )
     self.locations[endpoint2_index].links.append( Link(self.locations[endpoint2_index], self.locations[endpoint1_index], distance) )
 
+
   def printInfo(self):
     print("Time: ", self.time, ", # of agents: ", len(self.agents))
     for l in self.locations:
       print(l.name, l.numAgents, file=sys.stderr)
 
+
   def printComplete(self):
     print("Time: ", self.time, ", # of agents: ", len(self.agents))
-    for l in self.locations:
-      print("Location name %s, number of agents %s" % (l.name, l.numAgents), file=sys.stderr)
-      l.print()
+    if self.print_location_output:
+      for l in self.locations:
+        print("Location name %s, number of agents %s" % (l.name, l.numAgents), file=sys.stderr)
+        l.print()
 
+
+  def getRankN(self, i):
+    """
+    Returns whether this process should do a task. Always returns true, as flee.py is sequential.
+    """
+    return True

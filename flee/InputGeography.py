@@ -42,7 +42,7 @@ class InputGeography:
     ### TODO: make test verifying this in test_csv.py
 
   def getConflictLocationNames(self):
-    return list(self.conflicts.keys())[1:]
+    return list(self.conflicts.keys())
 
 
   def ReadLocationsFromCSV(self,csv_name, columns=["name","region","country","gps_x","gps_y","location_type","conflict_date","pop/cap"]):
@@ -161,7 +161,8 @@ class InputGeography:
     if len(SimulationSettings.SimulationSettings.FlareConflictInputFile) == 0:
       for l in self.locations:
         if "conflict" in l[4].lower() and int(l[5]) == time:
-          print("Time = %s. Adding a new conflict zone [%s] with pop. %s" % (time, l[0], int(l[1])), file=sys.stderr)
+          if e.print_location_output:
+            print("Time = %s. Adding a new conflict zone [%s] with pop. %s" % (time, l[0], int(l[1])), file=sys.stderr)
           e.add_conflict_zone(l[0])
     else:
       confl_names = self.getConflictLocationNames()

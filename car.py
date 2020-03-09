@@ -449,8 +449,7 @@ if __name__ == "__main__":
       e.add_conflict_zone("Sibut")
 
     #Insert refugee agents
-    for i in range(0, new_refs):
-      e.addAgent(e.pick_conflict_location())
+    e.add_agents_to_conflict_zones(new_refs)
 
     #Propagate the model by one time step.
     e.evolve()
