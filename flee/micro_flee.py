@@ -44,6 +44,7 @@ class Link(flee.Link):
       else:
         print("Error in identifying link_type() object: cannot parse the type of link ", link_type, " for location object with name ", name, ".")
 
+
 class Ecosystem(flee.Ecosystem):
   def __init__(self):
     super().__init__()
