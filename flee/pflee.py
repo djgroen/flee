@@ -39,7 +39,7 @@ class MPIManager:
 
 class Person(flee.Person):
 
-  __slots__ = ['location', 'timesteps_since_departure', 'places_travelled', 'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link', 'scores']
+  __slots__ = ['location', 'home_location', 'timesteps_since_departure', 'places_travelled', 'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link', 'e']
 
   def __init__(self, e, location):
     super().__init__(location)
@@ -258,7 +258,7 @@ class Ecosystem(flee.Ecosystem):
           assert location.pop > 1
     self.total_agents += 1
     if self.total_agents % self.mpi.size == self.mpi.rank:
-      self.agents.append(Person(self.scores, location))
+      self.agents.append(Person(self, location))
 
   def insertAgent(self, location):
     """
@@ -266,7 +266,7 @@ class Ecosystem(flee.Ecosystem):
     """
     self.total_agents += 1
     if self.total_agents % self.mpi.size == self.mpi.rank:
-      self.agents.append(Person(self.scores, location))
+      self.agents.append(Person(self, location))
 
   def insertAgents(self, location, number):
     for i in range(0,number):
