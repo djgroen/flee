@@ -39,11 +39,11 @@ class MPIManager:
 
 class Person(flee.Person):
 
-  #__slots__ = ['location', 'timesteps_since_departure', 'places_travelled', 'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link', 'scores']
+  __slots__ = ['location', 'timesteps_since_departure', 'places_travelled', 'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link', 'scores']
 
-  def __init__(self, location_scores, location):
+  def __init__(self, e, location):
     super().__init__(location)
-    self.scores = location_scores
+    self.e = e
 
   def evolve(self, ForceTownMove=False):
     super().evolve(ForceTownMove)
@@ -67,14 +67,14 @@ class Person(flee.Person):
       return 1.0
 
 
-    return float(self.scores[(link.endpoint.id * 4) + awareness_level] / float(SimulationSettings.Softening + link.distance))
+    return float(self.e.scores[(link.endpoint.id * 4) + awareness_level] / float(SimulationSettings.Softening + link.distance))
 
 
   def getEndPointScore(self, link):
     """
     Overwrite serial function because we have a different data structure for endpoint scores.
     """
-    return float(self.scores[(link.endpoint.id * 4) + 1])
+    return float(self.e.scores[(link.endpoint.id * 4) + 1])
 
 
 
