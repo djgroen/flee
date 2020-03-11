@@ -30,7 +30,8 @@ def getsize(obj):
 
 e = pflee.Ecosystem()
 
-print(getsize(flee.Person(flee.Location("A"))))
-print(getsize(flee.Location("A")))
-print(getsize(pflee.Person(e, pflee.Location(e, 0, "A"))))
-print(getsize(pflee.Location(e, 0, "A")))
+#print(getsize(flee.Person(flee.Location("A"))))
+#print(getsize(flee.Location("A")))
+print(getsize(pflee.Person(e.scores, pflee.Location(e, 0, "A"))))
+print(sys.getsizeof(pflee.Person(e.scores, pflee.Location(e, 0, "A"))))
+#print(getsize(pflee.Location(e, 0, "A")))

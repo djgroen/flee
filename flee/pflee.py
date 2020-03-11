@@ -38,9 +38,12 @@ class MPIManager:
 
 
 class Person(flee.Person):
-  def __init__(self, e, location):
+
+  __slots__ = ['location', 'timesteps_since_departure', 'places_travelled', 'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link', 'scores']
+
+  def __init__(self, location_scores, location):
     super().__init__(location)
-    self.e = e
+    self.scores = location_scores
 
   def evolve(self, ForceTownMove=False):
     super().evolve(ForceTownMove)
@@ -64,14 +67,14 @@ class Person(flee.Person):
       return 1.0
 
 
-    return float(self.e.scores[(link.endpoint.id * self.e.scores_per_location) + awareness_level] / float(SimulationSettings.Softening + link.distance))
+    return float(self.scores[(link.endpoint.id * 4) + awareness_level] / float(SimulationSettings.Softening + link.distance))
 
 
   def getEndPointScore(self, link):
     """
     Overwrite serial function because we have a different data structure for endpoint scores.
     """
-    return float(self.e.scores[(link.endpoint.id * self.e.scores_per_location) + 1])
+    return float(self.scores[(link.endpoint.id * 4) + 1])
 
 
 
@@ -255,7 +258,7 @@ class Ecosystem(flee.Ecosystem):
           assert location.pop > 1
     self.total_agents += 1
     if self.total_agents % self.mpi.size == self.mpi.rank:
-      self.agents.append(Person(self, location))
+      self.agents.append(Person(self.scores, location))
 
   def insertAgent(self, location):
     """
@@ -263,7 +266,7 @@ class Ecosystem(flee.Ecosystem):
     """
     self.total_agents += 1
     if self.total_agents % self.mpi.size == self.mpi.rank:
-      self.agents.append(Person(self, location))
+      self.agents.append(Person(self.scores, location))
 
   def insertAgents(self, location, number):
     for i in range(0,number):

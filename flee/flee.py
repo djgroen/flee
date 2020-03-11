@@ -8,9 +8,12 @@ from flee.SimulationSettings import SimulationSettings
 from flee.Diagnostics import write_agents
 
 class Person:
+
+  __slots__ = ['location', 'timesteps_since_departure', 'places_travelled', 'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link']
+
   def __init__(self, location):
     self.location = location
-    self.home_location = location
+    #self.home_location = location
     self.location.IncrementNumAgents()
     self.timesteps_since_departure = 0
     self.places_travelled = 1
