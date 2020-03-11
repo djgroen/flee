@@ -56,9 +56,9 @@ class Person(flee.Person):
     """
 
     # If turning back is NOT allowed, remove weight from the last location.
-    #if not SimulationSettings.TurnBackAllowed:
-    #  if link.endpoint == self.last_location:
-    #    return 0.0 #float(0.1 / float(SimulationSettings.Softening + link.distance))
+    if not SimulationSettings.TurnBackAllowed:
+      if link.endpoint == self.last_location:
+        return 0.0 #float(0.1 / float(SimulationSettings.Softening + link.distance))
 
     if awareness_level < 0:
       return 1.0
