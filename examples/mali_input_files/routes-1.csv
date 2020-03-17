@@ -1,0 +1,13 @@
+#name1,name2,distance,forced_redirection
+Abala,Mangaize,256,0
+Abala,Niamey,253,0
+Abala,Tabareybarey,412,0
+Ansongo,Tabareybarey,148,0
+Ansongo,Menaka,191,0
+Gao,Ansongo,100,0
+Mangaize,Niamey,159,0
+Mangaize,Tabareybarey,217,0
+Menaka,Abala,172,0
+Menaka,Mangaize,305,0
+Menaka,Tabareybarey,361,0
+Niamey,Tabareybarey,205,0
