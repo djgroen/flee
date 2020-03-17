@@ -1,37 +1,33 @@
 # developed by chris vassiliou. a file that uses Matplotlib and pandas to compare simulation results for the various
-# food hypotheses.
+# food hypotheses. i'll use this to compare different hypotheses' accuracy.
 
 import sys
 import matplotlib.pyplot as pplot
 import pandas as pnd
-import numpy as np
-import csv
 
 
 # input in terminal: "python3 compare_food_simulations.py [food results folder path] [food inverse
 # results folder path] [food speed results folder path] [flee results folder path]"
 
-# create a big graph comparing all 4 of the result sets (3 food sims, 1 base flee sim)
+# generate a graph comparing all 4 of the result sets i want to compare (3 food sims, 1 base flee sim)
 def create_graph(food_dir, food_inverse_dir, food_speed_dir, flee_dir):
     # use pandas to access the out.csv results file for each sim
     food = pnd.read_csv("%s/out.csv" % food_dir)
     inverse = pnd.read_csv("%s/out.csv" % food_inverse_dir)
     speed = pnd.read_csv("%s/out.csv" % food_speed_dir)
     flee = pnd.read_csv("%s/out.csv" % flee_dir)
-    # create an array that can be used to specify which column in the csv files should be plotted
-    columns = ["Days", "Total error"]
 
     # plot the total error for each of the simulations being tested
     pplot.plot(flee["Day"], food["Total error"], label="Food (Original)")
     pplot.plot(flee["Day"], inverse["Total error"], label="Food (Inverse Movechance)")
     pplot.plot(flee["Day"], speed["Total error"], label="Food (Speed)")
     pplot.plot(flee["Day"], flee["Total error"], label="Flee")
-    # add labels to the graph
+    # add the appropriate labels to the graph
     pplot.ylabel("Error")
     pplot.xlabel("Days")
     pplot.legend()
     pplot.title("Total Error Comparison")
-    # save the image as a png in the correct folder
+    # save the image as a png in the correct folder for use later
     pplot.savefig("/home/chris/codes/FabSim3/results/chris validation/total error comparison.png")
     pplot.clf()
 

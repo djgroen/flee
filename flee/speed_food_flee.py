@@ -14,30 +14,36 @@ import csv
 import pandas as pd
 
 
-# This function finds the IPC food data and assigns it to two variables, critict and IPC_all. critict is the just the
-# dates column. IPC_all stores the whole matrix. This is done using pandas, an external python library.
+# This function initiate_food retrieves the IPC food security data matrix from it's CSV file and assigns it to two
+# variables, critict and IPC_all. critict is the 'day' column of the matrix, and is used to tell the simulation when
+# to update the IPC values. IPC_all stores all of the columns that hold IPC data. each column represents a region of
+# S Sudan. These variables are made using pandas, an external python library.
 
 def initiate_food():
+    # these variables are created by using pandas to read the csv files from my system.
     critict = pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food/input_csv/IPC.csv")[
         "Dates"]
     IPC_all = pd.read_csv("~/codes/FabSim3/plugins/FabFlee/config_files/flee_ssudan_food/input_csv/IPC.csv",
                           index_col=0)
     current_i = 0
 
-    # added for testing output
+    # i added these 4 lines so that i could see specific output of pandas variables in the out.csv file during the
+    # testing of my simulations.
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     pd.set_option('display.width', None)
     pd.set_option('display.max_colwidth', -1)
 
-    # for the speed simulations, i need the minimum agent move speed in SimulationSettings.py to be 0.
+    # for the speed simulations, i need the minimum agent move speed in SimulationSettings.py to be 0. i assign this
+    # to the MinMoveSpeed variable in SimulationSettings, so that if i change it in the future, i don't need to change
+    # every reference in the code.
     SimulationSettings.SimulationSettings.MinMoveSpeed = 0
-    # print(new_min_speed)
 
     return [critict, IPC_all, current_i]
 
 
-# this basic function from the original food_flee.py file is what iterates through the IPC data matrix rows.
+# this function 'line42day' was used in the original food_flee.py file. it changes the current row being focused on
+# in the IPC matrix, by updating the critict variable to match the day of the simulation. i did not edit this function.
 def line42day(t, current_i, critict):
     current_critict = critict[current_i]
     while current_critict < t:
@@ -46,8 +52,9 @@ def line42day(t, current_i, critict):
     return current_critict
 
 
-# import the location class from flee and give it attributes for region (because IPC data is provided by
-# South Sudan regions) and IPC.
+# this small addition is copied from food_flee.py. the _init_ function of the location class from flee is given
+# variables for region and IPC, so that the locations in the simulation can hold the information provided by the IPC
+# data file.
 class Location(flee.Location):
     def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown",
                  region="unknown", IPC=0):
@@ -57,31 +64,28 @@ class Location(flee.Location):
         self.IPC = IPC  # This is where the IPC value is stored for each location.
 
 
-# this code imports the Person class from the original Flee.py file and adds a custom speed variable.
+# I import the person class from the original Flee.py file, and i add a speed variable.
 class Person(flee.Person):
     def __init__(self, location):
         super().__init__(location)
-        self.custom_speed = 200  # this speed variable is updated by the Update_IPC function.
+        self.speed = 200  # this speed variable is updated by the Update_IPC function.
 
-    # this function is almost identical as when it appears in flee.py - however, it now uses my new speed value (
-    # custom_speed) instead of the static max speed that was originally used.
+    # i need my speed variable to be used in the finish_travel function, imported from flee.py. the changes made by me
+    # have been pointed out by comments.
     def finish_travel(self, distance_moved_this_timestep=0):
         if self.travelling:
 
-            # added by chris vassiliou
-            # here, the simulations used to take a static value for speed. now, it takes a speed value which changes
-            # based on a formula in UPDATE_IPC
-            self.distance_travelled_on_link += self.custom_speed
-            # print(self.distance_travelled_on_link)
-            # If destination has been reached.
+            # originally, the distance travelled was set to a static value. now, my speed variable is used, so that each
+            # agent has their own speed, based on their current location's food security.
+            self.distance_travelled_on_link += self.speed
+            # print(self.distance_travelled_on_link) - for testing my changes
+
             if self.distance_travelled_on_link - distance_moved_this_timestep > self.location.distance:
 
-                # update agent logs
                 if SimulationSettings.SimulationSettings.AgentLogLevel > 0:
                     self.places_travelled += 1
                     self.distance_travelled += self.location.distance
 
-                # if link is closed, bring agent to start point instead of the destination and return.
                 if self.location.closed == True:
                     self.location.numAgentsOnRank -= 1
                     self.location = self.location.startpoint
@@ -92,13 +96,14 @@ class Person(flee.Person):
                 else:
 
                     # usually here, an agent will go through another evolve() if it moves less than the minimum
-                    # speed. in the case of the speed simulations, i've changed the minimum speed value to 0.
+                    # speed. in the case of the speed simulations, i've changed the minimum speed value to 0. this
+                    # keeps the simulation behaving in a way that is true to my hypothesis. people only move as far
+                    # as their 'speed' allows them to, with no repeat runs of evolve()
                     evolveMore = False
                     if self.location.distance + distance_moved_this_timestep < SimulationSettings.SimulationSettings.MinMoveSpeed:
                         distance_moved_this_timestep += self.location.distance
                         evolveMore = True
 
-                    # update location (which is on a link) to link endpoint
                     self.location.numAgents -= 1
                     self.location = self.location.endpoint
                     self.location.numAgents += 1
@@ -110,8 +115,6 @@ class Person(flee.Person):
                         if self.location.Camp == True:
                             self.location.incoming_journey_lengths += [self.timesteps_since_departure]
 
-                    # Perform another evolve step if needed. And if it results in travel, then the current
-                    # travelled distance needs to be taken into account.
                     if evolveMore == True:
                         self.evolve()
                         self.finish_travel(distance_moved_this_timestep)
@@ -120,82 +123,73 @@ class Person(flee.Person):
 class Ecosystem(flee.Ecosystem):
     def __init__(self):
         super().__init__()
-        # this variable is a new one i've added which will trigger the speed changes.
-        self.IPCAffectsMovementSpeed = True  # IPC data affects the speed of the agents.
+        # this variable IPCAffectsMovementSpeed is a new one i've added which will trigger the speed changes. in
+        # future work, where several hypotheses are implemented into one file, this would allow different hypotheses
+        # to be active at different times.
+        self.IPCAffectsMovementSpeed = True  # declares that IPC will effect the speed of the agents.
 
-        self.IPCAffectsSpawnLocation = False
-
-    # this function i've created will implement my speed hypothesis.
+    # i designed and created this function to implement my speed hypothesis, using the formula and the pseudocode i
+    # designed
     def update_IPC(self, line_IPC, IPC_all):
-        # first, cycle through each location in the simulation and give each an IPC value, which changes with the time:
+        # first, i cycle through each location in the simulation and give each an IPC value. because this function is
+        # called whenever a new row is reached in the IPC data matrix (using the variable critict), the IPC value is
+        # always up to date as the simulation progresses:
         for i in range(0, len(self.locationNames)):
             if self.locations[i].country == "South_Sudan":
-                # 1. Update IPC scores for all locations
+                # Update the IPC scores for all locations by checking the location's region and assigning it that
+                # region's IPC value from IPC_all
                 self.locations[i].IPC = IPC_all.loc[line_IPC][self.locations[i].region]
 
-        # next step, we need to cycle through each agent in the sim and give them a speed value based on their location.
+        # next step, i cycle through each agent in the sim and give them a speed value based on their location.
         # the formula involves multiplying the maximum move speed of the agents by the IPC of that agent's location.
         for i in range(0, len(self.agents)):
             if self.IPCAffectsMovementSpeed:
-                # find the location for the current agent:
+                # find current location of the agent:
                 agent_location = self.agents[i].location
-                # when agents are located on links and not locations, they cannot be given an IPC value.
+                # when agents are located on links and not locations, they cannot be given an IPC value, so they are
+                # given a speed of 100, halfway between minimum and maximum.
                 if isinstance(agent_location, flee.Link):
-                    self.agents[i].custom_speed = 200
+                    self.agents[i].speed = 100
                 else:
-                    # find the IPC value for the current agent's current location:
+                    # if they are in a location and not a link, they can be given a custom speed.
+                    # find the IPC value for the agent's current location:
                     agent_location_IPC = agent_location.IPC
 
-                    # this was a test i was running so i could see the output for each agent in the sim.
+                    # below is a small output test i was running so i could see if this code was doing it's desired
+                    # task and the agent's current food security was being applied correctly.
                     # agent_location_name = agent_location.name
                     # agent_region = agent_location.region
-                    # test_string = "for agent %i the location is %a the region is %r the IPC is %f and the speed is " \
-                    #               "below." % (i, agent_location_name, agent_region, agent_location_IPC)
-                    # print(test_string)
+                    # test_string = "for agent %i the location is %a the region is %r the IPC is %f and the speed is
+                    # " \ "below." % (i, agent_location_name, agent_region, agent_location_IPC) print(test_string)
 
-                    # if IPC is zero, give the agent a minimum speed:
+                    # if the current IPC for an agent is zero, give the agent a minimum speed:
                     if agent_location_IPC == 0:
-                        self.agents[i].custom_speed = 10
-                    # else, check the agent's new speed by multiplying the max speed by the IPC value as a decimal.
+                        self.agents[i].speed = 10
+                    # check the agent's new speed by multiplying the max speed by the IPC value in decimal form.
+                    # this is my formula being implemented as code.
                     else:
-                        self.agents[i].custom_speed = SimulationSettings.SimulationSettings.MaxMoveSpeed * \
-                                                      (agent_location_IPC / 100.0)
-                        if self.agents[i].custom_speed > 200:
-                            self.agents[i].custom_speed = 200
-                    # print(self.agents[i].custom_speed)
+                        self.agents[i].speed = SimulationSettings.SimulationSettings.MaxMoveSpeed * \
+                                               (agent_location_IPC / 100.0)
+                        if self.agents[i].speed > 200:
+                            self.agents[i].speed = 200
+                    # print(self.agents[i].speed) - another test i was running to check for the correct output
 
-    def pick_conflict_location(self):
-        """
-    Returns a weighted random element from the list of conflict locations.
-    This function returns a number, which is an index in the array of conflict locations.
-    """
-        if self.IPCAffectsSpawnLocation:
-            return np.random.choice(self.IPC_locations, p=self.IPC_location_weights / self.total_weight)
-        else:
-            return np.random.choice(self.conflict_zones, p=self.conflict_weights / self.conflict_pop)
+    # this function, printinfo, prints specific details for each location, into the console as the simulation runs.
+    # it is called every time the IPC values are updated.
+    def printInfo(self):
+        for l in range(len(self.locations)):
+            print(self.locations[l].name, "Conflict? ", self.locations[l].conflict, "Population:",
+                  self.locations[l].pop, "IPC:", self.locations[l].IPC, "MC:",
+                  self.locations[l].movechance, file=sys.stderr)
 
+    # the rest of the functions here are not developed or modified by me at all. these are just a necessary inclusion
+    # to ensure that the above functions are being called correctly when the simulation runs.
     def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance,
                     capacity=-1, pop=0, foreign=False, country="unknown", region="unknown", IPC=0):
-        """ Add a location to the ABM network graph """
         l = Location(name, x, y, movechance, capacity, pop, foreign, country, region, IPC)
-        # if SimulationSettings.SimulationSettings.InitLogLevel > 0:
-        # print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign, "State: ", l.region,
-        #       "IPC: ", l.IPC)
         self.locations.append(l)
         self.locationNames.append(l.name)
         return l
-
-    def printInfo(self):
-        # print("Time: ", self.time, ", # of agents: ", len(self.agents))
-        if self.IPCAffectsSpawnLocation:
-            for l in range(len(self.IPC_locations)):
-                print(self.IPC_locations[l].name, "Conflict:", self.locations[l].conflict, "Pop:",
-                      self.IPC_locations[l].pop, "IPC:", self.IPC_locations[l].IPC, "mc:",
-                      self.IPC_locations[l].movechance, "weight:", self.IPC_location_weights[l], file=sys.stderr)
-        else:
-            for l in self.locations:
-                print(l.name, "Agents: ", l.numAgents, "State: ", l.region, "IPC: ", l.IPC, "movechance: ",
-                      l.movechance, file=sys.stderr)
 
     def addAgent(self, location):
         if SimulationSettings.SimulationSettings.TakeRefugeesFromPopulation:
@@ -213,7 +207,7 @@ class Ecosystem(flee.Ecosystem):
         self.agents.append(Person(location))
 
     def evolve(self):
-        # update level 1, 2 and 3 location scores
+
         for l in self.locations:
             l.updateLocationScore(self.time)
 
@@ -223,14 +217,12 @@ class Ecosystem(flee.Ecosystem):
         for l in self.locations:
             l.updateRegionScore()
 
-        # update agent locations
         for a in self.agents:
             a.evolve()
 
         for a in self.agents:
             a.finish_travel()
 
-        # update link properties
         if SimulationSettings.SimulationSettings.CampLogLevel > 0:
             self._aggregate_arrivals()
 
