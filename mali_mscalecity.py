@@ -40,11 +40,11 @@ if __name__ == "__main__":
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadLocationsFromCSV("examples/mali_mscale/locations-%s.csv" % submodel_id)
+  ig.ReadLocationsFromCSV("examples/mali_input_files/locations-%s.csv" % submodel_id)
 
-  ig.ReadLinksFromCSV("examples/mali_mscale/routes-%s.csv" % submodel_id)
+  ig.ReadLinksFromCSV("examples/mali_input_files/routes-%s.csv" % submodel_id)
 
-  ig.ReadClosuresFromCSV("examples/mali_mscale/closures-%s.csv" % submodel_id)
+  ig.ReadClosuresFromCSV("examples/mali_input_files/closures-%s.csv" % submodel_id)
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
