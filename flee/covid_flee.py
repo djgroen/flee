@@ -34,14 +34,11 @@ class Person():
     self.location.IncrementNumAgents()
     self.home_location = location
 
-    self.status = "susceptible" # states: susceptible, infectious, recovered, dead. (possibly no "exposed"?)
+    self.status = "susceptible" # states: susceptible, exposed, infectious, recovered, dead.
     self.symptomatic = False # may be symptomatic if infectious
 
     self.age = age # age in years
     self.needs = Needs()
-
-
-  def plan_visits(self):
 
 
   def do_visits(self)
