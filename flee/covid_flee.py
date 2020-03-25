@@ -5,27 +5,41 @@ import sys
 import random
 from flee import SimulationSettings
 from flee import flee
+import array
+
 
 class Needs():
-  def __init__(self, person):
+  def __init__(self):
     self.needs = {} # needs measured in minutes per week per category.
-    self.add_needs(person)
+
+  def i(self, name):
+    if k,e in enumerate(self.labels):
+      if e == name:
+        return k
 
   def add_needs(self, person):
-    self.needs["park"] = 60
-    self.needs["hospital"] = 5
-    self.needs["supermarket"] = 60
-    self.needs["office"] = 1200 # 20 hr average work week
-    self.needs["school"] = 0
-    self.needs["leisure"] = 120
-    self.needs["shopping"] = 60
+    self.labels = ["park","hospital","supermarket","office","school","leisure","shopping"]
 
-    if person.age < 19:
-      self.needs["school"] += 1200 # 20 hours physically at school
-      self.needs["office"] = 900
-    if person.age < 14:
-      self.needs["school"] += 900 # 35 hours physically at school
-      self.needs["office"] = 0
+    self.needs = np.zeros((len(self.labels),120))
+
+    self.needs[i("park")][:] = 120
+    
+    self.needs[i("hospital")][:] = 10
+    
+    self.needs[i("supermarket")][:] = 60
+    
+    self.needs[i("office")][19:] = 1200
+    self.needs[i("office")][:20] = 0
+
+    self.needs[i("school")][19:] = 0
+    self.needs[i("school")][:20] = 1200
+    
+    self.needs[i("leisure")][:] = 120
+    
+    self.needs[i("shopping")][:] = 60
+
+  def get_need(age, need):
+    return self.needs[need][age]
 
 
 class Person():
@@ -38,7 +52,6 @@ class Person():
     self.symptomatic = False # may be symptomatic if infectious
 
     self.age = age # age in years
-    self.needs = Needs(self)
 
 
   def do_visits(self):
