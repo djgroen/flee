@@ -42,25 +42,32 @@ class Person():
 
 
   def do_visits(self)
-    
+    pass 
 
   def evolve(self):
     self.plan_visits()
     self.do_visits()
 
-class HouseHold():
-  def __init__(size=-1):
+class Household():
+  def __init__(size=-1, house):
+    self.house = house
     if size>-1:
       self.size = size
     else:
       self.size = random.choice([1,2,3,4])
 
+    self.agents = []
+    for i in range(0,self.size):
+      self.agents.append(Person(self.house, random.randint(0,100)))
+
 
 class House:
-  def __init__(x, y, households=1):
+  def __init__(x, y, num_households=1):
     self.x = x
     self.y = y
-    self.households = households
+    self.households = []
+    for i in num_households:
+        self.households.append(Household())
 
 
 class Location:
@@ -86,23 +93,6 @@ class Location:
   def print(self):
     for l in self.links:
       print("Link from %s to %s, dist: %s" % (self.name, l.endpoint.name, l.distance), file=sys.stderr)
-
-
-class Link(flee.Link):
-  def __init__(self, endpoint, distance, link_type="drive", forced_redirection=False):
-    super().__init__(endpoint, distance, forced_redirection)
-    self.link_type = link_type
-    self.speed = speed
-
-    if islink(link_type, str):
-      if "drive" in link_type.lower():
-        self.speed = SimulationSettings.MaxMoveSpeed
-      elif "walk" in link_type.lower():
-        self.speed = SimulationSettings.MaxWalkSpeed
-      elif "crossing" in link_type.lower():
-        self.speed = SimulationSettings.MaxCrossingSpeed
-      else:
-        print("Error in identifying link_type() object: cannot parse the type of link ", link_type, " for location object with name ", name, ".")
 
 
 class Ecosystem(flee.Ecosystem):
