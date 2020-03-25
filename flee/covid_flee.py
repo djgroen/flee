@@ -7,7 +7,7 @@ from flee import SimulationSettings
 from flee import flee
 
 class Needs():
-  def __init__(person):
+  def __init__(self, person):
     self.needs = {} # needs measured in minutes per week per category.
     self.add_needs(person)
 
@@ -38,10 +38,10 @@ class Person():
     self.symptomatic = False # may be symptomatic if infectious
 
     self.age = age # age in years
-    self.needs = Needs()
+    self.needs = Needs(self)
 
 
-  def do_visits(self)
+  def do_visits(self):
     pass 
 
   def evolve(self):
@@ -49,7 +49,7 @@ class Person():
     self.do_visits()
 
 class Household():
-  def __init__(size=-1, house):
+  def __init__(self, house, size=-1):
     self.house = house
     if size>-1:
       self.size = size
@@ -62,12 +62,19 @@ class Household():
 
 
 class House:
-  def __init__(x, y, num_households=1):
+  def __init__(self, x, y, num_households=1):
     self.x = x
     self.y = y
     self.households = []
-    for i in num_households:
-        self.households.append(Household())
+    self.numAgents = 0
+    for i in range(0, num_households):
+        self.households.append(Household(self))
+
+  def IncrementNumAgents(self):
+    self.numAgents += 1
+
+  def DecrementNumAgents(self):
+    self.numAgents -= 1
 
 
 class Location:
@@ -98,9 +105,15 @@ class Location:
 class Ecosystem(flee.Ecosystem):
   def __init__(self):
     super().__init__()
+    self.houses = []
+    self.house_names = []
 
   def evolve(self):
     super().evolve()
+
+  def addHouse(self, name, x, y, num_households=1):
+    self.houses.append(House(x, y, num_households))
+    self.house_names.append(name)
 
 
 if __name__ == "__main__":

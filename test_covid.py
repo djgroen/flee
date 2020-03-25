@@ -15,7 +15,7 @@ if __name__ == "__main__":
   l1 = e.addLocation("A", "supermarket", 6, 6)
   l2 = e.addLocation("B", "park", 4, 4)
 
-  l3 = e.addHouse("H1", 1,5)
+  l3 = e.addHouse("H1", 1, 5)
 
 
   for t in range(0,end_time):
