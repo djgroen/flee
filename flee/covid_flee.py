@@ -7,20 +7,19 @@ from flee import SimulationSettings
 from flee import flee
 import array
 
+loc_labels = ["park","hospital","supermarket","office","school","leisure","shopping"]
 
 class Needs():
   def __init__(self):
     self.needs = {} # needs measured in minutes per week per category.
 
   def i(self, name):
-    if k,e in enumerate(self.labels):
+    for k,e in enumerate(self.labels):
       if e == name:
         return k
 
   def add_needs(self, person):
-    self.labels = ["park","hospital","supermarket","office","school","leisure","shopping"]
-
-    self.needs = np.zeros((len(self.labels),120))
+    self.needs = np.zeros((len(loc_labels),120))
 
     self.needs[i("park")][:] = 120
     
@@ -41,6 +40,11 @@ class Needs():
   def get_need(age, need):
     return self.needs[need][age]
 
+  def get_needs(age):
+    return self.needs[:][age]
+
+# Global storage for needs now, to keep it simple.
+needs = Needs()
 
 class Person():
   def __init__(self, location, age):
@@ -54,12 +58,13 @@ class Person():
     self.age = age # age in years
 
 
-  def do_visits(self):
-    pass 
+  def plan_visits(self):
+    personal_needs = needs.get_needs(self.age)
+    for n in personal_needs:
+      register_visit(self.home_location,self.)
 
   def evolve(self):
-    self.plan_visits()
-    self.do_visits()
+
 
 class Household():
   def __init__(self, house, size=-1):
@@ -74,12 +79,16 @@ class Household():
       self.agents.append(Person(self.house, random.randint(0,100)))
 
 
+def calc_dist(x1, y1, x2, y2):
+    return (abs(x1-x2)**2 + abs(y1+y2)**2)**0.5
+
 class House:
   def __init__(self, x, y, num_households=1):
     self.x = x
     self.y = y
     self.households = []
     self.numAgents = 0
+    self.nearest_locations = calculate_nearest_locations()
     for i in range(0, num_households):
         self.households.append(Household(self))
 
@@ -88,6 +97,27 @@ class House:
 
   def DecrementNumAgents(self):
     self.numAgents -= 1
+
+  def find_nearest_locations(self):
+    """
+    identify preferred locations for each particular purpose,
+    and store in an array.
+    """
+    n = []
+    for l in loc_labels:
+      if len(e.locations[l]) == 0:
+        n.append(None)
+      else:
+        min_dist = 99999.0
+        nearest_loc_index = 0
+        for k,e in enumerate(e.locations[l]):
+          d = calc_dist(x, y, e.x, e.y)
+          if d < min_dist:
+            min_dist = d
+            nearest_loc_index = k
+        n.append(e.locations[l][k])
+
+
 
 
 class Location:
@@ -122,7 +152,11 @@ class Ecosystem(flee.Ecosystem):
     self.house_names = []
 
   def evolve(self):
-    super().evolve()
+    for h in self.houses:
+      for hh in h.households:
+        for a in hh.agents:
+          a.plan_visits()
+          a.evolve()
 
   def addHouse(self, name, x, y, num_households=1):
     self.houses.append(House(x, y, num_households))
