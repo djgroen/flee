@@ -48,6 +48,21 @@ class Person():
     self.plan_visits()
     self.do_visits()
 
+class HouseHold():
+  def __init__(size=-1):
+    if size>-1:
+      self.size = size
+    else:
+      self.size = random.choice([1,2,3,4])
+
+
+class House:
+  def __init__(x, y, households=1):
+    self.x = x
+    self.y = y
+    self.households = households
+
+
 class Location:
   def __init__(self, name, loc_type="home", x=0.0, y=0.0, sqm=10000):
     self.name = name
