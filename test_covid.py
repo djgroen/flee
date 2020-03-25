@@ -1,4 +1,4 @@
-import flee.flee_covid as flee
+import flee.covid_flee as flee
 import numpy as np
 import outputanalysis.analysis as a
 
