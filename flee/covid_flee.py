@@ -7,7 +7,9 @@ from flee import SimulationSettings
 from flee import flee
 import array
 
+# TODO: store all this in a YaML file
 lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,"shopping":6} # location ids and labels
+avg_visit_times = [90,60,60,360,360,60,60] #average time spent per visit
 
 class Needs():
   def __init__(self):
@@ -70,8 +72,6 @@ class Person():
   def get_needs(self):
     print(needs.get_needs(self.age))
 
-  def evolve(self):
-    pass
 
 class Household():
   def __init__(self, house, size=-1):
@@ -129,16 +129,23 @@ class House:
 
 
 class Location:
-  def __init__(self, name, loc_type="home", x=0.0, y=0.0, sqm=10000):
+  def __init__(self, name, loc_type="park", x=0.0, y=0.0, sqm=10000):
+
+    if loc_type not in lids.keys():
+      print("Error: location type {} is not in the recognised lists of location ids (lids).".format(loc_type))
+      sys.exit()
+
     self.name = name
     self.x = x
     self.y = y
     self.links = [] # paths connecting to other locations
     self.closed_links = [] #paths connecting to other locations that are closed.
-    self.type = loc_type # home, supermarket, park, hospital, shopping, school, office, leisure?
+    self.type = loc_type # supermarket, park, hospital, shopping, school, office, leisure? (home is a separate class, to conserve memory)
     self.sqm = sqm # size in square meters.
+    self.visits = []
+    self.avg_visit_time = avg_visit_times[lids[loc_type]]
 
-    self.print()
+    print(self.avg_visit_time)
 
   def DecrementNumAgents(self):
     self.numAgents -= 1
@@ -146,13 +153,18 @@ class Location:
   def IncrementNumAgents(self):
     self.numAgents += 1
 
-  def print(self):
-    for l in self.links:
-      print("Link from %s to %s, dist: %s" % (self.name, l.endpoint.name, l.distance), file=sys.stderr)
+  #def print(self):
+  #  for l in self.links:
+  #    print("Link from %s to %s, dist: %s" % (self.name, l.endpoint.name, l.distance), file=sys.stderr)
+
+  def clear_visits(self):
+    self.visits = []
 
   def register_visit(self, person, need):
-    pass
+    self.visits.append([person,need])
 
+  def evolve(self):
+    pass
 
 class Ecosystem:
   def __init__(self):
@@ -161,11 +173,21 @@ class Ecosystem:
     self.house_names = []
 
   def evolve(self):
+    # remove visits from the previous day
+    for lk in self.locations.keys():
+      for l in self.locations[lk]:
+        l.clear_visits()
+
+    # collect visits for the current day
     for h in self.houses:
       for hh in h.households:
         for a in hh.agents:
           a.plan_visits()
-          a.evolve()
+
+    # process visits for the current day (spread infection).
+    for lk in self.locations.keys():
+      for l in self.locations[lk]:
+        l.evolve()
 
   def addHouse(self, name, x, y, num_households=1):
     self.houses.append(House(self, x, y, num_households))
