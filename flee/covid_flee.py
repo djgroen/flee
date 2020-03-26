@@ -37,7 +37,9 @@ class Needs():
           for k,element in enumerate(row):
             if element in lids.keys():
               needs_cols[lids[element]] = k
+            print(element,k)
           first_row = False
+          print("NC:",needs_cols)
         else:
           for i in range(0,len(needs_cols)):
             self.needs[i] = int(row[needs_cols[i]])
