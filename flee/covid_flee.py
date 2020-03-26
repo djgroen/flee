@@ -37,9 +37,10 @@ class Needs():
           for k,element in enumerate(row):
             if element in lids.keys():
               needs_cols[lids[element]] = k
+          first_row = False
         else:
           for i in range(0,len(needs_cols)):
-            self.needs[i] = row[needs_cols[i]]
+            self.needs[i] = int(row[needs_cols[i]])
 
   # Hard-coded draft file
   def add_hardcoded_needs(self):
@@ -67,9 +68,13 @@ class Needs():
   def get_needs(self, age):
     return self.needs[:,age]
 
+  def print(self):
+    for i in range(0,119):
+      print(i, self.get_needs(i))
+
 # Global storage for needs now, to keep it simple.
 needs = Needs("covid_data/dummy_needs.csv")
-print(needs)
+needs.print()
 
 class Person():
   def __init__(self, location, age):
