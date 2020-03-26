@@ -74,11 +74,13 @@ class Person():
   def get_needs(self):
     print(self.age, needs.get_needs(self.age))
 
-  def infect(t):
-    self.status = "exposed"
+  def infect(self, t, severity="exposed"):
+    # severity can be overridden to infectious when rigidly inserting cases.
+    # but by default, it should be exposed.
+    self.status = severity
     self.status_change_time = t
 
-  def progress_condition(t):
+  def progress_condition(self, t):
     if self.status == "exposed" and t-self.status_change_time > incubation_period:
       self.status = "infectious"
       self.status_change_time = t
@@ -142,14 +144,14 @@ class House:
         print(i.name, i.type)
     return n
 
-  def add_infection(self): # used to preseed infections (could target using age later on)
+  def add_infection(self, time): # used to preseed infections (could target using age later on)
     infection_pending = True
     while infection_pending:
       hh = random.randint(0, len(self.households)-1)
       p = random.randint(0, len(self.households[hh].agents)-1)
       if self.households[hh].agents[p].status == "susceptible": 
         # because we do pre-seeding we need to ensure we add exactly 1 infection.
-        self.households[hh].agents[p].infect(e.time)
+        self.households[hh].agents[p].infect(time, severity="infectious")
         infection_pending = False
 
 

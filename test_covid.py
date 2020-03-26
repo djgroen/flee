@@ -9,7 +9,7 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 if __name__ == "__main__":
   print("Testing basic Covid-19 simulation kernel.")
 
-  end_time = 10
+  end_time = 28
   e = flee.Ecosystem()
 
   l1 = e.addLocation("A", "supermarket", 6, 6)
@@ -19,7 +19,7 @@ if __name__ == "__main__":
   l3 = e.addHouse("H1", 1, 5)
   l4 = e.addHouse("H2", 4, 5)
 
-  l3.add_infection()
+  l3.add_infection(0)
 
   e.print_needs()
 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     print(t)
     e.print_status()
 
-  assert t==9
+  assert t==27
 
   print("Test successful!")
 
