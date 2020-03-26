@@ -43,7 +43,6 @@ class Needs():
     return self.needs[need,age]
 
   def get_needs(self, age):
-    print(self.needs[:,age])
     return self.needs[:,age]
 
 # Global storage for needs now, to keep it simple.
@@ -70,7 +69,7 @@ class Person():
         location_to_visit.register_visit(self, element)
 
   def get_needs(self):
-    print(needs.get_needs(self.age))
+    print(self.age, needs.get_needs(self.age))
 
 
 class Household():
@@ -112,7 +111,6 @@ class House:
     """
     n = []
     for l in lids.keys():
-      print(e.locations)
       if l not in e.locations.keys():
         n.append(None)
       else:
@@ -124,6 +122,10 @@ class House:
             min_dist = d
             nearest_loc_index = k
         n.append(e.locations[l][nearest_loc_index])
+
+    for i in n:
+      if i:  
+        print(i.name, i.type)
     return n
 
 

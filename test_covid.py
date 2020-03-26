@@ -13,9 +13,11 @@ if __name__ == "__main__":
   e = flee.Ecosystem()
 
   l1 = e.addLocation("A", "supermarket", 6, 6)
-  l2 = e.addLocation("B", "park", 4, 4)
+  lp1 = e.addLocation("lp1", "park", 4, 4)
+  lp2 = e.addLocation("lp2", "park", 1, 4)
 
   l3 = e.addHouse("H1", 1, 5)
+  l4 = e.addHouse("H2", 4, 5)
 
   e.print_needs()
 
