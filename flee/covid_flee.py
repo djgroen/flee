@@ -10,6 +10,8 @@ import array
 # TODO: store all this in a YaML file
 lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,"shopping":6} # location ids and labels
 avg_visit_times = [90,60,60,360,360,60,60] #average time spent per visit
+incubation_period = 5
+recovery_period = 14
 
 class Needs():
   def __init__(self):
@@ -75,6 +77,14 @@ class Person():
   def infect(t):
     self.status = "exposed"
     self.status_change_time = t
+
+  def progress_condition(t):
+    if self.status == "exposed" and t-self.status_change_time > incubation_period:
+      self.status = "infectious"
+      self.status_change_time = t
+    if self.status == "infectious" and t-self.status_change_time > recovery_period:
+      self.status = "recovered"
+      self.status_change_time = t
 
 class Household():
   def __init__(self, house, size=-1):
@@ -213,6 +223,7 @@ class Ecosystem:
       for hh in h.households:
         for a in hh.agents:
           a.plan_visits()
+          a.progress_condition(self.time)
 
     # process visits for the current day (spread infection).
     for lk in self.locations.keys():
@@ -240,6 +251,14 @@ class Ecosystem:
       for hh in e.households:
         for a in hh.agents:
           print(k, a.get_needs())
+
+  def print_status(self):
+    status = {"susceptible":0,"exposed":0,"infectious":0,"recovered":0,"dead":0}
+    for k,e in enumerate(self.houses):
+      for hh in e.households:
+        for a in hh.agents:
+          status[a.status] += 1
+    print(status)
 
 
 if __name__ == "__main__":

@@ -29,6 +29,7 @@ if __name__ == "__main__":
     e.evolve()
 
     print(t)
+    e.print_status()
 
   assert t==9
 
