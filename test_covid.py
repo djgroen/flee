@@ -17,6 +17,7 @@ if __name__ == "__main__":
 
   l3 = e.addHouse("H1", 1, 5)
 
+  e.print_needs()
 
   for t in range(0,end_time):
 
