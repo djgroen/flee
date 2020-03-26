@@ -75,7 +75,7 @@ class Needs():
       print(i, self.get_needs(i))
 
 # Global storage for needs now, to keep it simple.
-needs = Needs("covid_data/dummy_needs.csv")
+needs = Needs("covid_data/needs.csv")
 needs.print()
 
 class Person():
