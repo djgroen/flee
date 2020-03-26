@@ -1,5 +1,5 @@
-# micro_flee.py
-# sequential microscale model.
+# covid_flee.py
+# Covid-19 model, based on the general Flee paradigm.
 import numpy as np
 import sys
 import random
@@ -7,41 +7,42 @@ from flee import SimulationSettings
 from flee import flee
 import array
 
-loc_labels = ["park","hospital","supermarket","office","school","leisure","shopping"]
+lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,"shopping":6} # location ids and labels
 
 class Needs():
   def __init__(self):
-    self.needs = {} # needs measured in minutes per week per category.
+    self.add_needs()
 
   def i(self, name):
     for k,e in enumerate(self.labels):
       if e == name:
         return k
 
-  def add_needs(self, person):
-    self.needs = np.zeros((len(loc_labels),120))
+  def add_needs(self):
+    self.needs = np.zeros((len(lids),120))
 
-    self.needs[i("park")][:] = 120
+    self.needs[lids["park"]][:] = 120
     
-    self.needs[i("hospital")][:] = 10
+    self.needs[lids["hospital"]][:] = 10
     
-    self.needs[i("supermarket")][:] = 60
+    self.needs[lids["supermarket"]][:] = 60
     
-    self.needs[i("office")][19:] = 1200
-    self.needs[i("office")][:20] = 0
+    self.needs[lids["office"]][19:] = 1200
+    self.needs[lids["office"]][:20] = 0
 
-    self.needs[i("school")][19:] = 0
-    self.needs[i("school")][:20] = 1200
+    self.needs[lids["school"]][19:] = 0
+    self.needs[lids["school"]][:20] = 1200
     
-    self.needs[i("leisure")][:] = 120
+    self.needs[lids["leisure"]][:] = 120
     
-    self.needs[i("shopping")][:] = 60
+    self.needs[lids["shopping"]][:] = 60
 
   def get_need(self, age, need):
-    return self.needs[need][age]
+    return self.needs[need,age]
 
   def get_needs(self, age):
-    return self.needs[:][age]
+    print(self.needs[:,age])
+    return self.needs[:,age]
 
 # Global storage for needs now, to keep it simple.
 needs = Needs()
@@ -60,9 +61,11 @@ class Person():
 
   def plan_visits(self):
     personal_needs = needs.get_needs(self.age)
-    for k,e in enumerate(personal_needs):
-      location_to_visit = self.home_location.nearest_locations[k]
-      location_to_visit.register_visit(e)
+    for k,element in enumerate(personal_needs):
+      nearest_locs = self.home_location.nearest_locations
+      if nearest_locs[k]:
+        location_to_visit = nearest_locs[k]
+        location_to_visit.register_visit(self, element)
 
   def get_needs(self):
     print(needs.get_needs(self.age))
@@ -108,7 +111,7 @@ class House:
     and store in an array.
     """
     n = []
-    for l in loc_labels:
+    for l in lids.keys():
       print(e.locations)
       if l not in e.locations.keys():
         n.append(None)
@@ -121,7 +124,7 @@ class House:
             min_dist = d
             nearest_loc_index = k
         n.append(e.locations[l][nearest_loc_index])
-
+    return n
 
 
 
@@ -146,6 +149,9 @@ class Location:
   def print(self):
     for l in self.links:
       print("Link from %s to %s, dist: %s" % (self.name, l.endpoint.name, l.distance), file=sys.stderr)
+
+  def register_visit(self, person, need):
+    pass
 
 
 class Ecosystem:
