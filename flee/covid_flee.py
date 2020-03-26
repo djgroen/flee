@@ -6,6 +6,7 @@ import random
 from flee import SimulationSettings
 from flee import flee
 import array
+import csv
 
 # TODO: store all this in a YaML file
 lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,"shopping":6} # location ids and labels
@@ -14,15 +15,34 @@ incubation_period = 5
 recovery_period = 14
 
 class Needs():
-  def __init__(self):
-    self.add_needs()
+  def __init__(self, csvfile):
+    self.add_needs(csvfile)
 
   def i(self, name):
     for k,e in enumerate(self.labels):
       if e == name:
         return k
 
-  def add_needs(self):
+  def add_needs(self, csvfile=""):
+    if csvfile == "":
+      self.add_hardcoded_needs()
+      return
+    self.needs = np.zeros((len(lids),120))
+    needs_cols = [0,0,0,0,0,0,0]
+    with open(csvfile) as csvfile:
+      needs_reader = csv.reader(csvfile)
+      first_row = True
+      for row in needs_reader:
+        if first_row:
+          for k,element in enumerate(row):
+            if element in lids.keys():
+              needs_cols[lids[element]] = k
+        else:
+          for i in range(0,len(needs_cols)):
+            self.needs[i] = row[needs_cols[i]]
+
+  # Hard-coded draft file
+  def add_hardcoded_needs(self):
     self.needs = np.zeros((len(lids),120))
 
     self.needs[lids["park"]][:] = 120
@@ -48,7 +68,8 @@ class Needs():
     return self.needs[:,age]
 
 # Global storage for needs now, to keep it simple.
-needs = Needs()
+needs = Needs("covid_data/dummy_needs.csv")
+print(needs)
 
 class Person():
   def __init__(self, location, age):
