@@ -145,7 +145,8 @@ class Location:
     self.type = loc_type # supermarket, park, hospital, shopping, school, office, leisure? (home is a separate class, to conserve memory)
     self.sqm = sqm # size in square meters.
     self.visits = []
-    self.avg_visit_time = avg_visit_times[lids[loc_type]]
+    self.inf_visit_minutes = 0 # aggregate number of visit minutes by infected people.
+    self.avg_visit_time = avg_visit_times[lids[loc_type]] # using averages for all visits for now. Can replace with a distribution later.
 
     print(self.avg_visit_time)
 
@@ -161,12 +162,21 @@ class Location:
 
   def clear_visits(self):
     self.visits = []
+    self.visit_minutes = 0 # total number of minutes of all visits aggregated.
 
   def register_visit(self, person, need):
-    self.visits.append([person,need])
+    visit_probability = need/(self.avg_visit_time * 7) # = minutes per week / (average visit time * days in the week)
+    if random.random() < visit_probability:
+      self.visits.append([person, self.avg_visit_time])
+      if person.status == "infected":
+        self.inf_visit_minutes += self.avg_visit_time
 
   def evolve(self):
-    pass
+    minutes_opened = 12*60
+    for v in self.visits:
+      if v[0].status == "susceptible":
+        infection_probability = (v[1] / self.sqm) * (self.inf_visit_minutes / minutes_opened)
+        print(v, infection_probability)
 
 class Ecosystem:
   def __init__(self):
