@@ -56,6 +56,7 @@ class Person():
 
     self.status = "susceptible" # states: susceptible, exposed, infectious, recovered, dead.
     self.symptomatic = False # may be symptomatic if infectious
+    self.status_change_time = -1
 
     self.age = age # age in years
 
@@ -71,6 +72,9 @@ class Person():
   def get_needs(self):
     print(self.age, needs.get_needs(self.age))
 
+  def infect(t):
+    self.status = "exposed"
+    self.status_change_time = t
 
 class Household():
   def __init__(self, house, size=-1):
@@ -133,8 +137,9 @@ class House:
     while infection_pending:
       hh = random.randint(0, len(self.households)-1)
       p = random.randint(0, len(self.households[hh].agents)-1)
-      if self.households[hh].agents[p].status == "susceptible":
-        self.households[hh].agents[p].status = "infected"
+      if self.households[hh].agents[p].status == "susceptible": 
+        # because we do pre-seeding we need to ensure we add exactly 1 infection.
+        self.households[hh].agents[p].infect(e.time)
         infection_pending = False
 
 
@@ -195,6 +200,7 @@ class Ecosystem:
     self.locations = {}
     self.houses = []
     self.house_names = []
+    self.time = 0
 
   def evolve(self):
     # remove visits from the previous day
@@ -212,6 +218,8 @@ class Ecosystem:
     for lk in self.locations.keys():
       for l in self.locations[lk]:
         l.evolve()
+
+    self.time += 1
 
   def addHouse(self, name, x, y, num_households=1):
     h = House(self, x, y, num_households)
