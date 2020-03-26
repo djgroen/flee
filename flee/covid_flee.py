@@ -128,6 +128,14 @@ class House:
         print(i.name, i.type)
     return n
 
+  def add_infection(self): # used to preseed infections (could target using age later on)
+    infection_pending = True
+    while infection_pending:
+      hh = random.randint(0, len(self.households)-1)
+      p = random.randint(0, len(self.households[hh].agents)-1)
+      if self.households[hh].agents[p].status == "susceptible":
+        self.households[hh].agents[p].status = "infected"
+        infection_pending = False
 
 
 class Location:
@@ -176,7 +184,11 @@ class Location:
     for v in self.visits:
       if v[0].status == "susceptible":
         infection_probability = (v[1] / self.sqm) * (self.inf_visit_minutes / minutes_opened)
-        print(v, infection_probability)
+        print(v, infection_probability, v[1], self.sqm, self.inf_visit_minutes, minutes_opened)
+        if random.random() < infection_probability:
+          v[0].status = "exposed"
+          print("Infection event at {}".format(self.name))
+
 
 class Ecosystem:
   def __init__(self):
@@ -202,8 +214,10 @@ class Ecosystem:
         l.evolve()
 
   def addHouse(self, name, x, y, num_households=1):
-    self.houses.append(House(self, x, y, num_households))
+    h = House(self, x, y, num_households)
+    self.houses.append(h)
     self.house_names.append(name)
+    return h
 
   def addLocation(self, name, loc_type, x, y, sqm=10000):
     l = Location(name, loc_type, x, y, sqm)
@@ -211,6 +225,7 @@ class Ecosystem:
       self.locations[loc_type].append(l)
     else:
       self.locations[loc_type] = [l]
+    return l
 
   def print_needs(self):
     for k,e in enumerate(self.houses):

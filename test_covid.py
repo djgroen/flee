@@ -19,6 +19,8 @@ if __name__ == "__main__":
   l3 = e.addHouse("H1", 1, 5)
   l4 = e.addHouse("H2", 4, 5)
 
+  l3.add_infection()
+
   e.print_needs()
 
   for t in range(0,end_time):
