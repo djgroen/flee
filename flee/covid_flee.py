@@ -7,6 +7,7 @@ from flee import SimulationSettings
 from flee import flee
 import array
 import csv
+from datamanager import read_building_csv
 
 # TODO: store all this in a YaML file
 lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,"shopping":6} # location ids and labels
