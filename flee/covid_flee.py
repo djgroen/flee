@@ -292,13 +292,19 @@ class Ecosystem:
         for a in hh.agents:
           print(k, a.get_needs())
 
-  def print_status(self):
+  def print_status(self, outfile):
+    out = None
+    if self.time == 0:
+      out = open(outfile,'w')
+      print("#time,susceptible,exposed,infectious,recovered,dead",file=out)
+    else:
+      out = open(outfile,'a')
     status = {"susceptible":0,"exposed":0,"infectious":0,"recovered":0,"dead":0}
     for k,e in enumerate(self.houses):
       for hh in e.households:
         for a in hh.agents:
           status[a.status] += 1
-    print(status)
+    print("{},{},{},{},{},{}".format(self.time,status["susceptible"],status["exposed"],status["infectious"],status["recovered"],status["dead"]), file=out)
 
 
 if __name__ == "__main__":
