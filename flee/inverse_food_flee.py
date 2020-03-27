@@ -34,7 +34,7 @@ def initiate_food():
     return [critict, IPC_all, current_i]
 
 
-# this function 'line42day' was used in the original food_flee.py file. it changes the current row being focused on
+# this function 'line42day' was developed in the original food_flee.py file. it changes the current row being focused on
 # in the IPC matrix, by updating the critict variable to match the day of the simulation. i did not edit this function.
 def line42day(t, current_i, critict):
     current_critict = critict[current_i]
@@ -44,9 +44,9 @@ def line42day(t, current_i, critict):
     return current_critict
 
 
-# this small addition is copied from food_flee.py. the _init_ function of the location class from flee is given
-# variables for region and IPC, so that the locations in the simulation can hold the information provided by the IPC
-# data file.
+# This is a small addition to the location class. The _init_ function of the location class
+# from flee is given variables for region and IPC, so that the locations in the simulation can hold the information
+# provided by the IPC data file.
 class Location(flee.Location):
     def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown",
                  region="unknown", IPC=0):
@@ -64,17 +64,18 @@ class Ecosystem(flee.Ecosystem):
         # to be active at different times.
         self.IPCAffectsMoveChance = True
 
-    def update_IPC(self, line_IPC, IPC_all):  # maybe better (less computation time)
-        # first, loop through every location in the simulation.
+    def update_IPC(self, line_IPC, IPC_all):
+        # first, loop through every location in the simulation using the locationNames array from ecosystem class.
         for i in range(0, len(self.locationNames)):
-            # only act on locations in S Sudan:
+            # only look at South Sudan locations by checking country.
             if self.locations[i].country == "South_Sudan":
 
-                # Update the IPC scores for all locations in S Sudan by checking the location's region and assigning
-                # it that region's IPC value from IPC_all
+                # Update the IPC scores for all locations in South Sudan. check their region and assign the location
+                # that region's IPC value from IPC_all.
                 self.locations[i].IPC = IPC_all.loc[line_IPC][self.locations[i].region]
 
-                # next, adjust the movechance for each location using my inverse movechance formula. this is where the formula is implemented as code.
+                # next, adjust the movechance for each location using my inverse movechance formula. this is where
+                # the formula is implemented as code.
                 if self.IPCAffectsMoveChance:
                     if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
                         self.locations[i].movechance = SimulationSettings.SimulationSettings.DefaultMoveChance * (
@@ -93,17 +94,6 @@ class Ecosystem(flee.Ecosystem):
             print(self.locations[l].name, "Conflict? ", self.locations[l].conflict, "Population:",
                   self.locations[l].pop, "IPC:", self.locations[l].IPC, "MC:",
                   self.locations[l].movechance, file=sys.stderr)
-
-    not developed or modified
-    by
-    me
-    at
-    all.these
-    are
-    just
-    a
-    necessary
-    inclusion
 
     # this function, addLocation, is not developed or modified by me at all. it is necessary to this file's
     # functionality, though, as it ensures that locations are being added correctly to the simulations, with their
