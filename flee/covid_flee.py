@@ -14,6 +14,7 @@ lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,
 avg_visit_times = [90,60,60,360,360,60,60] #average time spent per visit
 incubation_period = 5
 recovery_period = 10000 #14
+infection_scaling_factor = 100
 
 class Needs():
   def __init__(self, csvfile):
@@ -229,7 +230,7 @@ class Location:
     minutes_opened = 12*60
     for v in self.visits:
       if v[0].status == "susceptible":
-        infection_probability = (v[1] / self.sqm) * (self.inf_visit_minutes / minutes_opened)
+        infection_probability = infection_scaling_factor * (v[1] / self.sqm) * (self.inf_visit_minutes / minutes_opened)
         if ultraverbose:
           print(v, infection_probability, v[1], self.sqm, self.inf_visit_minutes, minutes_opened)
         if random.random() < infection_probability:

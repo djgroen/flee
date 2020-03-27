@@ -17,7 +17,7 @@ if __name__ == "__main__":
  
   e.add_infections(10)
 
-  e.print_needs()
+  #e.print_needs()
 
   for t in range(0,end_time):
 
