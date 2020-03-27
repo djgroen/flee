@@ -1,6 +1,6 @@
 park:
   index: 0
-  names:
+  labels:
   - park
 
 hospital:
