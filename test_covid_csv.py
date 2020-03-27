@@ -19,6 +19,7 @@ if __name__ == "__main__":
 
   #e.print_needs()
 
+  e.print_status("covid_out.csv")
   for t in range(0,end_time):
 
     # Propagate the model by one time step.
