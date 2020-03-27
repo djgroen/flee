@@ -58,9 +58,9 @@ def read_building_csv(e, csvfile, building_type_map="covid_data/building_types_m
         num_locs += 1
       row_number += 1
 
-    print("Read in {} houses and {} other locations.".format(num_houses, num_locs))
-    print("raw types are:")
-    pp.pprint(building_types)
-    if dumptypesandquit:
-      sys.exit()
+  print("Read in {} houses and {} other locations.".format(num_houses, num_locs))
+  print("raw types are:")
+  pp.pprint(building_types)
+  if dumptypesandquit:
+    sys.exit()
 

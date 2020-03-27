@@ -23,6 +23,7 @@ school:
   labels:
   - school
   - university
+  - college
   
 leisure:
   index: 5
@@ -30,9 +31,24 @@ leisure:
   - leisure
   - sports_centre
   - soft_play
+  - mosque
+  - church
+  - chapel
+  - temple
+  - synagogue
+  - religious
+  - clubhouse
+  - pavilion
   
 shopping:
   index: 6
   labels:
   - shopping
   - store
+  - commercial
+  - bank
+  - mall
+  - pub
+  - restaurant
+  - shop
+  - shops

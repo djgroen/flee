@@ -1,4 +1,4 @@
-# covid_flee.py
+# covid_flee.py a.k.a. the Flatten code.
 # Covid-19 model, based on the general Flee paradigm.
 import numpy as np
 import sys
@@ -14,6 +14,9 @@ lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,
 avg_visit_times = [90,60,60,360,360,60,60] #average time spent per visit
 incubation_period = 5
 recovery_period = 14
+# Global storage for needs now, to keep it simple.
+needs = Needs("covid_data/needs.csv")
+needs.print()
 
 class Needs():
   def __init__(self, csvfile):
@@ -38,8 +41,8 @@ class Needs():
           for k,element in enumerate(row):
             if element in lids.keys():
               needs_cols[lids[element]] = k
-            print(element,k)
-          print("NC:",needs_cols)
+            #print(element,k)
+          #print("NC:",needs_cols)
         else:
           for i in range(0,len(needs_cols)):
             self.needs[i,row_number-1] = int(row[needs_cols[i]])
@@ -75,10 +78,6 @@ class Needs():
     for i in range(0,119):
       print(i, self.get_needs(i))
 
-# Global storage for needs now, to keep it simple.
-needs = Needs("covid_data/needs.csv")
-needs.print()
-
 class Person():
   def __init__(self, location, age):
     self.location = location # current location
@@ -100,8 +99,11 @@ class Person():
         location_to_visit = nearest_locs[k]
         location_to_visit.register_visit(self, element)
 
-  def get_needs(self):
+  def print_needs(self):
     print(self.age, needs.get_needs(self.age))
+
+  def get_needs(self):
+    return needs.get_needs(self.age)
 
   def infect(self, t, severity="exposed"):
     # severity can be overridden to infectious when rigidly inserting cases.
@@ -168,9 +170,9 @@ class House:
             nearest_loc_index = k
         n.append(e.locations[l][nearest_loc_index])
 
-    for i in n:
-      if i:  
-        print(i.name, i.type)
+    #for i in n:
+    #  if i:  
+    #    print(i.name, i.type)
     return n
 
   def add_infection(self, time): # used to preseed infections (could target using age later on)
@@ -202,17 +204,13 @@ class Location:
     self.inf_visit_minutes = 0 # aggregate number of visit minutes by infected people.
     self.avg_visit_time = avg_visit_times[lids[loc_type]] # using averages for all visits for now. Can replace with a distribution later.
 
-    print(self.avg_visit_time)
+    #print(self.avg_visit_time)
 
   def DecrementNumAgents(self):
     self.numAgents -= 1
 
   def IncrementNumAgents(self):
     self.numAgents += 1
-
-  #def print(self):
-  #  for l in self.links:
-  #    print("Link from %s to %s, dist: %s" % (self.name, l.endpoint.name, l.distance), file=sys.stderr)
 
   def clear_visits(self):
     self.visits = []
@@ -225,7 +223,7 @@ class Location:
       if person.status == "infected":
         self.inf_visit_minutes += self.avg_visit_time
 
-  def evolve(self):
+  def evolve(self, verbose=False):
     minutes_opened = 12*60
     for v in self.visits:
       if v[0].status == "susceptible":
@@ -233,7 +231,8 @@ class Location:
         print(v, infection_probability, v[1], self.sqm, self.inf_visit_minutes, minutes_opened)
         if random.random() < infection_probability:
           v[0].status = "exposed"
-          print("Infection event at {}".format(self.name))
+          if verbose:
+            print("Infection event at {}".format(self.name))
 
 
 class Ecosystem:
