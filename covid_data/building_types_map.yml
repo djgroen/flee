@@ -1,38 +1,38 @@
 park:
-  index:0
-  labels:
-    - park
+  index: 0
+  names:
+  - park
 
 hospital:
-  index:1
+  index: 1
   labels:
-    - hospital
+  - hospital
   
 supermarket:
-  index:2
+  index: 2
   labels:
-    - supermarket
+  - supermarket
   
 office:
-  index:3
+  index: 3
   labels:
-    - office
+  - office
   
 school:
-  index:4
+  index: 4
   labels:
-    - school
-    - university
+  - school
+  - university
   
 leisure:
-  index:5
+  index: 5
   labels:
-    - leisure
-    - sports_centre
-    - soft_play
+  - leisure
+  - sports_centre
+  - soft_play
   
 shopping:
-  index:6
+  index: 6
   labels:
-    - shopping
-    - store
+  - shopping
+  - store

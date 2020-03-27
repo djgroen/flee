@@ -13,7 +13,7 @@ if __name__ == "__main__":
   end_time = 28
   e = flee.Ecosystem()
 
-  read_building_csv.read_building_csv(e, "covid_data/buildings.csv")
+  read_building_csv.read_building_csv(e, "covid_data/buildings.csv", "covid_data/building_types_map.yml")
  
   #l3.add_infection(0)
 
