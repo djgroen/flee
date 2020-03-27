@@ -15,9 +15,9 @@ if __name__ == "__main__":
 
   read_building_csv.read_building_csv(e, "covid_data/buildings.csv", "covid_data/building_types_map.yml")
  
-  #l3.add_infection(0)
+  e.add_infections(10)
 
-  #e.print_needs()
+  e.print_needs()
 
   for t in range(0,end_time):
 

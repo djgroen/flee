@@ -13,10 +13,7 @@ from datamanager import read_building_csv
 lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,"shopping":6} # location ids and labels
 avg_visit_times = [90,60,60,360,360,60,60] #average time spent per visit
 incubation_period = 5
-recovery_period = 14
-# Global storage for needs now, to keep it simple.
-needs = Needs("covid_data/needs.csv")
-needs.print()
+recovery_period = 10000 #14
 
 class Needs():
   def __init__(self, csvfile):
@@ -77,6 +74,11 @@ class Needs():
   def print(self):
     for i in range(0,119):
       print(i, self.get_needs(i))
+
+# Global storage for needs now, to keep it simple.
+needs = Needs("covid_data/needs.csv")
+needs.print()
+
 
 class Person():
   def __init__(self, location, age):
@@ -187,7 +189,7 @@ class House:
 
 
 class Location:
-  def __init__(self, name, loc_type="park", x=0.0, y=0.0, sqm=10000):
+  def __init__(self, name, loc_type="park", x=0.0, y=0.0, sqm=100):
 
     if loc_type not in lids.keys():
       print("Error: location type {} is not in the recognised lists of location ids (lids).".format(loc_type))
@@ -242,6 +244,11 @@ class Ecosystem:
     self.houses = []
     self.house_names = []
     self.time = 0
+
+  def add_infections(self, num):
+    for i in range(0, num):
+      house = random.randint(0, len(self.houses)-1)
+      self.houses[house].add_infection(self.time)
 
   def evolve(self):
     # remove visits from the previous day
