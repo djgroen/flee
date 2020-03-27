@@ -2,6 +2,7 @@ import flee.covid_flee as flee
 import numpy as np
 import outputanalysis.analysis as a
 from datamanager import read_building_csv
+import sys
 
 """
 Generation 1 code. Incorporates only distance, travel always takes one day.
@@ -10,10 +11,14 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 if __name__ == "__main__":
   print("Testing basic Covid-19 simulation kernel.")
 
+  building_file = "covid_data/buildings.csv"
+  if len(sys.argv)>1:
+    building_file = "covid_data/buildings_test.csv"
+
   end_time = 90
   e = flee.Ecosystem()
 
-  read_building_csv.read_building_csv(e, "covid_data/buildings_test.csv", "covid_data/building_types_map.yml")
+  read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml")
  
   e.add_infections(10)
 
