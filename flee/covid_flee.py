@@ -31,18 +31,18 @@ class Needs():
     needs_cols = [0,0,0,0,0,0,0]
     with open(csvfile) as csvfile:
       needs_reader = csv.reader(csvfile)
-      first_row = True
+      row_number = 0
       for row in needs_reader:
-        if first_row:
+        if row_number == 0:
           for k,element in enumerate(row):
             if element in lids.keys():
               needs_cols[lids[element]] = k
             print(element,k)
-          first_row = False
           print("NC:",needs_cols)
         else:
           for i in range(0,len(needs_cols)):
-            self.needs[i] = int(row[needs_cols[i]])
+            self.needs[i,row_number-1] = int(row[needs_cols[i]])
+        row_number += 1
 
   # Hard-coded draft file
   def add_hardcoded_needs(self):
