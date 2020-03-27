@@ -2,21 +2,25 @@ park:
   index: 0
   labels:
   - park
+  default_sqm: 20000
 
 hospital:
   index: 1
   labels:
   - hospital
+  default_sqm: 1600
   
 supermarket:
   index: 2
   labels:
   - supermarket
+  default_sqm: 400
   
 office:
   index: 3
   labels:
   - office
+  default_sqm: 1600
   
 school:
   index: 4
@@ -24,6 +28,7 @@ school:
   - school
   - university
   - college
+  default_sqm: 1600
   
 leisure:
   index: 5
@@ -39,6 +44,7 @@ leisure:
   - religious
   - clubhouse
   - pavilion
+  default_sqm: 400
   
 shopping:
   index: 6
@@ -52,3 +58,4 @@ shopping:
   - restaurant
   - shop
   - shops
+  default_sqm: 200

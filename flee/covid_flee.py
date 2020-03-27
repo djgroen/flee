@@ -13,8 +13,8 @@ from datamanager import read_building_csv
 lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,"shopping":6} # location ids and labels
 avg_visit_times = [90,60,60,360,360,60,60] #average time spent per visit
 incubation_period = 5
-recovery_period = 10000 #14
-infection_scaling_factor = 100
+recovery_period = 20
+infection_scaling_factor = 0.001
 
 class Needs():
   def __init__(self, csvfile):
@@ -190,7 +190,7 @@ class House:
 
 
 class Location:
-  def __init__(self, name, loc_type="park", x=0.0, y=0.0, sqm=100):
+  def __init__(self, name, loc_type="park", x=0.0, y=0.0, sqm=400):
 
     if loc_type not in lids.keys():
       print("Error: location type {} is not in the recognised lists of location ids (lids).".format(loc_type))
@@ -223,16 +223,17 @@ class Location:
     visit_probability = need/(self.avg_visit_time * 7) # = minutes per week / (average visit time * days in the week)
     if random.random() < visit_probability:
       self.visits.append([person, self.avg_visit_time])
-      if person.status == "infected":
+      if person.status == "infectious":
         self.inf_visit_minutes += self.avg_visit_time
 
   def evolve(self, verbose=False, ultraverbose=False):
     minutes_opened = 12*60
     for v in self.visits:
       if v[0].status == "susceptible":
-        infection_probability = infection_scaling_factor * (v[1] / self.sqm) * (self.inf_visit_minutes / minutes_opened)
+        infection_probability = infection_scaling_factor * (v[1] / minutes_opened) * (self.inf_visit_minutes / self.sqm)
         if ultraverbose:
-          print(v, infection_probability, v[1], self.sqm, self.inf_visit_minutes, minutes_opened)
+          if infection_probability > 0.0:
+            print(infection_probability, v[1], minutes_opened, self.inf_visit_minutes, self.sqm)
         if random.random() < infection_probability:
           v[0].status = "exposed"
           if verbose:

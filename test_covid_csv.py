@@ -10,10 +10,10 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 if __name__ == "__main__":
   print("Testing basic Covid-19 simulation kernel.")
 
-  end_time = 28
+  end_time = 90
   e = flee.Ecosystem()
 
-  read_building_csv.read_building_csv(e, "covid_data/buildings.csv", "covid_data/building_types_map.yml")
+  read_building_csv.read_building_csv(e, "covid_data/buildings_test.csv", "covid_data/building_types_map.yml")
  
   e.add_infections(10)
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     print(t)
     e.print_status()
 
-  assert t==27
+  assert t==89
 
-  print("Test successful!")
+  print("Simulation complete.")
 
