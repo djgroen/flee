@@ -113,6 +113,8 @@ class Person():
     # but by default, it should be exposed.
     self.status = severity
     self.status_change_time = t
+    out_inf = open("covid_out_infections.csv",'a')
+    print("{},{},{},{}".format(t,self.location.x,self.location.y,"house"), file=out_inf)
 
   def progress_condition(self, t):
     if self.status == "exposed" and t-self.status_change_time > incubation_period:
@@ -226,7 +228,7 @@ class Location:
       if person.status == "infectious":
         self.inf_visit_minutes += self.avg_visit_time
 
-  def evolve(self, verbose=False, ultraverbose=False):
+  def evolve(self, e, verbose=True, ultraverbose=False):
     minutes_opened = 12*60
     for v in self.visits:
       if v[0].status == "susceptible":
@@ -235,9 +237,11 @@ class Location:
           if infection_probability > 0.0:
             print(infection_probability, v[1], minutes_opened, self.inf_visit_minutes, self.sqm)
         if random.random() < infection_probability:
+          #TODO: do this via a modified infect() call?
           v[0].status = "exposed"
           if verbose:
-            print("Infection event at {}".format(self.name))
+            out_inf = open("covid_out_infections.csv",'a')
+            print("{},{},{},{}".format(e.time, self.x, self.y, self.type),file=out_inf)
 
 
 class Ecosystem:
@@ -246,6 +250,10 @@ class Ecosystem:
     self.houses = []
     self.house_names = []
     self.time = 0
+
+    #Make header for infections file
+    out_inf = open("covid_out_infections.csv",'w')
+    print("#time,x,y,location_type", file=out_inf)
 
   def add_infections(self, num):
     for i in range(0, num):
@@ -268,7 +276,7 @@ class Ecosystem:
     # process visits for the current day (spread infection).
     for lk in self.locations.keys():
       for l in self.locations[lk]:
-        l.evolve()
+        l.evolve(self)
 
     self.time += 1
 
