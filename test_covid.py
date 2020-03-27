@@ -29,7 +29,7 @@ if __name__ == "__main__":
     e.evolve()
 
     print(t)
-    e.print_status()
+    e.print_status("test_out.csv")
 
   assert t==27
 

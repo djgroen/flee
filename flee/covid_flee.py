@@ -15,6 +15,9 @@ avg_visit_times = [90,60,60,360,360,60,60] #average time spent per visit
 incubation_period = 5
 recovery_period = 20
 infection_scaling_factor = 0.001
+infection_rate = 0.07 # probability per day when within 2m.
+home_interaction_fraction = 0.05 # people are within 2m at home of a specific other person 5% of the time.
+
 
 class Needs():
   def __init__(self, csvfile):
@@ -81,6 +84,11 @@ needs = Needs("covid_data/needs.csv")
 needs.print()
 
 
+def log_infection(t, x, y, loc_type):
+  out_inf = open("covid_out_infections.csv",'a')
+  print("{},{},{},{}".format(t, x, y, loc_type), file=out_inf)
+
+
 class Person():
   def __init__(self, location, age):
     self.location = location # current location
@@ -113,8 +121,7 @@ class Person():
     # but by default, it should be exposed.
     self.status = severity
     self.status_change_time = t
-    out_inf = open("covid_out_infections.csv",'a')
-    print("{},{},{},{}".format(t,self.location.x,self.location.y,"house"), file=out_inf)
+    log_infection(t,self.location.x,self.location.y,"house")
 
   def progress_condition(self, t):
     if self.status == "exposed" and t-self.status_change_time > incubation_period:
@@ -136,6 +143,22 @@ class Household():
     for i in range(0,self.size):
       self.agents.append(Person(self.house, random.randint(0,100)))
 
+  def get_infectious_count(self):
+    ic = 0
+    for i in range(0,self.size):
+      if self.agents[i].status == "infectious":
+          ic += 1
+    return 1
+
+  def evolve(self, time):
+    ic = self.get_infectious_count()
+    for i in range(0,self.size):
+      if self.agents[i].status == "susceptible":
+        if ic > 0:
+          infection_chance = infection_rate * home_interaction_fraction * ic
+          if random.random() < infection_chance:
+            self.agents[i].status = "exposed"
+            log_infection(time,self.house.x,self.house.y,"house")
 
 def calc_dist(x1, y1, x2, y2):
     return (abs(x1-x2)**2 + abs(y1+y2)**2)**0.5
@@ -155,6 +178,10 @@ class House:
 
   def DecrementNumAgents(self):
     self.numAgents -= 1
+
+  def evolve(self, time):
+    for hh in self.households:
+      hh.evolve(time)
 
   def find_nearest_locations(self, e):
     """
@@ -237,11 +264,9 @@ class Location:
           if infection_probability > 0.0:
             print(infection_probability, v[1], minutes_opened, self.inf_visit_minutes, self.sqm)
         if random.random() < infection_probability:
-          #TODO: do this via a modified infect() call?
           v[0].status = "exposed"
           if verbose:
-            out_inf = open("covid_out_infections.csv",'a')
-            print("{},{},{},{}".format(e.time, self.x, self.y, self.type),file=out_inf)
+            log_infection(e.time, self.x, self.y, self.type)
 
 
 class Ecosystem:
@@ -278,6 +303,10 @@ class Ecosystem:
       for l in self.locations[lk]:
         l.evolve(self)
 
+    # process intra-household infection spread.
+    for h in self.houses:
+      h.evolve(self.time)
+    
     self.time += 1
 
   def addHouse(self, name, x, y, num_households=1):
