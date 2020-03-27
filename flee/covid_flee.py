@@ -223,12 +223,13 @@ class Location:
       if person.status == "infected":
         self.inf_visit_minutes += self.avg_visit_time
 
-  def evolve(self, verbose=False):
+  def evolve(self, verbose=False, ultraverbose=False):
     minutes_opened = 12*60
     for v in self.visits:
       if v[0].status == "susceptible":
         infection_probability = (v[1] / self.sqm) * (self.inf_visit_minutes / minutes_opened)
-        print(v, infection_probability, v[1], self.sqm, self.inf_visit_minutes, minutes_opened)
+        if ultraverbose:
+          print(v, infection_probability, v[1], self.sqm, self.inf_visit_minutes, minutes_opened)
         if random.random() < infection_probability:
           v[0].status = "exposed"
           if verbose:
