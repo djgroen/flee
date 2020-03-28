@@ -268,7 +268,7 @@ class Location:
             print(infection_probability, v[1], minutes_opened, self.inf_visit_minutes, self.sqm)
         if random.random() < infection_probability:
           v[0].status = "exposed"
-          v[0].status_change_time = time
+          v[0].status_change_time = e.time
           if verbose:
             log_infection(e.time, self.x, self.y, self.type)
 
