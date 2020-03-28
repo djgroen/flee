@@ -59,6 +59,10 @@ def read_building_csv(e, csvfile, building_type_map="covid_data/building_types_m
       row_number += 1
 
   print("Read in {} houses and {} other locations.".format(num_houses, num_locs))
+  print("Type distribution:")
+  print("house",len(e.houses))
+  for lt in e.locations:
+    print(lt, len(e.locations[lt]))
   print("raw types are:")
   pp.pprint(building_types)
   if dumptypesandquit:

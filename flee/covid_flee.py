@@ -14,8 +14,8 @@ lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,
 avg_visit_times = [90,60,60,360,360,60,60] #average time spent per visit
 incubation_period = 5
 recovery_period = 20
-infection_scaling_factor = 0.00002
 infection_rate = 0.07 # probability per day when within 2m.
+infection_scaling_factor = infection_rate/360 # see Location.evolve() for derivation.
 home_interaction_fraction = 0.05 # people are within 2m at home of a specific other person 5% of the time.
 
 
@@ -260,6 +260,8 @@ class Location:
     for v in self.visits:
       if v[0].status == "susceptible":
         infection_probability = infection_scaling_factor * (v[1] / minutes_opened) * (self.inf_visit_minutes / self.sqm)
+        # I think this should be 0.07 (infection rate) for 1 infectious person, and 1 susceptible person within 2m for a full day.
+        # So 0.07 = x * (24*60/24*60) * (24*60/4) -> 0.07 = x * 360 -> x = 0.07/360 = 0.0002
         if ultraverbose:
           if infection_probability > 0.0:
             print(infection_probability, v[1], minutes_opened, self.inf_visit_minutes, self.sqm)
