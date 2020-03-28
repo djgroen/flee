@@ -158,6 +158,7 @@ class Household():
           infection_chance = infection_rate * home_interaction_fraction * ic
           if random.random() < infection_chance:
             self.agents[i].status = "exposed"
+            self.agents[i].status_change_time = time
             log_infection(time,self.house.x,self.house.y,"house")
 
 def calc_dist(x1, y1, x2, y2):
@@ -267,6 +268,7 @@ class Location:
             print(infection_probability, v[1], minutes_opened, self.inf_visit_minutes, self.sqm)
         if random.random() < infection_probability:
           v[0].status = "exposed"
+          v[0].status_change_time = time
           if verbose:
             log_infection(e.time, self.x, self.y, self.type)
 
