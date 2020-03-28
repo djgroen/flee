@@ -20,6 +20,12 @@ office:
   index: 3
   labels:
   - office
+  - government
+  - fire_station
+  - industrial
+  - construction
+  - bank
+  - service
   default_sqm: 1600
   
 school:
@@ -44,6 +50,9 @@ leisure:
   - religious
   - clubhouse
   - pavilion
+  - stadium
+  - library
+  - community_centre
   default_sqm: 400
   
 shopping:
@@ -58,4 +67,5 @@ shopping:
   - restaurant
   - shop
   - shops
+  - retail
   default_sqm: 200
