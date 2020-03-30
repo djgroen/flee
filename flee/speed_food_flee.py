@@ -52,9 +52,9 @@ def line42day(t, current_i, critict):
     return current_critict
 
 
-# this small addition is copied from food_flee.py. the _init_ function of the location class from flee is given
-# variables for region and IPC, so that the locations in the simulation can hold the information provided by the IPC
-# data file.
+# This is a small addition to the location class. The _init_ function of the location class
+# from flee is given variables for region and IPC, so that the locations in the simulation can hold the information
+# provided by the IPC data file.
 class Location(flee.Location):
     def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown",
                  region="unknown", IPC=0):
@@ -64,13 +64,13 @@ class Location(flee.Location):
         self.IPC = IPC  # This is where the IPC value is stored for each location.
 
 
-# I import the person class from the original Flee.py file, and i add a speed variable.
+# I import the person class from the original Flee.py file, but i add a speed variable.
 class Person(flee.Person):
     def __init__(self, location):
         super().__init__(location)
-        self.speed = 200  # this speed variable is updated by the Update_IPC function.
+        self.speed = 200  # this is the unique speed variable which is updated by the Update_IPC function.
 
-    # i need my speed variable to be used in the finish_travel function, imported from flee.py. the changes made by me
+    # i need my speed variable to be used in the finish_travel function, imported from flee.py. any changes made by me
     # have been pointed out by comments.
     def finish_travel(self, distance_moved_this_timestep=0):
         if self.travelling:
@@ -98,7 +98,7 @@ class Person(flee.Person):
                     # usually here, an agent will go through another evolve() if it moves less than the minimum
                     # speed. in the case of the speed simulations, i've changed the minimum speed value to 0. this
                     # keeps the simulation behaving in a way that is true to my hypothesis. people only move as far
-                    # as their 'speed' allows them to, with no repeat runs of evolve()
+                    # as their 'speed' allows them to, with no repeat runs of evolve().
                     evolveMore = False
                     if self.location.distance + distance_moved_this_timestep < SimulationSettings.SimulationSettings.MinMoveSpeed:
                         distance_moved_this_timestep += self.location.distance
@@ -155,16 +155,10 @@ class Ecosystem(flee.Ecosystem):
                     # find the IPC value for the agent's current location:
                     agent_location_IPC = agent_location.IPC
 
-                    # below is a small output test i was running so i could see if this code was doing it's desired
-                    # task and the agent's current food security was being applied correctly.
-                    # agent_location_name = agent_location.name
-                    # agent_region = agent_location.region
-                    # test_string = "for agent %i the location is %a the region is %r the IPC is %f and the speed is
-                    # " \ "below." % (i, agent_location_name, agent_region, agent_location_IPC) print(test_string)
-
                     # if the current IPC for an agent is zero, give the agent a minimum speed:
-                    if agent_location_IPC == 0:
-                        self.agents[i].speed = 10
+                    if agent_location.country != "South_Sudan":
+                        self.agents[i].speed = 100
+
                     # check the agent's new speed by multiplying the max speed by the IPC value in decimal form.
                     # this is my formula being implemented as code.
                     else:
