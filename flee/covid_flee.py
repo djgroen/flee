@@ -11,10 +11,6 @@ import csv
 # TODO: store all this in a YaML file
 lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,"shopping":6} # location ids and labels
 avg_visit_times = [90,60,60,360,360,60,60] #average time spent per visit
-incubation_period = 5
-recovery_period = 20
-infection_rate = 0.07 # probability per day when within 2m.
-infection_scaling_factor = infection_rate/360 # see Location.evolve() for derivation.
 home_interaction_fraction = 0.05 # people are within 2m at home of a specific other person 5% of the time.
 
 class Needs():
@@ -121,13 +117,17 @@ class Person():
     self.status_change_time = t
     log_infection(t,self.location.x,self.location.y,"house")
 
-  def progress_condition(self, t):
-    if self.status == "exposed" and t-self.status_change_time > incubation_period:
+  def progress_condition(self, t, disease):
+    if self.status == "exposed" and t-self.status_change_time > disease.incubation_period:
       self.status = "infectious"
       self.status_change_time = t
-    if self.status == "infectious" and t-self.status_change_time > recovery_period:
+    if self.status == "infectious" and t-self.status_change_time > disease.recovery_period:
       self.status = "recovered"
       self.status_change_time = t
+    if self.status == "infectious" and t-self.status_change_time == disease.mortality_period:
+      if random.random() < 0.0138:  
+        self.status = "dead"
+        self.status_change_time = t
 
 class Household():
   def __init__(self, house, size=-1):
@@ -148,12 +148,12 @@ class Household():
           ic += 1
     return 1
 
-  def evolve(self, time):
+  def evolve(self, time, disease):
     ic = self.get_infectious_count()
     for i in range(0,self.size):
       if self.agents[i].status == "susceptible":
         if ic > 0:
-          infection_chance = infection_rate * home_interaction_fraction * ic
+          infection_chance = disease.infection_rate * home_interaction_fraction * ic
           if random.random() < infection_chance:
             self.agents[i].status = "exposed"
             self.agents[i].status_change_time = time
@@ -178,9 +178,9 @@ class House:
   def DecrementNumAgents(self):
     self.numAgents -= 1
 
-  def evolve(self, time):
+  def evolve(self, time, disease):
     for hh in self.households:
-      hh.evolve(time)
+      hh.evolve(time, disease)
 
   def find_nearest_locations(self, e):
     """
@@ -258,8 +258,9 @@ class Location:
     minutes_opened = 12*60
     for v in self.visits:
       if v[0].status == "susceptible":
-        infection_probability = infection_scaling_factor * (v[1] / minutes_opened) * (self.inf_visit_minutes / self.sqm)
-        # I think this should be 0.07 (infection rate) for 1 infectious person, and 1 susceptible person within 2m for a full day.
+        infection_probability = (e.disease.infection_rate/360.0) * (v[1] / minutes_opened) * (self.inf_visit_minutes / self.sqm)
+        # For Covid-19 this should be 0.07 (infection rate) for 1 infectious person, and 1 susceptible person within 2m for a full day.
+        # I assume they can do this in a 4m^2 area.
         # So 0.07 = x * (24*60/24*60) * (24*60/4) -> 0.07 = x * 360 -> x = 0.07/360 = 0.0002
         if ultraverbose:
           if infection_probability > 0.0:
@@ -299,7 +300,7 @@ class Ecosystem:
       for hh in h.households:
         for a in hh.agents:
           a.plan_visits()
-          a.progress_condition(self.time)
+          a.progress_condition(self.time, self.disease)
 
     # process visits for the current day (spread infection).
     for lk in self.locations.keys():
@@ -308,7 +309,7 @@ class Ecosystem:
 
     # process intra-household infection spread.
     for h in self.houses:
-      h.evolve(self.time)
+      h.evolve(self.time, self.disease)
     
     self.time += 1
 
