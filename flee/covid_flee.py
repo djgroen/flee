@@ -124,7 +124,7 @@ class Person():
     if self.status == "infectious" and t-self.status_change_time > disease.recovery_period:
       self.status = "recovered"
       self.status_change_time = t
-    if self.status == "infectious" and t-self.status_change_time == disease.mortality_period:
+    if self.status == "infectious" and t-self.status_change_time == int(round(disease.mortality_period)):
       if random.random() < 0.0138:  
         self.status = "dead"
         self.status_change_time = t
