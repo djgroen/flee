@@ -7,5 +7,4 @@ class Disease():
 
   def print(self):
     print(self.infection_rate, self.incubation_period, self.recovery_period, self.mortality_period)
-    sys.exit()
 

@@ -19,7 +19,7 @@ if __name__ == "__main__":
   end_time = 90
   e = flee.Ecosystem()
 
-  e.disease = read_disease_yml("covid_data/disease_covid19.yml")
+  e.disease = read_disease_yml.read_disease_yml("covid_data/disease_covid19.yml")
   read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml")
  
   e.add_infections(10)
