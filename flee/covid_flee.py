@@ -7,7 +7,6 @@ from flee import SimulationSettings
 from flee import flee
 import array
 import csv
-from datamanager import read_building_csv
 
 # TODO: store all this in a YaML file
 lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,"shopping":6} # location ids and labels
@@ -17,7 +16,6 @@ recovery_period = 20
 infection_rate = 0.07 # probability per day when within 2m.
 infection_scaling_factor = infection_rate/360 # see Location.evolve() for derivation.
 home_interaction_fraction = 0.05 # people are within 2m at home of a specific other person 5% of the time.
-
 
 class Needs():
   def __init__(self, csvfile):
@@ -279,6 +277,7 @@ class Ecosystem:
     self.houses = []
     self.house_names = []
     self.time = 0
+    self.disease = None
 
     #Make header for infections file
     out_inf = open("covid_out_infections.csv",'w')
