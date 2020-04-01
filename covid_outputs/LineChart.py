@@ -9,6 +9,7 @@ df = pd.read_csv('covid_out.csv', delimiter=',')
 # fig = px.line(df, x="#time", y="exposed", title='COVID-19 Simulation - London Borough of Brent')
 # py.offline.plot(fig, filename='name.html')
 
+df['new cases'] = df['exposed'].diff(1) + df['infectious'].diff(1)
 
 fig = go.Figure()
 
@@ -19,6 +20,8 @@ fig.add_trace(go.Scatter(x=df['#time'], y=df['susceptible'],
 fig.add_trace(go.Scatter(x=df['#time'], y=df['exposed'],
                     mode='lines+markers',
                     name='exposed',  line=dict(color='purple')))
+fig.add_trace(go.Bar(x=df['#time'], y=df['new cases'],
+                    name='new cases'))
 fig.add_trace(go.Scatter(x=df['#time'], y=df['infectious'],
                     mode='lines+markers',
                     name='infectious',  line=dict(color='red')))

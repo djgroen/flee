@@ -24,7 +24,7 @@ if __name__ == "__main__":
   read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml")
   read_cases_csv.read_cases_csv(e, "covid_data/cases.csv") # Can only be done after houses are in.
  
-  e.add_infections(10)
+  #e.add_infections(10)
 
   #e.print_needs()
 
