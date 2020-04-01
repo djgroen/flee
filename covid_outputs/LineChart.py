@@ -21,7 +21,7 @@ fig.add_trace(go.Scatter(x=df['#time'], y=df['exposed'],
                     mode='lines+markers',
                     name='exposed',  line=dict(color='purple')))
 fig.add_trace(go.Bar(x=df['#time'], y=df['new cases'],
-                    name='new cases'))
+                    name='change in # affected'))
 fig.add_trace(go.Scatter(x=df['#time'], y=df['infectious'],
                     mode='lines+markers',
                     name='infectious',  line=dict(color='red')))
