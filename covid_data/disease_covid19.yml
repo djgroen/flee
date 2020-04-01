@@ -23,4 +23,4 @@ hospitalised:
 mortality_period: 17.8
 recovery_period: 24.7
 incubation_period: 5.0
- 
+period_to_hospitalisation: 6.0 

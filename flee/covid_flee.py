@@ -76,11 +76,14 @@ class Needs():
 # Global storage for needs now, to keep it simple.
 needs = Needs("covid_data/needs.csv")
 needs.print()
-
+num_infections_today = 0
+num_hospitalisations_today = 0
 
 def log_infection(t, x, y, loc_type):
+  global num_infections_today
   out_inf = open("covid_out_infections.csv",'a')
   print("{},{},{},{}".format(t, x, y, loc_type), file=out_inf)
+  num_infections_today += 1
 
 
 class Person():
@@ -118,12 +121,16 @@ class Person():
     log_infection(t,self.location.x,self.location.y,"house")
 
   def progress_condition(self, t, disease):
+    global num_hospitalisations_today
     if self.status == "exposed" and t-self.status_change_time > disease.incubation_period:
       self.status = "infectious"
       self.status_change_time = t
     if self.status == "infectious" and t-self.status_change_time > disease.recovery_period:
       self.status = "recovered"
       self.status_change_time = t
+    if self.status == "infectious" and t-self.status_change_time == int(round(disease.period_to_hospitalisation-disease.incubation_period)):
+      if random.random() < 0.06: #TODO: read from YML
+        num_hospitalisations_today += 1
     if self.status == "infectious" and t-self.status_change_time == int(round(disease.mortality_period)):
       if random.random() < 0.0138:  
         self.status = "dead"
@@ -213,7 +220,7 @@ class House:
       p = random.randint(0, len(self.households[hh].agents)-1)
       if self.households[hh].agents[p].status == "susceptible": 
         # because we do pre-seeding we need to ensure we add exactly 1 infection.
-        self.households[hh].agents[p].infect(time, severity="infectious")
+        self.households[hh].agents[p].infect(time-5, severity="infectious")
         infection_pending = False
 
   def has_age(self, age):
@@ -229,7 +236,7 @@ class House:
       for a in hh.agents:
         if a.age == age:
           if a.status == "susceptible":
-            a.infect(time, severity="infectious")
+            a.infect(time-5, severity="infectious")
 
 class Location:
   def __init__(self, name, loc_type="park", x=0.0, y=0.0, sqm=400):
@@ -293,6 +300,7 @@ class Ecosystem:
     self.house_names = []
     self.time = 0
     self.disease = None
+    self.closures = {}
 
     #Make header for infections file
     out_inf = open("covid_out_infections.csv",'w')
@@ -322,6 +330,11 @@ class Ecosystem:
     selected_house.add_infection_by_age(self.time, age)
 
   def evolve(self):
+    global num_infections_today
+    global num_hospitalisations_today
+    num_infections_today = 0
+    num_hospitalisations_today = 0 
+
     # remove visits from the previous day
     for lk in self.locations.keys():
       for l in self.locations[lk]:
@@ -335,7 +348,10 @@ class Ecosystem:
           a.progress_condition(self.time, self.disease)
 
     # process visits for the current day (spread infection).
-    for lk in self.locations.keys():
+    for lk in self.locations:
+      if lk in self.closures:
+        if self.closures[lk] < self.time:
+          continue
       for l in self.locations[lk]:
         l.evolve(self)
 
@@ -359,6 +375,9 @@ class Ecosystem:
       self.locations[loc_type] = [l]
     return l
 
+  def addClosure(self, loc_type, time):
+    self.closures[loc_type] = time
+
   def print_needs(self):
     for k,e in enumerate(self.houses):
       for hh in e.households:
@@ -369,7 +388,7 @@ class Ecosystem:
     out = None
     if self.time == 0:
       out = open(outfile,'w')
-      print("#time,susceptible,exposed,infectious,recovered,dead",file=out)
+      print("#time,susceptible,exposed,infectious,recovered,dead,num infections today,num hospitalisations today",file=out)
     else:
       out = open(outfile,'a')
     status = {"susceptible":0,"exposed":0,"infectious":0,"recovered":0,"dead":0}
@@ -377,7 +396,7 @@ class Ecosystem:
       for hh in e.households:
         for a in hh.agents:
           status[a.status] += 1
-    print("{},{},{},{},{},{}".format(self.time,status["susceptible"],status["exposed"],status["infectious"],status["recovered"],status["dead"]), file=out)
+    print("{},{},{},{},{},{},{},{}".format(self.time,status["susceptible"],status["exposed"],status["infectious"],status["recovered"],status["dead"],num_infections_today,num_hospitalisations_today), file=out)
 
 
 if __name__ == "__main__":
