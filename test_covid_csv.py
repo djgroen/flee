@@ -2,6 +2,7 @@ import flee.covid_flee as flee
 import numpy as np
 import outputanalysis.analysis as a
 from datamanager import read_building_csv
+from datamanager import read_cases_csv
 from datamanager import read_disease_yml
 import sys
 
@@ -21,6 +22,7 @@ if __name__ == "__main__":
 
   e.disease = read_disease_yml.read_disease_yml("covid_data/disease_covid19.yml")
   read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml")
+  read_cases_csv.read_cases_csv(e, "covid_data/cases.csv") # Can only be done after houses are in.
  
   e.add_infections(10)
 

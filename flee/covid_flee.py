@@ -216,6 +216,20 @@ class House:
         self.households[hh].agents[p].infect(time, severity="infectious")
         infection_pending = False
 
+  def has_age(self, age):
+    for hh in self.households:
+      for a in hh.agents:
+        if a.age == age:
+          if a.status == "susceptible":
+            return True
+    return False
+
+  def add_infection_by_age(self, time, age):
+    for hh in self.households:
+      for a in hh.agents:
+        if a.age == age:
+          if a.status == "susceptible":
+            a.infect(time, severity="infectious")
 
 class Location:
   def __init__(self, name, loc_type="park", x=0.0, y=0.0, sqm=400):
@@ -285,9 +299,27 @@ class Ecosystem:
     print("#time,x,y,location_type", file=out_inf)
 
   def add_infections(self, num):
+    """
+    Randomly add an infection.
+    """
     for i in range(0, num):
       house = random.randint(0, len(self.houses)-1)
       self.houses[house].add_infection(self.time)
+
+  def add_infection(self, x, y, age):
+    """
+    Add an infection to the nearest person of that age.
+    """
+    selected_house = None
+    min_dist = 99999
+    for h in self.houses:
+      dist_h = calc_dist(h.x, h.y, x, y)
+      if dist_h < min_dist:
+        if h.has_age(age):
+          selected_house = h
+          min_dist = dist_h
+
+    selected_house.add_infection_by_age(self.time, age)
 
   def evolve(self):
     # remove visits from the previous day
