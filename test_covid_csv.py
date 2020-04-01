@@ -32,7 +32,7 @@ if __name__ == "__main__":
       e.addClosure("leisure", 0)
 
   if len(sys.argv)>3:
-    outfile = sys.argv[2]
+    outfile = sys.argv[3]
 
   e.disease = read_disease_yml.read_disease_yml("covid_data/disease_covid19.yml")
   read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml")
