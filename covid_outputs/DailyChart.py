@@ -21,8 +21,11 @@ fig.add_trace(go.Scatter(x=df['#time'], y=df['num infections today'],
                     name='# of new infections (sim)',  line=dict(color='orange')))
 fig.add_trace(go.Scatter(x=df['#time'], y=df['num hospitalisations today'],
                     mode='lines+markers',
-                    name='# of new hospitalisations',  line=dict(color='purple')))
-#fig.add_trace(go.Bar(x=df['#time'], y=df['ward arrivals'],
-#                    name='# of new hospitalisations (data)'))
+                    name='# of new hospitalisations (sim)',  line=dict(color='blue')))
+#fig.add_trace(go.Scatter(x=df['#time'], y=df['num hospitalisations today (data)'],
+#                    mode='lines+markers',
+#                    name='# of new hospitalisations (data)',  line=dict(color='dark blue')))
+fig.add_trace(go.Bar(x=df['#time'], y=df['num hospitalisations today (data)'],
+                    name='# of new hospitalisations (data)'))
 
 py.offline.plot(fig, filename='daily-{}.html'.format(sys.argv[1]))

@@ -14,7 +14,7 @@ if __name__ == "__main__":
   print("Testing basic Covid-19 simulation kernel.")
 
   end_time = 90
-  e = flee.Ecosystem()
+  e = flee.Ecosystem(end_time)
   outfile = "covid_out.csv"
 
   building_file = "covid_data/buildings.csv"
@@ -30,6 +30,10 @@ if __name__ == "__main__":
     if sys.argv[2] == "minorlock":
       e.addClosure("school", 0)
       e.addClosure("leisure", 0)
+    if sys.argv[2] == "minorlockSD":
+      e.addClosure("school", 0)
+      e.addClosure("leisure", 0)
+      e.add_social_distance(2, 0.8571) #mimicking a 75% reduction in social contacts (85.71% compliance needed for 2m).
 
   if len(sys.argv)>3:
     outfile = sys.argv[3]

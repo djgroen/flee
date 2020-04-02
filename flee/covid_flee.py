@@ -279,7 +279,7 @@ class Location:
     minutes_opened = 12*60
     for v in self.visits:
       if v[0].status == "susceptible":
-        infection_probability = (e.disease.infection_rate/360.0) * (v[1] / minutes_opened) * (self.inf_visit_minutes / self.sqm)
+        infection_probability = e.social_distance_factor * (e.disease.infection_rate/360.0) * (v[1] / minutes_opened) * (self.inf_visit_minutes / self.sqm)
         # For Covid-19 this should be 0.07 (infection rate) for 1 infectious person, and 1 susceptible person within 2m for a full day.
         # I assume they can do this in a 4m^2 area.
         # So 0.07 = x * (24*60/24*60) * (24*60/4) -> 0.07 = x * 360 -> x = 0.07/360 = 0.0002
@@ -294,13 +294,15 @@ class Location:
 
 
 class Ecosystem:
-  def __init__(self):
+  def __init__(self, duration):
     self.locations = {}
     self.houses = []
     self.house_names = []
     self.time = 0
     self.disease = None
     self.closures = {}
+    self.validation = np.zeros(duration+1)
+    self.social_distancing_factor = 1.0
 
     #Make header for infections file
     out_inf = open("covid_out_infections.csv",'w')
@@ -378,6 +380,18 @@ class Ecosystem:
   def addClosure(self, loc_type, time):
     self.closures[loc_type] = time
 
+  def add_social_distance(self, distance=2, compliance=0.8571):
+    dist_factor = (0.5 / distance)**2
+    # 0.5 is seen as a rough border between intimate and interpersonal contact, 
+    # based on proxemics (Edward T Hall).
+    # The -2 exponent is based on the observation that particles move linearly in
+    # one dimension, and diffuse in the two other dimensions.
+    # gravitational effects are ignored, as particles on surfaces could still
+    # lead to future contamination through surface contact.
+    # The default values are chosen to give a 75% reduction in social interactions,
+    # as assumed by Ferguson et al., Imperial Summary Report 9, 2020.
+    self.social_distance_factor = dist_factor*compliance + (1.0-compliance)
+
   def print_needs(self):
     for k,e in enumerate(self.houses):
       for hh in e.households:
@@ -388,7 +402,7 @@ class Ecosystem:
     out = None
     if self.time == 0:
       out = open(outfile,'w')
-      print("#time,susceptible,exposed,infectious,recovered,dead,num infections today,num hospitalisations today",file=out)
+      print("#time,susceptible,exposed,infectious,recovered,dead,num infections today,num hospitalisations today,num hospitalisations today (data)",file=out)
     else:
       out = open(outfile,'a')
     status = {"susceptible":0,"exposed":0,"infectious":0,"recovered":0,"dead":0}
@@ -396,8 +410,11 @@ class Ecosystem:
       for hh in e.households:
         for a in hh.agents:
           status[a.status] += 1
-    print("{},{},{},{},{},{},{},{}".format(self.time,status["susceptible"],status["exposed"],status["infectious"],status["recovered"],status["dead"],num_infections_today,num_hospitalisations_today), file=out)
+    print("{},{},{},{},{},{},{},{},{}".format(self.time,status["susceptible"],status["exposed"],status["infectious"],status["recovered"],status["dead"],num_infections_today,num_hospitalisations_today,self.validation[self.time]), file=out)
 
+
+  def add_validation_point(self, time):
+    self.validation[time] += 1
 
 if __name__ == "__main__":
   print("No testing functionality here yet.")
