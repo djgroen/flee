@@ -14,7 +14,7 @@ if __name__ == "__main__":
   print("Testing basic Covid-19 simulation kernel.")
 
   end_time = 90
-  if sys.argv[2] == "post-lockdown":
+  if sys.argv[2] == "post-lockdown" or "lockSDCI":
     end_time = 180
   
   e = flee.Ecosystem(end_time)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     print(t)
     e.print_status(outfile)
 
-    if t == 89: # move to post-lockdown scenario.
+    if t == 89 and sys.argv[2] == "post-lockdown": # move to post-lockdown scenario.
       e.remove_all_measures()
 
   print("Simulation complete.")
