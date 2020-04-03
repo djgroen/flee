@@ -316,6 +316,7 @@ class Ecosystem:
     self.initialise_social_distance() # default: no social distancing.
     print(self.contact_rate_multiplier)
     self.self_isolation_multiplier = 1.0
+    self.work_from_home = False
 
     #Make header for infections file
     out_inf = open("covid_out_infections.csv",'w')
@@ -398,16 +399,26 @@ class Ecosystem:
       self.contact_rate_multiplier[l] = contact_ratio
     self.contact_rate_multiplier["house"] = 1.0
 
+  def remove_social_distance(self):
+    self.initialise_social_distance()
+    if self.work_from_home:
+      self.add_work_from_home(self.work_from_home_compliance)
+
   def add_social_distance_imp9(self): # Add social distancing as defined in Imperial Report 0.
     # The default values are chosen to give a 75% reduction in social interactions,
     # as assumed by Ferguson et al., Imperial Summary Report 9, 2020.
     for l in self.locations:
-      self.contact_rate_multiplier[l] = 0.25
+      self.contact_rate_multiplier[l] *= 0.25
    
     # Setting values as described in Table 2, Imp Report 9. ("SD")
-    self.contact_rate_multiplier["office"] = 0.75
-    self.contact_rate_multiplier["school"] = 1.0
-    self.contact_rate_multiplier["house"] = 1.25
+    self.contact_rate_multiplier["office"] *= 0.75
+    self.contact_rate_multiplier["school"] *= 1.0
+    self.contact_rate_multiplier["house"] *= 1.25
+
+  def add_work_from_home(self, compliance=0.75):
+    self.contact_rate_multiplier["office"] *= 1.0 - compliance
+    self.work_from_home = True
+    self.work_from_home_compliance = compliance
 
   def add_social_distance(self, distance=2, compliance=0.8571):
     dist_factor = (0.5 / distance)**2
@@ -417,8 +428,9 @@ class Ecosystem:
     # one dimension, and diffuse in the two other dimensions.
     # gravitational effects are ignored, as particles on surfaces could still
     # lead to future contamination through surface contact.
-    for l in self.locations:
-      self.contact_rate_multiplier[l] = dist_factor*compliance + (1.0-compliance)
+    for l in lids:
+      self.contact_rate_multiplier[l] *= dist_factor * compliance + (1.0-compliance)
+    self.contact_rate_multiplier["house"] *= 1.25
 
   def add_case_isolation(self, multiplier=0.475):
     # default value is derived from Imp Report 9.
