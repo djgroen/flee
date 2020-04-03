@@ -32,4 +32,4 @@ fig.add_trace(go.Scatter(x=df['#time'], y=df['dead'],
                     mode='lines+markers',
                     name='dead', line=dict(color='black')))
 
-py.offline.plot(fig, filename='cases-{}-.html'.format(sys.argv[1]))
+py.offline.plot(fig, filename='cases-{}.html'.format(sys.argv[1]))
