@@ -25,7 +25,9 @@ if __name__ == "__main__":
     if sys.argv[1] == "test":
       building_file = "covid_data/buildings_test.csv"
     if sys.argv[1] == "brent":
-      building_file = "covid_data/buildings.csv"
+      building_file = "covid_data/brent_buildings.csv"
+    if sys.argv[1] == "brent":
+      building_file = "covid_data/ealing_buildings.csv"
 
   if len(sys.argv)>2:
     if sys.argv[2] == "default":
