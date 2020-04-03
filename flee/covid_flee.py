@@ -99,13 +99,13 @@ class Person():
     self.age = age # age in years
 
 
-  def plan_visits(self):
+  def plan_visits(self, e):
     personal_needs = needs.get_needs(self.age)
     for k,element in enumerate(personal_needs):
       nearest_locs = self.home_location.nearest_locations
       if nearest_locs[k]:
         location_to_visit = nearest_locs[k]
-        location_to_visit.register_visit(self, element)
+        location_to_visit.register_visit(e, self, element)
 
   def print_needs(self):
     print(self.age, needs.get_needs(self.age))
@@ -155,12 +155,12 @@ class Household():
           ic += 1
     return 1
 
-  def evolve(self, time, disease):
+  def evolve(self, e, time, disease):
     ic = self.get_infectious_count()
     for i in range(0,self.size):
       if self.agents[i].status == "susceptible":
         if ic > 0:
-          infection_chance = disease.infection_rate * home_interaction_fraction * ic
+          infection_chance = e.contact_rate_multiplier["house"] * disease.infection_rate * home_interaction_fraction * ic
           if random.random() < infection_chance:
             self.agents[i].status = "exposed"
             self.agents[i].status_change_time = time
@@ -185,9 +185,9 @@ class House:
   def DecrementNumAgents(self):
     self.numAgents -= 1
 
-  def evolve(self, time, disease):
+  def evolve(self, e, time, disease):
     for hh in self.households:
-      hh.evolve(time, disease)
+      hh.evolve(e, time, disease)
 
   def find_nearest_locations(self, e):
     """
@@ -268,18 +268,28 @@ class Location:
     self.visits = []
     self.visit_minutes = 0 # total number of minutes of all visits aggregated.
 
-  def register_visit(self, person, need):
-    visit_probability = need/(self.avg_visit_time * 7) # = minutes per week / (average visit time * days in the week)
+  def register_visit(self, e, person, need):
+    visit_time = self.avg_visit_time
+    if person.status == "dead":
+      visit_time = 0.0
+    if person.status == "infectious":
+      visit_time *= e.self_isolation_multiplier # implementing case isolation (CI)
+
+    if visit_time > 0.0:
+      visit_probability = need/(visit_time * 7) # = minutes per week / (average visit time * days in the week)
+    else:
+      return
+
     if random.random() < visit_probability:
-      self.visits.append([person, self.avg_visit_time])
+      self.visits.append([person, visit_time])
       if person.status == "infectious":
-        self.inf_visit_minutes += self.avg_visit_time
+        self.inf_visit_minutes += visit_time
 
   def evolve(self, e, verbose=True, ultraverbose=False):
     minutes_opened = 12*60
     for v in self.visits:
       if v[0].status == "susceptible":
-        infection_probability = e.social_distance_factor * (e.disease.infection_rate/360.0) * (v[1] / minutes_opened) * (self.inf_visit_minutes / self.sqm)
+        infection_probability = e.contact_rate_multiplier[self.type] * (e.disease.infection_rate/360.0) * (v[1] / minutes_opened) * (self.inf_visit_minutes / self.sqm)
         # For Covid-19 this should be 0.07 (infection rate) for 1 infectious person, and 1 susceptible person within 2m for a full day.
         # I assume they can do this in a 4m^2 area.
         # So 0.07 = x * (24*60/24*60) * (24*60/4) -> 0.07 = x * 360 -> x = 0.07/360 = 0.0002
@@ -302,7 +312,10 @@ class Ecosystem:
     self.disease = None
     self.closures = {}
     self.validation = np.zeros(duration+1)
-    self.social_distancing_factor = 1.0
+    self.contact_rate_multiplier = {}
+    self.initialise_social_distance() # default: no social distancing.
+    print(self.contact_rate_multiplier)
+    self.self_isolation_multiplier = 1.0
 
     #Make header for infections file
     out_inf = open("covid_out_infections.csv",'w')
@@ -346,7 +359,7 @@ class Ecosystem:
     for h in self.houses:
       for hh in h.households:
         for a in hh.agents:
-          a.plan_visits()
+          a.plan_visits(self)
           a.progress_condition(self.time, self.disease)
 
     # process visits for the current day (spread infection).
@@ -359,7 +372,7 @@ class Ecosystem:
 
     # process intra-household infection spread.
     for h in self.houses:
-      h.evolve(self.time, self.disease)
+      h.evolve(self, self.time, self.disease)
     
     self.time += 1
 
@@ -380,6 +393,22 @@ class Ecosystem:
   def addClosure(self, loc_type, time):
     self.closures[loc_type] = time
 
+  def initialise_social_distance(self, contact_ratio=1.0): 
+    for l in lids:
+      self.contact_rate_multiplier[l] = contact_ratio
+    self.contact_rate_multiplier["house"] = 1.0
+
+  def add_social_distance_imp9(self): # Add social distancing as defined in Imperial Report 0.
+    # The default values are chosen to give a 75% reduction in social interactions,
+    # as assumed by Ferguson et al., Imperial Summary Report 9, 2020.
+    for l in self.locations:
+      self.contact_rate_multiplier[l] = 0.25
+   
+    # Setting values as described in Table 2, Imp Report 9. ("SD")
+    self.contact_rate_multiplier["office"] = 0.75
+    self.contact_rate_multiplier["school"] = 1.0
+    self.contact_rate_multiplier["house"] = 1.25
+
   def add_social_distance(self, distance=2, compliance=0.8571):
     dist_factor = (0.5 / distance)**2
     # 0.5 is seen as a rough border between intimate and interpersonal contact, 
@@ -388,9 +417,14 @@ class Ecosystem:
     # one dimension, and diffuse in the two other dimensions.
     # gravitational effects are ignored, as particles on surfaces could still
     # lead to future contamination through surface contact.
-    # The default values are chosen to give a 75% reduction in social interactions,
-    # as assumed by Ferguson et al., Imperial Summary Report 9, 2020.
-    self.social_distance_factor = dist_factor*compliance + (1.0-compliance)
+    for l in self.locations:
+      self.contact_rate_multiplier[l] = dist_factor*compliance + (1.0-compliance)
+
+  def add_case_isolation(self, multiplier=0.475):
+    # default value is derived from Imp Report 9.
+    # 75% reduction is social contacts for 70 percent of the cases.
+    # (0.75*0.7)+0.3
+    self.self_isolation_multiplier=multiplier
 
   def print_needs(self):
     for k,e in enumerate(self.houses):

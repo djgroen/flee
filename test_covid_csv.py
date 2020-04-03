@@ -33,7 +33,7 @@ if __name__ == "__main__":
     if sys.argv[2] == "minorlockSD":
       e.addClosure("school", 0)
       e.addClosure("leisure", 0)
-      e.add_social_distance(2, 0.8571) #mimicking a 75% reduction in social contacts (85.71% compliance needed for 2m).
+      e.add_social_distance_imp9() #mimicking a 75% reduction in social contacts.
 
   if len(sys.argv)>3:
     outfile = sys.argv[3]
