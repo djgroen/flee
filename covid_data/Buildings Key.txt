@@ -1,0 +1,9 @@
+park:	1
+hospital:	2
+supermarket:	3
+office:	4
+school	5
+leisure:	6
+shopping:	7
+House:	8
+Others:	9
