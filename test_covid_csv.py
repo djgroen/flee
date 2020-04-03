@@ -14,6 +14,9 @@ if __name__ == "__main__":
   print("Testing basic Covid-19 simulation kernel.")
 
   end_time = 90
+  if sys.argv[2] == "post-lockdown":
+    end_time = 180
+  
   e = flee.Ecosystem(end_time)
   outfile = "covid_out.csv"
 
@@ -41,8 +44,6 @@ if __name__ == "__main__":
       e.add_social_distance_imp9() #mimicking a 75% reduction in social contacts.
       e.add_work_from_home()
       e.add_case_isolation()
-    if sys.argv[2] == "post-lockdown":
-      end_time = 180
 
   if len(sys.argv)>3:
     outfile = "{}/{}-{}.csv".format(sys.argv[3], sys.argv[1], sys.argv[2])
@@ -64,8 +65,8 @@ if __name__ == "__main__":
     print(t)
     e.print_status(outfile)
 
-    #if t == 89: # move to post-lockdown scenario.
-    #  e.reset_measures()
+    if t == 89: # move to post-lockdown scenario.
+      e.remove_all_measures()
 
   print("Simulation complete.")
 

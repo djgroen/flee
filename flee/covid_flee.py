@@ -398,11 +398,21 @@ class Ecosystem:
     self.contact_rate_multiplier["house"] = 1.0
     self.print_contact_rate("Reset to no measures")
 
+  def reset_case_isolation(self):
+    self.self_isolation_multiplier=1.0
+    self.print_isolation_rate("Removing CI, now multiplier is {}".format(self.self_isolation_multiplier))
+
   def remove_social_distance(self):
     self.initialise_social_distance()
     if self.work_from_home:
       self.add_work_from_home(self.work_from_home_compliance)
     self.print_contact_rate("Removal of SD")
+
+  def remove_all_measures(self):
+    global needs
+    self.initialise_social_distance()
+    self.reset_case_isolation()
+    needs = Needs("covid_data/needs.csv")
 
   def add_social_distance_imp9(self): # Add social distancing as defined in Imperial Report 0.
     # The default values are chosen to give a 75% reduction in social interactions,
