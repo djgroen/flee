@@ -34,9 +34,15 @@ if __name__ == "__main__":
       e.addClosure("school", 0)
       e.addClosure("leisure", 0)
       e.add_social_distance_imp9() #mimicking a 75% reduction in social contacts.
+    if sys.argv[2] == "lockSDCI":
+      e.addClosure("school", 0)
+      e.addClosure("leisure", 0)
+      e.add_social_distance_imp9() #mimicking a 75% reduction in social contacts.
+      e.add_work_from_home()
+      e.add_case_isolation()
 
   if len(sys.argv)>3:
-    outfile = sys.argv[3]
+    outfile = "{}/{}-{}.csv".format(sys.argv[3], sys.argv[1], sys.argv[2])
 
   e.disease = read_disease_yml.read_disease_yml("covid_data/disease_covid19.yml")
   read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml")
