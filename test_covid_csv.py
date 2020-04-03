@@ -28,25 +28,28 @@ if __name__ == "__main__":
     if sys.argv[2] == "default":
       pass
     if sys.argv[2] == "minorlock":
-      e.addClosure("school", 0)
-      e.addClosure("leisure", 0)
+      e.add_closure("school", 0)
+      e.add_closure("leisure", 0)
     if sys.argv[2] == "minorlockSD":
-      e.addClosure("school", 0)
-      e.addClosure("leisure", 0)
+      e.add_closure("school", 0)
+      e.add_closure("leisure", 0)
       e.add_social_distance_imp9() #mimicking a 75% reduction in social contacts.
-    if sys.argv[2] == "lockSDCI":
-      e.addClosure("school", 0)
-      e.addClosure("leisure", 0)
+    if sys.argv[2] == "lockSDCI" or "post-lockdown":
+      e.add_closure("school", 0)
+      e.add_closure("leisure", 0)
+      e.add_partial_closure("shopping", 0.8)
       e.add_social_distance_imp9() #mimicking a 75% reduction in social contacts.
       e.add_work_from_home()
       e.add_case_isolation()
+    if sys.argv[2] == "post-lockdown":
+      end_time = 180
 
   if len(sys.argv)>3:
     outfile = "{}/{}-{}.csv".format(sys.argv[3], sys.argv[1], sys.argv[2])
 
   e.disease = read_disease_yml.read_disease_yml("covid_data/disease_covid19.yml")
   read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml")
-  read_cases_csv.read_cases_csv(e, "covid_data/cases.csv") # Can only be done after houses are in.
+  read_cases_csv.read_cases_csv(e, "covid_data/Actual Cases.csv", start_date="2020-03-18", date_format="%Y-%m-%d") # Can only be done after houses are in.
  
   #e.add_infections(10)
 
@@ -61,7 +64,8 @@ if __name__ == "__main__":
     print(t)
     e.print_status(outfile)
 
-  assert t==89
+    #if t == 89: # move to post-lockdown scenario.
+    #  e.reset_measures()
 
   print("Simulation complete.")
 

@@ -43,26 +43,6 @@ class Needs():
             self.needs[i,row_number-1] = int(row[needs_cols[i]])
         row_number += 1
 
-  # Hard-coded draft file
-  def add_hardcoded_needs(self):
-    self.needs = np.zeros((len(lids),120))
-
-    self.needs[lids["park"]][:] = 120
-    
-    self.needs[lids["hospital"]][:] = 10
-    
-    self.needs[lids["supermarket"]][:] = 60
-    
-    self.needs[lids["office"]][19:] = 1200
-    self.needs[lids["office"]][:20] = 0
-
-    self.needs[lids["school"]][19:] = 0
-    self.needs[lids["school"]][:20] = 1200
-    
-    self.needs[lids["leisure"]][:] = 120
-    
-    self.needs[lids["shopping"]][:] = 60
-
   def get_need(self, age, need):
     return self.needs[need,age]
 
@@ -146,7 +126,7 @@ class Household():
 
     self.agents = []
     for i in range(0,self.size):
-      self.agents.append(Person(self.house, random.randint(0,100)))
+      self.agents.append(Person(self.house, random.randint(0,119)))
 
   def get_infectious_count(self):
     ic = 0
@@ -314,13 +294,22 @@ class Ecosystem:
     self.validation = np.zeros(duration+1)
     self.contact_rate_multiplier = {}
     self.initialise_social_distance() # default: no social distancing.
-    print(self.contact_rate_multiplier)
     self.self_isolation_multiplier = 1.0
     self.work_from_home = False
 
     #Make header for infections file
     out_inf = open("covid_out_infections.csv",'w')
     print("#time,x,y,location_type", file=out_inf)
+
+  def print_contact_rate(self, measure):
+    print("Enacted measure:", measure)
+    print("contact rate multipliers set to:")
+    print(self.contact_rate_multiplier)
+
+  def print_isolation_rate(self, measure):
+    print("Enacted measure:", measure)
+    print("isolation rate multipliers set to:")
+    print(self.self_isolation_multiplier)
 
   def add_infections(self, num):
     """
@@ -330,12 +319,13 @@ class Ecosystem:
       house = random.randint(0, len(self.houses)-1)
       self.houses[house].add_infection(self.time)
 
-  def add_infection(self, x, y, age):
+  def add_infection(self, x, y, age, day):
     """
     Add an infection to the nearest person of that age.
     """
     selected_house = None
     min_dist = 99999
+    #print("add_infection:",x,y,age,len(self.houses))
     for h in self.houses:
       dist_h = calc_dist(h.x, h.y, x, y)
       if dist_h < min_dist:
@@ -343,7 +333,12 @@ class Ecosystem:
           selected_house = h
           min_dist = dist_h
 
-    selected_house.add_infection_by_age(self.time, age)
+    # Make sure that cases that are likely recovered 
+    # already are not included.
+    if day < -self.disease.recovery_period:
+      day = -int(self.disease.recovery_period)
+      
+    selected_house.add_infection_by_age(day, age)
 
   def evolve(self):
     global num_infections_today
@@ -391,34 +386,45 @@ class Ecosystem:
       self.locations[loc_type] = [l]
     return l
 
-  def addClosure(self, loc_type, time):
+  def add_closure(self, loc_type, time):
     self.closures[loc_type] = time
+
+  def add_partial_closure(self, loc_type, fraction=0.8):
+    needs.needs[lids[loc_type],:] *= (1.0 - fraction)
 
   def initialise_social_distance(self, contact_ratio=1.0): 
     for l in lids:
       self.contact_rate_multiplier[l] = contact_ratio
     self.contact_rate_multiplier["house"] = 1.0
+    self.print_contact_rate("Reset to no measures")
 
   def remove_social_distance(self):
     self.initialise_social_distance()
     if self.work_from_home:
       self.add_work_from_home(self.work_from_home_compliance)
+    self.print_contact_rate("Removal of SD")
 
   def add_social_distance_imp9(self): # Add social distancing as defined in Imperial Report 0.
     # The default values are chosen to give a 75% reduction in social interactions,
     # as assumed by Ferguson et al., Imperial Summary Report 9, 2020.
-    for l in self.locations:
-      self.contact_rate_multiplier[l] *= 0.25
+    self.contact_rate_multiplier["hospital"] *= 0.25
+    self.contact_rate_multiplier["leisure"] *= 0.25
+    self.contact_rate_multiplier["shopping"] *= 0.25
+    self.contact_rate_multiplier["park"] *= 0.25
+    self.contact_rate_multiplier["supermarket"] *= 0.25
    
+    # Values are different for three location types.
     # Setting values as described in Table 2, Imp Report 9. ("SD")
     self.contact_rate_multiplier["office"] *= 0.75
     self.contact_rate_multiplier["school"] *= 1.0
     self.contact_rate_multiplier["house"] *= 1.25
+    self.print_contact_rate("SD (Imperial Report 9)")
 
   def add_work_from_home(self, compliance=0.75):
     self.contact_rate_multiplier["office"] *= 1.0 - compliance
     self.work_from_home = True
     self.work_from_home_compliance = compliance
+    self.print_contact_rate("Work from home with {} compliance".format(compliance))
 
   def add_social_distance(self, distance=2, compliance=0.8571):
     dist_factor = (0.5 / distance)**2
@@ -431,12 +437,14 @@ class Ecosystem:
     for l in lids:
       self.contact_rate_multiplier[l] *= dist_factor * compliance + (1.0-compliance)
     self.contact_rate_multiplier["house"] *= 1.25
+    self.print_contact_rate("SD (covid_flee method) with distance {} and compliance {}".format(distance, compliance))
 
   def add_case_isolation(self, multiplier=0.475):
     # default value is derived from Imp Report 9.
     # 75% reduction is social contacts for 70 percent of the cases.
     # (0.75*0.7)+0.3
     self.self_isolation_multiplier=multiplier
+    self.print_isolation_rate("CI with multiplier {}".format(multiplier))
 
   def print_needs(self):
     for k,e in enumerate(self.houses):

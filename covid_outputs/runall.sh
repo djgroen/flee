@@ -1,6 +1,6 @@
-python3 LineChart.py brent-minorlock.csv 
-python3 DailyChart.py brent-minorlock.csv 
+#python3 LineChart.py brent-minorlock.csv 
+#python3 DailyChart.py brent-minorlock.csv 
 python3 LineChart.py brent-default.csv 
 python3 DailyChart.py brent-default.csv 
-python3 LineChart.py brent-minorlockSD.csv 
-python3 DailyChart.py brent-minorlockSD.csv 
+python3 LineChart.py brent-lockSDCI.csv 
+python3 DailyChart.py brent-lockSDCI.csv 
