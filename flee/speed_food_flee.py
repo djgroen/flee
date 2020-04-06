@@ -168,8 +168,8 @@ class Ecosystem(flee.Ecosystem):
                             self.agents[i].speed = 200
                     # print(self.agents[i].speed) - another test i was running to check for the correct output
 
-    # this function, printinfo, prints specific details for each location, into the console as the simulation runs.
-    # it is called every time the IPC values are updated.
+    # i've slightly modified this function, printinfo, prints specific details for each location, into the console as the simulation runs.
+    # it is called every time the IPC values are updated for every location.
     def printInfo(self):
         for l in range(len(self.locations)):
             print(self.locations[l].name, "Conflict? ", self.locations[l].conflict, "Population:",

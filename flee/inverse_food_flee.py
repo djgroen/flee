@@ -44,7 +44,7 @@ def line42day(t, current_i, critict):
     return current_critict
 
 
-# This is a small addition to the location class. The _init_ function of the location class
+# This is a small addition to the location class, also from the original file. The _init_ function of the location class
 # from flee is given variables for region and IPC, so that the locations in the simulation can hold the information
 # provided by the IPC data file.
 class Location(flee.Location):
@@ -71,7 +71,7 @@ class Ecosystem(flee.Ecosystem):
             if self.locations[i].country == "South_Sudan":
 
                 # Update the IPC scores for all locations in South Sudan. check their region and assign the location
-                # that region's IPC value from IPC_all.
+                # that region's IPC value from IPC_all. This is from the original food_flee.py file.
                 self.locations[i].IPC = IPC_all.loc[line_IPC][self.locations[i].region]
 
                 # next, adjust the movechance for each location using my inverse movechance formula. this is where
@@ -87,7 +87,7 @@ class Ecosystem(flee.Ecosystem):
                 # print("movechance is")
                 # print(self.locations[i].movechance)
 
-    # this function, printinfo, prints specific details for each location, into the console as the simulation runs.
+    # i've slightly modified this function, printinfo, prints specific details for each location, into the console as the simulation runs.
     # it is called every time the IPC values are updated for every location.
     def printInfo(self):
         for l in range(len(self.locations)):
