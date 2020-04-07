@@ -147,7 +147,10 @@ class Household():
             log_infection(time,self.house.x,self.house.y,"house")
 
 def calc_dist(x1, y1, x2, y2):
-    return (abs(x1-x2)**2 + abs(y1+y2)**2)**0.5
+    return (np.abs(x1-x2)**2 + np.abs(y1-y2)**2)**0.5
+
+def calc_dist_cheap(x1, y1, x2, y2):
+    return np.abs(x1-x2) + np.abs(y1-y2)
 
 class House:
   def __init__(self, e, x, y, num_households=1):
@@ -185,6 +188,7 @@ class House:
         min_dist = 99999.0
         nearest_loc_index = 0
         for k,element in enumerate(e.locations[l]): # using 'element' to avoid clash with Ecosystem e.
+          #d = calc_dist_cheap(self.x, self.y, element.x, element.y)
           d = calc_dist(self.x, self.y, element.x, element.y)
           if d < min_dist:
             min_dist = d
@@ -251,7 +255,7 @@ class Location:
     self.visits = []
     self.visit_minutes = 0 # total number of minutes of all visits aggregated.
 
-  def register_visit(self, e, person, need, ultraverbose=False):
+  def register_visit(self, e, person, need):
     visit_time = self.avg_visit_time
     if person.status == "dead":
       visit_time = 0.0
@@ -260,8 +264,8 @@ class Location:
 
     if visit_time > 0.0:
       visit_probability = need/(visit_time * 7) # = minutes per week / (average visit time * days in the week)
-      if ultraverbose:
-        print("visit prob = ", visit_probability)
+      #if ultraverbose:
+      #  print("visit prob = ", visit_probability)
     else:
       return
 
@@ -270,7 +274,7 @@ class Location:
       if person.status == "infectious":
         self.inf_visit_minutes += visit_time
 
-  def evolve(self, e, verbose=True, ultraverbose=False):
+  def evolve(self, e, verbose=True):
     minutes_opened = 12*60
     for v in self.visits:
       if v[0].status == "susceptible":
@@ -278,9 +282,9 @@ class Location:
         # For Covid-19 this should be 0.07 (infection rate) for 1 infectious person, and 1 susceptible person within 2m for a full day.
         # I assume they can do this in a 4m^2 area.
         # So 0.07 = x * (24*60/24*60) * (24*60/4) -> 0.07 = x * 360 -> x = 0.07/360 = 0.0002
-        if ultraverbose:
-          if infection_probability > 0.0:
-            print("{} = {} * ({}/360.0) * ({}/{}) * ({}/{})".format(infection_probability, e.contact_rate_multiplier[self.type], e.disease.infection_rate, v[1], minutes_opened, self.inf_visit_minutes, self.sqm))
+        #if ultraverbose:
+        #  if infection_probability > 0.0:
+        #    print("{} = {} * ({}/360.0) * ({}/{}) * ({}/{})".format(infection_probability, e.contact_rate_multiplier[self.type], e.disease.infection_rate, v[1], minutes_opened, self.inf_visit_minutes, self.sqm))
         if random.random() < infection_probability:
           v[0].status = "exposed"
           v[0].status_change_time = e.time
@@ -317,8 +321,13 @@ class Ecosystem:
     print(self.self_isolation_multiplier)
 
   def update_nearest_locations(self):
+    count = 0
     for h in self.houses:
       h.find_nearest_locations(self)
+      count += 1
+      if count % 1000 == 0:
+        print(count, "houses scanned.", file=sys.stderr)
+    print(count, "houses scanned.", file=sys.stderr)
 
   def add_infections(self, num):
     """
