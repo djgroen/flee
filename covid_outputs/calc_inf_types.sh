@@ -12,4 +12,6 @@ echo "supermarket"
 cat $1 | grep supermarket | wc -l
 echo "hospital"
 cat $1 | grep hospital | wc -l
+echo "office"
+cat $1 | grep office | wc -l
 
