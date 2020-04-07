@@ -1,6 +1,7 @@
 import flee.covid_flee as flee
 import numpy as np
 import outputanalysis.analysis as a
+from datamanager import read_disease_yml
 
 """
 Generation 1 code. Incorporates only distance, travel always takes one day.
@@ -21,7 +22,9 @@ if __name__ == "__main__":
 
   l3.add_infection(0)
 
-  e.print_needs()
+  e.disease = read_disease_yml.read_disease_yml("covid_data/disease_covid19.yml")
+  e.update_nearest_locations()
+  #e.print_needs()
 
   for t in range(0,end_time):
 

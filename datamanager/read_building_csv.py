@@ -57,6 +57,7 @@ def read_building_csv(e, csvfile, building_type_map="covid_data/building_types_m
         e.addLocation(num_locs, location_type, x, y, building_mapping[location_type]['default_sqm'])
         num_locs += 1
       row_number += 1
+    e.update_nearest_locations()
 
   print("Read in {} houses and {} other locations.".format(num_houses, num_locs))
   print("Type distribution:")

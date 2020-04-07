@@ -11,7 +11,7 @@ import csv
 # TODO: store all this in a YaML file
 lids = {"park":0,"hospital":1,"supermarket":2,"office":3,"school":4,"leisure":5,"shopping":6} # location ids and labels
 avg_visit_times = [90,60,60,360,360,60,60] #average time spent per visit
-home_interaction_fraction = 0.05 # people are within 2m at home of a specific other person 5% of the time.
+home_interaction_fraction = 0.0 # people are within 2m at home of a specific other person 5% of the time.
 
 class Needs():
   def __init__(self, csvfile):
@@ -155,7 +155,10 @@ class House:
     self.y = y
     self.households = []
     self.numAgents = 0
-    self.nearest_locations = self.find_nearest_locations(e)
+    #Find nearest locations now needs to be called separately after
+    #all locations have been added.
+    #self.find_nearest_locations(e)
+    #print("nearest locs:", self.nearest_locations)
     for i in range(0, num_households):
         self.households.append(Household(self))
 
@@ -191,6 +194,7 @@ class House:
     #for i in n:
     #  if i:  
     #    print(i.name, i.type)
+    self.nearest_locations = n
     return n
 
   def add_infection(self, time): # used to preseed infections (could target using age later on)
@@ -235,7 +239,6 @@ class Location:
     self.visits = []
     self.inf_visit_minutes = 0 # aggregate number of visit minutes by infected people.
     self.avg_visit_time = avg_visit_times[lids[loc_type]] # using averages for all visits for now. Can replace with a distribution later.
-
     #print(self.avg_visit_time)
 
   def DecrementNumAgents(self):
@@ -248,7 +251,7 @@ class Location:
     self.visits = []
     self.visit_minutes = 0 # total number of minutes of all visits aggregated.
 
-  def register_visit(self, e, person, need):
+  def register_visit(self, e, person, need, ultraverbose=False):
     visit_time = self.avg_visit_time
     if person.status == "dead":
       visit_time = 0.0
@@ -257,6 +260,8 @@ class Location:
 
     if visit_time > 0.0:
       visit_probability = need/(visit_time * 7) # = minutes per week / (average visit time * days in the week)
+      if ultraverbose:
+        print("visit prob = ", visit_probability)
     else:
       return
 
@@ -275,7 +280,7 @@ class Location:
         # So 0.07 = x * (24*60/24*60) * (24*60/4) -> 0.07 = x * 360 -> x = 0.07/360 = 0.0002
         if ultraverbose:
           if infection_probability > 0.0:
-            print(infection_probability, v[1], minutes_opened, self.inf_visit_minutes, self.sqm)
+            print("{} = {} * ({}/360.0) * ({}/{}) * ({}/{})".format(infection_probability, e.contact_rate_multiplier[self.type], e.disease.infection_rate, v[1], minutes_opened, self.inf_visit_minutes, self.sqm))
         if random.random() < infection_probability:
           v[0].status = "exposed"
           v[0].status_change_time = e.time
@@ -310,6 +315,10 @@ class Ecosystem:
     print("Enacted measure:", measure)
     print("isolation rate multipliers set to:")
     print(self.self_isolation_multiplier)
+
+  def update_nearest_locations(self):
+    for h in self.houses:
+      h.find_nearest_locations(self)
 
   def add_infections(self, num):
     """
@@ -378,7 +387,7 @@ class Ecosystem:
     self.house_names.append(name)
     return h
 
-  def addLocation(self, name, loc_type, x, y, sqm=10000):
+  def addLocation(self, name, loc_type, x, y, sqm=400):
     l = Location(name, loc_type, x, y, sqm)
     if loc_type in self.locations.keys():
       self.locations[loc_type].append(l)
