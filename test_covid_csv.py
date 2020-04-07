@@ -29,6 +29,8 @@ if __name__ == "__main__":
       building_file = "covid_data/buildings_test.csv"
     if sys.argv[1] == "brent":
       building_file = "covid_data/brent_buildings.csv"
+    if sys.argv[1] == "harrow":
+      building_file = "covid_data/harrow_buildings.csv"
     if sys.argv[1] == "ealing":
       building_file = "covid_data/ealing_buildings.csv"
 
