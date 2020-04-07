@@ -325,7 +325,7 @@ class Ecosystem:
     """
     selected_house = None
     min_dist = 99999
-    #print("add_infection:",x,y,age,len(self.houses))
+    print("add_infection:",x,y,age,len(self.houses))
     for h in self.houses:
       dist_h = calc_dist(h.x, h.y, x, y)
       if dist_h < min_dist:

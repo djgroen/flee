@@ -10,7 +10,7 @@ if __name__ == "__main__":
   print("Testing basic Covid-19 simulation kernel.")
 
   end_time = 28
-  e = flee.Ecosystem()
+  e = flee.Ecosystem(end_time)
 
   l1 = e.addLocation("A", "supermarket", 6, 6)
   lp1 = e.addLocation("lp1", "park", 4, 4)

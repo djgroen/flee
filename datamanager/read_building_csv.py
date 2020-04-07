@@ -40,21 +40,21 @@ def read_building_csv(e, csvfile, building_type_map="covid_data/building_types_m
       if row_number == 0:
         row_number += 1
         continue
-      x = float(row[2])
-      y = float(row[3])
-      location_type = apply_building_mapping(building_mapping, row[1])
+      x = float(row[1])
+      y = float(row[2])
+      location_type = apply_building_mapping(building_mapping, row[0])
 
       #count all the building types in a dict.
-      if row[1] not in building_types:
-        building_types[row[1]] = 1
+      if row[0] not in building_types:
+        building_types[row[0]] = 1
       else:
-        building_types[row[1]] += 1
+        building_types[row[0]] += 1
 
       if location_type == "house":
         e.addHouse(num_houses, x , y, 1)
         num_houses += 1
       else:
-        e.addLocation(num_locs, location_type, x, y, int(building_mapping[location_type]['default_sqm']))
+        e.addLocation(num_locs, location_type, x, y, building_mapping[location_type]['default_sqm'])
         num_locs += 1
       row_number += 1
 
