@@ -33,7 +33,9 @@ if __name__ == "__main__":
       building_file = "covid_data/harrow_buildings.csv"
     if sys.argv[1] == "ealing":
       building_file = "covid_data/ealing_buildings.csv"
-
+    if sys.argv[1] == "hillingdon":
+      building_file = "covid_data/hillingdon_buildings.csv"
+      
   if len(sys.argv)>2:
     if sys.argv[2] == "default":
       pass
