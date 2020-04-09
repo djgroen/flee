@@ -22,9 +22,9 @@ fig.add_trace(go.Scatter(x=df['#time'], y=df['num infections today'],
 fig.add_trace(go.Scatter(x=df['#time'], y=df['num hospitalisations today'],
                     mode='lines+markers',
                     name='# of new hospitalisations (sim)',  line=dict(color='blue')))
-#fig.add_trace(go.Scatter(x=df['#time'], y=df['num hospitalisations today (data)'],
-#                    mode='lines+markers',
-#                    name='# of new hospitalisations (data)',  line=dict(color='dark blue')))
+fig.add_trace(go.Scatter(x=df['#time'], y=df['num hospitalisations today (data)'],
+                    mode='lines+markers',
+                    name='# of new hospitalisations (data)',  line=dict(color='dark blue')))
 #fig.add_trace(go.Bar(x=df['#time'], y=df['num hospitalisations today (data)'],
 #                    name='# of new hospitalisations (data)'))
 

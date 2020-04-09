@@ -498,5 +498,10 @@ class Ecosystem:
   def add_validation_point(self, time):
     self.validation[time] += 1
 
+
+  def print_validation(self):
+    print(self.validation)
+    sys.exit()
+
 if __name__ == "__main__":
   print("No testing functionality here yet.")

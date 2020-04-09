@@ -23,6 +23,7 @@ if __name__ == "__main__":
   e = flee.Ecosystem(end_time)
   outfile = "covid_out.csv"
 
+
   building_file = "covid_data/buildings.csv"
   if len(sys.argv)>1:
     if sys.argv[1] == "test":
@@ -59,10 +60,10 @@ if __name__ == "__main__":
 
   e.disease = read_disease_yml.read_disease_yml("covid_data/disease_covid19.yml")
   read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml")
-  read_cases_csv.read_cases_csv(e, "covid_data/Actual Cases.csv", start_date="2020-03-18", date_format="%Y-%m-%d") # Can only be done after houses are in.
+  read_cases_csv.read_cases_csv(e, "covid_data/cases_ward.csv", start_date="3/18/2020", date_format="%m/%d/%Y") # Can only be done after houses are in.
  
   #e.add_infections(10)
-
+  e.print_validation()
   #e.print_needs()
 
   e.print_status(outfile)

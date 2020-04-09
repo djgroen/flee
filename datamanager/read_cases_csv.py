@@ -30,6 +30,6 @@ def read_cases_csv(e, csvfile, date_format="%m/%d/%Y", start_date="3/18/2020"):
         if day<0:
           e.add_infection(float(row[0]), float(row[1]), int(row[2]), day)  
           num_infections += 1
-        e.add_validation_point(day)
+        e.add_validation_point(max(day,0))
   print("Using start date {} with {} infections initially.".format(start_date, num_infections))
 
