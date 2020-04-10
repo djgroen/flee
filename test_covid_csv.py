@@ -16,6 +16,8 @@ if __name__ == "__main__":
   end_time = 90
   if sys.argv[2] == "post-lockdown" or sys.argv[2] == "lockSDCI":
     end_time = 180
+  if sys.argv[2] == "validation":
+    end_time = 30
  
   print("sys.argv = ", sys.argv, file=sys.stderr)
   print("end time = ", end_time, file=sys.stderr)
@@ -59,12 +61,17 @@ if __name__ == "__main__":
     outfile = "{}/{}-{}.csv".format(sys.argv[3], sys.argv[1], sys.argv[2])
 
   e.disease = read_disease_yml.read_disease_yml("covid_data/disease_covid19.yml")
-  read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml")
-  read_cases_csv.read_cases_csv(e, "covid_data/cases_ward.csv", start_date="3/18/2020", date_format="%m/%d/%Y") # Can only be done after houses are in.
+  read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml", house_ratio=10)
+  read_cases_csv.read_cases_csv(e, "covid_data/cases_ward.csv", start_date="3/1/2020", date_format="%m/%d/%Y") # Can only be done after houses are in.
  
   #e.add_infections(10)
-  e.print_validation()
+  #e.print_validation()
   #e.print_needs()
+
+  e.time = -30
+  for i in range(0,30):
+    e.progress_without_evolve()
+    e.time += 1
 
   e.print_status(outfile)
   for t in range(0,end_time):
@@ -77,6 +84,14 @@ if __name__ == "__main__":
 
     if t == 89 and sys.argv[2] == "post-lockdown": # move to post-lockdown scenario.
       e.remove_all_measures()
+
+    if t == 15 and sys.argv[2] == "validation":
+      e.add_closure("school", 0)
+      e.add_closure("leisure", 0)
+      e.add_partial_closure("shopping", 0.8)
+      e.add_social_distance_imp9() #mimicking a 75% reduction in social contacts.
+      e.add_work_from_home()
+      e.add_case_isolation()
 
   print("Simulation complete.")
 

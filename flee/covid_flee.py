@@ -102,16 +102,18 @@ class Person():
 
   def progress_condition(self, t, disease):
     global num_hospitalisations_today
-    if self.status == "exposed" and t-self.status_change_time > disease.incubation_period:
+    if self.status_change_time > t:
+      return
+    if self.status == "exposed" and t-self.status_change_time >= int(round(disease.incubation_period)):
       self.status = "infectious"
       self.status_change_time = t
-    if self.status == "infectious" and t-self.status_change_time > disease.recovery_period:
+    if self.status == "infectious" and t-self.status_change_time >= int(round(disease.recovery_period - disease.incubation_period)):
       self.status = "recovered"
       self.status_change_time = t
     if self.status == "infectious" and t-self.status_change_time == int(round(disease.period_to_hospitalisation-disease.incubation_period)):
       if random.random() < 0.06: #TODO: read from YML
         num_hospitalisations_today += 1
-    if self.status == "infectious" and t-self.status_change_time == int(round(disease.mortality_period)):
+    if self.status == "infectious" and t-self.status_change_time == int(round(disease.mortality_period - disease.incubation_period)):
       if random.random() < 0.0138:  
         self.status = "dead"
         self.status_change_time = t
@@ -201,14 +203,14 @@ class House:
     self.nearest_locations = n
     return n
 
-  def add_infection(self, time): # used to preseed infections (could target using age later on)
+  def add_infection(self, time, severity="exposed"): # used to preseed infections (could target using age later on)
     infection_pending = True
     while infection_pending:
       hh = random.randint(0, len(self.households)-1)
       p = random.randint(0, len(self.households[hh].agents)-1)
       if self.households[hh].agents[p].status == "susceptible": 
         # because we do pre-seeding we need to ensure we add exactly 1 infection.
-        self.households[hh].agents[p].infect(time-5, severity="infectious")
+        self.households[hh].agents[p].infect(time, severity)
         infection_pending = False
 
   def has_age(self, age):
@@ -224,7 +226,7 @@ class House:
       for a in hh.agents:
         if a.age == age:
           if a.status == "susceptible":
-            a.infect(time-5, severity="infectious")
+            a.infect(time, severity="infectious")
 
 class Location:
   def __init__(self, name, loc_type="park", x=0.0, y=0.0, sqm=400):
@@ -329,13 +331,13 @@ class Ecosystem:
         print(count, "houses scanned.", file=sys.stderr)
     print(count, "houses scanned.", file=sys.stderr)
 
-  def add_infections(self, num):
+  def add_infections(self, num, day, severity="exposed"):
     """
     Randomly add an infection.
     """
     for i in range(0, num):
       house = random.randint(0, len(self.houses)-1)
-      self.houses[house].add_infection(self.time)
+      self.houses[house].add_infection(day, severity)
 
   def add_infection(self, x, y, age, day):
     """
@@ -357,6 +359,15 @@ class Ecosystem:
       day = -int(self.disease.recovery_period)
       
     selected_house.add_infection_by_age(day, age)
+
+  def progress_without_evolve(self):
+    # collect visits for the current day
+    for h in self.houses:
+      for hh in h.households:
+        for a in hh.agents:
+          a.plan_visits(self)
+          a.progress_condition(self.time, self.disease)
+
 
   def evolve(self):
     global num_infections_today
@@ -496,7 +507,7 @@ class Ecosystem:
 
 
   def add_validation_point(self, time):
-    self.validation[time] += 1
+    self.validation[max(time,0)] += 1
 
 
   def print_validation(self):

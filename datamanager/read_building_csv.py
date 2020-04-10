@@ -21,11 +21,13 @@ def apply_building_mapping(mapdict, label):
       return category
   return "house"
 
-def read_building_csv(e, csvfile, building_type_map="covid_data/building_types_map.yml", dumptypesandquit=False):
+def read_building_csv(e, csvfile, building_type_map="covid_data/building_types_map.yml", house_ratio=1, dumptypesandquit=False):
  
   building_mapping = {}
   with open(building_type_map) as f:
     building_mapping = yaml.load(f, Loader=yaml.FullLoader)
+
+  house_csv_count = 0
 
   if csvfile == "":
     print("Error: could not find csv file.")
@@ -51,8 +53,10 @@ def read_building_csv(e, csvfile, building_type_map="covid_data/building_types_m
         building_types[row[0]] += 1
 
       if location_type == "house":
-        e.addHouse(num_houses, x , y, 1)
-        num_houses += 1
+        if house_csv_count % house_ratio == 0:
+          e.addHouse(num_houses, x , y, house_ratio)
+          num_houses += 1
+        house_csv_count += 1
       else:
         e.addLocation(num_locs, location_type, x, y, building_mapping[location_type]['default_sqm'])
         num_locs += 1
