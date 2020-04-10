@@ -20,8 +20,9 @@ hospitalised:
  - [64.5,0.118]
  - [74.5,0.166]
  - [84.5,0.184]
-mortality_period: 17.8
-recovery_period: 24.7
+mortality_period: 17.8 # from day of hospitalisation
+recovery_period: 24.7 # from day of hospitalisation
+mild_recovery_period: 14.0 # add ref (patient.info)
 incubation_period: 5.0
 # Clinical course and risk factors for mortality of adult inpatients with Covid-19 in Wuhan, China: a retrospective cohort study
 # Fei Zhou et al. The Lancet vol. 395.

@@ -71,6 +71,7 @@ class Person():
     self.location = location # current location
     self.location.IncrementNumAgents()
     self.home_location = location
+    self.mild_version = False
 
     self.status = "susceptible" # states: susceptible, exposed, infectious, recovered, dead.
     self.symptomatic = False # may be symptomatic if infectious
@@ -101,6 +102,7 @@ class Person():
     # but by default, it should be exposed.
     self.status = severity
     self.status_change_time = t
+    self.mild_version = True
     log_infection(t,self.location.x,self.location.y,"house")
 
   def progress_condition(self, t, disease):
@@ -110,16 +112,26 @@ class Person():
     if self.status == "exposed" and t-self.status_change_time >= int(round(disease.incubation_period)):
       self.status = "infectious"
       self.status_change_time = t
-    if self.status == "infectious" and t-self.status_change_time >= int(round(disease.recovery_period - disease.incubation_period)):
-      self.status = "recovered"
-      self.status_change_time = t
+    if self.status == "infectious":
+      if self.mild_version:
+        if t-self.status_change_time >= int(round(disease.mild_recovery_period - disease.incubation_period)):
+          self.status = "recovered"
+          self.status_change_time = t
+      else:
+        if t-self.status_change_time >= int(round(disease.recovery_period)): #from hosp. date
+          self.status = "recovered"
+          self.status_change_time = t
+        elif t-self.status_change_time == int(round(disease.mortality_period)): #from hosp. date
+          if random.random() < 0.0138: # avg mortality rate
+            self.status = "dead"
+            self.status_change_time = t
+
     if self.status == "infectious" and t-self.status_change_time == int(round(disease.period_to_hospitalisation - disease.incubation_period)):
       if random.random() < self.get_hospitalisation_chance(): #TODO: read from YML
         num_hospitalisations_today += 1
-    if self.status == "infectious" and t-self.status_change_time == int(round(disease.mortality_period - disease.incubation_period)):
-      if random.random() < 0.0138:  
-        self.status = "dead"
-        self.status_change_time = t
+        self.status_change_time = t #hospitalisation is a status change, because recovery_period is from date of hospitalisation.
+        self.mild_version = False
+
 
 class Household():
   def __init__(self, house, size=-1):
