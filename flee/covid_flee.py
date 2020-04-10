@@ -113,7 +113,7 @@ class Person():
     if self.status == "infectious" and t-self.status_change_time >= int(round(disease.recovery_period - disease.incubation_period)):
       self.status = "recovered"
       self.status_change_time = t
-    if self.status == "infectious" and t-self.status_change_time == int(round(disease.period_to_hospitalisation-disease.incubation_period)):
+    if self.status == "infectious" and t-self.status_change_time == int(round(disease.period_to_hospitalisation - disease.incubation_period)):
       if random.random() < self.get_hospitalisation_chance(): #TODO: read from YML
         num_hospitalisations_today += 1
     if self.status == "infectious" and t-self.status_change_time == int(round(disease.mortality_period - disease.incubation_period)):
@@ -363,14 +363,6 @@ class Ecosystem:
     #  day = -int(self.disease.recovery_period)
       
     selected_house.add_infection_by_age(day, age)
-
-  def progress_without_evolve(self):
-    # collect visits for the current day
-    for h in self.houses:
-      for hh in h.households:
-        for a in hh.agents:
-          a.plan_visits(self)
-          a.progress_condition(self.time, self.disease)
 
 
   def evolve(self):
