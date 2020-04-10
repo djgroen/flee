@@ -93,6 +93,9 @@ class Person():
   def get_needs(self):
     return needs.get_needs(self.age)
 
+  def get_hospitalisation_chance(self):
+    return 0.06
+
   def infect(self, t, severity="exposed"):
     # severity can be overridden to infectious when rigidly inserting cases.
     # but by default, it should be exposed.
@@ -111,7 +114,7 @@ class Person():
       self.status = "recovered"
       self.status_change_time = t
     if self.status == "infectious" and t-self.status_change_time == int(round(disease.period_to_hospitalisation-disease.incubation_period)):
-      if random.random() < 0.06: #TODO: read from YML
+      if random.random() < self.get_hospitalisation_chance(): #TODO: read from YML
         num_hospitalisations_today += 1
     if self.status == "infectious" and t-self.status_change_time == int(round(disease.mortality_period - disease.incubation_period)):
       if random.random() < 0.0138:  
@@ -226,7 +229,7 @@ class House:
       for a in hh.agents:
         if a.age == age:
           if a.status == "susceptible":
-            a.infect(time, severity="infectious")
+            a.infect(time, severity="exposed")
 
 class Location:
   def __init__(self, name, loc_type="park", x=0.0, y=0.0, sqm=400):
@@ -355,8 +358,8 @@ class Ecosystem:
 
     # Make sure that cases that are likely recovered 
     # already are not included.
-    if day < -self.disease.recovery_period:
-      day = -int(self.disease.recovery_period)
+    #if day < -self.disease.recovery_period:
+    #  day = -int(self.disease.recovery_period)
       
     selected_house.add_infection_by_age(day, age)
 
