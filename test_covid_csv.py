@@ -70,8 +70,7 @@ if __name__ == "__main__":
 
   e.time = -30
   for i in range(0,30):
-    e.progress_without_evolve()
-    e.time += 1
+    e.evolve()
 
   e.print_status(outfile)
   for t in range(0,end_time):
