@@ -14,7 +14,7 @@ if __name__ == "__main__":
   print("Testing basic Covid-19 simulation kernel.")
 
   end_time = 90
-  if sys.argv[2] == "post-lockdown" or sys.argv[2] == "lockSDCI":
+  if sys.argv[2] in ["post-lockdown","lockSDCI","london-lock","post-london-lock"]:
     end_time = 180
   if sys.argv[2] == "validation":
     end_time = 30
@@ -56,6 +56,9 @@ if __name__ == "__main__":
       e.add_social_distance_imp9() #mimicking a 75% reduction in social contacts.
       e.add_work_from_home()
       e.add_case_isolation()
+    elif sys.argv[2] in ["london-lock","post-london-lock"]
+      e.add_work_from_home()
+      e.add_case_isolation()
 
   if len(sys.argv)>3:
     outfile = "{}/{}-{}.csv".format(sys.argv[3], sys.argv[1], sys.argv[2])
@@ -81,10 +84,12 @@ if __name__ == "__main__":
     print(t)
     e.print_status(outfile)
 
-    if t == 89 and sys.argv[2] == "post-lockdown": # move to post-lockdown scenario.
+    if t == 89 and (sys.argv[2] == "post-lockdown" or sys.argv[2] == "post-london-lock"): # move to post-lockdown scenario.
       e.remove_all_measures()
+      e.add_work_from_home()
+      e.add_case_isolation()
 
-    if t == 15 and sys.argv[2] == "validation":
+    if t == 15 and (sys.argv[2] == "validation" or sys.argv[2] == "london-lock"):
       e.add_closure("school", 0)
       e.add_closure("leisure", 0)
       e.add_partial_closure("shopping", 0.8)
