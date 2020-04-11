@@ -488,8 +488,8 @@ class Ecosystem:
 
   def add_case_isolation(self, multiplier=0.475):
     # default value is derived from Imp Report 9.
-    # 75% reduction is social contacts for 70 percent of the cases.
-    # (0.75*0.7)+0.3
+    # 75% reduction in social contacts for 70 percent of the cases.
+    # (0.25*0.7)+0.3
     self.self_isolation_multiplier=multiplier
     self.print_isolation_rate("CI with multiplier {}".format(multiplier))
 

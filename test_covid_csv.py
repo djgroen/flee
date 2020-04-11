@@ -84,12 +84,13 @@ if __name__ == "__main__":
     print(t)
     e.print_status(outfile)
 
-    if t == 89 and (sys.argv[2] == "post-lockdown" or sys.argv[2] == "post-london-lock"): # move to post-lockdown scenario.
+    if t == 89 and sys.argv[2] in ["post-lockdown","post-london-lock"]: # move to post-lockdown scenario.
       e.remove_all_measures()
       e.add_work_from_home()
       e.add_case_isolation()
 
-    if t == 15 and (sys.argv[2] == "validation" or sys.argv[2] == "london-lock"):
+    if t == 15 and sys.argv[2] in ["validation","london-lock","post-london-lock"]:
+      e.remove_all_measures()
       e.add_closure("school", 0)
       e.add_closure("leisure", 0)
       e.add_partial_closure("shopping", 0.8)
