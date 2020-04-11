@@ -56,7 +56,7 @@ if __name__ == "__main__":
       e.add_social_distance_imp9() #mimicking a 75% reduction in social contacts.
       e.add_work_from_home()
       e.add_case_isolation()
-    elif sys.argv[2] in ["london-lock","post-london-lock"]
+    elif sys.argv[2] in ["london-lock","post-london-lock"]:
       e.add_work_from_home()
       e.add_case_isolation()
 
