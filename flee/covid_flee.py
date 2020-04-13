@@ -43,19 +43,22 @@ class Needs():
             self.needs[i,row_number-1] = int(row[needs_cols[i]])
         row_number += 1
 
-  def get_need(self, age, need):
-    return self.needs[need,age]
+  def get_need(self, person, need):
+    if not person.hospitalised:
+      return self.needs[need,person.age]
+    elif need == "hospital":
+      return 120
+    else:
+      return 0
 
-  def get_needs(self, age):
-    return self.needs[:,age]
-
-  def print(self):
-    for i in range(0,119):
-      print(i, self.get_needs(i))
+  def get_needs(self, person):
+    if not person.hospitalised:
+      return self.needs[:,person.age]
+    else:
+      return np.array([0,60,0,0,0,0,0])
 
 # Global storage for needs now, to keep it simple.
 needs = Needs("covid_data/needs.csv")
-needs.print()
 num_infections_today = 0
 num_hospitalisations_today = 0
 
@@ -71,7 +74,8 @@ class Person():
     self.location = location # current location
     self.location.IncrementNumAgents()
     self.home_location = location
-    self.mild_version = False
+    self.mild_version = True
+    self.hospitalised = False
 
     self.status = "susceptible" # states: susceptible, exposed, infectious, recovered, dead.
     self.symptomatic = False # may be symptomatic if infectious
@@ -81,18 +85,19 @@ class Person():
 
 
   def plan_visits(self, e):
-    personal_needs = needs.get_needs(self.age)
-    for k,element in enumerate(personal_needs):
-      nearest_locs = self.home_location.nearest_locations
-      if nearest_locs[k]:
-        location_to_visit = nearest_locs[k]
-        location_to_visit.register_visit(e, self, element)
+    if self.status in ["susceptible","exposed","infectious"]: # recovered people are assumed to be immune.
+      personal_needs = needs.get_needs(self)
+      for k,element in enumerate(personal_needs):
+        nearest_locs = self.home_location.nearest_locations
+        if nearest_locs[k]:
+          location_to_visit = nearest_locs[k]
+          location_to_visit.register_visit(e, self, element)
 
   def print_needs(self):
-    print(self.age, needs.get_needs(self.age))
+    print(self.age, needs.get_needs(self))
 
   def get_needs(self):
-    return needs.get_needs(self.age)
+    return needs.get_needs(self)
 
   def get_hospitalisation_chance(self):
     return 0.06
@@ -103,6 +108,7 @@ class Person():
     self.status = severity
     self.status_change_time = t
     self.mild_version = True
+    self.hospitalised = False
     log_infection(t,self.location.x,self.location.y,"house")
 
   def progress_condition(self, t, disease):
@@ -113,24 +119,31 @@ class Person():
       self.status = "infectious"
       self.status_change_time = t
     if self.status == "infectious":
+      if t-self.status_change_time == int(round(disease.period_to_hospitalisation - disease.incubation_period)):
+        if random.random() < self.get_hospitalisation_chance(): #TODO: read from YML
+          num_hospitalisations_today += 1
+          self.status_change_time = t #hospitalisation is a status change, because recovery_period is from date of hospitalisation.
+          self.mild_version = False
+          self.hospitalised = True
+
+
+      #mild recovery
       if self.mild_version:
         if t-self.status_change_time >= int(round(disease.mild_recovery_period - disease.incubation_period)):
           self.status = "recovered"
           self.status_change_time = t
       else:
+        # hospital discharge
         if t-self.status_change_time >= int(round(disease.recovery_period)): #from hosp. date
           self.status = "recovered"
           self.status_change_time = t
+          self.hospitalised = False 
+        # decease
         elif t-self.status_change_time == int(round(disease.mortality_period)): #from hosp. date
           if random.random() < 0.0138: # avg mortality rate
             self.status = "dead"
             self.status_change_time = t
 
-    if self.status == "infectious" and t-self.status_change_time == int(round(disease.period_to_hospitalisation - disease.incubation_period)):
-      if random.random() < self.get_hospitalisation_chance(): #TODO: read from YML
-        num_hospitalisations_today += 1
-        self.status_change_time = t #hospitalisation is a status change, because recovery_period is from date of hospitalisation.
-        self.mild_version = False
 
 
 class Household():

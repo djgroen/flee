@@ -58,7 +58,8 @@ def read_building_csv(e, csvfile, building_type_map="covid_data/building_types_m
           num_houses += 1
         house_csv_count += 1
       else:
-        e.addLocation(num_locs, location_type, x, y, building_mapping[location_type]['default_sqm'])
+        #e.addLocation(num_locs, location_type, x, y, building_mapping[location_type]['default_sqm'])
+        e.addLocation(num_locs, location_type, x, y, int(row[3]))
         num_locs += 1
       row_number += 1
       if row_number % 10000 == 0:
