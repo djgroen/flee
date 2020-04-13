@@ -168,7 +168,7 @@ class Household():
   def get_infectious_count(self):
     ic = 0
     for i in range(0,self.size):
-      if self.agents[i].status == "infectious":
+      if self.agents[i].status == "infectious" and self.agents[i].hospitalised == False:
         ic += 1
     return ic
 
