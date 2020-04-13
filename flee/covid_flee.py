@@ -70,7 +70,7 @@ def log_infection(t, x, y, loc_type):
 
 
 class Person():
-  def __init__(self, location, age):
+  def __init__(self, location, ages):
     self.location = location # current location
     self.location.IncrementNumAgents()
     self.home_location = location
@@ -81,7 +81,7 @@ class Person():
     self.symptomatic = False # may be symptomatic if infectious
     self.status_change_time = -1
 
-    self.age = age # age in years
+    self.age = np.random.choice(91, p=ages) # age in years
 
 
   def plan_visits(self, e):
@@ -99,8 +99,9 @@ class Person():
   def get_needs(self):
     return needs.get_needs(self)
 
-  def get_hospitalisation_chance(self):
-    return 0.06
+  def get_hospitalisation_chance(self, disease):
+    age = int(min(self.age, len(disease.hospital)-1))
+    return disease.hospital[age]
 
   def infect(self, t, severity="exposed"):
     # severity can be overridden to infectious when rigidly inserting cases.
@@ -120,7 +121,7 @@ class Person():
       self.status_change_time = t
     if self.status == "infectious":
       if t-self.status_change_time == int(round(disease.period_to_hospitalisation - disease.incubation_period)):
-        if random.random() < self.get_hospitalisation_chance(): #TODO: read from YML
+        if random.random() < self.get_hospitalisation_chance(disease): #TODO: read from YML
           num_hospitalisations_today += 1
           self.status_change_time = t #hospitalisation is a status change, because recovery_period is from date of hospitalisation.
           self.mild_version = False
@@ -147,7 +148,7 @@ class Person():
 
 
 class Household():
-  def __init__(self, house, size=-1):
+  def __init__(self, house, ages, size=-1):
     self.house = house
     if size>-1:
       self.size = size
@@ -156,7 +157,7 @@ class Household():
 
     self.agents = []
     for i in range(0,self.size):
-      self.agents.append(Person(self.house, random.randint(0,119)))
+      self.agents.append(Person(self.house, ages))
 
   def get_infectious_count(self):
     ic = 0
@@ -193,7 +194,7 @@ class House:
     #self.find_nearest_locations(e)
     #print("nearest locs:", self.nearest_locations)
     for i in range(0, num_households):
-        self.households.append(Household(self))
+        self.households.append(Household(self, e.ages))
 
   def IncrementNumAgents(self):
     self.numAgents += 1
@@ -335,6 +336,7 @@ class Ecosystem:
     self.initialise_social_distance() # default: no social distancing.
     self.self_isolation_multiplier = 1.0
     self.work_from_home = False
+    self.ages = np.ones(91) # by default equal probability of all ages 0 to 90.
 
     #Make header for infections file
     out_inf = open("covid_out_infections.csv",'w')

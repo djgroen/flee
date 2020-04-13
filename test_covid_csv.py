@@ -1,4 +1,5 @@
 import flee.covid_flee as flee
+from datamanager import read_age_csv
 import numpy as np
 import outputanalysis.analysis as a
 from datamanager import read_building_csv
@@ -58,10 +59,13 @@ if __name__ == "__main__":
       e.add_case_isolation()
     elif sys.argv[2] in ["london-lock","post-london-lock"]:
       e.add_work_from_home()
-      e.add_case_isolation(multiplier=0.25)
+      e.add_case_isolation()
 
   if len(sys.argv)>3:
     outfile = "{}/{}-{}.csv".format(sys.argv[3], sys.argv[1], sys.argv[2])
+
+  e.ages = read_age_csv.read_age_csv("covid_data/age-distr.csv", sys.argv[1])
+  print("age distribution in system:", e.ages, file=sys.stderr)
 
   e.disease = read_disease_yml.read_disease_yml("covid_data/disease_covid19.yml")
   read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml", house_ratio=100)
@@ -87,7 +91,7 @@ if __name__ == "__main__":
     if t == 89 and sys.argv[2] in ["post-lockdown","post-london-lock"]: # move to post-lockdown scenario.
       e.remove_all_measures()
       e.add_work_from_home()
-      e.add_case_isolation(multiplier=0.25)
+      e.add_case_isolation()
 
     if t == 15 and sys.argv[2] in ["validation","london-lock","post-london-lock"]:
       e.remove_all_measures()
@@ -96,7 +100,7 @@ if __name__ == "__main__":
       e.add_partial_closure("shopping", 0.8)
       e.add_social_distance_imp9() #mimicking a 75% reduction in social contacts.
       e.add_work_from_home()
-      e.add_case_isolation(multiplier=0.25)
+      e.add_case_isolation()
 
   print("Simulation complete.")
 
