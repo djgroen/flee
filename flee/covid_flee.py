@@ -374,6 +374,9 @@ class Ecosystem:
     """
     Add an infection to the nearest person of that age.
     """
+    if age>90: # to match demographic data
+      age=90
+
     selected_house = None
     min_dist = 99999
     print("add_infection:",x,y,age,len(self.houses),day)

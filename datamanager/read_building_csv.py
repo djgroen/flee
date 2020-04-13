@@ -37,6 +37,7 @@ def read_building_csv(e, csvfile, building_type_map="covid_data/building_types_m
     row_number = 0
     num_locs = 0
     num_houses = 0
+    office_sqm = 0
     building_types = {}
     for row in needs_reader:
       if row_number == 0:
@@ -59,8 +60,13 @@ def read_building_csv(e, csvfile, building_type_map="covid_data/building_types_m
         house_csv_count += 1
       else:
         #e.addLocation(num_locs, location_type, x, y, building_mapping[location_type]['default_sqm'])
-        e.addLocation(num_locs, location_type, x, y, int(row[3]))
         num_locs += 1
+        if location_type == "office":
+          office_sqm += int(row[3])
+          e.addLocation(num_locs, location_type, x, y, int(row[3])*10) # multiply office sqm by 10 to compensate for lack of parsing.
+          # Space should be about 1 million m2 per borough, https://www.savoystewart.co.uk/blog/office-floor-space-in-london-growing-despite-premium-cost
+        else:
+          e.addLocation(num_locs, location_type, x, y, int(row[3]))
       row_number += 1
       if row_number % 10000 == 0:
         print(row_number, "read", file=sys.stderr)
@@ -69,6 +75,7 @@ def read_building_csv(e, csvfile, building_type_map="covid_data/building_types_m
     e.update_nearest_locations()
 
   print("Read in {} houses and {} other locations.".format(num_houses, num_locs))
+  print("Office sqm = {}".format(office_sqm))
   print("Type distribution:")
   print("house",len(e.houses))
   for lt in e.locations:
