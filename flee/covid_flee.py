@@ -162,7 +162,7 @@ class Household():
 
     self.agents = []
     for i in range(0,self.size):
-      self.agents.append(Person(self.house, ages))
+      self.agents.append(Person(self.house, self, ages))
 
 
   def get_infectious_count(self):
