@@ -16,6 +16,7 @@ home_interaction_fraction = 0.0 # people are within 2m at home of a specific oth
 class Needs():
   def __init__(self, csvfile):
     self.add_needs(csvfile)
+    self.household_isolation_multiplier = 1.0
 
   def i(self, name):
     for k,e in enumerate(self.labels):
@@ -45,7 +46,10 @@ class Needs():
 
   def get_need(self, person, need):
     if not person.hospitalised:
-      return self.needs[need,person.age]
+      if person.status not in ["infectious"] and person.household.is_infected(): # trigger condition for household isolation.
+        return self.needs[need,person.age] * self.household_isolation_multiplier
+      else:
+        return self.needs[need,person.age]
     elif need == "hospital":
       return 120
     else:
@@ -70,10 +74,11 @@ def log_infection(t, x, y, loc_type):
 
 
 class Person():
-  def __init__(self, location, ages):
+  def __init__(self, location, household, ages):
     self.location = location # current location
     self.location.IncrementNumAgents()
     self.home_location = location
+    self.household = household
     self.mild_version = True
     self.hospitalised = False
 
@@ -89,7 +94,7 @@ class Person():
       personal_needs = needs.get_needs(self)
       for k,element in enumerate(personal_needs):
         nearest_locs = self.home_location.nearest_locations
-        if nearest_locs[k]:
+        if nearest_locs[k] and element>0:
           location_to_visit = nearest_locs[k]
           location_to_visit.register_visit(e, self, element)
 
@@ -159,12 +164,18 @@ class Household():
     for i in range(0,self.size):
       self.agents.append(Person(self.house, ages))
 
+
   def get_infectious_count(self):
     ic = 0
     for i in range(0,self.size):
       if self.agents[i].status == "infectious":
-          ic += 1
-    return 1
+        ic += 1
+    return ic
+
+
+  def is_infected(self):
+    return self.get_infectious_count() > 0
+
 
   def evolve(self, e, time, disease):
     ic = self.get_infectious_count()
@@ -172,6 +183,8 @@ class Household():
       if self.agents[i].status == "susceptible":
         if ic > 0:
           infection_chance = e.contact_rate_multiplier["house"] * disease.infection_rate * home_interaction_fraction * ic
+          if needs.household_isolation_multiplier < 1.0:
+            infection_chance *= 2.0 # interaction duration (and thereby infection chance) double when household isolation is incorporated (Imperial Report 9).
           if random.random() < infection_chance:
             self.agents[i].status = "exposed"
             self.agents[i].status_change_time = time
@@ -511,11 +524,22 @@ class Ecosystem:
     self.self_isolation_multiplier=multiplier
     self.print_isolation_rate("CI with multiplier {}".format(multiplier))
 
+
+  def add_household_isolation(self, multiplier=0.4):
+    # compulsory household isolation
+    # assuming a reduction in contacts by 75%, and 
+    # 80% of household complying.
+    # 25%*80% + 100%*20% = 40% = 0.4
+    needs.household_isolation_multiplier=0.5
+    self.print_contact_rate("Household isolation with {} compliance".format(compliance))
+
+
   def print_needs(self):
     for k,e in enumerate(self.houses):
       for hh in e.households:
         for a in hh.agents:
           print(k, a.get_needs())
+
 
   def print_status(self, outfile):
     out = None
