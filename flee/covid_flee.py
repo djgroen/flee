@@ -530,8 +530,8 @@ class Ecosystem:
     # assuming a reduction in contacts by 75%, and 
     # 80% of household complying.
     # 25%*80% + 100%*20% = 40% = 0.4
-    needs.household_isolation_multiplier=0.5
-    self.print_contact_rate("Household isolation with {} compliance".format(compliance))
+    needs.household_isolation_multiplier=multiplier
+    self.print_contact_rate("Household isolation with {} multiplier".format(multiplier))
 
 
   def print_needs(self):
