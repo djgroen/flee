@@ -17,6 +17,7 @@ class Needs():
   def __init__(self, csvfile):
     self.add_needs(csvfile)
     self.household_isolation_multiplier = 1.0
+    print("Needs created. Household isolation multiplier set to {}.".format(self.household_isolation_multiplier))
 
   def i(self, name):
     for k,e in enumerate(self.labels):
