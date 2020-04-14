@@ -73,6 +73,12 @@ def log_infection(t, x, y, loc_type):
   print("{},{},{},{}".format(t, x, y, loc_type), file=out_inf)
   num_infections_today += 1
 
+def log_hospitalisation(t, x, y, age):
+  global num_hospitalisations_today
+  out_inf = open("covid_out_hospitalisations.csv",'a')
+  print("{},{},{},{}".format(t, x, y, age), file=out_inf)
+  num_hospitalisations_today += 1
+
 
 class Person():
   def __init__(self, location, household, ages):
@@ -119,7 +125,6 @@ class Person():
     log_infection(t,self.location.x,self.location.y,"house")
 
   def progress_condition(self, t, disease):
-    global num_hospitalisations_today
     if self.status_change_time > t:
       return
     if self.status == "exposed" and t-self.status_change_time >= int(round(disease.incubation_period)):
@@ -128,10 +133,10 @@ class Person():
     if self.status == "infectious":
       if t-self.status_change_time == int(round(disease.period_to_hospitalisation - disease.incubation_period)):
         if random.random() < self.get_hospitalisation_chance(disease): #TODO: read from YML
-          num_hospitalisations_today += 1
           self.status_change_time = t #hospitalisation is a status change, because recovery_period is from date of hospitalisation.
           self.mild_version = False
           self.hospitalised = True
+          log_hospitalisation(t, self.location.x, self.location.y, self.age)
 
 
       #mild recovery
