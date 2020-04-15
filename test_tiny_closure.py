@@ -12,6 +12,7 @@ if __name__ == "__main__":
 
   flee.SimulationSettings.MinMoveSpeed=10.0
   flee.SimulationSettings.MaxMoveSpeed=10.0
+  #flee.SimulationSettings.MaxWalkSpeed=1.0
 
   end_time = 100
   e = flee.Ecosystem()

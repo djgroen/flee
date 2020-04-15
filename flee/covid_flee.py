@@ -130,7 +130,7 @@ class Person():
     if self.status == "exposed" and t-self.status_change_time >= int(round(disease.incubation_period)):
       self.status = "infectious"
       self.status_change_time = t
-    if self.status == "infectious":
+    elif self.status == "infectious":
       if t-self.status_change_time == int(round(disease.period_to_hospitalisation - disease.incubation_period)):
         if random.random() < self.get_hospitalisation_chance(disease): #TODO: read from YML
           self.status_change_time = t #hospitalisation is a status change, because recovery_period is from date of hospitalisation.
@@ -463,8 +463,14 @@ class Ecosystem:
   def add_closure(self, loc_type, time):
     self.closures[loc_type] = time
 
+  def remove_closure(self, loc_type):
+    del self.closures[loc_type]
+
   def add_partial_closure(self, loc_type, fraction=0.8):
     needs.needs[lids[loc_type],:] *= (1.0 - fraction)
+
+  def undo_partial_closure(self, loc_type, fraction=0.8):
+    needs.needs[lids[loc_type],:] /= (1.0 - fraction)
 
   def initialise_social_distance(self, contact_ratio=1.0): 
     for l in lids:
