@@ -69,7 +69,7 @@ if __name__ == "__main__":
   e.print_header(outfile)
   for i in range(0,30):
     e.evolve()
-    print(t)
+    print(e.time)
     e.print_status(outfile)
 
   #e.print_status(outfile)
