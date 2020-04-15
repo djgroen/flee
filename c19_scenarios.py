@@ -14,16 +14,17 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 if __name__ == "__main__":
   print("Testing basic Covid-19 simulation kernel.")
 
-  if len(sys.argv) == 1:
-    print("Usage: python3 c19_scenarios.py <location> <transition scenario> <transition day>")
+  if len(sys.argv) < 2:
+    print("Usage: python3 c19_scenarios.py <location> <transition scenario> <transition day> <outdir>")
+    sys.exit()
 
   end_time = 180
   if sys.argv[2] == "validation":
     end_time = 30
  
-  scenario = sys.argv[3].lower()
+  scenario = sys.argv[2].lower()
 
-  transition_mode = int(sys.argv[4])
+  transition_mode = int(sys.argv[3])
   transition_day = -1
   if transition_mode == 1:
     transition_day = 62 # 30th of April
@@ -52,7 +53,7 @@ if __name__ == "__main__":
       building_file = "covid_data/hillingdon_buildings.csv"
       
   if len(sys.argv)>3:
-    outfile = "{}/{}-{}.csv".format(sys.argv[3], sys.argv[1], sys.argv[2])
+    outfile = "{}/{}-{}-{}.csv".format(sys.argv[4], sys.argv[1], sys.argv[2], transition_day)
 
   e.ages = read_age_csv.read_age_csv("covid_data/age-distr.csv", sys.argv[1])
   print("age distribution in system:", e.ages, file=sys.stderr)
@@ -65,11 +66,13 @@ if __name__ == "__main__":
   #e.print_needs()
 
   e.time = -30
+  e.print_header(outfile)
   for i in range(0,30):
     e.evolve()
+    print(t)
     e.print_status(outfile)
 
-  e.print_status(outfile)
+  #e.print_status(outfile)
   for t in range(0,end_time):
 
     if t == transition_day:
