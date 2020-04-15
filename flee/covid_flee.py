@@ -66,16 +66,17 @@ class Needs():
 needs = Needs("covid_data/needs.csv")
 num_infections_today = 0
 num_hospitalisations_today = 0
+log_prefix = "."
 
 def log_infection(t, x, y, loc_type):
   global num_infections_today
-  out_inf = open("covid_out_infections.csv",'a')
+  out_inf = open("{}/covid_out_infections.csv".format(log_prefix),'a')
   print("{},{},{},{}".format(t, x, y, loc_type), file=out_inf)
   num_infections_today += 1
 
 def log_hospitalisation(t, x, y, age):
   global num_hospitalisations_today
-  out_inf = open("covid_out_hospitalisations.csv",'a')
+  out_inf = open("{}/covid_out_hospitalisations.csv".format(log_prefix),'a')
   print("{},{},{},{}".format(t, x, y, age), file=out_inf)
   num_hospitalisations_today += 1
 

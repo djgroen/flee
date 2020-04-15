@@ -52,8 +52,8 @@ if __name__ == "__main__":
     if sys.argv[1] == "hillingdon":
       building_file = "covid_data/hillingdon_buildings.csv"
       
-  if len(sys.argv)>3:
-    outfile = "{}/{}-{}-{}.csv".format(sys.argv[4], sys.argv[1], sys.argv[2], transition_day)
+  outfile = "{}/{}-{}-{}.csv".format(sys.argv[4], sys.argv[1], sys.argv[2], transition_day)
+  log_prefix = sys.argv[4]
 
   e.ages = read_age_csv.read_age_csv("covid_data/age-distr.csv", sys.argv[1])
   print("age distribution in system:", e.ages, file=sys.stderr)
