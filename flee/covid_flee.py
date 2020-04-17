@@ -89,6 +89,8 @@ class Person():
     self.household = household
     self.mild_version = True
     self.hospitalised = False
+    self.dying = False
+    self.phase_duration = 0.0 # duration to next phase.
 
     self.status = "susceptible" # states: susceptible, exposed, infectious, recovered, dead.
     self.symptomatic = False # may be symptomatic if infectious
@@ -131,31 +133,42 @@ class Person():
     if self.status == "exposed" and t-self.status_change_time >= int(round(disease.incubation_period)):
       self.status = "infectious"
       self.status_change_time = t
-    elif self.status == "infectious":
-      if t-self.status_change_time == int(round(disease.period_to_hospitalisation - disease.incubation_period)):
-        if random.random() < self.get_hospitalisation_chance(disease): #TODO: read from YML
-          self.status_change_time = t #hospitalisation is a status change, because recovery_period is from date of hospitalisation.
-          self.mild_version = False
-          self.hospitalised = True
-          log_hospitalisation(t, self.location.x, self.location.y, self.age)
-
-
-      #mild recovery
-      if self.mild_version:
-        if t-self.status_change_time >= int(round(disease.mild_recovery_period - disease.incubation_period)):
-          self.status = "recovered"
-          self.status_change_time = t
+      if random.random() < self.get_hospitalisation_chance(disease): 
+        self.mild_version = False
+        self.phase_duration = np.random.poisson(disease.period_to_hospitalisation - disease.incubation_period)
       else:
-        # hospital discharge
-        if t-self.status_change_time >= int(round(disease.recovery_period)): #from hosp. date
+        self.phase_duration = np.random.poisson(disease.mild_recovery_period - disease.incubation_period)
+
+    elif self.status == "infectious":
+      # mild version (may require hospital visits, but not ICU visits)
+      if self.mild_version:
+        if t-self.status_change_time >= self.phase_duration:
           self.status = "recovered"
           self.status_change_time = t
-          self.hospitalised = False 
-        # decease
-        elif t-self.status_change_time == int(round(disease.mortality_period)): #from hosp. date
-          if random.random() < 0.0138: # avg mortality rate
-            self.status = "dead"
-            self.status_change_time = t
+      # non-mild version (will involve ICU visit)
+      else:
+        if not self.hospitalised:
+          if t-self.status_change_time == self.phase_duration:
+            self.hospitalised = True
+            log_hospitalisation(t, self.location.x, self.location.y, self.age)
+            self.status_change_time = t #hospitalisation is a status change, because recovery_period is from date of hospitalisation.
+            if random.random() < 0.0138: # avg mortality rate
+              self.dying = True
+              self.phase_duration = np.random.poisson(disease.mortality_period)
+            else:
+              self.phase_duration = np.random.poisson(disease.recovery_period)
+        else:
+          # decease
+          if dying:
+            if t-self.status_change_time >= self.phase_duration: #from hosp. date
+              self.status = "dead"
+              self.status_change_time = t
+          # hospital discharge
+          else:
+            if t-self.status_change_time >= self.phase_duration: #from hosp. date
+              self.status = "recovered"
+              self.status_change_time = t
+              self.hospitalised = False 
 
 
 
