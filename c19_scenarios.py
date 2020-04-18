@@ -59,7 +59,7 @@ if __name__ == "__main__":
   print("age distribution in system:", e.ages, file=sys.stderr)
 
   e.disease = read_disease_yml.read_disease_yml("covid_data/disease_covid19.yml")
-  read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml", house_ratio=20)
+  read_building_csv.read_building_csv(e, building_file, "covid_data/building_types_map.yml", house_ratio=2)
   read_cases_csv.read_cases_csv(e, "covid_data/cases_ward.csv", start_date="3/1/2020", date_format="%m/%d/%Y") # Can only be done after houses are in.
  
   #e.print_validation()
