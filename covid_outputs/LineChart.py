@@ -4,6 +4,7 @@ import  plotly as py
 import pandas as pd
 import sys
 
+
 df = pd.read_csv(sys.argv[1], delimiter=',')
 # fig = px.line(df, x="#time", y="susceptible", title='COVID-19 Simulation - London Borough of Brent')
 # fig = px.line(df, x="#time", y="exposed", title='COVID-19 Simulation - London Borough of Brent')
@@ -32,4 +33,4 @@ fig.add_trace(go.Scatter(x=df['#time'], y=df['dead'],
                     mode='lines+markers',
                     name='dead', line=dict(color='black')))
 
-py.offline.plot(fig, filename='html_results/cases-{}.html'.format(sys.argv[1]))
+py.offline.plot(fig, filename='{}-Cases.html'.format(sys.argv[2]))

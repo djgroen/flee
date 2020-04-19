@@ -28,4 +28,4 @@ fig.add_trace(go.Scatter(x=df['#time'], y=df['num hospitalisations today (data)'
 #fig.add_trace(go.Bar(x=df['#time'], y=df['num hospitalisations today (data)'],
 #                    name='# of new hospitalisations (data)'))
 
-py.offline.plot(fig, filename='html_results/daily-{}.html'.format(sys.argv[1]))
+py.offline.plot(fig, filename='{}-DailyChart.html'.format(sys.argv[2]))

@@ -9,29 +9,29 @@ from os import walk
 import glob
 import fnmatch
 import numpy as np
-# path = os.getcwd() + "\\covid_outputs\\results"
-# files = glob.glob(path + "/*.csv")
 
-path = os.getcwd() + "\\covid_outputs\\results"
-files = []
-for (dirpath, dirnames, filenames) in walk(path):
-    files.append(filenames)
-    break
-files = files[0]
-files = [ fi for fi in files if fi.endswith(".csv")]
+# borough = "brent"
+# borough = "ealing"
+# borough = "harrow"
+borough = "hillingdon"
 
+path = os.getcwd() + "\\covid_outputs\\results\\eagle_hidalgo_1-18-04-2020"
 df_name = []
 df_list = []
-for file in files:
-    if fnmatch.fnmatch(file, 'hillingdon*.csv'):
-        df = pd.read_csv(path + "\\" + file, usecols=['infectious'])
-        file = file.replace('brent-','')
-        file = file.replace('.csv','')
-        df_name.append(file)
-        df_list.append(df)
+for root, dirs, files in os.walk(path, topdown=False):
+    for name in files:
+        if ".csv" in name:
+            if "covid" not in name:
+                if borough in name:
+                    # print(name)
+                    filepath = os.path.join(root, name)
+                    df = pd.read_csv(filepath, usecols=['infectious'])
+                    df_list.append(df)
+                    df_name.append(name)
 
 df = pd.concat(df_list, axis=1, ignore_index=True)
 df.columns = df_name
+
 time = -29
 df['#time']=0
 for index, row in df.iterrows():
@@ -54,7 +54,7 @@ for column in df:
                                  color=np.random.randn(23), #set color equal to a variable
                                  colorscale='Plotly3', # one of plotly colorscales
                              ), name=column))
-py.offline.plot(fig, filename='hillingdon.html')
+py.offline.plot(fig, filename='{}.html'.format(borough))
 
 # fig.add_trace(go.Bar(x=df['#time'], y=df['new cases'],
 #                      name='change in # affected'))
