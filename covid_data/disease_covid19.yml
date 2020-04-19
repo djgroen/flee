@@ -20,10 +20,10 @@ hospitalised:
  - [64.5,0.118]
  - [74.5,0.166]
  - [84.5,0.184]
-mortality_period: 17.8 # from day of hospitalisation
-recovery_period: 24.7 # from day of hospitalisation
+mortality_period: 8.0 # from day of hospitalisation (ICU)
+recovery_period: 8.0 # from day of hospitalisation (ICU)
 mild_recovery_period: 14.0 # add ref (patient.info)
-incubation_period: 5.0
+incubation_period: 1.0
 # Clinical course and risk factors for mortality of adult inpatients with Covid-19 in Wuhan, China: a retrospective cohort study
 # Fei Zhou et al. The Lancet vol. 395.
-period_to_hospitalisation: 11.0 
+period_to_hospitalisation: 12.0 #this is period to ICU.
