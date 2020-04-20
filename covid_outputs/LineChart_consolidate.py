@@ -10,12 +10,15 @@ import glob
 import fnmatch
 import numpy as np
 
-# borough = "brent"
-# borough = "ealing"
+#borough = "brent"
+borough = "ealing"
 # borough = "harrow"
-borough = "hillingdon"
+# borough = "hillingdon"
+if len(sys.argv) > 1:
+  borough = sys.argv[1]
 
-path = os.getcwd() + "\\covid_outputs\\results\\eagle_hidalgo_1-18-04-2020"
+path = os.path.join(os.getcwd(), "results", "eagle_hidalgo_1-18-04-2020")
+print(path)
 df_name = []
 df_list = []
 for root, dirs, files in os.walk(path, topdown=False):
@@ -25,14 +28,16 @@ for root, dirs, files in os.walk(path, topdown=False):
                 if borough in name:
                     # print(name)
                     filepath = os.path.join(root, name)
-                    df = pd.read_csv(filepath, usecols=['infectious'])
+                    print(filepath)
+                    df = pd.read_csv(filepath, usecols=['infectious'], skiprows=np.arange(1,29))
+                    #df = pd.read_csv(filepath, usecols=['infectious'])
                     df_list.append(df)
                     df_name.append(name)
 
 df = pd.concat(df_list, axis=1, ignore_index=True)
 df.columns = df_name
 
-time = -29
+time = 0
 df['#time']=0
 for index, row in df.iterrows():
     df['#time'][index]=time
@@ -48,12 +53,14 @@ colors = ["aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "
 fig = go.Figure()
 for column in df:
     index = df.columns.get_loc(column)
-    fig.add_trace(go.Scatter(x=df['#time'], y=df[column], mode='lines+markers',
+    if column not in ['#time']:
+        fig.add_trace(go.Scatter(x=df['#time'], y=df[column], mode='lines+markers',
                              marker=dict(
                                  size=1,
                                  color=np.random.randn(23), #set color equal to a variable
                                  colorscale='Plotly3', # one of plotly colorscales
-                             ), name=column))
+                             ), name=column, visible=True))
+# Set visible to "legendonly" to unhighlight curves.
 py.offline.plot(fig, filename='{}.html'.format(borough))
 
 # fig.add_trace(go.Bar(x=df['#time'], y=df['new cases'],
