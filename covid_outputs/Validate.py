@@ -6,6 +6,8 @@ import sys
 from datetime import datetime
 from datetime import timedelta 
 
+# Example syntax: python3 Validate.py results/brent-extend-lockdown-62.csv ~/NPH-validation.csv
+
 def subtract_dates(date1, date2="2020-03-01", date_format="%Y-%m-%d"):
   """
   Takes two dates %m/%d/%Y format. Returns date1 - date2, measured in days.
@@ -23,11 +25,13 @@ df = pd.read_csv(sys.argv[1], delimiter=',')
 
 #df['new cases'] = df['exposed'].diff(1) + df['infectious'].diff(1)
 validation = pd.read_csv(sys.argv[2], delimiter=',')
-for d in validation['Date']:
+
+df['ICU data'] = 0
+for index, d in validation.iterrows():
   print(d)
-  print(subtract_dates(d))
-#print(simdays)
-sys.exit()
+  day = int(subtract_dates(d['Date'])) + 29
+  if day>=0 and day < len(df['ICU data']):
+    df['ICU data'][day] = int(d['Admissions'])
 
 layout = go.Layout(yaxis=(dict(type='log',autorange=True)))
 
@@ -39,8 +43,8 @@ fig.add_trace(go.Scatter(x=df['#time'], y=df['num infections today'],
                     name='# of new infections (sim)',  line=dict(color='orange')))
 fig.add_trace(go.Scatter(x=df['#time'], y=df['num hospitalisations today'],
                     mode='lines+markers',
-                    name='# of new hospitalisations (sim)',  line=dict(color='blue')))
-fig.add_trace(go.Scatter(x=df['#time'], y=df['num hospitalisations today (data)'],
+                    name='# of new ICU admissions (sim)',  line=dict(color='blue')))
+fig.add_trace(go.Scatter(x=df['#time'], y=df['ICU data'],
                     mode='lines+markers',
                     name='# of new hospitalisations (data)',  line=dict(color='dark blue')))
 #fig.add_trace(go.Bar(x=df['#time'], y=df['num hospitalisations today (data)'],
