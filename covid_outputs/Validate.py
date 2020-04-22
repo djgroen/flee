@@ -27,6 +27,9 @@ df = pd.read_csv(sys.argv[1], delimiter=',')
 validation = pd.read_csv(sys.argv[2], delimiter=',')
 
 df['ICU data'] = 0
+df['ICU sim'] = df['num hospitalisations today']
+df['num hospitalisations today'] = df['num hospitalisations today'].rolling(3, min_periods=1).sum().shift(-4)
+
 for index, d in validation.iterrows():
   print(d)
   day = int(subtract_dates(d['Date'])) + 29
@@ -43,7 +46,10 @@ fig.add_trace(go.Scatter(x=df['#time'], y=df['num infections today'],
                     name='# of new infections (sim)',  line=dict(color='orange')))
 fig.add_trace(go.Scatter(x=df['#time'], y=df['num hospitalisations today'],
                     mode='lines+markers',
-                    name='# of new ICU admissions (sim)',  line=dict(color='blue')))
+                    name='# of new hospitalisations (sim)',  line=dict(color='blue')))
+fig.add_trace(go.Scatter(x=df['#time'], y=df['ICU sim'],
+                    mode='lines+markers',
+                    name='# of new ICU admissions (sim)',  line=dict(color='pink')))
 fig.add_trace(go.Scatter(x=df['#time'], y=df['ICU data'],
                     mode='lines+markers',
                     name='# of new hospitalisations (data)',  line=dict(color='dark blue')))
