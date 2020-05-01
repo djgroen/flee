@@ -94,7 +94,7 @@ if __name__ == "__main__":
     # Determine number of new refugees to insert into the system.
     new_refs = 0
     if submodel_id == 0:
-      new_refs = 0
+      new_refs = 100
     refugees_raw += new_refs
 
     #Insert refugee agents
