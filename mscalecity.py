@@ -75,6 +75,9 @@ if __name__ == "__main__":
   for l in coupled_locations:
     c.addCoupledLocation(lm[l], l)
 
+  if submodel_id == 0:
+    c.addGhostLocations(ig) # Add ghost conflict zones.
+
   for l in camp_locations:
     output_header_string += "%s sim," % (lm[l].name)
 
@@ -100,6 +103,11 @@ if __name__ == "__main__":
     #Insert refugee agents
     if submodel_id == 0:
       e.add_agents_to_conflict_zones(new_refs)
+
+    #exchange data with other code.
+    #immediately after agent insertion to ensure ghost locations
+    #work correctly.
+    c.Couple(t)
 
     e.refresh_conflict_weights()
     t_data = t
@@ -133,5 +141,3 @@ if __name__ == "__main__":
 
       print(output)
 
-    #exchange data with other code.
-    c.Couple(t)

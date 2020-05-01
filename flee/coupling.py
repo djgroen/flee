@@ -24,6 +24,8 @@ class CouplingInterface:
     self.e = e
     self.location_ids = []
     self.location_names = []
+    self.ghost_location_ids = []
+    self.ghost_location_names = []
     self.names = []
     self.directions = []
     self.intervals = []
@@ -53,6 +55,19 @@ class CouplingInterface:
     if self.e.mpi != None:
       if self.e.mpi.rank > 0:
         self.coupling_rank = False
+
+  def addGhostLocations(self, ig):
+    conflict_name_list = ig.getConflictLocationNames()
+    print("Adding Ghosts", file=sys.stderr)
+    for ln in conflict_name_list:
+      for i in range(0, len(self.e.locationNames)):
+        if self.e.locationNames[i] == ln:
+          l = self.e.locations[i]
+          print("L", l.name, len(l.links), file=sys.stderr)
+          if len(l.links) == 0:
+            if not l.name in self.location_names:
+              print("Adding ghost location {}".format(l.name), file=sys.stderr)
+              self.addCoupledLocation(l, l.name, "out", interval=1)
 
   def Couple(self, t): #TODO: make this code more dynamic/flexible
     newAgents = None
