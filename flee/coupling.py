@@ -69,6 +69,17 @@ class CouplingInterface:
               print("Adding ghost location {}".format(l.name), file=sys.stderr)
               self.addCoupledLocation(l, l.name, "out", interval=1)
 
+  def addMicroConflictLocations(self, ig):
+    conflict_name_list = ig.getConflictLocationNames()
+    print("Adding micro conflict coupling", file=sys.stderr)
+    for ln in conflict_name_list:
+      for i in range(0, len(self.e.locationNames)):
+        if self.e.locationNames[i] == ln:
+          l = self.e.locations[i]
+          print("L", l.name, len(l.links), file=sys.stderr)
+          print("Adding micro coupled conflict location {}".format(l.name), file=sys.stderr)
+          self.addCoupledLocation(l, l.name, "in", interval=1)
+
   def Couple(self, t): #TODO: make this code more dynamic/flexible
     newAgents = None
     if t % self.intervals[0] == 0: #for the time being all intervals will have to be the same...
@@ -91,9 +102,10 @@ class CouplingInterface:
         #write departing agents to file
         #read incoming agents from file
         #print(self.names, i, newAgents)
-        print("Couple IN: %s %s" % (self.names[i], newAgents[self.names[i]]), file=sys.stderr)
-        if self.names[i] in newAgents:
-          self.e.insertAgents(self.e.locations[self.location_ids[i]], newAgents[self.names[i]])
+        if "in" in self.directions[i]:
+          print("Couple IN: %s %s" % (self.names[i], newAgents[self.names[i]]), file=sys.stderr)
+          if self.names[i] in newAgents:
+            self.e.insertAgents(self.e.locations[self.location_ids[i]], newAgents[self.names[i]])
         self.e.updateNumAgents()
 
   # File coupling code
@@ -108,8 +120,9 @@ class CouplingInterface:
   def generateOutputCSVString(self, t):
     out_csv_string = ""
     for i in range(0, len(self.location_ids)):
-      out_csv_string += "%s,%s\n" % (self.names[i], self.e.locations[self.location_ids[i]].numAgents)
-      print("Couple OUT: %s %s" % (self.names[i], self.e.locations[self.location_ids[i]].numAgents), file=sys.stderr)
+      if "out" in self.directions[i]:
+        out_csv_string += "%s,%s\n" % (self.names[i], self.e.locations[self.location_ids[i]].numAgents)
+        print("Couple OUT: %s %s" % (self.names[i], self.e.locations[self.location_ids[i]].numAgents), file=sys.stderr)
     return out_csv_string
 
   def writeOutputToFile(self, t):

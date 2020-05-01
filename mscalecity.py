@@ -76,7 +76,9 @@ if __name__ == "__main__":
     c.addCoupledLocation(lm[l], l)
 
   if submodel_id == 0:
-    c.addGhostLocations(ig) # Add ghost conflict zones.
+    c.addGhostLocations(ig) # Add ghost conflict zones to macro model ("out" mode)
+  if submodel_id == 1:
+    c.addMicroConflictLocations(ig) # Couple all conflict locs in micro model ("in" mode)
 
   for l in camp_locations:
     output_header_string += "%s sim," % (lm[l].name)
