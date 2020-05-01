@@ -80,8 +80,8 @@ if __name__ == "__main__":
   if submodel_id == 1:
     c.addMicroConflictLocations(ig) # Couple all conflict locs in micro model ("in" mode)
 
-  for l in camp_locations:
-    output_header_string += "%s sim," % (lm[l].name)
+  for l in e.locations:
+    output_header_string += "%s sim," % (l.name)
 
   if e.getRankN(0):
     output_header_string += "num agents,num agents in camps"
@@ -133,8 +133,8 @@ if __name__ == "__main__":
     if e.getRankN(t):
       output = "%s" % t
 
-      for i in range(0,len(camp_locations)):
-        output += ",%s" % (lm[camp_locations[i]].numAgents)
+      for i in range(0,len(e.locations)):
+        output += ",%s" % (e.locations[i].numAgents)
 
       if refugees_raw>0:
         output += ",%s,%s" % (e.numAgents(), refugees_in_camps_sim)
