@@ -40,11 +40,11 @@ if __name__ == "__main__":
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadLocationsFromCSV("examples/testmscale/locations-%s.csv" % submodel_id)
+  ig.ReadLocationsFromCSV("examples/mali_input_files/locations-%s.csv" % submodel_id)
 
-  ig.ReadLinksFromCSV("examples/testmscale/routes-%s.csv" % submodel_id)
+  ig.ReadLinksFromCSV("examples/mali_input_files/routes-%s.csv" % submodel_id)
 
-  ig.ReadClosuresFromCSV("examples/testmscale/closures-%s.csv" % submodel_id)
+  ig.ReadClosuresFromCSV("examples/mali_input_files/closures-%s.csv" % submodel_id)
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
   output_header_string = "Day,"
 
-  coupled_locations      = ["N","E","S","W"]
+  coupled_locations = ["Gao"]
   camp_locations = list(lm.keys())
 
   #print(camp_locations)
@@ -69,19 +69,14 @@ if __name__ == "__main__":
   #  camp_locations = ["A","B"]
   #TODO: Add Camps from CSV based on their location type.
 
-  if submodel_id == 0:
-    AddInitialRefugees(e,lm["A"])
+  if submodel_id == 1:
+    AddInitialRefugees(e,lm["Gao"])
 
   for l in coupled_locations:
     c.addCoupledLocation(lm[l], l)
 
-  if submodel_id == 0:
-    c.addGhostLocations(ig) # Add ghost conflict zones to macro model ("out" mode)
-  if submodel_id == 1:
-    c.addMicroConflictLocations(ig) # Couple all conflict locs in micro model ("in" mode)
-
-  for l in e.locations:
-    output_header_string += "%s sim," % (l.name)
+  for l in camp_locations:
+    output_header_string += "%s sim," % (lm[l].name)
 
   if e.getRankN(0):
     output_header_string += "num agents,num agents in camps"
@@ -99,17 +94,12 @@ if __name__ == "__main__":
     # Determine number of new refugees to insert into the system.
     new_refs = 0
     if submodel_id == 0:
-      new_refs = 100
+      new_refs = 0
     refugees_raw += new_refs
 
     #Insert refugee agents
     if submodel_id == 0:
       e.add_agents_to_conflict_zones(new_refs)
-
-    #exchange data with other code.
-    #immediately after agent insertion to ensure ghost locations
-    #work correctly.
-    c.Couple(t)
 
     e.refresh_conflict_weights()
     t_data = t
@@ -133,8 +123,8 @@ if __name__ == "__main__":
     if e.getRankN(t):
       output = "%s" % t
 
-      for i in range(0,len(e.locations)):
-        output += ",%s" % (e.locations[i].numAgents)
+      for i in range(0,len(camp_locations)):
+        output += ",%s" % (lm[camp_locations[i]].numAgents)
 
       if refugees_raw>0:
         output += ",%s,%s" % (e.numAgents(), refugees_in_camps_sim)
@@ -143,3 +133,5 @@ if __name__ == "__main__":
 
       print(output)
 
+    #exchange data with other code.
+    c.Couple(t)

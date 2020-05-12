@@ -8,18 +8,6 @@ import sys
 import argparse
 import time
 
-def AddInitialRefugees(e, initial_agents):
-  """ Add the initial refugees to a location, using the location name"""
-
-  while initial_agents > 10000:
-    cl = e.pick_conflict_location()
-    for i in range(0, 1000):
-      e.addAgent(location=cl)
-    initial_agents -= 1000
-
-  for i in range(0, initial_agents):
-    e.addAgent(location=e.pick_conflict_location())
-
 def date_to_sim_days(date):
   return DataTable.subtract_dates(date,"2010-01-01")
 
@@ -82,7 +70,7 @@ if __name__ == "__main__":
 
   ig.AddNewConflictZones(e,0)
   # All initial refugees start in location A.
-  AddInitialRefugees(e, args.initialagents)
+  e.add_agents_to_conflict_zones(args.initialagents)
 
   for l in camp_locations:
     output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
@@ -111,8 +99,7 @@ if __name__ == "__main__":
     refugees_raw += new_refs
 
     #Insert refugee agents
-    for i in range(0, new_refs):
-      e.addAgent(e.pick_conflict_location())
+    e.add_agents_to_conflict_zones(new_refs)
 
     e.refresh_conflict_weights()
     t_data = t

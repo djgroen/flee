@@ -4,7 +4,7 @@
 import numpy as np
 import sys
 import random
-from flee import SimulationSettings
+from flee.SimulationSettings import SimulationSettings
 from flee import flee
 from mpi4py import MPI
 from mpi4py.MPI import ANY_SOURCE
@@ -38,85 +38,20 @@ class MPIManager:
 
 
 class Person(flee.Person):
+
+  __slots__ = ['location', 'home_location', 'timesteps_since_departure', 'places_travelled', 'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link', 'e']
+
   def __init__(self, e, location):
     super().__init__(location)
-    self.location.numAgentsOnRank += 1
     self.e = e
 
-  def evolve(self):
-
-    if self.travelling == False:
-      movechance = self.location.movechance
-
-      outcome = random.random()
-      if outcome < movechance:
-        # determine here which route to take?
-        chosenRoute = self.selectRoute()
-
-        # if there is a viable route to a different location.
-        if chosenRoute >= 0:
-          # update location to link endpoint
-          self.location.numAgentsOnRank -= 1
-          self.location = self.location.links[chosenRoute]
-          self.location.numAgentsOnRank += 1
-          self.travelling = True
-          self.distance_travelled_on_link = 0
-
-    self.timesteps_since_departure += 1
+  def evolve(self, ForceTownMove=False):
+    super().evolve(ForceTownMove)
 
 
-  def finish_travel(self, distance_moved_this_timestep=0):
-    if self.travelling:
+  def finish_travel(self):
+    super().finish_travel()
 
-      # update last location of agent.
-      #if not SimulationSettings.SimulationSettings.TurnBackAllowed:
-      #  self.last_location = self.location
-
-      self.distance_travelled_on_link += SimulationSettings.SimulationSettings.MaxMoveSpeed
-
-      # If destination has been reached.
-      if self.distance_travelled_on_link - distance_moved_this_timestep > self.location.distance:
-
-        # update agent logs
-        if SimulationSettings.SimulationSettings.AgentLogLevel > 0:
-          self.places_travelled += 1
-          self.distance_travelled += self.location.distance
-
-        # if link is closed, bring agent to start point and return.
-        if self.location.closed == True:
-          #print("agent moved out of closed link.", file=sys.stderr)
-          self.location.numAgentsOnRank -= 1
-          self.location = self.location.startpoint
-          self.location.numAgentsOnRank += 1
-          self.travelling = False
-          self.distance_travelled_on_link = 0
-
-        else:
-
-          # if the person has moved less than the minMoveSpeed, it should go through another evolve() step in the new location.
-          evolveMore = False
-          if self.location.distance + distance_moved_this_timestep < SimulationSettings.SimulationSettings.MinMoveSpeed:
-            distance_moved_this_timestep += self.location.distance
-            evolveMore = True
-
-          # update location (which is on a link) to link endpoint
-          self.location.numAgentsOnRank -= 1
-          self.location = self.location.endpoint
-          self.location.numAgentsOnRank += 1
-
-          self.travelling = False
-          self.distance_travelled_on_link = 0
-
-          if SimulationSettings.SimulationSettings.CampLogLevel > 0:
-            if self.location.Camp == True:
-              self.location.incoming_journey_lengths += [self.timesteps_since_departure]
-
-
-          # Perform another evolve step if needed. And if it results in travel, then the current
-          # travelled distance needs to be taken into account.
-          if evolveMore == True:
-            self.evolve()
-            self.finish_travel(distance_moved_this_timestep)
 
   def getLinkWeight(self, link, awareness_level):
     """
@@ -124,106 +59,76 @@ class Person(flee.Person):
     """
 
     # If turning back is NOT allowed, remove weight from the last location.
-    #if not SimulationSettings.SimulationSettings.TurnBackAllowed:
-    #  if link.endpoint == self.last_location:
-    #    return 0.0 #float(0.1 / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+    if not SimulationSettings.TurnBackAllowed:
+      if link.endpoint == self.last_location:
+        return 0.0 #float(0.1 / float(SimulationSettings.Softening + link.distance))
 
     if awareness_level < 0:
       return 1.0
 
 
-    return float(self.e.scores[(link.endpoint.id * self.e.scores_per_location) + awareness_level] / float(SimulationSettings.SimulationSettings.Softening + link.distance))
+    return float(self.e.scores[(link.endpoint.id * 4) + awareness_level] / float(SimulationSettings.Softening + link.distance))
+
+
+  def getEndPointScore(self, link):
+    """
+    Overwrite serial function because we have a different data structure for endpoint scores.
+    """
+    return float(self.e.scores[(link.endpoint.id * 4) + 1])
+
 
 
 class Location(flee.Location):
 
   def __init__(self, e, cur_id, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
     self.e = e
-    super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
 
     self.id = cur_id
     self.numAgentsSpawnedOnRank = 0
 
-    self.scores = [] # Emptying this array, as it is not used in the parallel version.
     # If it is referred to in Flee in any way, the code should crash.
+    super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
+
+    self.scores = [] # Emptying this array, as it is not used in the parallel version.
+
+  def DecrementNumAgents(self):
+    self.numAgentsOnRank -= 1
+
+
+  def IncrementNumAgents(self):
+    self.numAgentsOnRank += 1
+
 
   def print(self):
     if self.e.mpi.rank == 0:
       super().print() 
 
 
-  def updateRegionScore(self):
-    """ Attractiveness of the local point, based on neighbourhood information from local and adjacent points,
-        weighted by link length. """
+  def getScore(self, index):
+    return self.e.scores[self.id * self.e.scores_per_location + index]
 
-    # No links connected or a Camp? Use LocationScore.
-    if len(self.links) == 0 or self.camp:
-      self.RegionScore = self.LocationScore
-      return
-
-    self.RegionScore = 0.0
-    total_link_weight = 0.0
-
-    for i in self.links:
-      self.RegionScore += i.endpoint.NeighbourhoodScore / float(i.distance)
-      total_link_weight += 1.0 / float(i.distance)
-
-    self.RegionScore /= total_link_weight
-    self.e.scores[self.id * self.e.scores_per_location + 3] = self.RegionScore
-
-
-  def updateNeighbourhoodScore(self):
-
-    """ Attractiveness of the local point, based on information from local and adjacent points, weighted by link length. """
-    # No links connected or a Camp? Use LocationScore.
-    if len(self.links) == 0 or self.camp:
-      self.NeighbourhoodScore = self.LocationScore
-      return
-
-    self.NeighbourhoodScore = 0.0
-    total_link_weight = 0.0
-
-    for i in self.links:
-      self.NeighbourhoodScore += i.endpoint.LocationScore / float(i.distance)
-      total_link_weight += 1.0 / float(i.distance)
-
-    self.NeighbourhoodScore /= total_link_weight
-    self.e.scores[self.id * self.e.scores_per_location + 2] = self.NeighbourhoodScore
-
-
-  def updateLocationScore(self, time):
-    """ 
-    Attractiveness of the local point, based on local point information only. 
-    Time arg is redundant here, but I keep it here for now to ensure the serial version
-    cannot be accessed in pflee. 
-    """
-
-
-    if self.foreign:
-      self.LocationScore = SimulationSettings.SimulationSettings.CampWeight
-    elif self.conflict:
-      self.LocationScore = SimulationSettings.SimulationSettings.ConflictWeight
-    else:
-      self.LocationScore = 1.0
-
-    self.e.scores[self.id * self.e.scores_per_location] = 1.0
-    self.e.scores[self.id * self.e.scores_per_location + 1] = self.LocationScore
-    #self.e.scores[self.id * self.e.scores_per_location + 4] = self.numAgentsSpawnedOnRank
+  def setScore(self, index, value):
+    self.e.scores[self.id * self.e.scores_per_location + index]= value
 
 
   def updateAllScores(self, time):
-    """ Updates all scores of a particular location. Not available in Serial Flee, due to the reversed order there. """
+    """ Updates all scores of a particular location. Different to Serial Flee, due to the reversed order there. """
     self.time = time
     self.updateRegionScore()
     self.updateNeighbourhoodScore()
-    self.updateLocationScore(self.time)
+    self.updateLocationScore()
 
 
 class Link(flee.Link):
-  pass
-  #def __init__(self, endpoint, distance, forced_redirection=False):
-  #  self.numAgentsOnRank = 0
-  #  super().__init__(endpoint, distance, forced_redirection)
+
+  def __init__(self, endpoint, distance, forced_redirection=False):
+    super().__init__(endpoint, distance, forced_redirection)
+
+  def DecrementNumAgents():
+    self.numAgentsOnRank -= 1
+
+  def IncrementNumAgents():
+    self.numAgentsOnRank += 1
 
 
 class Ecosystem(flee.Ecosystem):
@@ -236,6 +141,7 @@ class Ecosystem(flee.Ecosystem):
     self.total_agents = 0
     self.closures = [] #format [type, source, dest, start, end]
     self.time = 0
+    self.print_location_output = False
     self.mpi = MPIManager()
 
     if self.getRankN(0):
@@ -255,7 +161,7 @@ class Ecosystem(flee.Ecosystem):
     self.parallel_mode = "loc-par" # classic for replicated locations or loc-par for distributed locations.
     self.latency_mode = "high_latency" # high_latency for fewer MPI calls with more prep, or low_latency for more MPI calls with less prep.
 
-    if SimulationSettings.SimulationSettings.CampLogLevel > 0:
+    if SimulationSettings.CampLogLevel > 0:
       self.num_arrivals = [] # one element per time step.
       self.travel_durations = [] # one element per time step.
 
@@ -340,7 +246,7 @@ class Ecosystem(flee.Ecosystem):
   """
 
   def addAgent(self, location):
-    if SimulationSettings.SimulationSettings.TakeRefugeesFromPopulation:
+    if SimulationSettings.TakeRefugeesFromPopulation:
       if location.conflict:  
         if location.pop > 1:
           location.pop -= 1
@@ -392,7 +298,7 @@ class Ecosystem(flee.Ecosystem):
   def numAgentsOnRank(self):
     return len(self.agents)
 
-  def synchronize_locations(self, start_loc_local, end_loc_local, Debug=True):
+  def synchronize_locations(self, start_loc_local, end_loc_local, Debug=False):
       """
       Gathers the scores from all the updated locations, and propagates them across the processes.
       """
@@ -440,7 +346,7 @@ class Ecosystem(flee.Ecosystem):
       # Scores remain perfectly updated in classic mode.
       for l in self.locations:
         l.time = self.time
-        l.updateLocationScore(self.time)
+        l.updateLocationScore()
 
       for l in self.locations:
         l.updateNeighbourhoodScore()
@@ -487,29 +393,32 @@ class Ecosystem(flee.Ecosystem):
 
     for a in self.agents:
       a.finish_travel()
+      a.timesteps_since_departure += 1
+      a.recent_travel_distance = (a.recent_travel_distance + ( a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0
+      a.distance_moved_this_timestep = 0
 
     #print("NumAgents after finish_travel:", file=sys.stderr)
     self.updateNumAgents(mode=self.latency_mode)
 
     #update link properties
-    if SimulationSettings.SimulationSettings.CampLogLevel > 0:
+    if SimulationSettings.CampLogLevel > 0:
       self._aggregate_arrivals()
 
     self.time += 1
 
-  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
+  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown"):
     """ Add a location to the ABM network graph """
-
-    l = Location(self, self.cur_loc_id, name, x, y, movechance, capacity, pop, foreign, country)
 
     # Enlarge the scores array in Ecosystem to reflect the new location. Pflee only.
     if self.cur_loc_id > 0:
       self.scores = np.append(self.scores, np.array([1.0,1.0,1.0,1.0]))
     #print(len(self.scores))
 
+    l = Location(self, self.cur_loc_id, name, x, y, movechance, capacity, pop, foreign, country)
+
     self.cur_loc_id += 1
 
-    if SimulationSettings.SimulationSettings.InitLogLevel > 0:
+    if SimulationSettings.InitLogLevel > 0:
       print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign, file=sys.stderr)
     self.locations.append(l)
     self.locationNames.append(l.name)
