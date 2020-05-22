@@ -173,7 +173,7 @@ class InputGeography:
             print("Time = %s. Adding a new conflict zone [%s] with pop. %s" % (time, l[0], int(l[1])), file=sys.stderr)
           e.add_conflict_zone(l[0])
     else:
-      confl_names = self.getConflictLocationNames(e)
+      confl_names = self.getConflictLocationNames()
       #print(confl_names)
       for l in confl_names:
         if Debug:
