@@ -6,9 +6,7 @@
 Welcome to Flee's documentation!
 ================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+This is currently being put together.
 
 
 
