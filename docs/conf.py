@@ -50,3 +50,49 @@ html_theme = 'alabaster'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+master_doc = 'index'
+
+# One entry per manual page. List of tuples
+# (source start file, name, description, authors, manual section).
+man_pages = [
+    (master_doc, 'flee', 'Flee Documentation',
+     [author], 1)
+]
+
+
+# -- Options for Texinfo output ----------------------------------------------
+
+# Grouping the document tree into Texinfo files. List of tuples
+# (source start file, target name, title, author,
+#  dir menu entry, description, category)
+texinfo_documents = [
+    (master_doc, 'Flee', 'Flee Documentation',
+     author, 'Flee', 'One line description of project.',
+     'Miscellaneous'),
+]
+
+# -- Options for Epub output -------------------------------------------------
+
+# Bibliographic Dublin Core info.
+epub_title = project
+
+# The unique identifier of the text. This can be a ISBN number
+# or the project homepage.
+#
+# epub_identifier = ''
+
+# A unique identification for the text.
+#
+# epub_uid = ''
+
+# A list of files that should not be packed into the epub file.
+epub_exclude_files = ['search.html']
+
+
+# https://pypi.org/project/msmb_theme/
+html_theme = 'msmb_theme'
+import msmb_theme
+html_theme_path = [msmb_theme.get_html_theme_path()]
+
+
+# sphinx-build -T -E -b readthedocs -d build/doctrees source build/html
