@@ -5,18 +5,21 @@ Simulation instance construction
 Overview
 --------
 
-This documentaion details how to construct a conflict scenario for forced displacement simulation. Each conflict situation requires:
+This documentation details how to construct a conflict scenario for forced displacement simulation. Each conflict situation requires:
 
 - Three input CSV files:
+
   - input_csv/locations.csv
   - input_csv/routes.csv
   - input_csv/closures.csv
    
 - Validation data files:
+
   - source_data/refugees.csv
   - source_data/data_layout.csv
   - source_data/<country_name-camp_name1>.csv
   - source_data/<country_name-camp_name2>.csv
+
 
 Extract forced displacement data from the following databases to create input and validation files: 
 
@@ -41,14 +44,17 @@ Data extraction
   - Provide dates of interest for conflict situation (i.e. From and To).
   - Select ``Event Type: Battle``.
   - Select ``Sub Event Type``
+  
     - Armed clash, 
     - Attack, 
     - Government regains territory and 
     - Non-state actor overtakes territory.
+    
   - Specify ``Region`` and ``Country`` of conflict situation choice.
   - Accept ``Terms of Use and Attribution Policy``.
   - <name>.csv file exports to Downloads automatically.
   - Revise the downloaded <name>.csv file:
+  
     - Target the ``fatalities`` column and remove all rows in <name>.csv file with fatalities less than 1.
     - Choose the first conflict location occurrences of each location but exclude syndicated (repeated) locations.
 
@@ -145,6 +151,7 @@ closure_type   name1   name2   closure_start = 0   closure_end = -1
 =============  ======  ======  ==================  =================
       
 **closure_type** has 2 possible values: 
+
 - **location** corresponding to camp or town closure and 
 - **country** referring to border closure. 
 
@@ -173,7 +180,8 @@ YYYY-MM-DD   xxx
 YYYY-MM-DD   xxx  
     ...      ...  
 ===========  ====
-      
+
+
 We obtain data for each camp using the format and label them as **country_name-camp_name.csv**:
 
 ===========  ====
@@ -183,7 +191,8 @@ YYYY-MM-DD   xxx
 YYYY-MM-DD   xxx  
     ...      ...  
 ===========  ====
-        
+
+
 **data_layout.csv** contains camp names for each camp/destination locations:
 
 ===========  ============================
