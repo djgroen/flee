@@ -1,3 +1,5 @@
+.. _construction:
+
 Simulation instance construction
 ================================
 
@@ -88,7 +90,7 @@ name   region   country   lat   long   location_type   conflict_date   populatio
 ...      ...      ...     ...    ...         ...            ...                ...          
 =====  =======  ========  ====  =====  ==============  ==============  ====================
 
-Input camp names (i.e. destination locations) and their capacity into **locations.csv** file. Camp capacity is the highest number of forced migrants for each camp and obtained from individual camp CSV files that are set in **locations.csv**. For instance, CampZ.csv has the highest number of forcibly displaced people (12405) on 2015-06-02, which is the camp capacity for CampZ.
+Input camp names (i.e. destination locations) and their capacity into **locations.csv** file. Camp capacity is the highest number of forced migrants for each camp and obtained from individual camp CSV files that are set in **locations.csv**. For instance, CampZ.csv has the highest number of forcibly displaced people (18129) on 2015-09-30, which is the camp capacity for CampZ.
 
 ===========  =======
 ...          ...
