@@ -1,11 +1,11 @@
 .. _construction:
 
-Simulation instance construction
-================================
+.. Simulation instance construction
+.. ================================
 
 
 Overview
---------
+========
 
 This documentation details how to construct a conflict scenario for forced displacement simulation. Each conflict situation requires:
 
@@ -30,7 +30,7 @@ Extract forced displacement data from the following databases to create input an
 
 
 Data extraction
----------------
+===============
 
 1. The UNHCR situations provides an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
   - Select an active (conflict) situation of interest from an interactive map and click to access data and documentation      
@@ -75,10 +75,10 @@ An example of conflict locations (A, B and C). Conflict zone A occurs two times 
 
 
 Construct input CSV files
--------------------------
+=========================
 
 1. Construct an input **locations.csv** file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------
 The ACLED conflict data provides conflict locations to construct **locations.csv** input file for simulation purposes. After identifying conflict locations and producing **locations.csv**, the last column is filled with population data for conflict locations. Population distributions can be obtained from https://www.citypopulation.de or other population databases.
 
 =====  =======  ========  ====  =====  ==============  ==============  ====================
@@ -106,7 +106,7 @@ Input camp names (i.e. destination locations) and their capacity into **location
 
 
 2. Construct an input **routes.csv** file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------
 Identified conflict zones and camps provide origin and destination locations. We connect these locations to represent how forcibly displaced people flee. We use http://www.bing.com/maps (or other mapping services) to connect conflict zones and camps, and add additional locations (if required) as a location type **town** to locations.csv as illustrated below:
 
 =====  =======  ========  ====  =====  ==============  ==============  ====================
@@ -141,7 +141,7 @@ name1   name2   distance [km]   forced_redirection
 
 
 3. Define location and border closures in **closures.csv** file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------------------
 We identify location or border closure events and document them in **closures.csv** file:
 
 =============  ======  ======  ==================  =================
@@ -161,7 +161,7 @@ closure_type   name1   name2   closure_start = 0   closure_end = -1
 
 
 4. Construct a network map for a conflict situation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------
 Construct an agent-based network map from **locations.csv** and **routes.csv** using https://carto.com.
 
 .. image:: images/network.png
@@ -171,7 +171,7 @@ Construct an agent-based network map from **locations.csv** and **routes.csv** u
 
 
 Validation data
----------------
+===============
 
 There are three CSV file formats required for validation of simulation outputs. CSV file containing total forced migrant counts **refugees.csv** comprises total counts of forcibly displaced people from ``Refugees and asylum-seekers from `chosen situation name` - Total`` JSON file and has the format as demonstrated:
 
