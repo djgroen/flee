@@ -205,7 +205,7 @@ Identified conflict zones and camps provide origin and destination locations. We
 Record distances between locations in **routes.csv** file for simulation using the following format:
 
 .. list-table:: 
-   :widths: 10 10 20 30
+   :widths: 10 10 15 20
    :header-rows: 1
    :align: center
            
