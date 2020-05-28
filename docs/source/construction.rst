@@ -113,8 +113,8 @@ name   region   country   lat   long   location_type   conflict_date   populatio
  A       AA       ABC     xxx    xxx      conflict          xxx                xxx        
  B       BB       ABC     xxx    xxx      conflict          xxx                xxx          
  C       CC       ABC     xxx    xxx      conflict          xxx                xxx          
- Z       ZZ       ZZZ     xxx    xxx        camp             -                 xxx         
- N       NN       ABC     xxx    xxx        town             -                  -            
+ Z       ZZ       ZZZ     xxx    xxx        camp                               xxx         
+ N       NN       ABC     xxx    xxx        town                                         
 ...      ...      ...     ...    ...         ...            ...                ...          
 =====  =======  ========  ====  =====  ==============  ==============  ====================
 
