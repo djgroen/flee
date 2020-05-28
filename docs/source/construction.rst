@@ -23,17 +23,23 @@ Data extraction
 ---------------
 
 1. The UNHCR situations provides an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
-  - Select an active (conflict) situation of interest from an interactive map and click to access data and documentation 
-relevant to a chosen conflict situation from <https://data2.unhcr.org/en/situations>.
-  - Select a simulation period for conflict situation from ``Refugees and asylum-seekers from `chosen situation name` - Total`` timeline, which also presents forced displacement counts for a chosen period.
-  - Obtain total counts of forcibly displaced people by clicking JSON button of ``Refugees and asylum-seekers from `chosen situation name` - Total`` section. 
+  - Select an active (conflict) situation of interest from an interactive map and click to access data and documentation      
+    relevant to a chosen conflict situation from https://data2.unhcr.org/en/situations.
+  - Select a simulation period for conflict situation from ``Refugees and asylum-seekers from `chosen situation name` -       
+    Total`` timeline, which also presents forced displacement counts for a chosen period.
+  - Obtain total counts of forcibly displaced people by clicking JSON button of ``Refugees and asylum-seekers from `chosen       
+    situation name` - Total`` section. 
   - Identify camps for each neighbouring country through ``Breakdown by Country`` section of the conflict situation.
   - Collect and save data for each camp (e.g. <country_name-camp_name>.csv).
   
 2. The ACLED database provides conflict location data for forced displacement simulations. To obtain data on chosen conflict situation, complete the ACLED data export tool fields (<ttps://www.acleddata.com/data>) as follows:
   - Provide dates of interest for conflict situation (i.e. From and To).
   - Select ``Event Type: Battle``.
-  - Select ``Sub Event Type: Armed clash, Attack, Government regains territory and Non-state actor overtakes territory``.
+  - Select ``Sub Event Type``: 
+      - Armed clash, 
+      - Attack, 
+      - Government regains territory and 
+      - Non-state actor overtakes territory.
   - Specify ``Region`` and ``Country`` of conflict situation choice.
   - Accept ``Terms of Use and Attribution Policy``.
   - <name>.csv file exports to Downloads automatically.
@@ -47,7 +53,6 @@ relevant to a chosen conflict situation from <https://data2.unhcr.org/en/situati
                         C = 14) for simulation purposes.
            :widths: 10 10 10
            :header-rows: 1
-           :align: center
            
            * - ...
              - Location
@@ -82,12 +87,11 @@ ACLED conflict data provides conflict locations to construct **locations.csv** i
 
 **locations.csv** has the following format:
 
-   .. list-table:: Input camp names (i.e. destination locations) and their capacity into **locations.csv** file. Camp     
+      .. list-table:: Input camp names (i.e. destination locations) and their capacity into **locations.csv** file. Camp     
                    capacity is the highest number of forced migrants for each camp and obtained from individual camp CSV    
                    files that we set in **locations.csv.
-      :widths: 10 10 10 5 5 20 20 30
-      :header-rows: 1
-      :align: center
+         :widths: 5 10 10 5 5 15 15 30
+         :header-rows: 1
            
            * - name
              - region
