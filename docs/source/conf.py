@@ -44,7 +44,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+# html_theme = 'alabaster'
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -58,6 +59,9 @@ man_pages = [
     (master_doc, 'flee', 'Flee Documentation',
      [author], 1)
 ]
+
+# Output file base name for HTML help builder.
+htmlhelp_basename = 'Fleedoc'
 
 
 # -- Options for Texinfo output ----------------------------------------------
