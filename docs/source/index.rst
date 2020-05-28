@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Flee - Simulation toolkit for the movement of individuals
+Simulation toolkit for the movement of individuals
 ===========================================================================
 
 Flee is an agent-based modelling toolkit which is purpose-built for simulating the movement of individuals across geographical locations, released under a BSD 3-clause license. 
@@ -12,6 +12,7 @@ Flee is currently used for modelling the movements of refugees and internally di
 simulation. 
 
 To use the code, one requires:
+
 * Python 3 interpreter;
 * Python modules: numpy, scipy, matplotlib and pandas.
 
