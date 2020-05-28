@@ -3,7 +3,7 @@ Simulation instance construction
 
 
 Overview
-========
+--------
 
 This documentaion details how to construct a conflict scenario for forced displacement simulation. Each conflict situation requires:
 
@@ -20,7 +20,7 @@ This documentaion details how to construct a conflict scenario for forced displa
 
 
 Data extraction
-===============
+---------------
 
 1. The UNHCR situations provides an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
   - Select an active (conflict) situation of interest from an interactive map and click to access data and documentation 
@@ -74,10 +74,10 @@ relevant to a chosen conflict situation from <https://data2.unhcr.org/en/situati
 
 
 Construct input CSV files
-=========================
+-------------------------
 
 1. Construct an input **locations.csv** file
---------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ACLED conflict data provides conflict locations to construct **locations.csv** input file for simulation purposes. After identifying conflict locations and producing **locations.csv**, the last column is filled with population data for conflict locations. Population distributions can be obtained from <https://www.citypopulation.de> or other population databases.
 
 **locations.csv** has the following format:
@@ -132,7 +132,7 @@ ACLED conflict data provides conflict locations to construct **locations.csv** i
              
              
 2. Construct an input **routes.csv** file
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Identified conflict zones and camps provide origin and destination locations. We connect these locations to represent how forcibly displaced people flee. We use http://www.bing.com/maps (or other mapping services) to connect conflict zones and camps, and add additional locations (if required) as a location type **town** to locations.csv as illustrated below:
 
         .. list-table:: 
@@ -244,7 +244,7 @@ Record distances between locations in **routes.csv** file for simulation using t
 
 
 3. Define location and border closures in **closures.csv** file
----------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     .. list-table:: We identify location or border closure events and document them in **closures.csv** file
        :widths: 20 10 10 30 30
@@ -281,7 +281,7 @@ Record distances between locations in **routes.csv** file for simulation using t
 
 
 4. Construct a network map for a conflict situation
----------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Construct an agent-based network map from **locations.csv** and **routes.csv** using <https://carto.com>.
 
     .. image:: images/network.png
@@ -291,7 +291,7 @@ Construct an agent-based network map from **locations.csv** and **routes.csv** u
 
 
 Validation data
-===============
+---------------
 
 There are three CSV file formats required for validation of simulation outputs:
 
