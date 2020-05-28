@@ -47,34 +47,34 @@ Data extraction
      - Target the ``fatalities`` column and remove all rows in <name>.csv file with fatalities less than 1.
      - Choose the first conflict location occurrences of each location but exclude syndicated (repeated) locations.
 
-        .. list-table:: An example of conflict locations (A, B and C). Conflict zone A occurs two times
+     .. list-table:: An example of conflict locations (A, B and C). Conflict zone A occurs two times
                         with fatality numbers 3 and 38, while conflict zone C repeats twice with fatalities 14 and
                         7. Choose essence of locations (one of each location) at the first occurrence (e.g. A = 3, B = 23 and       
                         C = 14) for simulation purposes.
-           :widths: 10 10 10
-           :header-rows: 1
+        :widths: 10 10 10
+        :header-rows: 1
            
-           * - ...
-             - Location
-             - Fatalities
-           * - ...
-             - A
-             - 3
-           * - ...
-             - B
-             - 23
-           * - ...
-             - A
-             - 38
-           * - ...
-             - C
-             - 14
-           * - ...
-             - C
-             - 7
-           * - ...
-             - ...
-             - ...
+        * - ...
+          - Location
+          - Fatalities
+        * - ...
+          - A
+          - 3
+        * - ...
+          - B
+          - 23
+        * - ...
+          - A
+          - 38
+        * - ...
+          - C
+          - 14
+        * - ...
+          - C
+          - 7
+        * - ...
+          - ...
+          - ...
              
 
 
@@ -87,194 +87,194 @@ ACLED conflict data provides conflict locations to construct **locations.csv** i
 
 **locations.csv** has the following format:
 
-      .. list-table:: Input camp names (i.e. destination locations) and their capacity into **locations.csv** file. Camp     
-                   capacity is the highest number of forced migrants for each camp and obtained from individual camp CSV    
-                   files that we set in **locations.csv.
-         :widths: 5 10 10 5 5 15 15 30
-         :header-rows: 1
+.. list-table:: Input camp names (i.e. destination locations) and their capacity into **locations.csv** file. Camp     
+                capacity is the highest number of forced migrants for each camp and obtained from individual camp CSV    
+                files that we set in **locations.csv.
+   :widths: 5 10 10 5 5 15 15 30
+   :header-rows: 1
            
-           * - name
-             - region
-             - country 
-             - lat
-             - long 
-             - location_type 
-             - conflict_date 
-             - population/capacity
-           * - A
-             - AA 
-             - ABC 
-             - xxx 
-             - xxx 
-             - conflict  
-             - xxx      
-             - xxx 
-           * - B
-             - BB 
-             - ABC 
-             - xxx 
-             - xxx 
-             - conflict  
-             - xxx      
-             - xxx 
-           * - C
-             - CC 
-             - ABC 
-             - xxx 
-             - xxx 
-             - conflict  
-             - xxx      
-             - xxx 
-           * - ...
-             - ...
-             - ... 
-             - ...
-             - ... 
-             - ...  
-             - ...     
-             - ...
+   * - name
+     - region
+     - country 
+     - lat
+     - long 
+     - location_type 
+     - conflict_date 
+     - population/capacity
+   * - A
+     - AA 
+     - ABC 
+     - xxx 
+     - xxx 
+     - conflict  
+     - xxx      
+     - xxx 
+   * - B
+     - BB 
+     - ABC 
+     - xxx 
+     - xxx 
+     - conflict  
+     - xxx      
+     - xxx 
+   * - C
+     - CC 
+     - ABC 
+     - xxx 
+     - xxx 
+     - conflict  
+     - xxx      
+     - xxx 
+   * - ...
+     - ...
+     - ... 
+     - ...
+     - ... 
+     - ...  
+     - ...     
+     - ...
              
              
 2. Construct an input **routes.csv** file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Identified conflict zones and camps provide origin and destination locations. We connect these locations to represent how forcibly displaced people flee. We use http://www.bing.com/maps (or other mapping services) to connect conflict zones and camps, and add additional locations (if required) as a location type **town** to locations.csv as illustrated below:
 
-        .. list-table:: 
-           :widths: 10 10 10 5 5 20 20 30
-           :header-rows: 1
-           :align: center
+.. list-table:: 
+   :widths: 5 10 10 5 5 20 20 30
+   :header-rows: 1
+   :align: center
            
-           * - name
-             - region
-             - country 
-             - lat
-             - long 
-             - location_type 
-             - conflict_date 
-             - population/capacity
-           * - A
-             - AA 
-             - ABC 
-             - xxx 
-             - xxx 
-             - conflict  
-             - xxx      
-             - xxx 
-           * - B
-             - BB 
-             - ABC 
-             - xxx 
-             - xxx 
-             - conflict  
-             - xxx      
-             - xxx 
-           * - C
-             - CC 
-             - ABC 
-             - xxx 
-             - xxx 
-             - conflict  
-             - xxx      
-             - xxx 
-           * - Z
-             - ZZ 
-             - ZZZ 
-             - xxx 
-             - xxx 
-             - camp  
-             -       
-             - xxx 
-           * - N
-             - NN 
-             - ABC 
-             - xxx 
-             - xxx 
-             - town  
-             -       
-             - 
-           * - ...
-             - ...
-             - ... 
-             - ...
-             - ... 
-             - ...  
-             - ...     
-             - ...
+   * - name
+     - region
+     - country 
+     - lat
+     - long 
+     - location_type 
+     - conflict_date 
+     - population/capacity
+   * - A
+     - AA 
+     - ABC 
+     - xxx 
+     - xxx 
+     - conflict  
+     - xxx      
+     - xxx 
+   * - B
+     - BB 
+     - ABC 
+     - xxx 
+     - xxx 
+     - conflict  
+     - xxx      
+     - xxx 
+   * - C
+     - CC 
+     - ABC 
+     - xxx 
+     - xxx 
+     - conflict  
+     - xxx      
+     - xxx 
+   * - Z
+     - ZZ 
+     - ZZZ 
+     - xxx 
+     - xxx 
+     - camp  
+     -       
+     - xxx 
+   * - N
+     - NN 
+     - ABC 
+     - xxx 
+     - xxx 
+     - town  
+     -       
+     - 
+   * - ...
+     - ...
+     - ... 
+     - ...
+     - ... 
+     - ...  
+     - ...     
+     - ...
           
 
 Record distances between locations in **routes.csv** file for simulation using the following format:
 
-        .. list-table:: 
-           :widths: 10 10 20 30
-           :header-rows: 1
-           :align: center
+.. list-table:: 
+   :widths: 10 10 20 30
+   :header-rows: 1
+   :align: center
            
-           * - name1
-             - name2
-             - distance [km]
-             - forced_redirection
-           * - A
-             - B
-             - x1
-             -
-           * - B
-             - C
-             - x2
-             -
-           * - A
-             - C
-             - x3
-             - 
-           * - B
-             - N
-             - x4
-             - 
-           * - C
-             - N
-             - x3
-             -
-           * - N
-             - Z
-             - x5
-             - 
-           * - ...
-             - ...
-             - ...
-             -
+   * - name1
+     - name2
+     - distance [km]
+     - forced_redirection
+   * - A
+     - B
+     - x1
+     -
+   * - B
+     - C
+     - x2
+     -
+   * - A
+     - C
+     - x3
+     - 
+   * - B
+     - N
+     - x4
+     - 
+   * - C
+     - N
+     - x3
+     -
+   * - N
+     - Z
+     - x5
+     - 
+   * - ...
+     - ...
+     - ...
+     -
 
-    .. note: **forced_redirection** refers to redirection from source location (can be town or camp) to destination location     
-             (mainly camp) and source location indicated as forwarding_hub. The value of 0 indicates no redirection, 1  
-             indicates redirection (from name2) to name1and 2 corresponds to redirection (from name1) to name2.
+   .. note: **forced_redirection** refers to redirection from source location (can be town or camp) to destination location     
+            (mainly camp) and source location indicated as forwarding_hub. The value of 0 indicates no redirection, 1  
+            indicates redirection (from name2) to name1and 2 corresponds to redirection (from name1) to name2.
 
 
 3. Define location and border closures in **closures.csv** file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    .. list-table:: We identify location or border closure events and document them in **closures.csv** file
-       :widths: 20 10 10 30 30
-       :headers-rows: 1
-       :align: center
+.. list-table:: We identify location or border closure events and document them in **closures.csv** file
+   :widths: 20 10 10 30 30
+   :headers-rows: 1
+   :align: center
        
-       * - closure_type
-         - name1
-         - name2 
-         - closure_start = 0 
-         - closure_end = -1
-       * - location
-         - A
-         - B
-         - xxx
-         - xxx
-       * - country
-         - ABC
-         - ZZZ
-         - xxx
-         - xxx 
-       * - ...
-         - ...
-         - ...
-         - ...
-         - ...
+   * - closure_type
+     - name1
+     - name2 
+     - closure_start = 0 
+     - closure_end = -1
+   * - location
+     - A
+     - B
+     - xxx
+     - xxx
+   * - country
+     - ABC
+     - ZZZ
+     - xxx
+     - xxx 
+   * - ...
+     - ...
+     - ...
+     - ...
+     - ...
       
       
 **closure_type** has 2 possible values: 
@@ -288,9 +288,9 @@ Record distances between locations in **routes.csv** file for simulation using t
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Construct an agent-based network map from **locations.csv** and **routes.csv** using <https://carto.com>.
 
-    .. image:: images/network.png
-       :width: 300
-       :align: center
+.. image:: images/network.png
+   :width: 300
+   :align: center
 
 
 
@@ -299,48 +299,48 @@ Validation data
 
 There are three CSV file formats required for validation of simulation outputs:
 
-   .. list-table:: CSV file containing total forced migrant counts **forced_migrants.csv** comprises total counts of forcibly   
+.. list-table:: CSV file containing total forced migrant counts **forced_migrants.csv** comprises total counts of forcibly   
                    displaced people from ``Refugees and asylum-seekers from `chosen situation name` - Total`` JSON file and     
                    has the format as demonstrated:
-      :widths: 20 10
-      :headers-rows: 1
-      :align: center
+   :widths: 20 10
+   :headers-rows: 1
+   :align: center
        
-      * - ...
-        - ...
-      * - YYYY-MM-DD
-        - xxx
-      * - YYYY-MM-DD
-        - xxx
-      * - ...
-        - ...
+   * - ...
+     - ...
+   * - YYYY-MM-DD
+     - xxx
+   * - YYYY-MM-DD
+     - xxx
+   * - ...
+     - ...
       
         
-    .. list-table:: We obtain data for each camp using the format and label them as **country_name-camp_name.csv**.
-       :widths: 20 10
-       :headers-rows: 1
-       :align: center
+.. list-table:: We obtain data for each camp using the format and label them as **country_name-camp_name.csv**.
+   :widths: 20 10
+   :headers-rows: 1
+   :align: center
        
-       * - ...
-         - ...
-       * - YYYY-MM-DD
-         - xxx
-       * - YYYY-MM-DD
-         - xxx
-       * - ...
-         - ...
+   * - ...
+     - ...
+   * - YYYY-MM-DD
+     - xxx
+   * - YYYY-MM-DD
+     - xxx
+   * - ...
+     - ...
         
         
-    .. list-table:: **data_layout.csv** contains camp names for each camp/destination locations.
-       :widths: 20 10
-       :headers-rows: 1
-       :align: center
+.. list-table:: **data_layout.csv** contains camp names for each camp/destination locations.
+   :widths: 20 10
+   :headers-rows: 1
+   :align: center
        
-       * - Total
-         - refugees.csv
-       * - camp_name1
-         - <country_name-camp_name1>.csv
-       * - camp_name2
-         - <country_name-camp_name2>.csv
-       * - ...
-         - ...
+   * - Total
+     - refugees.csv
+   * - camp_name1
+     - <country_name-camp_name1>.csv
+   * - camp_name2
+     - <country_name-camp_name2>.csv
+   * - ...
+     - ...
