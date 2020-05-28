@@ -18,6 +18,9 @@ This documentaion details how to construct a conflict scenario for forced displa
     - source_data/<country_name-camp_name1>.csv
     - source_data/<country_name-camp_name2>.csv
 
+Extract forced displacement data from the following databases to create input and validation files: 
+- the United Nations High Commissioner for Refugees database (UNHCR,https://data2.unhcr.org/en/situations)
+- the Armed Conflict Location and Event Data Project (ACLED,https://www.acleddata.com/data).
 
 Data extraction
 ---------------
@@ -32,7 +35,7 @@ Data extraction
   - Identify camps for each neighbouring country through ``Breakdown by Country`` section of the conflict situation.
   - Collect and save data for each camp (e.g. <country_name-camp_name>.csv).
   
-2. The ACLED database provides conflict location data for forced displacement simulations. To obtain data on chosen conflict situation, complete the ACLED data export tool fields (<ttps://www.acleddata.com/data>) as follows:
+2. The ACLED database provides conflict location data for forced displacement simulations. To obtain data on chosen conflict situation, complete the ACLED data export tool fields (https://www.acleddata.com/data) as follows:
   - Provide dates of interest for conflict situation (i.e. From and To).
   - Select ``Event Type: Battle``.
   - Select ``Sub Event Type``: 
@@ -47,34 +50,33 @@ Data extraction
      - Target the ``fatalities`` column and remove all rows in <name>.csv file with fatalities less than 1.
      - Choose the first conflict location occurrences of each location but exclude syndicated (repeated) locations.
 
-     .. list-table:: An example of conflict locations (A, B and C). Conflict zone A occurs two times
-                        with fatality numbers 3 and 38, while conflict zone C repeats twice with fatalities 14 and
-                        7. Choose essence of locations (one of each location) at the first occurrence (e.g. A = 3, B = 23 and       
-                        C = 14) for simulation purposes.
-        :widths: 10 10 10
-        :header-rows: 1
+.. list-table:: An example of conflict locations (A, B and C). Conflict zone A occurs two times with fatality numbers 3 and   
+                38, while conflict zone C repeats twice with fatalities 14 and 7. Choose essence of locations (one of each       
+                location) at the first occurrence (e.g. A = 3, B = 23 and C = 14) for simulation purposes.
+   :widths: 10 10 10
+   :header-rows: 1
            
-        * - ...
-          - Location
-          - Fatalities
-        * - ...
-          - A
-          - 3
-        * - ...
-          - B
-          - 23
-        * - ...
-          - A
-          - 38
-        * - ...
-          - C
-          - 14
-        * - ...
-          - C
-          - 7
-        * - ...
-          - ...
-          - ...
+   * - ...
+     - Location
+     - Fatalities
+   * - ...
+     - A
+     - 3
+   * - ...
+     - B
+     - 23
+   * - ...
+     - A
+     - 38
+   * - ...
+     - C
+     - 14
+   * - ...
+     - C
+     - 7
+   * - ...
+     - ...
+     - ...
              
 
 
@@ -83,13 +85,11 @@ Construct input CSV files
 
 1. Construct an input **locations.csv** file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ACLED conflict data provides conflict locations to construct **locations.csv** input file for simulation purposes. After identifying conflict locations and producing **locations.csv**, the last column is filled with population data for conflict locations. Population distributions can be obtained from <https://www.citypopulation.de> or other population databases.
+ACLED conflict data provides conflict locations to construct **locations.csv** input file for simulation purposes. After identifying conflict locations and producing **locations.csv**, the last column is filled with population data for conflict locations. Population distributions can be obtained from https://www.citypopulation.de or other population databases.
 
-**locations.csv** has the following format:
+Input camp names (i.e. destination locations) and their capacity into **locations.csv** file. Camp capacity is the highest number of forced migrants for each camp and obtained from individual camp CSV files that are set in **locations.csv**, which has the following format:
 
-.. list-table:: Input camp names (i.e. destination locations) and their capacity into **locations.csv** file. Camp     
-                capacity is the highest number of forced migrants for each camp and obtained from individual camp CSV    
-                files that we set in **locations.csv.
+.. list-table:: 
    :widths: 5 10 10 5 5 15 15 30
    :header-rows: 1
            
@@ -249,8 +249,9 @@ Record distances between locations in **routes.csv** file for simulation using t
 
 3. Define location and border closures in **closures.csv** file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We identify location or border closure events and document them in **closures.csv** file:
 
-.. list-table:: We identify location or border closure events and document them in **closures.csv** file
+.. list-table:: 
    :widths: 20 10 10 30 30
    :headers-rows: 1
    :align: center
@@ -286,7 +287,7 @@ Record distances between locations in **routes.csv** file for simulation using t
 
 4. Construct a network map for a conflict situation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Construct an agent-based network map from **locations.csv** and **routes.csv** using <https://carto.com>.
+Construct an agent-based network map from **locations.csv** and **routes.csv** using https://carto.com.
 
 .. image:: images/network.png
    :width: 300
@@ -297,11 +298,9 @@ Construct an agent-based network map from **locations.csv** and **routes.csv** u
 Validation data
 ---------------
 
-There are three CSV file formats required for validation of simulation outputs:
+There are three CSV file formats required for validation of simulation outputs. CSV file containing total forced migrant counts **refugees.csv** comprises total counts of forcibly displaced people from ``Refugees and asylum-seekers from `chosen situation name` - Total`` JSON file and has the format as demonstrated:
 
-.. list-table:: CSV file containing total forced migrant counts **forced_migrants.csv** comprises total counts of forcibly   
-                   displaced people from ``Refugees and asylum-seekers from `chosen situation name` - Total`` JSON file and     
-                   has the format as demonstrated:
+.. list-table:: 
    :widths: 20 10
    :headers-rows: 1
    :align: center
@@ -315,8 +314,9 @@ There are three CSV file formats required for validation of simulation outputs:
    * - ...
      - ...
       
-        
-.. list-table:: We obtain data for each camp using the format and label them as **country_name-camp_name.csv**.
+We obtain data for each camp using the format and label them as **country_name-camp_name.csv**:
+
+.. list-table:: 
    :widths: 20 10
    :headers-rows: 1
    :align: center
@@ -330,8 +330,9 @@ There are three CSV file formats required for validation of simulation outputs:
    * - ...
      - ...
         
-        
-.. list-table:: **data_layout.csv** contains camp names for each camp/destination locations.
+**data_layout.csv** contains camp names for each camp/destination locations:
+
+.. list-table:: 
    :widths: 20 10
    :headers-rows: 1
    :align: center
