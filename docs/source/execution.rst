@@ -30,7 +30,7 @@ Execute a conflict scenario
 
    
 
-Execute simplified simulation of Central African Republic (CAR) situation:
+Execute simplified simulation of Central African Republic (CAR) situation
 =========================================================================
 
 To run the (simplified) CAR simulation:
