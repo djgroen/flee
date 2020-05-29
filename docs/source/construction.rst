@@ -164,8 +164,8 @@ closure_type   name1   name2   closure_start = 0   closure_end = -1
 ---------------------------------------------------
 Construct an agent-based network map from **locations.csv** and **routes.csv** using https://carto.com.
 
-.. image:: images/network.png
-   :width: 300
+.. image:: ../images/network.png
+   :width: 200
    :align: center
 
 
