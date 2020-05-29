@@ -29,8 +29,8 @@ Extract forced displacement data from the following databases to create input an
 - the Armed Conflict Location and Event Data Project (ACLED, https://www.acleddata.com/data).
 
 
-Extract data 
-============
+Extracting input data 
+=====================
 
 1. The UNHCR situations provides an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
   - Select an active (conflict) situation of interest from an interactive map and click to access data and documentation      
@@ -74,8 +74,8 @@ An example of conflict locations (A, B and C). Conflict zone A occurs two times 
 =====   ==========   ============
 
 
-Construct input CSV files
-=========================
+Constructing input CSV files
+============================
 
 1. Construct an input **locations.csv** file
 --------------------------------------------
@@ -170,8 +170,8 @@ Construct an agent-based network map from **locations.csv** and **routes.csv** u
 
 
 
-Construct validation data
-=========================
+Constructing validation data
+============================
 
 There are three CSV file formats required for validation of simulation outputs. CSV file containing total forced migrant counts **refugees.csv** comprises total counts of forcibly displaced people from ``Refugees and asylum-seekers from `chosen situation name` - Total`` JSON file and has the format as demonstrated:
 
@@ -206,8 +206,8 @@ camp_name2   country_name-camp_name2.csv
 ===========  ============================
 
 
-Construct conflict directory
-=============================
+Constructing a conflict directory
+=================================
 
 1. Create <country_name> conflict directory in **~/flee** directory.
 
