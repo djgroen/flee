@@ -53,7 +53,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_static_path = ['_static']
 master_doc = 'index'
 
-html_logo = "../flee.png"
+html_logo = "../images/flee.png"
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
