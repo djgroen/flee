@@ -29,8 +29,8 @@ Extract forced displacement data from the following databases to create input an
 - the Armed Conflict Location and Event Data Project (ACLED, https://www.acleddata.com/data).
 
 
-Data extraction
-===============
+Extract data 
+============
 
 1. The UNHCR situations provides an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
   - Select an active (conflict) situation of interest from an interactive map and click to access data and documentation      
@@ -170,8 +170,8 @@ Construct an agent-based network map from **locations.csv** and **routes.csv** u
 
 
 
-Validation data
-===============
+Construct validation data
+=========================
 
 There are three CSV file formats required for validation of simulation outputs. CSV file containing total forced migrant counts **refugees.csv** comprises total counts of forcibly displaced people from ``Refugees and asylum-seekers from `chosen situation name` - Total`` JSON file and has the format as demonstrated:
 
@@ -204,3 +204,42 @@ camp_name1   country_name-camp_name1.csv
 camp_name2   country_name-camp_name2.csv  
 ...                     ...              
 ===========  ============================
+
+
+Construct conflict directory
+=============================
+
+1. Create <country_name> conflict directory in **~/flee** directory.
+
+2. Create **input_csv** sub-directory to store input CSV files.
+
+3. Create the second sub-directory **source_data** and place inside validation data files.
+
+4. Create <country_name>.py file for a conflict situation. To demonstrate, 
+https://github.com/djgroen/flee-release/blob/master/test_csv.py is an example script,
+which you can copy and modify according to your choice of conflict scenario.
+
+- Change date in <country_name>.py to the start of conflict simulation date:
+
+  .. code-block:: python
+   
+                   def date_to_sim_days(date):
+                     return DataTable.subtract_dates(date,"2010-01-01")
+                     ...
+                     d = handle_refugee_data.RefugeeTable(csvformat="generic", ... start_date="2010-01-01", ...)
+
+- Declare input and validation data locations in <country_name>.py file:
+
+  .. code-block:: python
+
+                     ig.ReadLocationsFromCSV("test_data/test_input_csv/locations.csv")
+
+                     ig.ReadLinksFromCSV("test_data/test_input_csv/routes.csv")
+
+                     ig.ReadClosuresFromCSV("test_data/test_input_csv/closures.csv")
+
+                     ...
+
+                    d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="test_data/test_input_csv/refugee_data", ...)
+                    
+
