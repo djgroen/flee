@@ -1,10 +1,10 @@
 .. _execution:
 
-.. Simulation instance execution
-.. =============================
+Simulation instance execution
+=============================
 
 Execute test instance
-=======================
+---------------------
 
 To run simulation instance using Flee with test, simply type::
 
@@ -14,7 +14,7 @@ To run simulation instance using Flee with test, simply type::
   
 
 Execute a conflict scenario
-===========================
+---------------------------
 
 1. Create an output directory **out<country_name>**.
 
@@ -31,7 +31,7 @@ Execute a conflict scenario
    
 
 Execute simplified simulation of Central African Republic (CAR) situation
-=========================================================================
+-------------------------------------------------------------------------
 
 To run the (simplified) CAR simulation:
 
