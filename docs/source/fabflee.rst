@@ -101,7 +101,7 @@ Execution
 
   .. code:: console
   
-          fabsim localhost flee:<conflict_name>,simulation_period=<number>
+  fabsim localhost flee:<conflict_name>,simulation_period=<number>
   
 This does the following:
 - Copy your job input, which is in ``~/FabSim3/plugins/FabFlee/config_files/<conflict_name>``, to the remote location specified in the variable **remote_path_template** in ``~/FabSim3/deploy/machines.yml``.
