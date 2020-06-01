@@ -19,9 +19,11 @@ For detailed installation instructions, see https://fabsim3.readthedocs.io/en/la
 Installing the FabFlee plugin
 -----------------------------
 
-Once you have installed FabSim3, you can install FabFlee by typing::
+Once you have installed FabSim3, you can install FabFlee by typing:
 
-  fabsim localhost install_plugin:FabFlee
+  .. code:: console
+  
+          fabsim localhost install_plugin:FabFlee
 
 The FabFlee plugin will appear in ``~/FabSim3/plugins/FabFlee``.
 
@@ -50,18 +52,22 @@ Executing forced migration simulation using FabFlee
 
 Initiation
 ~~~~~~~~~~
-To load conflict scenario, simply type::
+To load conflict scenario, simply type:
 
-  fabsim localhost load_conflict:<conflict_name>
+  .. code:: console
+
+          fabsim localhost load_conflict:<conflict_name>
   
 It duplicates all existing files from a base conflict directory to a working directory, namely **active_conflict**, inside **conflict_data** directory. The load command also generates a text file (i.e. commands.log.txt) that records command logs of commencing activities.
 
 
 Refinement
 ~~~~~~~~~~
-To modify simulation and explore policy decisions, simply type::
+To modify simulation and explore policy decisions, simply type:
+
+  .. code:: console
   
-  fabsim localhost <FabFlee_command>
+          fabsim localhost <FabFlee_command>
 
 Each FabFlee command refines different actions and changes three main input CSV files (locations.csv, routes.csv and closures.csv):
 
@@ -79,9 +85,11 @@ Forced redirection             redirect:source,destination,redirect_start,redire
     
 Instantiation
 ~~~~~~~~~~~~~
-To instantiate Flee simulation, simply type::
+To instantiate Flee simulation, simply type:
 
-  fabsim localhost instantiate:<conflict_name> 
+  .. code:: console
+
+          fabsim localhost instantiate:<conflict_name> 
 
 It saves parameter changes of the simulation in a new directory of **config_files** including conflict name, version and date of instantiation on users insert choice. It also duplicates base files of conflict scenario. 
 
@@ -101,7 +109,7 @@ Execution
 
   .. code:: console
   
-  fabsim localhost flee:<conflict_name>,simulation_period=<number>
+          fabsim localhost flee:<conflict_name>,simulation_period=<number>
   
 This does the following:
 - Copy your job input, which is in ``~/FabSim3/plugins/FabFlee/config_files/<conflict_name>``, to the remote location specified in the variable **remote_path_template** in ``~/FabSim3/deploy/machines.yml``.
