@@ -16,26 +16,11 @@ Flee is publicly available at: https://github.com/djgroen/flee
 
 .. toctree::
    :maxdepth: 1
-   :caption: Installation and Testing
+   :caption: Contents:
    
    installation
-   
-.. toctree::
-   :maxdepth: 1
-   :caption: Simulation instance construction
-   
-   construction   
-   
-.. toctree::
-   :maxdepth: 1
-   :caption: Simulation execution
-   
+   construction     
    execution
-
-.. toctree::
-   :maxdepth: 1
-   :caption: FabFlee: Automated Flee-based simulation
-  
    fabflee
 
 
