@@ -1,10 +1,10 @@
 .. _installation:
 
-.. Installation and Testing
-.. ========================
+Installation and Testing
+========================
 
 Dependencies
-============
+------------
 
 To use the Flee code, one requires:
 
@@ -19,7 +19,7 @@ To use the Flee code, one requires:
 * **git** needs to be installed in your machine. 
 
 Installing Flee
-===============
+---------------
  
 To install Flee on your local workstation, you need to clone the Flee repository:
 
@@ -34,7 +34,7 @@ Once cloning completes, Flee will appear in your working directory as ``~/flee``
 
 
 Updating Flee
-================
+-------------
 
 If you have already installed Flee and want to update to the latest version, in your local Flee directory simply type 
 
@@ -45,7 +45,7 @@ If you have already installed Flee and want to update to the latest version, in 
             
             
 Testing Flee
-============
+------------
 
 To run the test example, simply type
 
