@@ -1,16 +1,13 @@
 .. _fabflee:
 
-.. FabFlee: Automated Flee-based simulation
-.. ========================================
-
-Overview
-========
+FabFlee: Automated Flee-based simulation
+========================================
 
 To automate the construction, execution and analysis of forced migration simulation, we use a FabSim3-based FabFlee plugin (https://github.com/djgroen/FabFlee). It provides an environment for researchers and organisations to construct and modify simulations, instantiate and execute multiple runs for different policy decisions, as well as to validate and visualise the obtained results against the existing data.
 
 
 Installing the FabSim3 automation toolkit
-=========================================
+-----------------------------------------
 
 To install FabSim3, you need to install dependencies and clone the FabSim3 repository::
 
@@ -20,7 +17,7 @@ For detailed installation instructions, see https://fabsim3.readthedocs.io/en/la
 
 
 Installing the FabFlee plugin
-=============================
+-----------------------------
 
 Once you have installed FabSim3, you can install FabFlee by typing::
 
@@ -30,7 +27,7 @@ The FabFlee plugin will appear in ``~/FabSim3/plugins/FabFlee``.
 
 
 Configuration
--------------
+~~~~~~~~~~~~~
 
 There are a few small configuration steps to follow:
 1. Go to ``~/FabSim3/deploy``.
@@ -49,10 +46,10 @@ There are a few small configuration steps to follow:
 
 
 Executing forced migration simulation using FabFlee
-===================================================
+---------------------------------------------------
 
 Initiation
-----------
+~~~~~~~~~~
 To load conflict scenario, simply type::
 
   fabsim localhost load_conflict:<conflict_name>
@@ -61,7 +58,7 @@ It duplicates all existing files from a base conflict directory to a working dir
 
 
 Refinement
-----------
+~~~~~~~~~~
 To modify simulation and explore policy decisions, simply type::
   
   fabsim localhost <FabFlee_command>
@@ -81,7 +78,7 @@ Forced redirection             redirect:source,destination,redirect_start,redire
     
     
 Instantiation
--------------
+~~~~~~~~~~~~~
 To instantiate Flee simulation, simply type::
 
   fabsim localhost instantiate:<conflict_name> 
@@ -90,7 +87,7 @@ It saves parameter changes of the simulation in a new directory of **config_file
 
 
 Cleaning and iteration
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 To create a clean slate for further work, run the following command::
 
   fabsim localhost clear_active_conflict
@@ -99,8 +96,7 @@ It clears the active conflict directory upon which you can reload the conflict a
 
 
 Execution
----------
-
+~~~~~~~~~
 1. To run a Flee simulation::
 
   fabsim localhost flee:<conflict_name>,simulation_period=<number>
@@ -114,18 +110,22 @@ This does the following:
 
 3. After the job has finished, the terminal becomes available again, and a message is printing indicating where the output data resides remotely.
 
-4. You can fetch the remote data using::
+4. You can fetch the remote data using:
 
-  fabsim localhost fetch_results 
+  .. code:: console
+  
+          fabsim localhost fetch_results 
   
 Local results are typically locations in the ``~/FabSim3/results/`` subdirectory.
 
 
 Ensemble execution
-------------------
-1. To run an ensemble of Flee jobs, simply type::
+~~~~~~~~~~~~~~~~~~
+1. To run an ensemble of Flee jobs, simply type:
 
-  fabsim localhost flee_ensemble:<conflict_name>,simulation_period=<number>
+  .. code:: console
+  
+          fabsim localhost flee_ensemble:<conflict_name>,simulation_period=<number>
   
 This does the following:
 - Copy your job input, which is in ``~/FabSim3/plugins/FabFlee/config_files/<conflict_name>``, to the remote location specified in the variable **remote_path_template** in ``~/FabSim3/deploy/machines.yml``.
@@ -136,9 +136,11 @@ This does the following:
 
 3. After the job has finished, the terminal becomes available again, and a message is printing indicating where the output data resides remotely.
 
-4. You can then fetch the remote data using::
-
-  fabsim localhost fetch_results
+4. You can then fetch the remote data using:
+  
+  .. code:: console
+  
+          fabsim localhost fetch_results
   
 Local results are typically locations in the ``~/FabSim3/results/`` subdirectory.
 
