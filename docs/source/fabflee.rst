@@ -66,18 +66,18 @@ To modify simulation and explore policy decisions, simply type::
   
   fabsim localhost <FabFlee_command>
 
-Each FabFlee command refines different actions and changes three main input CSV files (locations.csv, routes.csv and closures.csv)::
+Each FabFlee command refines different actions and changes three main input CSV files (locations.csv, routes.csv and closures.csv):
 
-=============================  ============================================================
+============================   ============================================================
 Actions                        FabFlee command                                            
------------------------------  ------------------------------------------------------------
+----------------------------   ------------------------------------------------------------
 Change camp capacity           change_capacities:camp_name=capacity(,came_name2=capacity2)
 Add a new location             add_camp:camp_name,region,country,lat,lon                  
 Delete an existing location    delete_location:location_name                              
 Camp closure                   close_camp:camp_name,country,closure_start,closure_end     
 Border closure                 close_border:country1,country2,closure_start,closure_end   
 Forced redirection             redirect:source,destination,redirect_start,redirect_end    
-=============================  ============================================================
+============================   ============================================================
     
     
 Instantiation
