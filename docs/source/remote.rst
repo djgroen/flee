@@ -15,9 +15,9 @@ Before running any simulation on a remote supercomputer, the following is requir
 
   - For QCG machine: 
   
-   .. code:: console
+  .. code:: console
    
-           fab qcg install_app:QCG-PilotJob,virtual_env=True
+          fab qcg install_app:QCG-PilotJob,virtual_env=True
 	
   - For SLURM machine: 
   
@@ -45,9 +45,9 @@ or
 
 To showcase the execution of ensemble simulation using Pilot Job, simply run Mali conflict instance:
  
-   .. code:: console
+  .. code:: console
    
-           fabsim eagle_vecma flee_ensemble:mali,N=20,simulation_period=50,PilotJob=true
+          fabsim eagle_vecma flee_ensemble:mali,N=20,simulation_period=50,PilotJob=true
 
 2. To check if your jobs are finished or not, simply run:
 
@@ -68,7 +68,7 @@ To showcase the execution of ensemble simulation using Pilot Job, simply run Mal
           fabsim localhost plot_uq_output:<conflict_name>_qcg_<number>,out
    
 
- Running the coupled simulation on a supercomputer
+Running the coupled simulation on a supercomputer
 -------------------------------------------------
 1. To execute simulation jobs on a supercomputer, simply run: 
 
