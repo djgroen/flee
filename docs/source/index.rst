@@ -15,15 +15,15 @@ Flee is publicly available at: https://github.com/djgroen/flee
 
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Contents:
+   :maxdepth: 2
+   :caption: Contents
    
    installation
    construction     
    execution
    fabflee
-
-
+   remote
+   easyvvuq-qcgpj
 
 Indices and tables
 ==================
