@@ -5,17 +5,16 @@ Sensitivity analysis of parameters using EasyVVUQ
 
 This tutorial uses VECMAtk components (https://www.vecma-toolkit.eu/) to perform parameter exploration using sensitivity analysis. The aim is to sample simulation input parameters and understand how identified assumptions in migration prediction are pivotal to the validation results. The additional components of this tutorial are:
 
-    • EasyVVUQ (https://easyvvuq.readthedocs.io/en/latest/installation.html): a Python3 library aiming to facilitate verification, validation and uncertainty quantification
-    • QCG-PilotJob (https://github.com/vecma-project/QCG-PilotJob): a Pilot Job system allowing execution of many subordinate jobs in a single scheduling system 
+- EasyVVUQ (https://easyvvuq.readthedocs.io/en/latest/installation.html): a Python3 library aiming to facilitate verification, validation and uncertainty quantification
+- QCG-PilotJob (https://github.com/vecma-project/QCG-PilotJob): a Pilot Job system allowing execution of many subordinate jobs in a single scheduling system 
 
 
 Parameter Exploration
 ---------------------
-To perform sensitivity analysis on input parameters, use ``~/FabSim3/plugins/FabFlee/flee_easyvvuq.py`` script, which has two main functions::
+To perform sensitivity analysis on input parameters, use ``~/FabSim3/plugins/FabFlee/flee_easyvvuq.py`` script, which has two main functions:
 
-    • run_flee_easyvvuq allows to run SA for parameter exploration.
-  
-    • analyse_flee_easyvvuq provides analysis of obtained results.
+- run_flee_easyvvuq allows to run SA for parameter exploration
+- analyse_flee_easyvvuq provides analysis of obtained results.
 
 There are six main input parameters in multiscale migration prediction, such as max_move_speed, conflict_move_chance, camp_move_chance, default_move_chance, camp_weight and conflict_weight, to analyse using Sobol's method and stochastic collocation.
 
