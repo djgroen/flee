@@ -82,7 +82,7 @@ Running the coupled simulation on a supercomputer
   
           fabsim <remote_machine_name> job_stat_update
           
-3. Run the following command to copy back results from `eagle` machine. The results will then be in a directory inside ``(FabSim Home)/results``, which is most likely called ``<conflict_name>_<remote_machine_name>_<number>`` (e.g. ``mali_eagle_vecma_16``:
+3. Run the following command to copy back results from `eagle` machine. The results will then be in a directory inside ``(FabSim Home)/results``, which is most likely called ``<conflict_name>_<remote_machine_name>_<number>`` (e.g. ``mali_eagle_vecma_16``):
 
   .. code:: console
      
