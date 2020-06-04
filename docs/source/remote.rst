@@ -1,7 +1,7 @@
 .. _remote:
 
-Remote execution
-================
+Remote execution on a supercomputer
+===================================
 
 These advanced tasks are intended for those who have access to the Eagle supercomputer.
 
