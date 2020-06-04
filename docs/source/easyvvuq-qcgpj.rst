@@ -13,9 +13,9 @@ Parameter Exploration
 ---------------------
 To perform sensitivity analysis on input parameters, use ``~/FabSim3/plugins/FabFlee/flee_easyvvuq.py`` script, which has two main functions::
 
-- run_flee_easyvvuq allows to run SA for parameter exploration
-
-- analyse_flee_easyvvuq provides analysis of obtained results.
+    • run_flee_easyvvuq allows to run SA for parameter exploration.
+  
+    • analyse_flee_easyvvuq provides analysis of obtained results.
 
 There are six main input parameters in multiscale migration prediction, such as max_move_speed, conflict_move_chance, camp_move_chance, default_move_chance, camp_weight and conflict_weight, to analyse using Sobol's method and stochastic collocation.
 
