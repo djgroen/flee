@@ -8,6 +8,7 @@ This tutorial uses VECMAtk components (https://www.vecma-toolkit.eu/) to perform
 - EasyVVUQ (https://easyvvuq.readthedocs.io/en/latest/installation.html): a Python3 library aiming to facilitate verification, validation and uncertainty quantification
 - QCG-PilotJob (https://github.com/vecma-project/QCG-PilotJob): a Pilot Job system allowing execution of many subordinate jobs in a single scheduling system 
 
+There is also a Python API for HPC execution of EasyVVUQ, which is a combination of EasyVVUQ and QCG-PilotJob. For more information, see https://easyvvuq-qcgpj.readthedocs.io/en/plugin/index.html
 
 Parameter Exploration
 ---------------------
