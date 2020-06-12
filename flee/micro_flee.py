@@ -32,8 +32,6 @@ class Link(flee.Link):
   def __init__(self, endpoint, distance, link_type="drive", forced_redirection=False):
     super().__init__(endpoint, distance, forced_redirection)
     self.link_type = link_type
-<<<<<<< HEAD
-=======
     self.speed = speed
 
     if islink(link_type, str):
@@ -45,9 +43,8 @@ class Link(flee.Link):
         self.speed = SimulationSettings.MaxCrossingSpeed
       else:
         print("Error in identifying link_type() object: cannot parse the type of link ", link_type, " for location object with name ", name, ".")
->>>>>>> a04dd79ee352093c90b2247d059d61495201f800
 
-
+        
 class Ecosystem(flee.Ecosystem):
   def __init__(self):
     super().__init__()
