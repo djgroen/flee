@@ -1,4 +1,8 @@
 # Flee
+[![Build Status](https://travis-ci.com/djgroen/flee.svg?branch=master)](https://travis-ci.com/djgroen/flee)
+[![GitHub Issues](https://img.shields.io/github/issues/djgroen/flee.svg)](https://github.com/djgroen/flee/issues)
+[![GitHub last-commit](https://img.shields.io/github/last-commit/djgroen/flee.svg)](https://github.com/djgroen/flee/commits/master)
+
 
 Flee is an agent-based modelling toolkit which is purpose-built for simulating the movement of individuals across geographical locations. Flee is currently used primarily for modelling the movements of refugees and internally displaces persons (IDPs).
 
