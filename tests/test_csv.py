@@ -18,8 +18,8 @@ def date_to_sim_days(date):
 
 if __name__ == "__main__":
 
-  end_time = 100
-  last_physical_day = 100
+  end_time = 50
+  last_physical_day = 50
 
   if len(sys.argv)>1:
     if (sys.argv[1]).isnumeric():
@@ -137,4 +137,6 @@ if __name__ == "__main__":
       #output_string += ",0"
 
 
-    print(output)
+    print(output) 
+    
+print('Test successfully completed.')
