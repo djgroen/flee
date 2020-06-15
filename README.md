@@ -12,7 +12,7 @@ Flee is currently is released periodically under a BSD 3-clause license once the
 
 Parallel tests can be performed using test_par.py. The interface is as follows:
 
-mpirun -np <cores> python3 test_par.py [options]
+mpirun -np <cores> python3 tests/test_par.py [options]
   
 Options can be as follows:
 
