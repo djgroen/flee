@@ -52,7 +52,7 @@ To run the test example, simply type
     .. code:: console
     
             cd flee
-            python3 test-csv.py
+            python3 tests/test_csv.py
           
 
     .. note :: test-csv is an example scenario for testing purposes. 

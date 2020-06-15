@@ -37,9 +37,9 @@ To run the (simplified) CAR simulation:
 
 1. Create an output directory **outcar**.
 
-2. Execute car-csv.py and obtain the simulation output::
+2. Execute car-csv.py in conflicts directory and obtain the simulation output::
 
-   python3 car-csv.py 50 > outcar/out.csv
+   python3 conflicts/car-csv.py 50 > outcar/out.csv
 
 3. Plot the simulation output using::
 
