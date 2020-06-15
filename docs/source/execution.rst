@@ -39,7 +39,7 @@ To run the (simplified) CAR simulation:
 
 2. Execute car-csv.py and obtain the simulation output::
 
-   python3 car-csv.py 50 > outcar/out.csv
+   python3 conflicts/car-csv.py 50 > outcar/out.csv
 
 3. Plot the simulation output using::
 
