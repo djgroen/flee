@@ -49,13 +49,11 @@ To run the (simplified) CAR simulation:
 
 
 Parallel Performance Testing
-============================
-
-Parallel performance testing
+----------------------------
 
 Parallel tests can be performed using test_par.py. The interface is as follows::
 
-mpirun -np python3 tests/test_par.py [options]
+mpirun -np [number of cores] python3 tests/test_par.py [options]
 
 Options can be as follows::
 
