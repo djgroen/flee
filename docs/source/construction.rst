@@ -144,17 +144,17 @@ name   region   country   lat   long   location_type   conflict_date   populatio
 
 Record distances between locations in **routes.csv** file for simulation using the following format:
 
+======  ======  =============  ===================
+name1   name2   distance[km]   forced_redirection  
+------  ------  -------------  -------------------
+  A       B          x1                            
+  B       C          x2                            
+  A       C          x3                           
+  B       N          x4       
+  C       N          x3      
+  N       Z          x5    
+ ...     ...        ...    
 ======  ======  ==============  ===================
-name1   name2   distance [km]   forced_redirection  
-------  ------  --------------  -------------------
-  A       B           x1                            
-  B       C           x2                            
-  A       C           x3                           
-  B       N           x4       
-  C       N           x3      
-  N       Z           x5    
- ...     ...         ...    
-======  ======  ==============  ====================
 
    .. note: **forced_redirection** refers to redirection from source location (can be town or camp) to destination location     
             (mainly camp) and source location indicated as forwarding_hub. The value of 0 indicates no redirection, 1  
