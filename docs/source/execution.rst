@@ -47,3 +47,26 @@ To run the (simplified) CAR simulation:
     
 4. Analyse and interpret simulation output graphs in outcar
 
+
+Parallel Performance Testing
+============================
+
+Parallel performance testing
+
+Parallel tests can be performed using test_par.py. The interface is as follows::
+
+mpirun -np python3 tests/test_par.py [options]
+
+Options can be as follows::
+
+    "-p", "--parallelmode" - Parallelization mode ([advanced], classic, cl-hilat OR adv-lowlat).
+    "-N", "--initialagents" - Number of agents at the start of the simulation [100000].
+    "-d", "--newagentsperstep", Number of agents added per time step [1000].
+    "-t", "--simulationperiod", Duration of the simulation in days [10].
+
+Here are a few settings good for benchmarking::
+
+    mpirun -np <cores> python3 test_par.py -N 500000 -p advanced -d 10000 -t 10
+    mpirun -np <cores> python3 test_par.py -N 500000 -p classic -d 10000 -t 10
+    mpirun -np <cores> python3 test_par.py -N 500000 -p cl-hilat -d 10000 -t 10
+    mpirun -np <cores> python3 test_par.py -N 500000 -p adv-lowlat -d 10000 -t 10
