@@ -17,6 +17,7 @@ matrix:
         - export PYTHONPATH=$TRAVIS_BUILD_DIR:$PYTHONPATH
         - git clone https://github.com/djgroen/FabFlee.git
         - pip install numpy pandas mpi4py        
+        - mv post-processing outputanalysis
         #- rm -f ~/.ssh/id_rsa
         #- ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
         #- cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
