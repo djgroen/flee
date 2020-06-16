@@ -28,17 +28,7 @@ Extract forced displacement data from the following databases to create input an
 Extracting input data 
 ---------------------
 
-1. The UNHCR situations provides an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
-  - Select an active (conflict) situation of interest from an interactive map and click to access data and documentation      
-    relevant to a chosen conflict situation from https://data2.unhcr.org/en/situations.
-  - Select a simulation period for conflict situation from ``Refugees and asylum-seekers from `chosen situation name` -       
-    Total`` timeline, which also presents forced displacement counts for a chosen period.
-  - Obtain total counts of forcibly displaced people by clicking JSON button of ``Refugees and asylum-seekers from `chosen       
-    situation name` - Total`` section. 
-  - Identify camps for each neighbouring country through ``Breakdown by Country`` section of the conflict situation.
-  - Collect and save data for each camp (e.g. <country_name-camp_name>.csv).
-  
-2. The ACLED database provides conflict location data for forced displacement simulations. To obtain data on chosen conflict situation, complete the ACLED data export tool fields (https://www.acleddata.com/data) as follows:
+The **ACLED** database provides conflict location data for forced displacement simulations. To obtain data on chosen conflict situation, complete the ACLED data export tool fields (https://acleddata.com/acleddatanew/data-export-tool/) as follows:
   - Provide dates of interest for conflict situation (i.e. From and To).
   - Select ``Event Type: Battle``.
   - Select ``Sub Event Type``
@@ -49,33 +39,33 @@ Extracting input data
     - Non-state actor overtakes territory.
     
   - Specify ``Region`` and ``Country`` of conflict situation choice.
-  - Accept ``Terms of Use and Attribution Policy``.
-  - <name>.csv file exports to Downloads automatically.
-  - Revise the downloaded <name>.csv file:
+  - Click on Export and Accept Terms of Use and Attribution Policy.
+  - Click Export again and <name>.csv file exports to Downloads automatically.
+
+  There are two options at this point:
+
+  - Rename the file <name>.csv to `acled.csv` and place it in the relevant conflict directory in `config_files`. For example, if you collected data for Mali, you would place it in `(FabSim3 Home)/plugins/FabFlee/config_files/mali`;
+
+  - Keep it as it is, and use the ``path=`` argument when issuing the process_acled command.
   
-    - Target the ``fatalities`` column and remove all rows in <name>.csv file with fatalities less than 1.
-    - Choose the first conflict location occurrences of each location but exclude syndicated (repeated) locations.
 
-An example of conflict locations (A, B and C). Conflict zone A occurs two times with fatality numbers 3 and 38, while conflict zone C repeats twice with fatalities 14 and 7. Choose essence of locations (one of each location) at the first occurrence (e.g. A = 3, B = 23 and C = 14) for simulation purposes.
-       
-=====   ==========   ============  
-...     Location     Fatalities
------   ----------   ------------
-...         A             3
-...         B             23
-...         A             38
-...         C             14
-...         C             7
-...        ...            ... 
-=====   ==========   ============
-
-
-Constructing input CSV files
-----------------------------
-
+The **UNHCR** situations provides an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
+  - Select an active (conflict) situation of interest from an interactive map and click to access data and documentation      
+    relevant to a chosen conflict situation from https://data2.unhcr.org/en/situations.
+  - Select a simulation period for conflict situation from ``Refugees and asylum-seekers from `chosen situation name` -       
+    Total`` timeline, which also presents forced displacement counts for a chosen period.
+  - Obtain total counts of forcibly displaced people by clicking JSON button of ``Refugees and asylum-seekers from `chosen       
+    situation name` - Total`` section. 
+  - Identify camps for each neighbouring country through ``Breakdown by Country`` section of the conflict situation.
+  - Collect and save data for each camp (e.g. <country_name-camp_name>.csv).
+  
+  
 1. Construct an input **locations.csv** file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ACLED conflict data provides conflict locations to construct **locations.csv** input file for simulation purposes. After identifying conflict locations and producing **locations.csv**, the last column is filled with population data for conflict locations. Population distributions can be obtained from https://www.citypopulation.de or other population databases.
+
+ACLED conflict locations extraction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The ACLED conflict data provides conflict locations to construct **locations.csv** input file for simulation purposes. After identifying conflict locations and producing **locations.csv**, the last column is filled with population data for conflict locations.
 
 =====  =======  ========  ====  =====  ==============  ==============  ====================
 name   region   country   lat   long   location_type   conflict_date   population/capacity 
@@ -86,6 +76,38 @@ name   region   country   lat   long   location_type   conflict_date   populatio
 ...      ...      ...     ...    ...         ...            ...                ...          
 =====  =======  ========  ====  =====  ==============  ==============  ====================
 
+To construct conflict locations input file from ACLED for the FabFlee simulations, simply type:
+
+.. code:: console
+
+          fabsim localhost process_acled:country=<country>,start_date=<dd-mm-yyyy>,filter=earliest/fatalities
+
+If your <name>.csv file is not stored in a conflict directory of `config_files`:
+
+.. code:: console
+
+          fabsim localhost process_acled:country=<country>,start_date=<dd-mm-yyyy>,filter=earliest/fatalities,path=<~/path/to/<name>.csv>
+
+.. note:: 
+
+- **country** is the name of the country directory the acled.csv is stored in.
+- **start_date** uses dd--mm-yyyy format and is the date which conflict_date will be calculated from.
+- **filter** takes earliest or fatalities. Earliest will keep the first occurring (using date) location and remove all occurrences that location after that date. Fatalities will keep the highest fatalities of each location and remove all other occurrences of that location.
+- **path** is the path to your acled csv file if it is not already stored in config_files. This argument is optional.
+
+This will produce the locations.csv into the input_csv directory in `(FabSim3 Home)/plugins/FabFlee/config_files/<conflict_name>` for the given country. If there is not an `input_csv` folder in the conflict situation directory, one will be created.
+
+
+To demonstrate, the following command uses the Mali conflict situation:  
+
+.. code:: console
+
+          fabsim localhost process_acled:country=mali,start_date=20-01-2010,filter=earliest    
+
+In this case, the locations.csv can be found in `(FabSim3 Home)/plugins/FabFlee/config_files/mali/input_csv`. 
+
+UNHCR camp locations extraction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Input camp names (i.e. destination locations) and their capacity into **locations.csv** file. Camp capacity is the highest number of forced migrants for each camp and obtained from individual camp CSV files that are set in **locations.csv**. For instance, CampZ.csv has the highest number of forcibly displaced people (18129) on 2015-09-30, which is the camp capacity for CampZ.
 
 ===========  =======
@@ -99,6 +121,9 @@ Input camp names (i.e. destination locations) and their capacity into **location
 ...          ...
 ===========  =======
 
+Population data extraction
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Currently, the population figures for each location will need to be collected and written to the `population/capacity` column manually using a resource, such as www.citypopulation.de. After the population data has been collected for each location, input these population numbers in `locations.csv`, which can be then used for simulation execution.
 
 
 2. Construct an input **routes.csv** file
