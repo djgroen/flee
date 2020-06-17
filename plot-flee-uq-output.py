@@ -5,7 +5,7 @@ import numpy as np
 import sys
 import datamanager.handle_refugee_data as handle_refugee_data
 import warnings
-import outputanalysis.analysis as a
+import post_processing.analysis as a
 import os
 warnings.filterwarnings("ignore")
 matplotlib.use('Pdf')

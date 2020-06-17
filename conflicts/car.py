@@ -2,7 +2,7 @@ from flee import flee
 from datamanager import handle_refugee_data
 from datamanager import DataTable
 import numpy as np
-import outputanalysis.analysis as a
+import post_processing.analysis as a
 import analyze_graph
 import sys
 
