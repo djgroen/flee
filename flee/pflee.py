@@ -8,6 +8,7 @@ from flee.SimulationSettings import SimulationSettings
 from flee import flee
 from mpi4py import MPI
 from mpi4py.MPI import ANY_SOURCE
+from flee.Diagnostics import write_agents_par
 
 class MPIManager:
   def __init__(self):

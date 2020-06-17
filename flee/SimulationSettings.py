@@ -4,7 +4,7 @@ import csv
 class SimulationSettings:
   Softening = 10.0 # KM added to every link distance to eliminate needless distinction between very short routes.
   #TurnBackAllowed = True # feature disabled for now.
-  AgentLogLevel = 1 # set to 1 for basic agent information.
+  AgentLogLevel = 0 # set to 1 for basic agent information.
   CampLogLevel = 0  # set to 1 to obtain average times for agents to reach camps at any time step (aggregate info).
   InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
   TakeRefugeesFromPopulation = True
