@@ -811,6 +811,11 @@ class Ecosystem:
     for a in self.agents:
       a.finish_travel()
       a.timesteps_since_departure += 1
+
+    if SimulationSettings.AgentLogLevel > 0:
+      write_agents(self.agents, self.time)
+
+    for a in self.agents:
       a.recent_travel_distance = (a.recent_travel_distance + ( a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0
       a.distance_moved_this_timestep = 0
 
@@ -818,8 +823,6 @@ class Ecosystem:
     if SimulationSettings.CampLogLevel > 0:
       self._aggregate_arrivals()
 
-    if SimulationSettings.AgentLogLevel > 0:
-      write_agents(self.agents, self.time)
 
     self.time += 1
 
