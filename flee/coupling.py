@@ -56,6 +56,8 @@ class CouplingInterface:
       if self.e.mpi.rank > 0:
         self.coupling_rank = False
 
+
+
   def addGhostLocations(self, ig):
     conflict_name_list = ig.getConflictLocationNames()
     print("Adding Ghosts", file=sys.stderr)
@@ -67,7 +69,7 @@ class CouplingInterface:
           if len(l.links) == 0:
             if not l.name in self.location_names:
               print("Adding ghost location {}".format(l.name), file=sys.stderr)
-              self.addCoupledLocation(l, l.name, "out", interval=1)
+              self.addCoupledLocation(l, l.name, "in", interval=1)
 
   def addMicroConflictLocations(self, ig):
     conflict_name_list = ig.getConflictLocationNames()
@@ -78,7 +80,7 @@ class CouplingInterface:
           l = self.e.locations[i]
           print("L", l.name, len(l.links), file=sys.stderr)
           print("Adding micro coupled conflict location {}".format(l.name), file=sys.stderr)
-          self.addCoupledLocation(l, l.name, "in", interval=1)
+          self.addCoupledLocation(l, l.name, "out", interval=1)
 
   def Couple(self, t): #TODO: make this code more dynamic/flexible
     newAgents = None
@@ -101,7 +103,10 @@ class CouplingInterface:
       for i in range(0, len(self.location_names)):
         #write departing agents to file
         #read incoming agents from file
-        #print(self.names, i, newAgents)
+
+
+        #print(newAgents[self.names[i]])
+        #print(self.names)
         if "in" in self.directions[i]:
           print("Couple IN: %s %s" % (self.names[i], newAgents[self.names[i]]), file=sys.stderr)
           if self.names[i] in newAgents:
@@ -127,7 +132,7 @@ class CouplingInterface:
 
   def writeOutputToFile(self, t):
     out_csv_string = self.generateOutputCSVString(t)
-    with open('%s.%s.csv' % (self.outputfilename, t),'a') as file:
+    with open('out/coupled/%s.%s.csv' % (self.outputfilename, t),'a') as file:
       file.write(out_csv_string)
 
     print("Couple: output written to %s.%s.csv" % (self.outputfilename, t), file=sys.stderr)
@@ -154,7 +159,7 @@ class CouplingInterface:
     """
     Returns a dictionary with key <coupling name> and value <number of agents>.
     """
-    in_fname = "%s.%s.csv" % (self.inputfilename, t)
+    in_fname = "out/coupled/%s.%s.csv" % (self.inputfilename, t)
 
     print("Couple: searching for", in_fname, file=sys.stderr)
     while not os.path.exists(in_fname):
@@ -162,7 +167,7 @@ class CouplingInterface:
     time.sleep(0.001)
 
     csv_string = ""
-    with open("%s.%s.csv" % (self.inputfilename, t)) as csvfile:
+    with open("out/coupled/%s.%s.csv" % (self.inputfilename, t)) as csvfile:
       csv_string = csvfile.read().split('\n')
 
     return self.extractNewAgentsFromCSVString(csv_string)
