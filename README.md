@@ -34,11 +34,11 @@ Here are a few settings good for benchmarking:
 Multiscale Coupled Simulation can be performed using ssudan_mscalecity.py. The interface is as follows:
 For Micro simulation
 
-* python3 ssudan_mscalecity.py 1
+* `python3 ssudan_mscalecity.py 1`
 
 For Macro simulation
 
-* python3 ssudan_mscalecity.py 0
+* `python3 ssudan_mscalecity.py 0`
 
 The results will be stored in out directory which includes three sub directories; micro, macro, coupled. (The out directory and its sub directories must be created prior to simulation)
 
@@ -46,11 +46,11 @@ To plot the results, the commands are:
 
 For Micro 
 
-* python3 plot-flee-output.py out/micro
+* `python3 plot-flee-output.py out/micro`
 
 For Macro 
 
-* python3 plot-flee-output.py out/macro
+* `python3 plot-flee-output.py out/macro`
 
 
 # Acknowledgements
