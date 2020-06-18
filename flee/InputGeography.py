@@ -3,6 +3,7 @@ import sys
 from flee import flee
 from flee import SimulationSettings
 
+
 class InputGeography:
   """
   Class which reads in Geographic information.
@@ -42,6 +43,8 @@ class InputGeography:
     ### TODO: make test verifying this in test_csv.py
 
   def getConflictLocationNames(self):
+  
+
     if len(SimulationSettings.SimulationSettings.FlareConflictInputFile) == 0:
       conflict_names = []
       for l in self.locations:
@@ -80,7 +83,8 @@ class InputGeography:
           self.locations.append([row[c["name"]], row[c["pop/cap"]], row[c["gps_x"]], row[c["gps_y"]], row[c["location_type"]], row[c["conflict_date"]], row[c["region"]], row[c["country"]]])
 
 
-  def ReadLinksFromCSV(self,csv_name, name1_col=0, name2_col=1, dist_col=2):
+
+    def ReadLinksFromCSV(self,csv_name, name1_col=0, name2_col=1, dist_col=2, forced_redirection=3, link_type_col=4):
     """
     Converts a CSV file to a locations information table
     """
@@ -94,7 +98,21 @@ class InputGeography:
           pass
         else:
           #print(row)
-          self.links.append([row[name1_col], row[name2_col], row[dist_col]])
+          self.links.append([row[name1_col], row[name2_col], row[dist_col], row[forced_redirection], row[link_type_col]])
+ 
+    if isinstance(row[link_type_col], str):
+      if "drive" in row[link_type_col].lower():
+        flee.SimulationSettings.MaxMoveSpeed = flee.SimulationSettings.MaxMoveSpeed
+      elif "walk" in row[link_type_col].lower():
+        flee.SimulationSettings.MaxMoveSpeed = flee.SimulationSettings.MaxWalkSpeed
+      elif "crossing" in row[link_type_col].lower():
+        flee.SimulationSettings.MaxMoveSpeed = flee.SimulationSettings.MaxCrossingSpeed 
+      else:
+        print("Error in identifying link_type() object: cannot parse the type of link ", link_type_col, " for location object with name ", name1_col, ".")
+
+
+
+
 
   def ReadClosuresFromCSV(self, csv_name):
     """
@@ -121,12 +139,13 @@ class InputGeography:
     lm = {}
     num_conflict_zones = 0
 
+
     for l in self.locations:
       if len(l[1]) < 1: #if population field is empty, just set it to 0.
         l[1] = "0"
       if len(l[7]) < 1: #if population field is empty, just set it to 0.
         l[7] = "unknown"
-
+      
       #print(l, file=sys.stderr)
       movechance = l[4]
       if "conflict" in l[4].lower(): 
@@ -139,16 +158,20 @@ class InputGeography:
       else:
         lm[l[0]] = e.addLocation(l[0], movechance=movechance, pop=int(l[1]), x=l[2], y=l[3], country=l[7])
 
+
     for l in self.links:
-        if (len(l)>3):
-            if int(l[3]) == 1:
-                e.linkUp(l[0], l[1], int(l[2]), True)
-            if int(l[3]) == 2:
-                e.linkUp(l[1], l[0], int(l[2]), True)
-            else:
-                e.linkUp(l[0], l[1], int(l[2]), False)
-        else:
-            e.linkUp(l[0], l[1], int(l[2]), False)
+      #print(l)
+      #exit()
+
+      if (len(l)>4):
+          if int(l[3]) == 1:
+              e.linkUp(l[0], l[1], int(l[2]), True, str(l[4]))
+          if int(l[3]) == 2:
+              e.linkUp(l[1], l[0], int(l[2]), True, str(l[4]))
+          else:
+              e.linkUp(l[0], l[1], int(l[2]), False, str(l[4]))
+      else:
+          e.linkUp(l[0], l[1], int(l[2]), False, str(l[4]))
 
     e.closures = []
     for l in self.closures:
