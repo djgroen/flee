@@ -9,7 +9,7 @@ from flee.Diagnostics import write_agents
 
 class Person:
 
-  __slots__ = ['location', 'distance_travelled', 'home_location', 'timesteps_since_departure', 'places_travelled', 'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link']
+  __slots__ = ['location', 'home_location', 'timesteps_since_departure', 'places_travelled', 'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link']
 
   def __init__(self, location):
     self.location = location
@@ -227,9 +227,11 @@ class Location:
     self.town = False
     self.forward = False
     self.marker = False
+    self.ghost = False
     self.time = 0 # keep track of the time in the simulation locally, to build in capacity-related behavior.
     self.numAgentsSpawned = 0
 
+    
     if isinstance(movechance, str):
       if "camp" in movechance.lower():
         self.movechance = SimulationSettings.CampMoveChance
@@ -241,14 +243,18 @@ class Location:
       elif "forward" in movechance.lower():
         self.movechance = 1.0
         self.forward = True
-      elif "marker" in movechance.lower():
+      elif "ghost" in movechance.lower():
         self.movechance = 1.0
-        self.marker= True
+        self.ghost = True
       elif "default" in movechance.lower() or "town" in movechance.lower():
         self.town = True
         self.movechance = SimulationSettings.DefaultMoveChance 
+      elif "marker" in movechance.lower():
+        self.movechance = 1.0
+        self.marker= True
       else:
         print("Error in creating Location() object: cannot parse movechance value of ", movechance, " for location object with name ", name, ".")
+
 
     # Automatically tags a location as a Camp if refugees are less than 2% likely to move out on a given day.
     if self.movechance < 0.02 and not self.camp:
@@ -393,7 +399,7 @@ class Location:
 
 
 class Link:
-  def __init__(self, startpoint, endpoint, distance, forced_redirection=False):
+  def __init__(self, startpoint, endpoint, distance, forced_redirection=False, link_type=None):
     self.name = "__link__"
     self.closed = False
 
@@ -410,6 +416,7 @@ class Link:
 
     # if True, then all Persons will go down this link.
     self.forced_redirection = forced_redirection
+    self.link_type =link_type
 
   def DecrementNumAgents(self):
     self.numAgents -= 1
@@ -720,18 +727,26 @@ class Ecosystem:
     """
     Adds a conflict zone. Default weight is equal to population of the location.
     """
+    
     for i in range(0, len(self.locationNames)):
+      #print("Population=")
+      #print(self.locations[i].pop)
       if self.locationNames[i] == name:
         if name not in self.conflict_zone_names:
           if change_movechance:
             self.locations[i].movechance = SimulationSettings.ConflictMoveChance
             self.locations[i].conflict = True
             self.locations[i].town = False
+            self.locations[i].ghost = False
+            self.locations[i].forward = False
+            self.locations[i].marker = False
 
           self.conflict_zone_names += [name]
           self.conflict_zones += [self.locations[i]]
           self.conflict_weights = np.append(self.conflict_weights, [self.locations[i].pop])
           self.conflict_pop = sum(self.conflict_weights)
+
+
           if SimulationSettings.InitLogLevel > 0:
             print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
             print("New total pop. in conflict zones: ", self.conflict_pop)
@@ -771,7 +786,10 @@ class Ecosystem:
     Returns a weighted random element from the list of conflict locations.
     This function returns a number, which is an index in the array of conflict locations.
     """
+
+
     assert self.conflict_pop > 0
+
 
     return np.random.choice(self.conflict_zones, number, p=self.conflict_weights/self.conflict_pop)
 
@@ -811,11 +829,6 @@ class Ecosystem:
     for a in self.agents:
       a.finish_travel()
       a.timesteps_since_departure += 1
-
-    if SimulationSettings.AgentLogLevel > 0:
-      write_agents(self.agents, self.time)
-
-    for a in self.agents:
       a.recent_travel_distance = (a.recent_travel_distance + ( a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed )) / 2.0
       a.distance_moved_this_timestep = 0
 
@@ -823,6 +836,8 @@ class Ecosystem:
     if SimulationSettings.CampLogLevel > 0:
       self._aggregate_arrivals()
 
+    if SimulationSettings.AgentLogLevel > 0:
+      write_agents(self.agents, self.time)
 
     self.time += 1
 
@@ -866,7 +881,10 @@ class Ecosystem:
     Useful for couplings to other simulation codes.
     """
     new_agents = []
+    
     for i in range(0, len(self.agents)):
+
+
       if self.agents[i].location.name not in location_names:
         new_agents += agents[i] # agent is preserved in ecosystem
       else:
@@ -874,11 +892,12 @@ class Ecosystem:
     self.agents = new_agents
 
 
+
   def numAgents(self):
     return len(self.agents)
 
 
-  def linkUp(self, endpoint1, endpoint2, distance="1.0", forced_redirection=False):
+  def linkUp(self, endpoint1, endpoint2, distance="1.0", forced_redirection=False, link_type=None):
     """ Creates a link between two endpoint locations
     """
     endpoint1_index = -1
@@ -898,7 +917,7 @@ class Ecosystem:
       print("Error: link created to non-existent destination: ", endpoint2, " with source ", endpoint1)
       sys.exit()
 
-    self.locations[endpoint1_index].links.append( Link(self.locations[endpoint1_index], self.locations[endpoint2_index], distance, forced_redirection) )
+    self.locations[endpoint1_index].links.append( Link(self.locations[endpoint1_index], self.locations[endpoint2_index], distance, forced_redirection, link_type) )
     self.locations[endpoint2_index].links.append( Link(self.locations[endpoint2_index], self.locations[endpoint1_index], distance) )
 
 
