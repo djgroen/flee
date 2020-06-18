@@ -7,15 +7,15 @@ class SimulationSettings:
   AgentLogLevel = 0 # set to 1 for basic agent information.
   CampLogLevel = 0  # set to 1 to obtain average times for agents to reach camps at any time step (aggregate info).
   InitLogLevel  = 0 # set to 1 for basic information on locations added and conflict zones assigned.
-  TakeRefugeesFromPopulation = True
+  TakeRefugeesFromPopulation = False
 
   sqrt_ten = 3.16227766017 # square root of ten (10^0.5).
 
   CampWeight = sqrt_ten # attraction factor for camps.
   ConflictWeight = 1.0 / sqrt_ten # reduction factor for refugees entering conflict zones.
-  MaxMoveSpeed = 360 # most number of km that we expect refugees to traverse per time step (30 km/h * 12 hours).
-  MaxWalkSpeed = 35 # most number of km that we expect refugees to traverse per time step on foot (3.5 km/h * 10 hours).
-  MaxCrossingSpeed = 20 # most number of km that we expect refugees to traverse per time step on boat/walk to cross river (2 km/h * 10 hours).
+  MaxMoveSpeed = 420 # most number of km that we expect refugees to traverse per time step (30 km/h * 12 hours).
+  MaxWalkSpeed = 42 # most number of km that we expect refugees to traverse per time step on foot (3.5 km/h * 12 hours).
+  MaxCrossingSpeed = 20 # most number of km that we expect refugees to traverse per time step on boat/walk to cross river (2 km/h * 12 hours).
   StartOnFoot = True # Agents walk on foot when they travers their very first link.
   CapacityBuffer = 1.0
   
@@ -66,6 +66,10 @@ class SimulationSettings:
           SimulationSettings.MinMoveSpeed = float(row[1])
         elif row[0].lower() == "maxmovespeed":
           SimulationSettings.MaxMoveSpeed = float(row[1])
+        elif row[0].lower() == "maxcrossingspeed":
+          SimulationSettings.MaxCrossingSpeed = float(row[1])
+        elif row[0].lower() == "maxwalkspeed":
+          SimulationSettings.MaxWalkSpeed = float(row[1])
         elif row[0].lower() == "numberofsteps":
           number_of_steps = int(row[1])
         elif row[0].lower() == "campweight":
@@ -88,8 +92,6 @@ class SimulationSettings:
           SimulationSettings.StartOnFoot = (row[1].lower() == "true")
         elif row[0].lower() == "avoidshortstints":
           SimulationSettings.AvoidShortStints = (row[1].lower() == "true")
-        elif row[0].lower() == "maxwalkspeed":
-          SimulationSettings.MaxWalkSpeed = float(row[1])          
         else:
           print("FLEE Initialization Error: unrecognized simulation parameter:",row[0])
           sys.exit()
