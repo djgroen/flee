@@ -43,7 +43,7 @@ This document provides formats of csv files for loading initial graph. Each scal
     |StartDate|------| 
     | Length  |------|
 
- # 6. registration_corrections-#.csv (Replace # with 0 for Macro simulation and 1 for Micro Simulation)
+ ## 6. registration_corrections-#.csv (Replace # with 0 for Macro simulation and 1 for Micro Simulation)
 
     |camp_location|date|normalize|
     |-------------|----|---------|
