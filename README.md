@@ -28,8 +28,6 @@ Here are a few settings good for benchmarking:
 * `mpirun -np <cores> python3 test_par.py -N 500000 -p cl-hilat -d 10000 -t 10`
 * `mpirun -np <cores> python3 test_par.py -N 500000 -p adv-lowlat -d 10000 -t 10`
 
-# Acknowledgements
-The development on Flee has been made possible through funding from the Horizon 2020 funded HiDALGO project (grant no. 824115, https://hidalgo-project.eu) and VECMA (grant no. 800925, https://www.vecma.eu).
 
 ## Multiscale Coupled Simulation (South Sudan)
 
@@ -55,3 +53,6 @@ For Macro
 
 * `python3 plot-flee-output.py out/macro`
 
+
+# Acknowledgements
+The development on Flee has been made possible through funding from the Horizon 2020 funded HiDALGO project (grant no. 824115, https://hidalgo-project.eu) and VECMA (grant no. 800925, https://www.vecma.eu).
