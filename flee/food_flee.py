@@ -4,7 +4,7 @@
 import numpy as np
 import sys
 import random
-from flee import SimulationSettings
+from flee.SimulationSettings import SimulationSettings
 from flee import flee
 import csv
 import pandas as pd
@@ -65,7 +65,7 @@ class Ecosystem(flee.Ecosystem):
         #3. Adjust move chances, taking into account IPC scores.
         if self.IPCAffectsMoveChance:
           if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
-            self.locations[i].movechance=self.locations[i].IPC/100.0+SimulationSettings.SimulationSettings.DefaultMoveChance*(1-self.locations[i].IPC/100.0)
+            self.locations[i].movechance=self.locations[i].IPC / 100.0 + SimulationSettings.DefaultMoveChance * (1 - self.locations[i].IPC / 100.0)
 
   def pick_conflict_location(self):
     """
@@ -77,11 +77,11 @@ class Ecosystem(flee.Ecosystem):
     else:
       return np.random.choice(self.conflict_zones, p=self.conflict_weights/self.conflict_pop)            
             
-  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown", region="unknown", IPC=0):
+  def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown", region="unknown", IPC=0):
     """ Add a location to the ABM network graph """
 
     l = Location(name, x, y, movechance, capacity, pop, foreign, country, region,IPC)
-    if SimulationSettings.SimulationSettings.InitLogLevel > 0:
+    if SimulationSettings.InitLogLevel > 0:
       print("Location:", name, x, y, l.movechance, capacity, ", pop. ", pop, foreign, "State: ", l.region, "IPC: ", l.IPC)
     self.locations.append(l)
     self.locationNames.append(l.name)
