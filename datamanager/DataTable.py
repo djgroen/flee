@@ -95,7 +95,7 @@ def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, count_c
   """
   table = np.zeros([0,2])
 
-  with open(csv_name, newline='') as csvfile:
+  with open(csv_name, newline='', encoding='utf_8') as csvfile:
     values = csv.reader(csvfile)
 
     row = next(values)
