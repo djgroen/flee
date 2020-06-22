@@ -37,10 +37,11 @@ class Ecosystem(flee.Ecosystem):
     super().__init__()  
     
     # IPC specific configuration variables.
-    self.IPCAffectsMoveChance = False # IPC modified move chances 
+    self.IPCAffectsMoveChance = True # IPC modified move chances 
     #(Warning: lower validation error correlates with higher average move chances)
-    
-    self.IPCAffectsSpawnLocation = True # IPC affects Spawn location distribution.
+    self.IPCUseMezumanEq = False # Use modified piece-wise equation.
+    self.MezumanEqThresholdMstar = 0.8 # M* (used in Mezuman equation).
+    self.IPCAffectsSpawnLocation = False # IPC affects Spawn location distribution.
   
   def update_IPC_MC(self,line_IPC,IPC_all):                        #maybe better (less computation time)
     self.IPC_location_weights = []
@@ -65,7 +66,14 @@ class Ecosystem(flee.Ecosystem):
         #3. Adjust move chances, taking into account IPC scores.
         if self.IPCAffectsMoveChance:
           if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
-            self.locations[i].movechance=self.locations[i].IPC / 100.0 + SimulationSettings.DefaultMoveChance * (1 - self.locations[i].IPC / 100.0)
+            IPC = self.locations[i].IPC / 100.0
+            if self.IPCUseMezumanEq:
+              if self.locations[i].IPC < self.MezumanEqThresholdMstar:
+                self.locations[i].movechance = IPC + SimulationSettings.DefaultMoveChance * (1 - IPC)
+              else:
+                self.locations[i].movechance = ((((1.0-SimulationSettings.DefaultMoveChance) * self.MezumanEqThresholdMstar) + SimulationSettings.DefaultMoveChance) / (1.0 - self.MezumanEqThresholdMstar)) * (1 - IPC) 
+            else:
+              self.locations[i].movechance = IPC + SimulationSettings.DefaultMoveChance * (1 - IPC)
 
   def pick_conflict_location(self):
     """
