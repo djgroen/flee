@@ -433,6 +433,7 @@ class Ecosystem:
     self.closures = [] #format [type, source, dest, start, end]
     self.time = 0
     self.print_location_output = True # print location output data
+    self.mpi = None # placeholder, for codes to detect that this Ecosystem does not support MPI.
 
     # Bring conflict zone management into FLEE.
     self.conflict_zones = []
