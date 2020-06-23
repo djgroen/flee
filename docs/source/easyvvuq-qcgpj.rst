@@ -177,14 +177,27 @@ To execute easyvvuq for migration prediction using Pilot Job, run
 
   .. code:: console
   
-          fab <remote machine name> flee_init_SC/PCE:<conflict_name>,simulation_period=<number>,PilotJob=True
+          fab <remote machine name> flee_init_SC:<conflict_name>,simulation_period=<number>,PilotJob=True
+          
+  or 
+  
+  .. code:: console
+  
+          fab <remote machine name> flee_init_PCE:<conflict_name>,simulation_period=<number>,PilotJob=True
+  
 
 2. Run the following command to copy back results from the remote machine and perform analysis. The results will then be in a directory inside ``(FabSim Home)/results``, which is most likely called <conflict_name>_<remote_machine_name>_<number> (e.g. mali_eagle_vecma_16).
 
   .. code:: console
   
-          fab <remote_machine_name> flee_analyse_SC/PCE:<conflict_name>
+          fab <remote_machine_name> flee_analyse_SC:<conflict_name>
+  
+  or
 
+  .. code:: console
+  
+          fab <remote_machine_name> flee_analyse_PCE:<conflict_name>
+  
   .. note:: Analysis of the obtained results can be also performed on a localhost.
 
 
