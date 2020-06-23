@@ -19,7 +19,7 @@ insert_day0_refugees_in_camps = True
 if __name__ == "__main__":
 
     start_date, end_time = read_period.read_conflict_period(
-        "examples/ssudan_input_files/conflict_period.csv")
+        "conflict_inputs/ssudan-mscale//conflict_period.csv")
 
     submodel_id = 0
 
@@ -28,10 +28,10 @@ if __name__ == "__main__":
             submodel_id = int(sys.argv[1])
 
     if (submodel_id == 0):
-        validation_data_directory = ("examples/ssudan_input_files/source_data-0/")
+        validation_data_directory = ("conflict_inputs/ssudan-mscale/source_data-0/")
         out_csv_file = 'out/macro/out.csv'
     if (submodel_id == 1):
-        validation_data_directory = ("examples/ssudan_input_files/source_data-1/")
+        validation_data_directory = ("conflict_inputs/ssudan-mscale/source_data-1/")
         out_csv_file = 'out/micro/out.csv'
 
     e = pmicro_flee.Ecosystem()
@@ -44,16 +44,16 @@ if __name__ == "__main__":
     ig = InputGeography.InputGeography()
 
     ig.ReadFlareConflictInputCSV(
-        "examples/ssudan_input_files/conflicts-%s.csv" % submodel_id)
+        "conflict_inputs/ssudan-mscale/conflicts-%s.csv" % submodel_id)
 
     ig.ReadLocationsFromCSV(
-        "examples/ssudan_input_files/locations-%s.csv" % submodel_id)
+        "conflict_inputs/ssudan-mscale/locations-%s.csv" % submodel_id)
 
     ig.ReadLinksFromCSV(
-        "examples/ssudan_input_files/routes-%s.csv" % submodel_id)
+        "conflict_inputs/ssudan-mscale/routes-%s.csv" % submodel_id)
 
     ig.ReadClosuresFromCSV(
-        "examples/ssudan_input_files/closures-%s.csv" % submodel_id)
+        "conflict_inputs/ssudan-mscale/closures-%s.csv" % submodel_id)
 
     e, lm = ig.StoreInputGeographyInEcosystem(e)
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
         csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv")
 
     d.ReadL1Corrections(
-        "examples/ssudan_input_files/registration_corrections-%s.csv" % submodel_id)
+        "conflict_inputs/ssudan-mscale/registration_corrections-%s.csv" % submodel_id)
 
     output_header_string = "Day,"
 
