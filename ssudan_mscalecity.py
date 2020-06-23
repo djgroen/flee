@@ -1,12 +1,10 @@
-from flee import pmicro_flee  # parallel implementation
+from flee import micro_flee  # parallel implementation
 from flee import coupling  # coupling interface for multiscale models
 from datamanager import handle_refugee_data, read_period
 from datamanager import DataTable  # DataTable.subtract_dates()
 from flee import InputGeography
 import numpy as np
-import outputanalysis.analysis as a
 import sys
-import analyze_graph
 
 
 def AddInitialRefugees(e, d, loc):

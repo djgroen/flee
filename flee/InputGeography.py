@@ -84,7 +84,7 @@ class InputGeography:
 
 
 
-    def ReadLinksFromCSV(self,csv_name, name1_col=0, name2_col=1, dist_col=2, forced_redirection=3, link_type_col=4):
+  def ReadLinksFromCSV(self,csv_name, name1_col=0, name2_col=1, dist_col=2, forced_redirection=3, link_type_col=4):
     """
     Converts a CSV file to a locations information table
     """
