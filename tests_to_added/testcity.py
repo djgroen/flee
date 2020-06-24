@@ -3,7 +3,7 @@ from datamanager import handle_refugee_data
 from datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
 import numpy as np
-import post_processing.analysis as a
+import flee.post_processing.analysis as a
 import sys
 
 def AddInitialRefugees(e, loc):
@@ -37,11 +37,11 @@ if __name__ == "__main__":
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadLocationsFromCSV("examples/testcity/locations.csv")
+  ig.ReadLocationsFromCSV("conflict_inputs/testcity/locations.csv")
 
-  ig.ReadLinksFromCSV("examples/testcity/routes.csv")
+  ig.ReadLinksFromCSV("conflict_inputs/testcity/routes.csv")
 
-  ig.ReadClosuresFromCSV("examples/testcity/closures.csv")
+  ig.ReadClosuresFromCSV("conflict_inputs/testcity/closures.csv")
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
