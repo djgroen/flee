@@ -1,6 +1,6 @@
 from flee import flee
-from datamanager import handle_refugee_data
-from datamanager import DataTable #DataTable.subtract_dates()
+from flee.datamanager import handle_refugee_data
+from flee.datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
 import numpy as np
 import flee.post_processing.analysis as a

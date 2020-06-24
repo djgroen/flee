@@ -1,4 +1,4 @@
-import datamanager.handle_refugee_data as handle_refugee_data
+from flee.datamanager import handle_refugee_data
 import numpy as np
 
 """

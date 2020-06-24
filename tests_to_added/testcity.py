@@ -1,6 +1,6 @@
 from flee import pflee
-from datamanager import handle_refugee_data
-from datamanager import DataTable #DataTable.subtract_dates()
+from flee.datamanager import handle_refugee_data
+from flee.datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
 import numpy as np
 import flee.post_processing.analysis as a
@@ -37,11 +37,11 @@ if __name__ == "__main__":
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadLocationsFromCSV("conflict_inputs/testcity/locations.csv")
+  ig.ReadLocationsFromCSV("conflict_input/testcity/locations.csv")
 
-  ig.ReadLinksFromCSV("conflict_inputs/testcity/routes.csv")
+  ig.ReadLinksFromCSV("conflict_input/testcity/routes.csv")
 
-  ig.ReadClosuresFromCSV("conflict_inputs/testcity/closures.csv")
+  ig.ReadClosuresFromCSV("conflict_input/testcity/closures.csv")
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 

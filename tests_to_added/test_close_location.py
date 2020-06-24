@@ -1,5 +1,5 @@
-import flee.flee as flee
-import datamanager.handle_refugee_data as handle_refugee_data
+from flee import flee
+from flee.datamanager import handle_refugee_data
 import numpy as np
 import flee.post_processing.analysis as a
 

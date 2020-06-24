@@ -1,6 +1,6 @@
 from flee import flee
-from datamanager import handle_refugee_data
-from datamanager import DataTable #DataTable.subtract_dates()
+from flee.datamanager import handle_refugee_data
+from flee.datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
 import numpy as np
 import flee.post_processing.analysis as a
@@ -37,17 +37,17 @@ if __name__ == "__main__":
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadLocationsFromCSV("conflict_inputs/car_input_csv/locations.csv")
+  ig.ReadLocationsFromCSV("conflict_input/car_input_csv/locations.csv")
 
-  ig.ReadLinksFromCSV("conflict_inputs/car_input_csv/routes.csv")
+  ig.ReadLinksFromCSV("conflict_input/car_input_csv/routes.csv")
 
-  ig.ReadClosuresFromCSV("conflict_inputs/car_input_csv/closures.csv")
+  ig.ReadClosuresFromCSV("conflict_input/car_input_csv/closures.csv")
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
   #print("Network data loaded")
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="source_data/car2014/", start_date="2013-12-01", data_layout="data_layout.csv")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="conflict_validation/car2014/", start_date="2013-12-01", data_layout="data_layout.csv")
 
   #Correcting for overestimations due to inaccurate level 1 registrations in five of the camps.
   #These errors led to a perceived large drop in refugee population in all of these camps.

@@ -1,12 +1,12 @@
 from flee import pflee #parallel implementation
 from flee import coupling #coupling interface for multiscale models
-from datamanager import handle_refugee_data
-from datamanager import DataTable #DataTable.subtract_dates()
+from flee.datamanager import handle_refugee_data
+from flee.datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
 import numpy as np
-import post_processing.analysis as a
+import flee.post_processing.analysis as a
 import sys
-import analyze_graph
+from flee.post_processing import analyze_graph
 
 def AddInitialRefugees(e, loc):
   """ Add the initial refugees to a location, using the location name"""

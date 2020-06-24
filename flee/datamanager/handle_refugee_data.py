@@ -1,6 +1,6 @@
 import numpy as np
 import csv
-from datamanager import DataTable
+from flee.datamanager import DataTable
 from datetime import datetime
 import os.path
 

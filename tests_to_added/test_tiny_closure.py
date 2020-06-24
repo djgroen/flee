@@ -1,7 +1,7 @@
-import flee.flee as flee
-import datamanager.handle_refugee_data as handle_refugee_data
+from flee import flee
+import flee.datamanager import handle_refugee_data
 import numpy as np
-import post_processing.analysis as a
+import flee.post_processing.analysis as a
 
 """
 Generation 1 code. Incorporates only distance, travel always takes one day.
