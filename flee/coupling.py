@@ -48,6 +48,7 @@ class CouplingInterface:
     """
     self.location_ids += [self.e._convert_location_name_to_index(location.name)]
     self.location_names += [location.name]
+    print("Adding coupled location {} {} {}".format(location.name, direction, interval), file=sys.stderr)
     self.names += [name]
     self.directions += [direction]
     self.intervals += [interval]
@@ -65,11 +66,11 @@ class CouplingInterface:
       for i in range(0, len(self.e.locationNames)):
         if self.e.locationNames[i] == ln:
           l = self.e.locations[i]
-          print("L", l.name, len(l.links), file=sys.stderr)
+          #print("L", l.name, len(l.links), file=sys.stderr)
           if len(l.links) == 0:
             if not l.name in self.location_names:
-              print("Adding ghost location {}".format(l.name), file=sys.stderr)
-              self.addCoupledLocation(l, l.name, "in", interval=1)
+              #print("Adding ghost location {}".format(l.name), file=sys.stderr)
+              self.addCoupledLocation(l, l.name, "out", interval=1)
 
   def addMicroConflictLocations(self, ig):
     conflict_name_list = ig.getConflictLocationNames()
@@ -78,9 +79,8 @@ class CouplingInterface:
       for i in range(0, len(self.e.locationNames)):
         if self.e.locationNames[i] == ln:
           l = self.e.locations[i]
-          print("L", l.name, len(l.links), file=sys.stderr)
-          print("Adding micro coupled conflict location {}".format(l.name), file=sys.stderr)
-          self.addCoupledLocation(l, l.name, "out", interval=1)
+          #print("Adding micro coupled conflict location {}".format(l.name), file=sys.stderr)
+          self.addCoupledLocation(l, l.name, "in", interval=1)
 
   def Couple(self, t): #TODO: make this code more dynamic/flexible
     newAgents = None

@@ -100,6 +100,7 @@ if __name__ == "__main__":
         # Couple all conflict locs in micro model ("out" mode)
         c.addMicroConflictLocations(ig)
 
+    sys.exit()
 
     if e.getRankN(0):
         # output_header_string += "num agents,num agents in camps"
