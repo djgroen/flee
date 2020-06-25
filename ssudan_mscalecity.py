@@ -1,8 +1,9 @@
-from flee import micro_flee  # parallel implementation
+from flee import pmicro_flee  # parallel implementation
 from flee import coupling  # coupling interface for multiscale models
 from datamanager import handle_refugee_data, read_period
 from datamanager import DataTable  # DataTable.subtract_dates()
 from flee import InputGeography
+from post_processing import analysis as a
 import numpy as np
 import sys
 
@@ -18,8 +19,10 @@ insert_day0_refugees_in_camps = True
 
 if __name__ == "__main__":
 
+    data_dir = "conflict_inputs/ssudan-mscale-test"
+
     start_date, end_time = read_period.read_conflict_period(
-        "conflict_inputs/ssudan-mscale//conflict_period.csv")
+        "{}/conflict_period.csv".format(data_dir))
 
     submodel_id = 0
 
@@ -28,10 +31,10 @@ if __name__ == "__main__":
             submodel_id = int(sys.argv[1])
 
     if (submodel_id == 0):
-        validation_data_directory = ("conflict_inputs/ssudan-mscale/source_data-0/")
+        validation_data_directory = ("{}/source_data-0/".format(data_dir))
         out_csv_file = 'out/macro/out.csv'
     if (submodel_id == 1):
-        validation_data_directory = ("conflict_inputs/ssudan-mscale/source_data-1/")
+        validation_data_directory = ("{}/source_data-1/".format(data_dir))
         out_csv_file = 'out/micro/out.csv'
 
     e = pmicro_flee.Ecosystem()
@@ -44,16 +47,16 @@ if __name__ == "__main__":
     ig = InputGeography.InputGeography()
 
     ig.ReadFlareConflictInputCSV(
-        "conflict_inputs/ssudan-mscale/conflicts-%s.csv" % submodel_id)
+        "{}/conflicts-{}.csv".format(data_dir,submodel_id))
 
     ig.ReadLocationsFromCSV(
-        "conflict_inputs/ssudan-mscale/locations-%s.csv" % submodel_id)
+        "{}/locations-{}.csv".format(data_dir,submodel_id))
 
     ig.ReadLinksFromCSV(
-        "conflict_inputs/ssudan-mscale/routes-%s.csv" % submodel_id)
+        "{}/routes-{}.csv".format(data_dir,submodel_id))
 
     ig.ReadClosuresFromCSV(
-        "conflict_inputs/ssudan-mscale/closures-%s.csv" % submodel_id)
+        "{}/closures-{}.csv".format(data_dir,submodel_id))
 
     e, lm = ig.StoreInputGeographyInEcosystem(e)
 
@@ -68,7 +71,7 @@ if __name__ == "__main__":
         csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv")
 
     d.ReadL1Corrections(
-        "conflict_inputs/ssudan-mscale/registration_corrections-%s.csv" % submodel_id)
+        "{}/registration_corrections-{}.csv".format(data_dir,submodel_id))
 
     output_header_string = "Day,"
 
