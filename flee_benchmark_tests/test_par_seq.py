@@ -1,4 +1,4 @@
-from flee import pflee
+from flee import flee
 from flee.datamanager import handle_refugee_data
 from flee.datamanager import DataTable  # DataTable.subtract_dates()
 from flee import InputGeography
@@ -13,52 +13,25 @@ def date_to_sim_days(date):
     return DataTable.subtract_dates(date, "2010-01-01")
 
 
-if __name__ == "__main__":
-
+def test_par_seq(end_time=10, last_physical_day=10,
+                 parallel_mode="advanced", latency_mode="high_latency",
+                 inputdir="test_data/test_input_csv",
+                 initialagents=100000,
+                 newagentsperstep=1000):
     t_exec_start = time.time()
 
-    end_time = 10
-    last_physical_day = 10
+    e = flee.Ecosystem()
 
-    parser = argparse.ArgumentParser(
-        description='Run a parallel Flee benchmark.')
-    parser.add_argument("-p", "--parallelmode", type=str, default="advanced",
-                        help="Parallelization mode (advanced, classic, cl-hilat OR adv-lowlat)")
-    parser.add_argument("-N", "--initialagents", type=int, default=100000,
-                        help="Number of agents at the start of the simulation.")
-    parser.add_argument("-d", "--newagentsperstep", type=int, default=1000,
-                        help="Number of agents added per time step.")
-    parser.add_argument("-t", "--simulationperiod", type=int, default=10,
-                        help="Duration of the simulation in days.")
-    parser.add_argument("-i", "--inputdir", type=str, default="test_data/test_input_csv",
-                        help="Directory with parallel test input. Must have locations named 'A','D','E' and 'F'.")
-
-    args = parser.parse_args()
-
-    end_time = args.simulationperiod
-    last_physical_day = args.simulationperiod
-
-    e = pflee.Ecosystem()
-
-    if args.parallelmode in ["advanced", "adv-lowlat"]:
-        e.parallel_mode = "loc-par"
-    else:
-        e.parallel_mode = "classic"
-
-    if args.parallelmode in ["advanced", "cl-hilat"]:
-        e.latency_mode = "high_latency"
-    else:
-        e.latency_mode = "low_latency"
-
-    print("MODE: ", args, file=sys.stderr)
+    e.parallel_mode = parallel_mode
+    e.latency_mode = latency_mode
 
     ig = InputGeography.InputGeography()
 
-    ig.ReadLocationsFromCSV("%s/locations.csv" % args.inputdir)
+    ig.ReadLocationsFromCSV("%s/locations.csv" % inputdir)
 
-    ig.ReadLinksFromCSV("%s/routes.csv" % args.inputdir)
+    ig.ReadLinksFromCSV("%s/routes.csv" % inputdir)
 
-    ig.ReadClosuresFromCSV("%s/closures.csv" % args.inputdir)
+    ig.ReadClosuresFromCSV("%s/closures.csv" % inputdir)
 
     e, lm = ig.StoreInputGeographyInEcosystem(e)
 
@@ -72,7 +45,7 @@ if __name__ == "__main__":
 
     ig.AddNewConflictZones(e, 0)
     # All initial refugees start in location A.
-    e.add_agents_to_conflict_zones(args.initialagents)
+    e.add_agents_to_conflict_zones(initialagents)
 
     for l in camp_locations:
         output_header_string += "%s sim,%s data,%s error," % (
@@ -98,7 +71,7 @@ if __name__ == "__main__":
             ig.AddNewConflictZones(e, t)
 
         # Determine number of new refugees to insert into the system.
-        new_refs = args.newagentsperstep
+        new_refs = newagentsperstep
         refugees_raw += new_refs
 
         # Insert refugee agents
@@ -141,3 +114,46 @@ if __name__ == "__main__":
         my_file = open('perf.log', 'a', encoding='utf-8')
         print("Time in main loop,{}".format(
             t_exec_end - t_exec_init), file=my_file)
+
+
+if __name__ == "__main__":
+    end_time = 10
+    last_physical_day = 10
+
+    parser = argparse.ArgumentParser(
+        description='Run a parallel Flee benchmark.')
+    parser.add_argument("-p", "--parallelmode", type=str, default="advanced",
+                        help="Parallelization mode (advanced, classic, cl-hilat OR adv-lowlat)")
+    parser.add_argument("-N", "--initialagents", type=int, default=100000,
+                        help="Number of agents at the start of the simulation.")
+    parser.add_argument("-d", "--newagentsperstep", type=int, default=1000,
+                        help="Number of agents added per time step.")
+    parser.add_argument("-t", "--simulationperiod", type=int, default=10,
+                        help="Duration of the simulation in days.")
+    parser.add_argument("-i", "--inputdir", type=str, default="test_data/test_input_csv",
+                        help="Directory with parallel test input. Must have locations named 'A','D','E' and 'F'.")
+
+    args = parser.parse_args()
+
+    end_time = args.simulationperiod
+    last_physical_day = args.simulationperiod
+    inputdir = args.inputdir
+    initialagents = args.initialagents
+    newagentsperstep = args.newagentsperstep
+
+    if args.parallelmode in ["advanced", "adv-lowlat"]:
+        parallel_mode = "loc-par"
+    else:
+        parallel_mode = "classic"
+
+    if args.parallelmode in ["advanced", "cl-hilat"]:
+        latency_mode = "high_latency"
+    else:
+        latency_mode = "low_latency"
+
+    print("MODE: ", args, file=sys.stderr)
+
+    test_par_seq(end_time, last_physical_day,
+                 parallel_mode, latency_mode,
+                 inputdir, initialagents,
+                 newagentsperstep)

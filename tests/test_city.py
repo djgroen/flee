@@ -18,23 +18,7 @@ def date_to_sim_days(date):
     return DataTable.subtract_dates(date, "2010-01-01")
 
 
-if __name__ == "__main__":
-
-    end_time = 10
-    last_physical_day = 10
-
-    if len(sys.argv) > 1:
-        if (sys.argv[1]).isnumeric():
-            end_time = int(sys.argv[1])
-            last_physical_day = int(sys.argv[1])
-        else:
-            end_time = 10
-            last_physical_day = 10
-            duration = flee.SimulationSettings.SimulationSettings.ReadFromCSV(sys.argv[
-                                                                              1])
-            if duration > 0:
-                end_time = duration
-                last_physical_day = end_time
+def test_city(end_time=10, last_physical_day=10):
 
     e = pflee.Ecosystem()
 
@@ -120,3 +104,22 @@ if __name__ == "__main__":
                 output += ",0,0"
 
             print(output)
+
+
+if __name__ == "__main__":
+    end_time = 10
+    last_physical_day = 10
+    if len(sys.argv) > 1:
+        if (sys.argv[1]).isnumeric():
+            end_time = int(sys.argv[1])
+            last_physical_day = int(sys.argv[1])
+        else:
+            end_time = 10
+            last_physical_day = 10
+            duration = flee.SimulationSettings.SimulationSettings.ReadFromCSV(sys.argv[
+                                                                              1])
+            if duration > 0:
+                end_time = duration
+                last_physical_day = end_time
+
+    test_city(end_time, last_physical_day)

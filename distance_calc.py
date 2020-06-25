@@ -1,6 +1,3 @@
-
-
-
 import math
 import csv
 import os
@@ -9,17 +6,17 @@ import numpy as np
 
 
 def distance_on_unit_sphere(lat1, long1, lat2, long2):
-    #https://gist.github.com/matbor/6837804
+    # https://gist.github.com/matbor/6837804
     # Convert latitude and longitude to
     # spherical coordinates in radians.
-    degrees_to_radians = math. pi /180.0
+    degrees_to_radians = math. pi / 180.0
 
     # phi = 90 - latitude
-    phi1 = (90.0 - lat1 ) *degrees_to_radians
-    phi2 = (90.0 - lat2 ) *degrees_to_radians
+    phi1 = (90.0 - lat1) * degrees_to_radians
+    phi2 = (90.0 - lat2) * degrees_to_radians
 
     # theta = longitude
-    theta1 = long1* degrees_to_radians
+    theta1 = long1 * degrees_to_radians
     theta2 = long2 * degrees_to_radians
 
     # Compute spherical distance from spherical coordinates.
@@ -38,9 +35,12 @@ def distance_on_unit_sphere(lat1, long1, lat2, long2):
     # in your favorite set of units to get length.
     return arc * 6371
 
+
 def get_capital_gps_location(path_locations_file, district):
-    loc = pd.read_csv(path_locations_file, header=0, index_col=0, skipinitialspace=True)
+    loc = pd.read_csv(path_locations_file, header=0,
+                      index_col=0, skipinitialspace=True)
     return loc['gps x'][district], loc['gps y'][district]
+
 
 def update_links(path_links_file, path_locations_file):
     #links_file = open(path_links_file, "r")
@@ -52,11 +52,14 @@ def update_links(path_links_file, path_locations_file):
     with open(path_links_file, "r") as links_file:
         csvrdr_links = csv.DictReader(links_file)
         for row in csvrdr_links:
-            lat1, long1 = get_capital_gps_location(path_locations_file, row['#location1'])
-            lat2, long2 = get_capital_gps_location(path_locations_file, row['location2'])
+            lat1, long1 = get_capital_gps_location(
+                path_locations_file, row['#location1'])
+            lat2, long2 = get_capital_gps_location(
+                path_locations_file, row['location2'])
             dist_temp = distance_on_unit_sphere(lat1, long1, lat2, long2)
-            #print(row['#location1'], row['location2'], str(dist_temp))
-            fileout.write(row['#location1'] + ',' + row['location2'] + ',' + str(int(np.round(dist_temp))) + '\n')
+            # print(row['#location1'], row['location2'], str(dist_temp))
+            fileout.write(row['#location1'] + ',' + row['location2'] +
+                          ',' + str(int(np.round(dist_temp))) + '\n')
     fileout.close()
 
 

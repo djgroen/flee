@@ -7,7 +7,8 @@ import flee.postprocessing.analysis as a
 Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
-if __name__ == "__main__":
+
+def test_micro_model():
     print("Testing basic data handling and simulation kernel.")
 
     flee.SimulationSettings.MaxMoveSpeed = 35.0
@@ -49,3 +50,6 @@ if __name__ == "__main__":
     assert l1.numAgents + l2.numAgents + l3.numAgents + l4.numAgents == 10
 
     print("Test successful!")
+
+if __name__ == "__main__":
+    test_micro_model()

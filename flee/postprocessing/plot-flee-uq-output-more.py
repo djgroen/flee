@@ -5,7 +5,7 @@ import numpy as np
 import sys
 from flee.datamanager import handle_refugee_data
 import warnings
-import flee.post_processing.analysis as a
+import flee.postprocessing.analysis as a
 import os
 warnings.filterwarnings("ignore")
 matplotlib.use('Pdf')
@@ -722,7 +722,6 @@ if __name__ == "__main__":
     plt.ylabel("Averaged relative difference")
     plt.xlabel("Days elapsed")
 
-
     plt.fill_between(np.arange(days_number),
                      list(np.array(y_error) + np.array(y_error_std)),
                      list(np.array(y_error) - np.array(y_error_std)),
@@ -732,7 +731,6 @@ if __name__ == "__main__":
     plt.savefig("%s/error_dist_not-rescaled.png" % out_dir)
     plt.clf()
 
-    
     #plt.gca().set_ylim([0, ymax])
 
     handles_set = []
@@ -752,7 +750,6 @@ if __name__ == "__main__":
 
     plt.ylabel("Averaged relative difference")
     plt.xlabel("Days elapsed")
-
 
     plt.fill_between(np.arange(days_number),
                      list(np.array(y_error_rescaled) +

@@ -1,44 +1,45 @@
 from flee import flee
 from flee.datamanager import handle_refugee_data
 import numpy as np
-import flee.post_processing.analysis as a
+import flee.postprocessing.analysis as a
 
 """
 Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
 if __name__ == "__main__":
-  print("Simulating Mali.")
+    print("Simulating Mali.")
 
-  end_time = 80
-  e = flee.Ecosystem()
+    end_time = 80
+    e = flee.Ecosystem()
 
-  l1 = e.addLocation("A", movechance=0.3)
+    l1 = e.addLocation("A", movechance=0.3)
 
-  l2 = e.addLocation("B", movechance=0.0)
-  l3 = e.addLocation("C", movechance=0.0)
-  l4 = e.addLocation("D", movechance=0.0)
+    l2 = e.addLocation("B", movechance=0.0)
+    l3 = e.addLocation("C", movechance=0.0)
+    l4 = e.addLocation("D", movechance=0.0)
 
-  e.linkUp("A","B","834.0")
-  e.linkUp("A","C","1368.0")
-  e.linkUp("A","D","536.0")
+    e.linkUp("A", "B", "834.0")
+    e.linkUp("A", "C", "1368.0")
+    e.linkUp("A", "D", "536.0")
 
-  d = handle_refugee_data.DataTable("source-data-unhcr.txt", csvformat="mali-pdf")
+    d = handle_refugee_data.DataTable(
+        "source-data-unhcr.txt", csvformat="mali-pdf")
 
-  for t in range(0,end_time):
-    new_refs = d.get_new_refugees(t)
+    for t in range(0, end_time):
+        new_refs = d.get_new_refugees(t)
 
-    # Insert refugee agents
-    for i in range(0, new_refs):
-      e.addAgent(location=l1)
+        # Insert refugee agents
+        for i in range(0, new_refs):
+            e.addAgent(location=l1)
 
-    # Propagate the model by one time step.
-    e.evolve()
+        # Propagate the model by one time step.
+        e.evolve()
 
-    e.printInfo()
-    print(t, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents)
+        e.printInfo()
+        print(t, l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents)
 
-    """
+        """
     l2_data = d.get_field("Mauritania", t) - d.get_field("Mauritania", 0)
     l3_data = d.get_field("Niger", t) - d.get_field("Niger", 0)
     l4_data = d.get_field("Burkina Faso", t) - d.get_field("Burkina Faso", 0)

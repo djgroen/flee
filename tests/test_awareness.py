@@ -8,15 +8,18 @@ import sys
 Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
-if __name__ == "__main__":
+
+def test_awareness():
     print("Testing basic data handling and simulation kernel.")
 
     flee.SimulationSettings.MinMoveSpeed = 5000.0
     flee.SimulationSettings.MaxMoveSpeed = 5000.0
     flee.SimulationSettings.MaxWalkSpeed = 5000.0
 
+    '''
     if(len(sys.argv) > 1):
         flee.SimulationSettings.AwarenessLevel = int(sys.argv[1])
+    '''
 
     end_time = 10
     e = flee.Ecosystem()
@@ -49,3 +52,6 @@ if __name__ == "__main__":
     #  e.evolve()
 
     print("Test successful!")
+
+if __name__ == "__main__":
+    test_awareness()

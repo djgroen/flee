@@ -7,7 +7,8 @@ import flee.postprocessing.analysis as a
 Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
-if __name__ == "__main__":
+
+def test_close_location():
     print("Testing basic data handling and simulation kernel.")
 
     end_time = 80
@@ -26,3 +27,7 @@ if __name__ == "__main__":
     assert e.close_location("C")
 
     print("Test successful!")
+
+
+if __name__ == "__main__":
+    test_close_location()

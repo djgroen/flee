@@ -7,7 +7,8 @@ import flee.postprocessing.analysis as a
 Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
-if __name__ == "__main__":
+
+def test_tiny_closure():
     print("Testing basic data handling and simulation kernel.")
 
     flee.SimulationSettings.MinMoveSpeed = 10.0
@@ -41,3 +42,6 @@ if __name__ == "__main__":
     assert l1.numAgents == 97
 
     print("Test successful!")
+
+if __name__ == "__main__":
+    test_tiny_closure()

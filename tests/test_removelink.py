@@ -7,7 +7,8 @@ import flee.postprocessing.analysis as a
 Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
-if __name__ == "__main__":
+
+def test_removelink():
     print("Testing basic data handling and simulation kernel.")
 
     end_time = 80
@@ -46,3 +47,5 @@ if __name__ == "__main__":
   else:
     print "TEST SUCCESSFUL."
   """
+if __name__ == "__main__":
+    test_removelink()

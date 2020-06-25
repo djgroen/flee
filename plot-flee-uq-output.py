@@ -5,7 +5,7 @@ import numpy as np
 import sys
 from flee.datamanager import handle_refugee_data
 import warnings
-import flee.post_processing.analysis as a
+import flee.postprocessing.analysis as a
 import os
 warnings.filterwarnings("ignore")
 matplotlib.use('Pdf')

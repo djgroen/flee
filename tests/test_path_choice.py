@@ -7,7 +7,8 @@ import flee.postprocessing.analysis as a
 Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
-if __name__ == "__main__":
+
+def test_path_choice():
     print("Testing basic data handling and simulation kernel.")
 
     flee.SimulationSettings.MinMoveSpeed = 5000.0
@@ -35,3 +36,6 @@ if __name__ == "__main__":
     e.addAgent(location=l1)
 
     print("Test successful!")
+
+if __name__ == "__main__":
+    test_path_choice()
