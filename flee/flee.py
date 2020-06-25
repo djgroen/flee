@@ -18,7 +18,8 @@ Person_base_class = make_dataclass("Person_base_class",
                                     'distance_moved_this_timestep',
                                     'travelling',
                                     'distance_travelled_on_link',
-                                    'distance_travelled'),
+                                    'distance_travelled',
+                                    'e'),
                                    defaults=(
                                        None,
                                        None,
@@ -28,7 +29,8 @@ Person_base_class = make_dataclass("Person_base_class",
                                        0.0,
                                        False,
                                        0,
-                                       0)
+                                       0,
+                                       None)
                                    )
 
 
@@ -251,7 +253,11 @@ Location_base_class = make_dataclass("Location_base_class",
                                       'NeighbourhoodScore',
                                       'RegionScore',
                                       'scores',
-                                      'incoming_journey_lengths'),
+                                      'incoming_journey_lengths',
+                                      'e',
+                                      'id',
+                                      'numAgentsSpawnedOnRank'
+                                      ),
                                      defaults=(
                                          "unknown",
                                          0.0,
@@ -276,6 +282,9 @@ Location_base_class = make_dataclass("Location_base_class",
                                          1.0,
                                          1.0,
                                          np.array([1.0, 1.0, 1.0, 1.0]),
+                                         None,
+                                         None,
+                                         None,
                                          None,)
                                      )
 
