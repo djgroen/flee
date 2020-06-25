@@ -46,17 +46,21 @@ class CouplingInterface:
       - "inout indirect" -> changes in agent numbers are stored in the coupling link. No agents are added or removed.
     * Interval is the timestep interval of the coupling, ensuring that the coupling activity is performed every <interval> time steps.
     """
-    self.location_ids += [self.e._convert_location_name_to_index(location.name)]
-    self.location_names += [location.name]
-    print("Adding coupled location {} {} {}".format(location.name, direction, interval), file=sys.stderr)
-    self.names += [name]
-    self.directions += [direction]
-    self.intervals += [interval]
-    self.coupling_rank = True
-    if self.e.mpi != None:
-      if self.e.mpi.rank > 0:
-        self.coupling_rank = False
+    if location.name not in self.location_names:
 
+      self.location_ids += [self.e._convert_location_name_to_index(location.name)]
+      self.location_names += [location.name]
+      print("Adding coupled location {} {} {}".format(location.name, direction, interval), file=sys.stderr)
+      self.names += [name]
+      self.directions += [direction]
+      self.intervals += [interval]
+      self.coupling_rank = True
+      if self.e.mpi != None:
+        if self.e.mpi.rank > 0:
+          self.coupling_rank = False
+
+    else:
+      print("warning: coupled location is selected twice (ignore this if a location is both a coupled location and a conflict location). Only one coupled location will be created.", file=sys.stderr)
 
 
   def addGhostLocations(self, ig):

@@ -100,7 +100,6 @@ if __name__ == "__main__":
         # Couple all conflict locs in micro model ("out" mode)
         c.addMicroConflictLocations(ig)
 
-    sys.exit()
 
     if e.getRankN(0):
         # output_header_string += "num agents,num agents in camps"
@@ -135,8 +134,8 @@ if __name__ == "__main__":
 
 
         # Insert refugee agents
-
-        for i in range(0, new_refs):
+        if submodel_id == 0:
+          for i in range(0, new_refs):
             e.addAgent(e.pick_conflict_location())
 
 
