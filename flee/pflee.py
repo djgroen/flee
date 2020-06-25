@@ -41,9 +41,10 @@ class MPIManager:
 
 
 class Person(flee.Person):
-
+    '''
     __slots__ = ['location', 'home_location', 'timesteps_since_departure', 'places_travelled',
                  'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link', 'e']
+    '''
 
     def __init__(self, e, location):
         super().__init__(location)

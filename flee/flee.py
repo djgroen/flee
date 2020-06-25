@@ -7,37 +7,41 @@ import copy
 from flee.SimulationSettings import SimulationSettings
 from flee.Diagnostics import write_agents
 
+from recordclass import make_dataclass
 
-class Person:
+Person_base_class = make_dataclass("Person_base_class",
+                                   ('location',
+                                    'home_location',
+                                    'timesteps_since_departure',
+                                    'places_travelled',
+                                    'recent_travel_distance',
+                                    'distance_moved_this_timestep',
+                                    'travelling',
+                                    'distance_travelled_on_link',
+                                    'distance_travelled'),
+                                   defaults=(
+                                       None,
+                                       None,
+                                       0,
+                                       1,
+                                       0.0,
+                                       0.0,
+                                       False,
+                                       0,
+                                       0)
+                                   )
 
+
+class Person(Person_base_class):
+    '''
     __slots__ = ['location', 'distance_travelled', 'home_location', 'timesteps_since_departure', 'places_travelled',
                  'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link']
+    '''
 
     def __init__(self, location):
         self.location = location
         self.home_location = location
         self.location.IncrementNumAgents()
-        self.timesteps_since_departure = 0
-        self.places_travelled = 1
-
-        # An index of how much the agent has recently travelled (range
-        # 0.0-1.0).
-        self.recent_travel_distance = 0.0
-        # Number of km moved this timestep.
-        self.distance_moved_this_timestep = 0.0
-
-        # Set to true when an agent resides on a link.
-        self.travelling = False
-
-        # Tracks how much distance a Person has been able to travel on the
-        # current link.
-        self.distance_travelled_on_link = 0
-
-        # if not SimulationSettings.TurnBackAllowed:
-        #  self.last_location = None
-
-        if SimulationSettings.AgentLogLevel > 0:
-            self.distance_travelled = 0
 
     def evolve(self, ForceTownMove=False):
 
@@ -223,8 +227,60 @@ class Person:
 
         return self.chooseFromWeights(weights, self.location.links)
 
+Location_base_class = make_dataclass("Location_base_class",
+                                     ('name',
+                                      'x',
+                                      'y',
+                                      'movechance',
+                                      'links',
+                                      'closed_links',
+                                      'numAgents',
+                                      'numAgentsOnRank',
+                                      'capacity',
+                                      'pop',
+                                      'foreign',
+                                      'country',
+                                      'conflict',
+                                      'camp',
+                                      'town',
+                                      'forward',
+                                      'marker',
+                                      'time',
+                                      'numAgentsSpawned',
+                                      'LocationScore',
+                                      'NeighbourhoodScore',
+                                      'RegionScore',
+                                      'scores',
+                                      'incoming_journey_lengths'),
+                                     defaults=(
+                                         "unknown",
+                                         0.0,
+                                         0.0,
+                                         0.001,
+                                         [],
+                                         [],
+                                         0,
+                                         0,
+                                         -1,
+                                         0,
+                                         False,
+                                         "unknown",
+                                         False,
+                                         False,
+                                         False,
+                                         False,
+                                         False,
+                                         0,
+                                         0,
+                                         1.0,
+                                         1.0,
+                                         1.0,
+                                         np.array([1.0, 1.0, 1.0, 1.0]),
+                                         None,)
+                                     )
 
-class Location:
+
+class Location(Location_base_class):
 
     def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
         self.name = name
@@ -426,7 +482,28 @@ class Location:
         self.setScore(3, self.RegionScore)
 
 
-class Link:
+Link_base_class = make_dataclass("Link_base_class",
+                                 ('name',
+                                  'closed',
+                                  'distance',
+                                  'startpoint',
+                                  'endpoint',
+                                  'numAgents',
+                                  'numAgentsOnRank',
+                                  'forced_redirection'),
+                                 defaults=(
+                                     "__link__",
+                                     False,
+                                     -1.0,
+                                     None,
+                                     None,
+                                     0,
+                                     0,
+                                     False,)
+                                 )
+
+
+class Link(Link_base_class):
 
     def __init__(self, startpoint, endpoint, distance, forced_redirection=False):
         self.name = "__link__"
