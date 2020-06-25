@@ -1,5 +1,5 @@
 import flee.flee as flee
-import datamanager.handle_refugee_data as handle_refugee_data
+import flee.datamanager.handle_refugee_data as handle_refugee_data
 import numpy as np
 
 """
