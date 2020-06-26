@@ -98,9 +98,9 @@ def plotme_minimal(out_dir, data, name):
             data_x.append(day)
             data_y.append(data.at[day, "%s data" % name])
 
-    # data.loc[:,["%s sim" % name,"%s data" % name]]).as_matrix()
-    y1 = data["%s sim" % name].as_matrix()
-    y2 = data["%s data" % name].as_matrix()
+    # data.loc[:,["%s sim" % name,"%s data" % name]]).to_numpy()
+    y1 = data["%s sim" % name].to_numpy()
+    y2 = data["%s data" % name].to_numpy()
     days = np.arange(len(y1))
 
     matplotlib.rcParams.update({'font.size': 18})
@@ -146,13 +146,13 @@ def plotme(out_dir, data, name, offset=0, legend_loc=4,
     """
     plt.clf()
 
-    y1 = data.groupby(['Day']).mean()["%s sim" % name].as_matrix()
-    y2 = data.groupby(['Day']).mean()["%s data" % name].as_matrix()
+    y1 = data.groupby(['Day']).mean()["%s sim" % name].to_numpy()
+    y2 = data.groupby(['Day']).mean()["%s data" % name].to_numpy()
 
     # calculate error bar based on the standard deviation
     # as the height of our error bars
-    y1err = data.groupby(['Day']).std()["%s sim" % name].as_matrix() * 2.0
-    y2err = data.groupby(['Day']).std()["%s data" % name].as_matrix() * 2.0
+    y1err = data.groupby(['Day']).std()["%s sim" % name].to_numpy() * 2.0
+    y2err = data.groupby(['Day']).std()["%s data" % name].to_numpy() * 2.0
 
     days = np.arange(len(y1))
 
@@ -234,13 +234,13 @@ def plotme(out_dir, data, name, offset=0, legend_loc=4,
     handles_set = []
 
     untot = data.groupby(['Day']).mean()["refugees in camps (UNHCR)"].\
-        as_matrix().flatten()
+        to_numpy().flatten()
 
     y1_rescaled = data.groupby(['Day']).mean()["%s sim rescaled" % name].\
-        as_matrix()
+        to_numpy()
 
     y1_rescalederr = data.groupby(['Day']).std()["%s sim rescaled" % name].\
-        as_matrix() * 2.0
+        to_numpy() * 2.0
 
     if Filled is False:
         labelsim = plt.errorbar(days, y1_rescaled,  yerr=y1_rescalederr,
@@ -465,7 +465,7 @@ if __name__ == "__main__":
             for name in location_names:
                 # continue
 
-                refugee_data.ix[i, "%s sim rescaled" % name] = \
+                refugee_data.loc[i, "%s sim rescaled" % name] = \
                     refugee_data["%s sim" % name][i] *\
                     refugee_data["refugees in camps (UNHCR)"][i] /\
                     refugee_data["refugees in camps (simulation)"][i]
@@ -549,7 +549,7 @@ if __name__ == "__main__":
     plt.xlabel("Days elapsed")
 
     un_refs = refugee_data.groupby(['Day']).mean().\
-        loc[:, ["refugees in camps (UNHCR)"]].as_matrix().flatten()
+        loc[:, ["refugees in camps (UNHCR)"]].to_numpy().flatten()
 
     diffdata = sim_errors.abs_diff(rescaled=False) / \
         np.maximum(un_refs, np.ones(len(un_refs)))
