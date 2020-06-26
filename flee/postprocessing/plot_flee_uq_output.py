@@ -405,24 +405,7 @@ def plotme(out_dir, data, name, offset=0, legend_loc=4,
     return lerr
 
 
-'''
-----------------------------------------------------------------------
-            Start of the code,
-            assuring arguments of out-folder & csv file are kept
-----------------------------------------------------------------------
-'''
-if __name__ == "__main__":
-
-    if len(sys.argv) > 1:
-        in_dir = sys.argv[1]
-    else:
-        in_dir = "out"
-
-    if len(sys.argv) > 2:
-        out_dir = sys.argv[2]
-    else:
-        out_dir = "out"
-
+def plot_flee_uq_output(in_dir, out_dir):
     matplotlib.style.use('ggplot')
 
     # find all out.csv files from input directory
@@ -583,3 +566,23 @@ if __name__ == "__main__":
     plt.savefig("%s/error-comparison_V2.png" % out_dir)
 
     plt.clf()
+
+'''
+----------------------------------------------------------------------
+            Start of the code,
+            assuring arguments of out-folder & csv file are kept
+----------------------------------------------------------------------
+'''
+if __name__ == "__main__":
+
+    if len(sys.argv) > 1:
+        in_dir = sys.argv[1]
+    else:
+        in_dir = "out"
+
+    if len(sys.argv) > 2:
+        out_dir = sys.argv[2]
+    else:
+        out_dir = "out"
+
+    plot_flee_uq_output(in_dir, out_dir)

@@ -321,19 +321,7 @@ def plotme_minimal(out_dir, data, name):
     fig.savefig("%s/min-%s.png" % (out_dir, name))
 
 
-# Start of the code, assuring arguments of out-folder & csv file are kept
-if __name__ == "__main__":
-
-    if len(sys.argv) > 1:
-        in_dir = sys.argv[1]
-    else:
-        in_dir = "out"
-
-    if len(sys.argv) > 2:
-        out_dir = sys.argv[2]
-    else:
-        out_dir = "out"
-
+def plot_flee_output(in_dir, out_dir):
     matplotlib.style.use('ggplot')
     #figsize=(15, 10)
 
@@ -368,10 +356,6 @@ if __name__ == "__main__":
 
     set_margins()
     plt.savefig("%s/numagents.png" % out_dir)
-
-    print('-' * 30)
-    print(type(refugee_data.loc[:, ["refugees in camps (simulation)"]]))
-    print('-' * 30)
 
     # Calculate the best offset.
 
@@ -464,3 +448,18 @@ if __name__ == "__main__":
     plt.savefig("%s/error-comparison.png" % out_dir)
 
     plt.clf()
+
+# Start of the code, assuring arguments of out-folder & csv file are kept
+if __name__ == "__main__":
+
+    if len(sys.argv) > 1:
+        in_dir = sys.argv[1]
+    else:
+        in_dir = "out"
+
+    if len(sys.argv) > 2:
+        out_dir = sys.argv[2]
+    else:
+        out_dir = "out"
+
+    plot_flee_output(in_dir, out_dir)
