@@ -83,9 +83,9 @@ def plotme(out_dir, data, name, offset=0, legend_loc=4, naieve_model=True):
     plt.clf()
 
     # data.loc[:,["%s sim" % name,"%s data" % name]]).as_matrix()
-    y1 = data["%s sim" % name].as_matrix()
+    y1 = data["%s sim" % name].to_numpy()
 
-    y2 = data["%s data" % name].as_matrix()
+    y2 = data["%s data" % name].to_numpy()
     days = np.arange(len(y1))
 
     naieve_early_day = 7
@@ -128,8 +128,8 @@ def plotme(out_dir, data, name, offset=0, legend_loc=4, naieve_model=True):
     plt.xlabel("Days elapsed")
     plt.ylabel("Number of refugees")
 
-    simtot = data["refugees in camps (simulation)"].as_matrix().flatten()
-    untot = data["refugees in camps (UNHCR)"].as_matrix().flatten()
+    simtot = data["refugees in camps (simulation)"].to_numpy().flatten()
+    untot = data["refugees in camps (UNHCR)"].to_numpy().flatten()
 
     y1_rescaled = np.zeros(len(y1))
     for i in range(0, len(y1_rescaled)):
@@ -284,8 +284,8 @@ def plotme_minimal(out_dir, data, name):
             data_y.append(data.at[day, "%s data" % name])
 
     # data.loc[:,["%s sim" % name,"%s data" % name]]).as_matrix()
-    y1 = data["%s sim" % name].as_matrix()
-    y2 = data["%s data" % name].as_matrix()
+    y1 = data["%s sim" % name].to_numpy()
+    y2 = data["%s data" % name].to_numpy()
     days = np.arange(len(y1))
 
     matplotlib.rcParams.update({'font.size': 18})
@@ -369,14 +369,18 @@ if __name__ == "__main__":
     set_margins()
     plt.savefig("%s/numagents.png" % out_dir)
 
+    print('-' * 30)
+    print(type(refugee_data.loc[:, ["refugees in camps (simulation)"]]))
+    print('-' * 30)
+
     # Calculate the best offset.
 
     sim_refs = refugee_data.loc[
-        :, ["refugees in camps (simulation)"]].as_matrix().flatten()
+        :, ["refugees in camps (simulation)"]].to_numpy().flatten()
     un_refs = refugee_data.loc[
-        :, ["refugees in camps (UNHCR)"]].as_matrix().flatten()
+        :, ["refugees in camps (UNHCR)"]].to_numpy().flatten()
     raw_refs = refugee_data.loc[
-        :, ["raw UNHCR refugee count"]].as_matrix().flatten()
+        :, ["raw UNHCR refugee count"]].to_numpy().flatten()
 
     """
   offset = 0
