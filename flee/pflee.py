@@ -455,5 +455,28 @@ class Ecosystem(flee.Ecosystem):
         if self.mpi.rank == 0:
             super().printInfo()
 
+    def add_agents_to_conflict_zones(self, number):
+        """
+        Add a group of agents, distributed across conflict zones.
+        """
+        number_on_rank = int(number / self.mpi.size)
+        if number % self.mpi.size > self.mpi.rank:
+            number_on_rank += 1
+
+        self.total_agents += number
+        cl = self.pick_conflict_locations(number_on_rank)
+        for i in range (0, number_on_rank):
+            if SimulationSettings.TakeRefugeesFromPopulation:
+                if cl[i].pop > 1:
+                    cl[i].pop -= 1
+                    cl[i].numAgentsSpawnedOnRank += 1
+                    cl[i].numAgentsSpawned += 1
+                else:
+                    print("ERROR: Number of agents in the simulation is larger than the combined population of the conflict zones. Please amend locations.csv.")
+                    cl[i].print()
+                    assert cl[i].pop > 1
+            self.agents.append(Person(self, cl[i]))
+
+
 if __name__ == "__main__":
     print("No testing functionality here yet.")
