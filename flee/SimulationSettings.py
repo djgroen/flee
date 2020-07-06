@@ -110,6 +110,8 @@ class SimulationSettings:
                         row[1].lower() == "true")
                 elif row[0].lower() == "maxwalkspeed":
                     SimulationSettings.MaxWalkSpeed = float(row[1])
+                elif row[0].lower() == "maxcrossingspeed":
+                    SimulationSettings.MaxCrossingSpeed = float(row[1])
                 else:
                     print(
                         "FLEE Initialization Error: unrecognized simulation parameter:", row[0])
