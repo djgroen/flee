@@ -9,9 +9,13 @@ from flee import flee
 from mpi4py import MPI
 from mpi4py.MPI import ANY_SOURCE
 from flee.Diagnostics import write_agents_par
+from recordclass import dataobject
 
 
-class MPIManager:
+class MPIManager(dataobject):
+    comm: MPI.Intracomm = None
+    rank: int = None
+    size: int = None
 
     def __init__(self):
         if not MPI.Is_initialized():
@@ -33,7 +37,7 @@ class MPIManager:
 
         total = np.zeros(np_array.size, dtype='i')
 
-        #print(self.rank, type(total), type(np_array), total, np_array, np_array.size)
+        # print(self.rank, type(total), type(np_array), total, np_array, np_array.size)
         # If you want this number on rank 0, just use Reduce.
         self.comm.Allreduce([np_array, MPI.INT], [total, MPI.INT], op=MPI.SUM)
 
@@ -41,9 +45,7 @@ class MPIManager:
 
 
 class Person(flee.Person):
-
-    __slots__ = ['location', 'home_location', 'timesteps_since_departure', 'places_travelled',
-                 'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link', 'e']
+    e: dataobject = None
 
     def __init__(self, e, location):
         super().__init__(location)
@@ -79,11 +81,15 @@ class Person(flee.Person):
 
 
 class Location(flee.Location):
+    e: dataobject = None
+    id: int = None
+    numAgentsSpawnedOnRank: int = None
+    scores: list = None
 
-    def __init__(self, e, cur_id, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
+    def __init__(self, e, id, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
         self.e = e
 
-        self.id = cur_id
+        self.id = id
         self.numAgentsSpawnedOnRank = 0
 
         # If it is referred to in Flee in any way, the code should crash.
@@ -130,6 +136,14 @@ class Link(flee.Link):
 
 class Ecosystem(flee.Ecosystem):
 
+    total_agents: int = None
+    mpi: dataobject = None
+    cur_loc_id: int = None
+    scores_per_location: int = None
+    scores: np.ndarray = None
+    parallel_mode: str = None
+    latency_mode: str = None
+
     def __init__(self):
 
         self.locations = []
@@ -172,7 +186,7 @@ class Ecosystem(flee.Ecosystem):
         Argument t contains the current number of time steps taken by the simulation.
         NOTE: This is overwritten to just give rank 0, to prevent garbage output ordering...
         """
-        #N = t % self.mpi.size
+        # N = t % self.mpi.size
         # if self.mpi.rank == N:
         if self.mpi.rank == 0:
             return True
@@ -186,17 +200,17 @@ class Ecosystem(flee.Ecosystem):
                 loc.numAgents = self.mpi.CalcCommWorldTotalSingle(
                     loc.numAgentsOnRank)
                 total += loc.numAgents
-                #print("location:", self.time, loc.name, loc.numAgents, file=sys.stderr)
+                # print("location:", self.time, loc.name, loc.numAgents, file=sys.stderr)
                 for link in loc.links:
                     link.numAgents = self.mpi.CalcCommWorldTotalSingle(
                         link.numAgentsOnRank)
-                    #print(self.time, "link:", loc.name, link.numAgents, file=sys.stderr)
+                    # print(self.time, "link:", loc.name, link.numAgents, file=sys.stderr)
                     total += link.numAgents
                 if CountClosed:
                     for link in loc.closed_links:
                         link.numAgents = self.mpi.CalcCommWorldTotalSingle(
                             link.numAgentsOnRank)
-                        #print(self.time, "link [closed]:", loc.name, link.numAgents, file=sys.stderr)
+                        # print(self.time, "link [closed]:", loc.name, link.numAgents, file=sys.stderr)
                         total += link.numAgents
             self.total_agents = total
         elif mode == "high_latency":
@@ -287,7 +301,7 @@ class Ecosystem(flee.Ecosystem):
             if self.agents[i].location.name not in location_names:
                 new_agents += [self.agents[i]]
             else:
-                #print("Agent removed: ", self.agents[i].location.name)
+                # print("Agent removed: ", self.agents[i].location.name)
                 # agent is removed from ecosystem and number of agents in
                 # location drops by one.
                 self.agents[i].location.numAgentsOnRank -= 1
@@ -334,7 +348,7 @@ class Ecosystem(flee.Ecosystem):
 
         if Debug and self.mpi.rank == 0:
             print("start of synchronize_locations MPI call.", file=sys.stderr)
-            #print(self.mpi.rank, local_scores, self.scores, sizes, offsets)
+            # print(self.mpi.rank, local_scores, self.scores, sizes, offsets)
         self.mpi.comm.Allgatherv(
             local_scores, [self.scores, sizes, offsets, MPI.DOUBLE])
 
@@ -343,7 +357,7 @@ class Ecosystem(flee.Ecosystem):
 
     def evolve(self):
         if self.time == 0:
-            #print("rank, num_agents:", self.mpi.rank, len(self.agents))
+            # print("rank, num_agents:", self.mpi.rank, len(self.agents))
 
             # Update all scores three times to ensure code starts with updated
             # scores.
@@ -387,7 +401,7 @@ class Ecosystem(flee.Ecosystem):
         # SYNCHRONIZE SPAWN COUNTS IN LOCATIONS (needed for all versions).
         spawn_counts = np.zeros(len(self.locations), dtype='i')
         for i, le in enumerate(self.locations):
-            #print(i, spawn_counts.size)
+            # print(i, spawn_counts.size)
             spawn_counts[i] = le.numAgentsSpawnedOnRank
 
         # allreduce (sum up) spawn counts.
@@ -401,7 +415,7 @@ class Ecosystem(flee.Ecosystem):
         for a in self.agents:
             a.evolve()
 
-        #print("NumAgents after evolve:", file=sys.stderr)
+        # print("NumAgents after evolve:", file=sys.stderr)
         self.updateNumAgents(CountClosed=True)
 
         for a in self.agents:
@@ -416,7 +430,7 @@ class Ecosystem(flee.Ecosystem):
                 a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed)) / 2.0
             a.distance_moved_this_timestep = 0
 
-        #print("NumAgents after finish_travel:", file=sys.stderr)
+        # print("NumAgents after finish_travel:", file=sys.stderr)
         self.updateNumAgents(mode=self.latency_mode)
 
         # update link properties
@@ -465,7 +479,7 @@ class Ecosystem(flee.Ecosystem):
 
         self.total_agents += number
         cl = self.pick_conflict_locations(number_on_rank)
-        for i in range (0, number_on_rank):
+        for i in range(0, number_on_rank):
             if SimulationSettings.TakeRefugeesFromPopulation:
                 if cl[i].pop > 1:
                     cl[i].pop -= 1

@@ -6,12 +6,19 @@ import copy
 #from multiprocessing import Process,Pool
 from flee.SimulationSettings import SimulationSettings
 from flee.Diagnostics import write_agents
+from recordclass import dataobject
 
 
-class Person:
-
-    __slots__ = ['location', 'distance_travelled', 'home_location', 'timesteps_since_departure', 'places_travelled',
-                 'recent_travel_distance', 'distance_moved_this_timestep', 'travelling', 'distance_travelled_on_link']
+class Person(dataobject):
+    location: dataobject = None
+    home_location: dataobject = None
+    timesteps_since_departure: int = None
+    places_travelled: int = None
+    recent_travel_distance: float = None
+    distance_moved_this_timestep: float = None
+    travelling: bool = None
+    distance_travelled_on_link: int = None
+    distance_travelled: int = None
 
     def __init__(self, location):
         self.location = location
@@ -224,7 +231,31 @@ class Person:
         return self.chooseFromWeights(weights, self.location.links)
 
 
-class Location:
+class Location(dataobject):
+    name: str = None
+    x: float = None
+    y: float = None
+    movechance: float = None
+    links: list = None
+    closed_links: list = None
+    numAgents: int = None
+    numAgentsOnRank: int = None
+    capacity: int = None
+    pop: int = None
+    foreign: bool = None
+    country: str = None
+    conflict: bool = None
+    camp: bool = None
+    town: bool = None
+    forward: bool = None
+    marker: bool = None
+    time: int = None
+    numAgentsSpawned: int = None
+    LocationScore: float = None
+    NeighbourhoodScore: float = None
+    RegionScore: float = None
+    scores: np.ndarray = None
+    incoming_journey_lengths: list = None
 
     def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
         self.name = name
@@ -391,6 +422,7 @@ class Location:
     def updateNeighbourhoodScore(self):
         """ Attractiveness of the local point, based on information from local and adjacent points, weighted by link length. """
         # No links connected or a Camp? Use LocationScore.
+
         if len(self.links) == 0 or self.camp:
             self.NeighbourhoodScore = self.LocationScore
             return
@@ -426,7 +458,15 @@ class Location:
         self.setScore(3, self.RegionScore)
 
 
-class Link:
+class Link(dataobject):
+    name: str = "__link__"
+    closed: bool = None
+    distance: float = None
+    startpoint: dataobject = None
+    endpoint: dataobject = None
+    numAgents: int = None
+    numAgentsOnRank: int = None
+    forced_redirection: bool = None
 
     def __init__(self, startpoint, endpoint, distance, forced_redirection=False):
         self.name = "__link__"
@@ -453,8 +493,28 @@ class Link:
     def IncrementNumAgents(self):
         self.numAgents += 1
 
+    def DecrementNumAgents(self):
+        self.numAgents -= 1
 
-class Ecosystem:
+    def IncrementNumAgents(self):
+        self.numAgents += 1
+
+
+class Ecosystem(dataobject):
+
+    locations: list = None
+    locationNames: list = None
+    agents: list = None
+    closures: list = None
+    time: int = None
+    print_location_output: bool = None
+    conflict_zones: list = None
+    conflict_zone_names: list = None
+    conflict_weights: np.array = None
+    conflict_pop: int = None
+
+    num_arrivals: list = None
+    travel_durations: list = None
 
     def __init__(self):
         self.locations = []

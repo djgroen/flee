@@ -2,12 +2,17 @@ import csv
 import sys
 from flee import flee
 from flee import SimulationSettings
+from recordclass import dataobject
 
 
-class InputGeography:
+class InputGeography(dataobject):
     """
     Class which reads in Geographic information.
     """
+    locations: list = None
+    links: list = None
+    conflicts: dict = None
+    closures: list = []
 
     def __init__(self):
         self.locations = []
