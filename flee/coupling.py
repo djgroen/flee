@@ -6,11 +6,13 @@ import os.path
 import time
 import csv
 import sys
+from libmuscle import Instance, Message
+from ymmsl import Operator
 
 
 class CouplingInterface:
 
-    def __init__(self, e, coupling_type="file"):
+    def __init__(self, e, coupling_type="file", outputdir=""):
         """ Constructor.
         e = FLEE ecosystem
         Coupling types to support eventually:
@@ -31,10 +33,14 @@ class CouplingInterface:
         self.names = []
         self.directions = []
         self.intervals = []
+        self.outputdir = outputdir
 
-        if coupling_type == "muscle":
-            import muscle
-            muscle.init()  # add sys.argv?
+    def reuse_couling(self):
+        if self.coupling_type == 'file':
+            return True
+        elif self.coupling_type == 'muscle3':
+            from libmuscle import Instance
+            return self.instance.reuse_instance()
 
     def addCoupledLocation(self, location, name, direction="inout", interval=1):
         """
@@ -48,16 +54,23 @@ class CouplingInterface:
           - "inout indirect" -> changes in agent numbers are stored in the coupling link. No agents are added or removed.
         * Interval is the timestep interval of the coupling, ensuring that the coupling activity is performed every <interval> time steps.
         """
-        self.location_ids += [
-            self.e._convert_location_name_to_index(location.name)]
-        self.location_names += [location.name]
-        self.names += [name]
-        self.directions += [direction]
-        self.intervals += [interval]
-        self.coupling_rank = True
-        if self.e.mpi != None:
-            if self.e.mpi.rank > 0:
-                self.coupling_rank = False
+        if location.name not in self.location_names:
+
+            self.location_ids += [
+                self.e._convert_location_name_to_index(location.name)]
+            self.location_names += [location.name]
+            print("Adding coupled location {} {} {}".format(
+                location.name, direction, interval), file=sys.stderr)
+            self.names += [name]
+            self.directions += [direction]
+            self.intervals += [interval]
+            self.coupling_rank = True
+            if hasattr(self.e, 'mpi') and self.e.mpi != None:
+                if self.e.mpi.rank > 0:
+                    self.coupling_rank = False
+
+        else:
+            print("warning: coupled location is selected twice (ignore this if a location is both a coupled location and a conflict location). Only one coupled location will be created.", file=sys.stderr)
 
     def addGhostLocations(self, ig):
         conflict_name_list = ig.getConflictLocationNames()
@@ -90,14 +103,17 @@ class CouplingInterface:
         newAgents = None
         # for the time being all intervals will have to be the same...
         if t % self.intervals[0] == 0:
-            if self.coupling_type == "muscle":
+            if self.coupling_type == "muscle3":
                 if self.coupling_rank:  # If MPI is used, this will be the process with rank 0
-                    muscle.send(self.generateOutputCSVString(t),
-                                "out", muscle.string)
+                    self.instance.send('out',
+                                       Message(t, None,
+                                               self.generateOutputCSVString(t))
+                                       )
+                    msg = self.instance.receive('in')
                     newAgents = self.extractNewAgentsFromCSVString(
-                        muscle.receive("in", muscle.string))
-
-                if self.e.mpi != None:  # If MPI is used, broadcast newAgents to all other processes
+                        msg.data.split('\n'))
+                # If MPI is used, broadcast newAgents to all other processes
+                if hasattr(self.e, 'mpi') and self.e.mpi != None:
                     newAgents = self.e.mpi.comm.bcast(newAgents, root=0)
 
             else:  # default is coupling through file IO.
@@ -112,22 +128,34 @@ class CouplingInterface:
                 # write departing agents to file
                 # read incoming agents from file
                 #print(self.names, i, newAgents)
+
                 if "in" in self.directions[i]:
+
                     print("Couple IN: %s %s" % (
                         self.names[i], newAgents[self.names[i]]), file=sys.stderr)
                     if self.names[i] in newAgents:
                         self.e.insertAgents(self.e.locations[self.location_ids[
                                             i]], newAgents[self.names[i]])
-                self.e.updateNumAgents()
+                if hasattr(self.e, 'mpi'):
+                    self.e.updateNumAgents()
 
     # File coupling code
 
-    def setCouplingFilenames(self, outputfilename, inputfilename):
+    def setCouplingChannel(self, outputchannel, inputchannel):
         """
-        Sets the coupling output file name (for file coupling). Name should be WITHOUT .csv extension.
+        Sets the coupling output file name (for file coupling). 
+        Name should be WITHOUT .csv extension.
         """
-        self.outputfilename = outputfilename
-        self.inputfilename = inputfilename
+        if self.coupling_type == 'file':
+            self.outputfilename = outputchannel
+            self.inputfilename = inputchannel
+        elif self.coupling_type == 'muscle3':
+            from libmuscle import Instance
+            from ymmsl import Operator
+            self.instance = Instance({
+                Operator.O_I: ['out'],
+                Operator.S: ['in']
+            })
 
     def generateOutputCSVString(self, t):
         out_csv_string = ""
@@ -141,7 +169,10 @@ class CouplingInterface:
 
     def writeOutputToFile(self, t):
         out_csv_string = self.generateOutputCSVString(t)
-        with open('%s.%s.csv' % (self.outputfilename, t), 'a') as file:
+        outputfile = '%s/coupled/%s.%s.csv' % (
+            self.outputdir, self.outputfilename, t)
+
+        with open(outputfile, 'a') as file:
             file.write(out_csv_string)
 
         print("Couple: output written to %s.%s.csv" %
@@ -169,7 +200,8 @@ class CouplingInterface:
         """
         Returns a dictionary with key <coupling name> and value <number of agents>.
         """
-        in_fname = "%s.%s.csv" % (self.inputfilename, t)
+        in_fname = "%s/coupled/%s.%s.csv" % (self.outputdir,
+                                             self.inputfilename, t)
 
         print("Couple: searching for", in_fname, file=sys.stderr)
         while not os.path.exists(in_fname):
@@ -177,7 +209,7 @@ class CouplingInterface:
         time.sleep(0.001)
 
         csv_string = ""
-        with open("%s.%s.csv" % (self.inputfilename, t)) as csvfile:
+        with open(in_fname) as csvfile:
             csv_string = csvfile.read().split('\n')
 
         return self.extractNewAgentsFromCSVString(csv_string)

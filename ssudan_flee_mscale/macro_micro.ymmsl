@@ -1,0 +1,14 @@
+ymmsl_version: v0.1
+
+model:
+  name: mscalecity_test
+  compute_elements:
+    micro: micro
+    macro: macro
+  conduits:
+    micro.out: macro.in
+    macro.out: micro.in
+
+settings:
+  {}
+

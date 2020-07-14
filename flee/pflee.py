@@ -116,10 +116,15 @@ class Location(flee.Location):
         self.updateLocationScore()
 
 
+class Link(flee.Link):
+
+    def __init__(self, startpoint, endpoint, distance, forced_redirection=False):
+        super().__init__(startpoint, endpoint, distance, forced_redirection)
+
+
 class Ecosystem(flee.Ecosystem):
 
     def __init__(self):
-
         self.locations = []
         self.locationNames = []
         self.agents = []
@@ -453,7 +458,7 @@ class Ecosystem(flee.Ecosystem):
 
         self.total_agents += number
         cl = self.pick_conflict_locations(number_on_rank)
-        for i in range (0, number_on_rank):
+        for i in range(0, number_on_rank):
             if SimulationSettings.TakeRefugeesFromPopulation:
                 if cl[i].pop > 1:
                     cl[i].pop -= 1
