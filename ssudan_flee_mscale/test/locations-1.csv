@@ -1,0 +1,10 @@
+#name,region,country,lat,lon,location_type,conflict_date,population
+C3,Gambela,Ethiopia,8.2793,34.2076,camp,,50
+C4,Gambela,Ethiopia,8.2955,34.2763,camp,,55
+L3,Upper_Nile,South_Sudan,9.87,33.65,conflict_zone,10,120
+L4,Jonglei,South_Sudan,6.2089,31.5586,conflict_zone,20,300
+F1,Gambela,Ethiopia,7.874,32.9933,forward,,
+M1,Upper_Nile,South_Sudan,9.526972,31.646196,marker,,
+T3,Upper_Nile,South_Sudan,9.29151,32.07544,town,,
+T4,Jonglei,South_Sudan,7.52141,31.49259,town,,
+L2,Eastern_Equatoria,South_Sudan,4.0765,33.1185,forward,,
