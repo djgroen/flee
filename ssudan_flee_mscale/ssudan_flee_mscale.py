@@ -1,6 +1,7 @@
 from flee import coupling  # coupling interface for multiscale models
 from flee.datamanager import handle_refugee_data, read_period
 from flee.datamanager import DataTable  # DataTable.subtract_dates()
+from flee import micro_InputGeography
 import numpy as np
 from flee.postprocessing import analysis as a
 import sys
@@ -38,6 +39,7 @@ if __name__ == "__main__":
     parser.add_argument('--end_time',
                         action="store", type=int, default=end_time)
 
+
     #args = parser.parse_args()
     args, unknown = parser.parse_known_args()
     print(args)
@@ -56,29 +58,34 @@ if __name__ == "__main__":
     last_physical_day = int(args.end_time)
 
     if (submodel_id == 0):
-	        validation_data_directory = os.path.join(data_dir, "source_data-0")
-	        if coupling_type == 'file':
-	            out_csv_file = os.path.join(work_dir, "out", "file", "macro", "out.csv")
-	        if coupling_type == 'muscle3':
-	            out_csv_file = os.path.join(work_dir, "out", "muscle3", "macro", "out.csv")
+        validation_data_directory = os.path.join(data_dir, "source_data-0")
+        if coupling_type == 'file':
+            out_csv_file = os.path.join(work_dir, "out", "file", "macro", "out.csv")
+        if coupling_type == 'muscle3':
+            out_csv_file = os.path.join(work_dir, "out", "muscle3", "macro", "out.csv")
     if (submodel_id == 1):
-	        validation_data_directory = os.path.join(data_dir, "source_data-1")
-	        if coupling_type == 'file':
-	            out_csv_file = os.path.join(work_dir, "out", "file", "micro", "out.csv")
-	        if coupling_type == 'muscle3':
-	            out_csv_file = os.path.join(work_dir, "out", "muscle3", "micro", "out.csv")
+        validation_data_directory = os.path.join(data_dir, "source_data-1")
+        if coupling_type == 'file':
+            out_csv_file = os.path.join(work_dir, "out", "file", "micro", "out.csv")
+        if coupling_type == 'muscle3':
+            out_csv_file = os.path.join(work_dir, "out", "muscle3", "micro", "out.csv")
+
 
     e = flee.Ecosystem()
+
     c = coupling.CouplingInterface(e, coupling_type=coupling_type)
+   
     c = coupling.CouplingInterface(e,
                                    coupling_type=coupling_type,
                                    outputdir=os.path.join(work_dir, "out")
+                                   )
 
 
     if(submodel_id == 1):
-        c.setCouplingChannel("out", "in")
+        c.setCouplingChannel("out", "in")        
     else:
         c.setCouplingChannel("in", "out")
+
 
     if hasattr(c, 'instance'):
         print('c has instance attribute :) :)')
@@ -109,7 +116,7 @@ if __name__ == "__main__":
 
     output_header_string = "Day,"
 
-    coupled_locations = ["Bor", "Pochalla", "Panyikang"]
+    coupled_locations = ["L2"]
 
     camp_locations = e.get_camp_names()
 
@@ -133,6 +140,7 @@ if __name__ == "__main__":
     if e.getRankN(0):
         # output_header_string += "num agents,num agents in camps"
         print(output_header_string)
+
         with open(out_csv_file, 'a+') as f:
             f.write(output_header_string)
             f.write('\n')
@@ -210,6 +218,7 @@ if __name__ == "__main__":
                 for i in range(0, len(errors)):
                     output += ",%s,%s,%s" % (lm[camp_locations[i]
                                                 ].numAgents, loc_data[i], errors[i])
+
 
 
                 if refugees_raw > 0:
