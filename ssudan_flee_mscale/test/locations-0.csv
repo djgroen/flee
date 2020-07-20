@@ -1,9 +1,3 @@
 #name,region,country,lat,lon,location_type,conflict_date,population
 L1,Central_Equatoria,South_Sudan,4.83776,31.603165,conflict_zone,0,500
-L2,Eastern_Equatoria,South_Sudan,4.0765,33.1185,conflict_zone,0,130
-T1,Central_Equatoria,South_Sudan,4.71045,31.421875,town,,
-T2,Central_Equatoria,South_Sudan,4.157967,30.857986,town,,
-C1,Haut-Uele,DRC,3.5845154,28.299435,camp,,130
-C2,Ituri,DRC,1.85,29.966667,camp,,50
-L3,Upper_Nile,South_Sudan,9.87,33.65,conflict_zone,0,120
-L4,Jonglei,South_Sudan,7.746,31.6892,conflict_zone,20,300
+L2,Eastern_Equatoria,South_Sudan,4.0765,33.1185,town,,
