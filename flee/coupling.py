@@ -54,23 +54,33 @@ class CouplingInterface:
           - "inout indirect" -> changes in agent numbers are stored in the coupling link. No agents are added or removed.
         * Interval is the timestep interval of the coupling, ensuring that the coupling activity is performed every <interval> time steps.
         """
+
         if location.name not in self.location_names:
 
             self.location_ids += [
                 self.e._convert_location_name_to_index(location.name)]
+            
             self.location_names += [location.name]
+
+
             print("Adding coupled location {} {} {}".format(
                 location.name, direction, interval), file=sys.stderr)
             self.names += [name]
             self.directions += [direction]
             self.intervals += [interval]
             self.coupling_rank = True
+
+
             if hasattr(self.e, 'mpi') and self.e.mpi != None:
+
                 if self.e.mpi.rank > 0:
                     self.coupling_rank = False
 
+
         else:
             print("warning: coupled location is selected twice (ignore this if a location is both a coupled location and a conflict location). Only one coupled location will be created.", file=sys.stderr)
+
+        
 
     def addGhostLocations(self, ig):
         conflict_name_list = ig.getConflictLocationNames()
@@ -84,8 +94,9 @@ class CouplingInterface:
                         if not l.name in self.location_names:
                             print("Adding ghost location {}".format(
                                 l.name), file=sys.stderr)
+
                             self.addCoupledLocation(
-                                l, l.name, "out", interval=1)
+                                l, l.name, "in", interval=1)
 
     def addMicroConflictLocations(self, ig):
         conflict_name_list = ig.getConflictLocationNames()
@@ -97,7 +108,7 @@ class CouplingInterface:
                     print("L", l.name, len(l.links), file=sys.stderr)
                     print("Adding micro coupled conflict location {}".format(
                         l.name), file=sys.stderr)
-                    self.addCoupledLocation(l, l.name, "in", interval=1)
+                    self.addCoupledLocation(l, l.name, "out", interval=1)
 
     def Couple(self, t):  # TODO: make this code more dynamic/flexible
         newAgents = None
@@ -109,6 +120,9 @@ class CouplingInterface:
                                        Message(t, None,
                                                self.generateOutputCSVString(t))
                                        )
+
+
+
                     msg = self.instance.receive('in')
                     newAgents = self.extractNewAgentsFromCSVString(
                         msg.data.split('\n'))
@@ -120,7 +134,9 @@ class CouplingInterface:
                 if self.coupling_rank:  # If MPI is used, this will be the process with rank 0
                     self.writeOutputToFile(t)
 
+
                 newAgents = self.readInputFromFile(t)
+
 
             # TODO: make this conditional on coupling type.
             self.e.clearLocationsFromAgents(self.location_names)
@@ -130,10 +146,13 @@ class CouplingInterface:
                 #print(self.names, i, newAgents)
 
                 if "in" in self.directions[i]:
+                    #print(newAgents[self.names[i]])
+                    #exit()
 
                     print("Couple IN: %s %s" % (
                         self.names[i], newAgents[self.names[i]]), file=sys.stderr)
                     if self.names[i] in newAgents:
+
                         self.e.insertAgents(self.e.locations[self.location_ids[
                                             i]], newAgents[self.names[i]])
                 if hasattr(self.e, 'mpi'):
@@ -160,16 +179,22 @@ class CouplingInterface:
     def generateOutputCSVString(self, t):
         out_csv_string = ""
         for i in range(0, len(self.location_ids)):
+
+
             if "out" in self.directions[i]:
                 out_csv_string += "%s,%s\n" % (self.names[i], self.e.locations[
                                                self.location_ids[i]].numAgents)
+                
+
                 print("Couple OUT: %s %s" % (self.names[i], self.e.locations[
                       self.location_ids[i]].numAgents), file=sys.stderr)
         return out_csv_string
 
     def writeOutputToFile(self, t):
         out_csv_string = self.generateOutputCSVString(t)
-        outputfile = '%s/coupled/%s.%s.csv' % (
+
+     
+        outputfile = '%s/file/coupled/%s.%s.csv' % (
             self.outputdir, self.outputfilename, t)
 
         with open(outputfile, 'a') as file:
@@ -200,7 +225,7 @@ class CouplingInterface:
         """
         Returns a dictionary with key <coupling name> and value <number of agents>.
         """
-        in_fname = "%s/coupled/%s.%s.csv" % (self.outputdir,
+        in_fname = "%s/file/coupled/%s.%s.csv" % (self.outputdir,
                                              self.inputfilename, t)
 
         print("Couple: searching for", in_fname, file=sys.stderr)
