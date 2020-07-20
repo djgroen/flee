@@ -23,7 +23,7 @@ insert_day0_refugees_in_camps = True
 
 if __name__ == "__main__":
 
-    data_dir = os.path.join(work_dir, "ssudan-mscale-test")
+    data_dir = os.path.join(work_dir, "test")
 
     start_date, end_time = read_period.read_conflict_period(
         "{}/conflict_period.csv".format(data_dir))
@@ -39,8 +39,6 @@ if __name__ == "__main__":
     # Optional parameters
     parser.add_argument('--end_time',
                         action="store", type=int, default=end_time)
-    parser.add_argument('--last_physical_day',
-                        action="store", type=int, default=end_time)
 
     #args = parser.parse_args()
     args, unknown = parser.parse_known_args()
@@ -55,7 +53,7 @@ if __name__ == "__main__":
 
     coupling_type = args.coupling_type
     end_time = int(args.end_time)
-    last_physical_day = int(args.last_physical_day)
+    last_physical_day = int(args.end_time)
 
     if (submodel_id == 0):
         validation_data_directory = os.path.join(data_dir, "source_data-0")
