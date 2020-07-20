@@ -1,8 +1,0 @@
-#name1,name2,distance,forced_redirection,link_type
-L3,F1,20,0,walk
-F1,T3,50,0,drive
-T3,C3,47,0,drive
-L4,M1,30,0,drive
-M1,T4,2,0,crossing
-T4,T3,10,0,walk
-L2,T3,40,0,drive
