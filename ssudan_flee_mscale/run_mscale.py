@@ -22,7 +22,14 @@ insert_day0_refugees_in_camps = True
 
 if __name__ == "__main__":
 
-    data_dir = os.path.join(work_dir, "test")
+    # ghost test set
+    data_dir = os.path.join(work_dir, "test_ghost")
+    coupled_locations = []
+
+    # test set
+    #data_dir = os.path.join(work_dir, "test")
+    #coupled_locations = ["L2"]
+
 
     start_date, end_time = read_period.read_conflict_period(
         "{}/conflict_period.csv".format(data_dir))
@@ -115,8 +122,6 @@ if __name__ == "__main__":
         "{}/registration_corrections-{}.csv".format(data_dir, submodel_id))
 
     output_header_string = "Day,"
-
-    coupled_locations = ["L2"]
 
     camp_locations = e.get_camp_names()
 
