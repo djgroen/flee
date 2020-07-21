@@ -7,6 +7,7 @@ from flee.postprocessing import analysis as a
 import sys
 import argparse
 import os
+import csv
 
 work_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,20 +20,21 @@ def AddInitialRefugees(e, d, loc):
 
 insert_day0_refugees_in_camps = True
 
+def read_coupled_locations(csv_inputfile):
+    c = []
+    with open(csv_inputfile, newline='') as csvfile:
+        csvreader = csv.reader(csvfile)
+        for row in csvreader:
+            if row[0].startswith("#"):
+                pass
+            else:
+                c += [row[0]]
+
+    print("Coupling locations:", c, file=sys.stderr)
+    return c
+
 
 if __name__ == "__main__":
-
-    # ghost test set
-    data_dir = os.path.join(work_dir, "test_ghost")
-    coupled_locations = []
-
-    # test set
-    #data_dir = os.path.join(work_dir, "test")
-    #coupled_locations = ["L2"]
-
-
-    start_date, end_time = read_period.read_conflict_period(
-        "{}/conflict_period.csv".format(data_dir))
 
     parser = argparse.ArgumentParser()
     # Required parameters (mandatory)
@@ -42,14 +44,26 @@ if __name__ == "__main__":
     parser.add_argument('--coupling_type', required=True,
                         action="store", type=str,
                         choices=['file', 'muscle3'])
+    #input directory
+    parser.add_argument('-i', required=True,
+                        action="store", type=str)
+    
     # Optional parameters
     parser.add_argument('--end_time',
-                        action="store", type=int, default=end_time)
+                        action="store", type=int)
 
 
     #args = parser.parse_args()
     args, unknown = parser.parse_known_args()
     print(args)
+
+    data_dir = os.path.join(work_dir, args.i)
+    coupled_locations = read_coupled_locations(os.path.join(data_dir,"coupled_locations.csv"))
+
+    start_date, end_time = read_period.read_conflict_period(
+        "{}/conflict_period.csv".format(data_dir))
+
+
 
     if args.submodel == 'macro':
         submodel_id = 0
@@ -61,7 +75,8 @@ if __name__ == "__main__":
         from flee import micro_InputGeography as InputGeography
 
     coupling_type = args.coupling_type
-    end_time = int(args.end_time)
+    if args.end_time is not None:
+        end_time = int(args.end_time)
     last_physical_day = int(args.end_time)
 
     if (submodel_id == 0):
