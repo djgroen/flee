@@ -171,7 +171,7 @@ if __name__ == "__main__":
     # raw (interpolated) data from TOTAL UNHCR refugee count only.
     refugees_raw = 0
 
-    while c.reuse_couling():
+    while c.reuse_coupling():
         for t in range(0, end_time):
 
             # if t>0:
@@ -181,7 +181,6 @@ if __name__ == "__main__":
             new_refs = d.get_daily_difference(
                 t, FullInterpolation=True) - refugee_debt
             refugees_raw += d.get_daily_difference(t, FullInterpolation=True)
-            print("t={}, inserting {} new agents".format(t, new_refs), file=sys.stderr)
 
             if new_refs < 0:
                 refugee_debt = - new_refs
@@ -192,7 +191,7 @@ if __name__ == "__main__":
             # Insert refugee agents
 
             if submodel_id == 0:
-
+                print("t={}, inserting {} new agents".format(t, new_refs), file=sys.stderr)
                 for i in range(0, new_refs):
                     e.addAgent(e.pick_conflict_location())
 
