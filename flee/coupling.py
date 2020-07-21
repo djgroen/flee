@@ -35,7 +35,7 @@ class CouplingInterface:
         self.intervals = []
         self.outputdir = outputdir
 
-    def reuse_couling(self):
+    def reuse_coupling(self):
         if self.coupling_type == 'file':
             return True
         elif self.coupling_type == 'muscle3':
