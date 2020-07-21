@@ -181,6 +181,7 @@ if __name__ == "__main__":
             new_refs = d.get_daily_difference(
                 t, FullInterpolation=True) - refugee_debt
             refugees_raw += d.get_daily_difference(t, FullInterpolation=True)
+            print("t={}, inserting {} new agents".format(t, new_refs), file=sys.stderr)
 
             if new_refs < 0:
                 refugee_debt = - new_refs
