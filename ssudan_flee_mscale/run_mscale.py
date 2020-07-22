@@ -36,6 +36,9 @@ def read_coupled_locations(csv_inputfile):
 
 if __name__ == "__main__":
 
+
+    SumFromCamps = False # Set to TRUE for production runs.
+
     parser = argparse.ArgumentParser()
     # Required parameters (mandatory)
     parser.add_argument('--submodel', required=True,
@@ -74,6 +77,8 @@ if __name__ == "__main__":
         from flee import pmicro_flee as flee  # parallel implementation
         from flee import micro_InputGeography as InputGeography
 
+    print("This is submodel {}".format(submodel_id), file=sys.stderr)
+
     coupling_type = args.coupling_type
     if args.end_time is not None:
         end_time = int(args.end_time)
@@ -109,10 +114,11 @@ if __name__ == "__main__":
         c.setCouplingChannel("in", "out")
 
 
-    if hasattr(c, 'instance'):
-        print('c has instance attribute :) :)')
-    else:
-        print('c has NOT instance attribute :( :(')
+    if coupling_type == 'muscle3':
+        if hasattr(c, 'instance'):
+            print('Instance attribute found for coupling class c.', file=sys.stderr)
+        else:
+            print('WARNING: coupling class c does not have an instance attribute.', file=sys.stderr)
 
     ig = InputGeography.InputGeography()
 
@@ -130,11 +136,14 @@ if __name__ == "__main__":
 
     e, lm = ig.StoreInputGeographyInEcosystem(e)
 
+    print("Val dir: {}. Start date set to {}.".format(validation_data_directory, start_date), file=sys.stderr)
     d = handle_refugee_data.RefugeeTable(
         csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv")
 
     d.ReadL1Corrections(
         "{}/registration_corrections-{}.csv".format(data_dir, submodel_id))
+
+    d.dump(0, 5)
 
     output_header_string = "Day,"
 
@@ -151,10 +160,10 @@ if __name__ == "__main__":
         c.addCoupledLocation(lm[l], l)
 
     if submodel_id == 0:
-        # Add ghost conflict zones to macro model ("in" mode)
+        # Add ghost conflict zones to macro model ("out" mode)
         c.addGhostLocations(ig)
     if submodel_id == 1:
-        # Couple all conflict locs in micro model ("out" mode)
+        # Couple all conflict locs in micro model ("in" mode)
         c.addMicroConflictLocations(ig)
 
     if e.getRankN(0):
@@ -179,8 +188,8 @@ if __name__ == "__main__":
 
             # Determine number of new refugees to insert into the system.
             new_refs = d.get_daily_difference(
-                t, FullInterpolation=True) - refugee_debt
-            refugees_raw += d.get_daily_difference(t, FullInterpolation=True)
+                t, FullInterpolation=True, SumFromCamps=False) - refugee_debt
+            refugees_raw += d.get_daily_difference(t, FullInterpolation=True, SumFromCamps=False)
 
             if new_refs < 0:
                 refugee_debt = - new_refs
