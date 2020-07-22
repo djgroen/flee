@@ -470,6 +470,8 @@ class Ecosystem(flee.Ecosystem):
                     assert cl[i].pop > 1
             self.agents.append(Person(self, cl[i]))
 
+        self.updateNumAgents()
+
 
 if __name__ == "__main__":
     print("No testing functionality here yet.")

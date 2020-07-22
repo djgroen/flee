@@ -835,6 +835,7 @@ class Ecosystem:
         This function returns a number, which is an index in the array of conflict locations.
         """
         assert self.conflict_pop > 0
+        assert len(self.conflict_zones) > 0
 
         return np.random.choice(self.conflict_zones, number, p=self.conflict_weights / self.conflict_pop)
 
@@ -969,7 +970,8 @@ class Ecosystem:
             Link(self.locations[endpoint2_index], self.locations[endpoint1_index], distance))
 
     def printInfo(self):
-        print("Time: ", self.time, ", # of agents: ", len(self.agents))
+        print("Time: {}, # of agents: {}, # of conflict zones {}.".format(self.time, len(self.agents), len(self.conflict_zones)), file=sys.stderr)
+        print("First conflict zone is called {}".format(self.conflict_zones[0].name), file=sys.stderr)
         for l in self.locations:
             print(l.name, l.numAgents, file=sys.stderr)
 

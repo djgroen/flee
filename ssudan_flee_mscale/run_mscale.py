@@ -201,8 +201,9 @@ if __name__ == "__main__":
 
             if submodel_id == 0:
                 print("t={}, inserting {} new agents".format(t, new_refs), file=sys.stderr)
-                for i in range(0, new_refs):
-                    e.addAgent(e.pick_conflict_location())
+                e.add_agents_to_conflict_zones(new_refs)
+
+            e.printInfo()
 
             # exchange data with other code.
             # immediately after agent insertion to ensure ghost locations
