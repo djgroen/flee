@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     #args = parser.parse_args()
     args, unknown = parser.parse_known_args()
-    print(args)
+    print("args: {}".format(args), file=sys.stderr)
 
     data_dir = os.path.join(work_dir, args.i)
     coupled_locations = read_coupled_locations(os.path.join(data_dir,"coupled_locations.csv"))
@@ -143,14 +143,16 @@ if __name__ == "__main__":
     d.ReadL1Corrections(
         "{}/registration_corrections-{}.csv".format(data_dir, submodel_id))
 
-    d.dump(0, 5)
+    #d.dump(0, 5)
 
     output_header_string = "Day,"
 
     camp_locations = e.get_camp_names()
 
     for i in camp_locations:
-        AddInitialRefugees(e, d, lm[i])
+        # Add initial refugees to camps is currently not supported in coupled mode, because the totals are not added up correctly across the submodels. 
+        # All agents therefore have to start in conflict zones.
+        #AddInitialRefugees(e, d, lm[i])
         output_header_string += "%s sim,%s data,%s error," % (
             lm[i].name, lm[i].name, lm[i].name)
 

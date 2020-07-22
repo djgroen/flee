@@ -971,7 +971,8 @@ class Ecosystem:
 
     def printInfo(self):
         print("Time: {}, # of agents: {}, # of conflict zones {}.".format(self.time, len(self.agents), len(self.conflict_zones)), file=sys.stderr)
-        print("First conflict zone is called {}".format(self.conflict_zones[0].name), file=sys.stderr)
+        if len(self.conflict_zones)>0:
+            print("First conflict zone is called {}".format(self.conflict_zones[0].name), file=sys.stderr)
         for l in self.locations:
             print(l.name, l.numAgents, file=sys.stderr)
 
