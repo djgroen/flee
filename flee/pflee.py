@@ -171,7 +171,9 @@ class Ecosystem(flee.Ecosystem):
             return True
         return False
 
-    def updateNumAgents(self, CountClosed=False, mode="high_latency"):
+    def updateNumAgents(self, CountClosed=False):
+        mode = self.latency_mode
+
         total = 0
 
         if mode == "low_latency":
@@ -410,7 +412,7 @@ class Ecosystem(flee.Ecosystem):
             a.distance_moved_this_timestep = 0
 
         #print("NumAgents after finish_travel:", file=sys.stderr)
-        self.updateNumAgents(mode=self.latency_mode)
+        self.updateNumAgents()
 
         # update link properties
         if SimulationSettings.CampLogLevel > 0:
@@ -469,8 +471,6 @@ class Ecosystem(flee.Ecosystem):
                     cl[i].print()
                     assert cl[i].pop > 1
             self.agents.append(Person(self, cl[i]))
-
-        self.updateNumAgents()
 
 
 if __name__ == "__main__":

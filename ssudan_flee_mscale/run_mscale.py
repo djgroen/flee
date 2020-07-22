@@ -204,6 +204,7 @@ if __name__ == "__main__":
             if submodel_id == 0:
                 print("t={}, inserting {} new agents".format(t, new_refs), file=sys.stderr)
                 e.add_agents_to_conflict_zones(new_refs)
+                e.updateNumAgents()
 
             e.printInfo()
 
