@@ -82,7 +82,7 @@ if __name__ == "__main__":
     coupling_type = args.coupling_type
     if args.end_time is not None:
         end_time = int(args.end_time)
-    last_physical_day = int(args.end_time)
+    last_physical_day = end_time
 
     if (submodel_id == 0):
         validation_data_directory = os.path.join(data_dir, "source_data-0")
