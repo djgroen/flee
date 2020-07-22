@@ -1,0 +1,5 @@
+#name,region,country,lat,lon,location_type,conflict_date,population
+L1,A,A,0,0,conflict_zone,0,500
+L2,B,A,0,0,conflict_zone,0,500
+L3,A,A,0,0,conflict_zone,0,500
+C2,A,B,0,0,camp,,300
