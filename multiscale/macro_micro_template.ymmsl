@@ -1,0 +1,22 @@
+ymmsl_version: v0.1
+
+model:
+  name: mscalecity_test
+  compute_elements:
+    micro_manager: micro_manager
+    macro_manager: macro_manager
+    macro:
+      implementation: macro
+      multiplicity: NUM_WORKERS
+    micro:
+      implementation: micro
+      multiplicity: NUM_WORKERS
+  conduits:
+    micro.out : micro_manager.in
+    micro_manager.out : macro.in
+    macro.out : macro_manager.in
+    macro_manager.out : micro.in
+settings:
+  {}
+
+
