@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 import argparse
 from flee.postprocessing import plot_flee_output as pfo
 
-#In order to compare two simulation results, simply run:
+#In order to compare two simulation (file coupling and muscle3 coupling) results, simply run:
+
 #python3 compare_2_sim.py --first_directory name1 --second_directory name2 --mscale_model name3 --uncoupled_model name4 (optional)
 
 
