@@ -171,7 +171,7 @@ class Ecosystem(flee.Ecosystem):
             return True
         return False
 
-    def updateNumAgents(self, CountClosed=False):
+    def updateNumAgents(self, CountClosed=False, log=True):
         mode = self.latency_mode
 
         total = 0
@@ -234,7 +234,7 @@ class Ecosystem(flee.Ecosystem):
 
             self.total_agents = np.sum(new_buffer)
 
-        if self.mpi.rank == 0:
+        if self.mpi.rank == 0 and log == True:
             print("NumAgents updated. Total agents in simulation:",
                   self.total_agents, file=sys.stderr)
 
@@ -291,7 +291,7 @@ class Ecosystem(flee.Ecosystem):
         print("clearLocationsFromAgents()", file=sys.stderr)
         # when numAgentsOnRank has changed, we need to updateNumAgents (1x
         # MPI_Allreduce)
-        self.updateNumAgents()
+        self.updateNumAgents(log=False)
 
     def numAgents(self):
         return self.total_agents
@@ -397,7 +397,7 @@ class Ecosystem(flee.Ecosystem):
             a.evolve()
 
         #print("NumAgents after evolve:", file=sys.stderr)
-        self.updateNumAgents(CountClosed=True)
+        self.updateNumAgents(CountClosed=True, log=False)
 
         for a in self.agents:
             a.finish_travel()
@@ -412,7 +412,7 @@ class Ecosystem(flee.Ecosystem):
             a.distance_moved_this_timestep = 0
 
         #print("NumAgents after finish_travel:", file=sys.stderr)
-        self.updateNumAgents()
+        self.updateNumAgents(log=False)
 
         # update link properties
         if SimulationSettings.CampLogLevel > 0:
