@@ -118,7 +118,7 @@ class CouplingInterface:
             for i in range(0, len(self.e.locationNames)):
                 if self.e.locationNames[i] == ln:
                     l = self.e.locations[i]
-                    #print("L", l.name, len(l.links), file=sys.stderr)
+                    # print("L", l.name, len(l.links), file=sys.stderr)
                     if len(l.links) == 0:
                         if not l.name in self.location_names:
                             print("Adding ghost location {}".format(
@@ -134,7 +134,7 @@ class CouplingInterface:
             for i in range(0, len(self.e.locationNames)):
                 if self.e.locationNames[i] == ln:
                     l = self.e.locations[i]
-                    #print("L", l.name, len(l.links), file=sys.stderr)
+                    # print("L", l.name, len(l.links), file=sys.stderr)
                     print("Adding micro coupled conflict location {}".format(
                         l.name), file=sys.stderr)
 
@@ -441,6 +441,34 @@ class CouplingInterface:
                 data.append(self.e.locations[self.location_ids[i]].numAgents)
 
         self.logLocationsNumAgents.append(data)
+
+    def sumOutputCSVFiles(self):
+        in_fnames = {}
+        for i in range(self.num_workers):
+            fname = "out[%d].csv" % (i)
+            in_fnames[fname] = False
+
+        dirInputFiles = os.path.join(self.outputdir, self.coupling_type,
+                                     self.submodel)
+
+        # wait until input files from all workers are available
+        self.waitForInputFiles(dirInputFiles, in_fnames)
+
+        dfs = []
+        for i, fname in enumerate(in_fnames):
+            df = pd.read_csv(os.path.join(dirInputFiles, fname),
+                             index_col=None, header=0)
+            dfs.append(df)
+
+        frame = pd.concat(dfs, axis=0, ignore_index=True).groupby(
+            ['Day']).mean()
+
+        for column_name in list(frame):
+            if "error" not in column_name.lower():
+                frame[column_name].round(0).astype(int)
+
+        df.to_csv(os.path.join(dirInputFiles, "out.csv"),
+                  encoding='utf-8', index=False)
 
     #------------------------------------------------------------------------
     #                           Plotting functions

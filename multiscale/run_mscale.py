@@ -330,3 +330,4 @@ if __name__ == "__main__":
         # only for one submodel worker plot the data exchanged
         if worker_index == 0:
             c.plotExchangedData()
+            c.sumOutputCSVFiles()
