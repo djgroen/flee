@@ -9,7 +9,7 @@ import argparse
 from flee.postprocessing import plot_flee_output as pfo
 
 #In order to compare two simulation results, simply run:
-#python3 compare_2_sim.py --first_sim name1 --second_sim name2 --mscale_model name3 --uncoupled_model name4 (optional)
+#python3 compare.py --first_sim name1 --second_sim name2 --mscale_model name3 --uncoupled_model name4 (optional)
 
 work_dir = os.path.dirname(os.path.abspath(__file__))
 
