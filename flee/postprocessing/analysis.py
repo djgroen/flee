@@ -18,11 +18,11 @@ def abs_error(val, correct_val):
 # Primitive error function for arrays.
 
 def abs_diffs(forecast_vals, correct_vals):
-    return round(np.abs(forecast_vals - correct_vals), ROUND_NDIGITS)
+    return np.round(np.abs(forecast_vals - correct_vals), ROUND_NDIGITS)
 
 
 def mean_abs_diffs(forecast_vals, correct_vals):
-    return round(np.mean(np.abs(forecast_vals - correct_vals)), ROUND_NDIGITS)
+    return np.round(np.mean(np.abs(forecast_vals - correct_vals)), ROUND_NDIGITS)
 
 
 def calculate_ln_accuracy_ratio(forecast_vals, actual_vals):
@@ -30,7 +30,7 @@ def calculate_ln_accuracy_ratio(forecast_vals, actual_vals):
     Calculate the log of the accuracy ratio (forecast / actual)
     Return -1 if there is a 0 in the actual values
     """
-    return round(np.mean(np.abs(np.log(forecast_vals / actual_vals))), ROUND_NDIGITS)
+    return np.round(np.mean(np.abs(np.log(forecast_vals / actual_vals))), ROUND_NDIGITS)
 
 
 def calculate_MASE(forecast_vals, actual_vals, naieve_vals, start_of_forecast_period=30):
