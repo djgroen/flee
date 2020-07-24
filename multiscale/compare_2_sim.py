@@ -11,17 +11,13 @@ from flee.postprocessing import plot_flee_output as pfo
 #In order to compare two simulation results, simply run:
 #python3 compare_2_sim.py --first_sim name1 --second_sim name2 --mscale_model name3 --uncoupled_model name4 (optional)
 
-
 work_dir = os.path.dirname(os.path.abspath(__file__))
-
 
 def compare(input_dir_1,input_dir_2, first_sim, second_sim, mscale_model, **kwargs):
 
     matplotlib.style.use('ggplot')
     input_dir_3 = kwargs.get('input_dir_3', None)
     uncoupled_model = kwargs.get('uncoupled_model', None)
-
-
 
     refugee_data1=pd.read_csv("%s/out.csv" %(input_dir_1), sep=',', encoding='latin1', index_col='Day')
     refugee_data2=pd.read_csv("%s/out.csv" %(input_dir_2), sep=',', encoding='latin1', index_col='Day')
@@ -52,8 +48,6 @@ def compare(input_dir_1,input_dir_2, first_sim, second_sim, mscale_model, **kwar
     plt.xlabel("Days elapsed")
 
     matplotlib.rcParams.update({'font.size': 20})
-
-
 
     refugees_with_debt = [refugee_data1.loc[:,["total refugees (simulation)", "refugees in camps (simulation)"]]+
     refugee_data2.loc[:, ["total refugees (simulation)", "refugees in camps (simulation)",
@@ -113,7 +107,6 @@ def compare(input_dir_1,input_dir_2, first_sim, second_sim, mscale_model, **kwar
 
     plt.savefig("{}/numagents.png".format(output_dir))
 
-
     #ERROR PLOTS
     
     un_refs = refugee_data1.loc[
@@ -122,7 +115,6 @@ def compare(input_dir_1,input_dir_2, first_sim, second_sim, mscale_model, **kwar
     loc_errors1 = []
     loc_errors2 = []
     nmodel = False
-
 
     for i in location_names:
         loc_errors1.append(pfo.plotme(input_dir_1, refugee_data1, i,
@@ -164,7 +156,6 @@ def compare(input_dir_1,input_dir_2, first_sim, second_sim, mscale_model, **kwar
     labeldiff_rescaled2, = plt.plot(np.arange(len(diffdata1_rescaled)), diffdata2_rescaled, 
         linewidth=5, label="Error {}".format(second_sim))
 
-
     plt.legend(handles=[labeldiff_rescaled1, labeldiff_rescaled2], loc=0, prop={'size': 14})
 
     plt.savefig("{}/error.png".format(output_dir))
@@ -176,13 +167,11 @@ def compare(input_dir_1,input_dir_2, first_sim, second_sim, mscale_model, **kwar
     labeldiff2, = plt.plot(np.arange(len(diffdata2)), diffdata2, 
         linewidth=5, label="error- {}- (not rescaled)".format(second_sim))
 
-
     plt.legend(handles=[labeldiff_rescaled1, labeldiff_rescaled2, labeldiff1, labeldiff2], loc=0, prop={'size': 14})
 
     plt.savefig("{}/error_comparison.png".format(output_dir))
 
     plt.clf()
-
 
     #CAMPS PLOTS
 
@@ -193,7 +182,6 @@ def compare(input_dir_1,input_dir_2, first_sim, second_sim, mscale_model, **kwar
         cols4 = diff(cols3,cols1)
         cols5 = diff(cols3,cols4)
       
-      
     cols1.sort()
     cols2.sort()
     if uncoupled_model == 'whole':
@@ -202,7 +190,6 @@ def compare(input_dir_1,input_dir_2, first_sim, second_sim, mscale_model, **kwar
     cols_ref = list(refugee_data1.columns.values)
     col_error = [cols_ref[0], cols_ref[-6]]
     cols_ref = cols_ref[-5:]
-
 
     for i in range(len(cols2)):
 
@@ -218,14 +205,11 @@ def compare(input_dir_1,input_dir_2, first_sim, second_sim, mscale_model, **kwar
         if uncoupled_model == 'whole':
             y4 = refugee_data3["%s sim" % name3[0]]
 
-
         fig = matplotlib.pyplot.gcf()
         fig.set_size_inches(12, 8)
 
         plt.xlabel("Days elapsed")
         plt.ylabel("Number of refugees")
-
-
 
         label1, = plt.plot(refugee_data1.index,y1, 'g', 
             linewidth=5, label="error- {}- (not rescaled)".format(first_sim))
