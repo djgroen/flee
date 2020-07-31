@@ -10,6 +10,7 @@ RUN_PYTHON_FILE="run_mscale.py"
 
 LOG_EXCHANGE_DATA="True"
 COUPLING_TYPE="file"
+WEATHER_COUPLING="True"
 
 #-------------------------------------------------------
 #             parse input arguments
@@ -68,7 +69,8 @@ ret_common_args() {
     --LOG_EXCHANGE_DATA $LOG_EXCHANGE_DATA \
     --worker_index $i \
     --coupling_type $COUPLING_TYPE \
-    --num_workers $NUM_WORKERS "
+    --num_workers $NUM_WORKERS \
+    --weather_coupling $WEATHER_COUPLING"
     echo $common_args
 }
 
@@ -103,7 +105,8 @@ do
   common_args="--data_dir=$INPUT_DATA_DIR \
   --worker_index $i \
   --coupling_type $COUPLING_TYPE \
-  --num_workers $NUM_WORKERS"
+  --num_workers $NUM_WORKERS \
+  --weather_coupling $WEATHER_COUPLING"
 
   echo -e "\t $run_command $RUN_PYTHON_FILE --submodel macro $common_args"  
   echo -e "\t $run_command $RUN_PYTHON_FILE --submodel micro $common_args"

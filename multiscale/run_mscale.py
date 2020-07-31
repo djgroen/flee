@@ -7,7 +7,6 @@
 from flee import coupling  # coupling interface for multiscale models
 from flee.datamanager import handle_refugee_data, read_period
 from flee.datamanager import DataTable  # DataTable.subtract_dates()
-
 import numpy as np
 from flee.postprocessing import analysis as a
 import sys
@@ -17,7 +16,7 @@ from pprint import pprint
 import csv
 
 work_dir = os.path.dirname(os.path.abspath(__file__))
-insert_day0_refugees_in_camps = True
+insert_day0_refugees_in_camps = False
 
 
 def AddInitialRefugees(e, d, loc):
@@ -74,7 +73,9 @@ def run_micro_macro_model(e, c, submodel, ig, d, camp_locations, end_time):
             if submodel == 'macro':
                 print("t={}, inserting {} new agents".format(
                     t, new_refs), file=sys.stderr)
-                e.add_agents_to_conflict_zones(new_refs)
+                #e.add_agents_to_conflict_zones(new_refs)
+                for i in range(0, new_refs):
+                    e.addAgent(e.pick_conflict_location())
                 e.updateNumAgents(log=False)
 
             # e.printInfo()
@@ -106,6 +107,7 @@ def run_micro_macro_model(e, c, submodel, ig, d, camp_locations, end_time):
 
             for camp in camps:
                 refugees_in_camps_sim += camp.numAgents
+
 
             if e.getRankN(t):
                 output = "%s" % t
@@ -184,6 +186,10 @@ if __name__ == "__main__":
                         help="boolean flag to enable/disable logging exchanged \
                         data between macro and micro models")
 
+    parser.add_argument('--weather_coupling',
+                        action="store", type=str, default='False',
+                        help="boolean flag to enable/disable weather coupling")
+
     args, unknown = parser.parse_known_args()
 
     print("args: {}".format(args), file=sys.stderr)
@@ -198,6 +204,7 @@ if __name__ == "__main__":
     coupling_type = args.coupling_type
     worker_index = int(args.worker_index)
     num_workers = int(args.num_workers)
+    weather_coupling = args.weather_coupling
     if args.end_time is not None:
         end_time = int(args.end_time)
     last_physical_day = end_time
@@ -265,8 +272,16 @@ if __name__ == "__main__":
     ig.ReadLocationsFromCSV(os.path.join(
         data_dir, "locations-%d.csv" % (submodel_id)))
 
-    ig.ReadLinksFromCSV(os.path.join(
-        data_dir, "routes-%d.csv" % (submodel_id)))
+
+    if weather_coupling == "True" and submodel == 'micro':
+
+        os.system('python3 weather.py --input_dir {}'.format(data_dir))
+        ig.ReadLinksFromCSV(os.path.join(
+            data_dir, "weather_data/routes-m.csv"))
+
+    else:
+        ig.ReadLinksFromCSV(os.path.join(
+            data_dir, "routes-%d.csv" % (submodel_id)))
 
     ig.ReadClosuresFromCSV(os.path.join(
         data_dir, "closures-%d.csv" % (submodel_id)))
@@ -293,7 +308,9 @@ if __name__ == "__main__":
         # Add initial refugees to camps is currently not supported in coupled mode,
         # because the totals are not added up correctly across the submodels.
         # All agents therefore have to start in conflict zones.
-        #AddInitialRefugees(e, d, lm[i])
+
+        if insert_day0_refugees_in_camps:
+          AddInitialRefugees(e,d,lm[i])
         output_header_string += "%s sim,%s data,%s error," % (
             lm[i].name, lm[i].name, lm[i].name)
 
