@@ -1,9 +1,3 @@
-# from flee import pmicro_flee as flee  # parallel implementation
-# from flee import micro_InputGeography as InputGeography
-
-#from flee import pflee as flee
-#from flee import InputGeography
-
 from flee import coupling  # coupling interface for multiscale models
 from flee.datamanager import handle_refugee_data, read_period
 from flee.datamanager import DataTable  # DataTable.subtract_dates()
