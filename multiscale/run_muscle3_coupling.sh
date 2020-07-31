@@ -13,7 +13,7 @@ LOG_EXCHANGE_DATA="True"
 COUPLING_TYPE="muscle3"
 YMMSL_TEMPLATE_FILE="macro_micro_template.ymmsl"
 YMMSL_FILE="macro_micro.ymmsl"
-
+WEATHER_COUPLING="True"
 
 #-------------------------------------------------------
 #             parse input arguments
@@ -78,7 +78,8 @@ ret_common_args() {
     --LOG_EXCHANGE_DATA $LOG_EXCHANGE_DATA \
     --worker_index $i \
     --coupling_type $COUPLING_TYPE \
-    --num_workers $NUM_WORKERS "
+    --num_workers $NUM_WORKERS \
+    --weather_coupling $WEATHER_COUPLING"
     echo $common_args
 }
 
