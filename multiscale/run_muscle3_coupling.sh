@@ -13,7 +13,7 @@ LOG_EXCHANGE_DATA="True"
 COUPLING_TYPE="muscle3"
 YMMSL_TEMPLATE_FILE="macro_micro_template.ymmsl"
 YMMSL_FILE="macro_micro.ymmsl"
-WEATHER_COUPLING="True"
+WEATHER_COUPLING="False"
 
 #-------------------------------------------------------
 #             parse input arguments
