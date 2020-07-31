@@ -73,7 +73,7 @@ def run_micro_macro_model(e, c, submodel, ig, d, camp_locations, end_time):
             if submodel == 'macro':
                 print("t={}, inserting {} new agents".format(
                     t, new_refs), file=sys.stderr)
-                #e.add_agents_to_conflict_zones(new_refs)
+                # e.add_agents_to_conflict_zones(new_refs)
                 for i in range(0, new_refs):
                     e.addAgent(e.pick_conflict_location())
                 e.updateNumAgents(log=False)
@@ -107,7 +107,6 @@ def run_micro_macro_model(e, c, submodel, ig, d, camp_locations, end_time):
 
             for camp in camps:
                 refugees_in_camps_sim += camp.numAgents
-
 
             if e.getRankN(t):
                 output = "%s" % t
@@ -204,7 +203,10 @@ if __name__ == "__main__":
     coupling_type = args.coupling_type
     worker_index = int(args.worker_index)
     num_workers = int(args.num_workers)
-    weather_coupling = args.weather_coupling
+    if args.weather_coupling.lower() == 'true':
+        weather_coupling = True
+    else:
+        weather_coupling = False
     if args.end_time is not None:
         end_time = int(args.end_time)
     last_physical_day = end_time
@@ -272,8 +274,7 @@ if __name__ == "__main__":
     ig.ReadLocationsFromCSV(os.path.join(
         data_dir, "locations-%d.csv" % (submodel_id)))
 
-
-    if weather_coupling == "True" and submodel == 'micro':
+    if weather_coupling == True and submodel == 'micro':
 
         os.system('python3 weather.py --input_dir {}'.format(data_dir))
         ig.ReadLinksFromCSV(os.path.join(
@@ -310,7 +311,7 @@ if __name__ == "__main__":
         # All agents therefore have to start in conflict zones.
 
         if insert_day0_refugees_in_camps:
-          AddInitialRefugees(e,d,lm[i])
+            AddInitialRefugees(e, d, lm[i])
         output_header_string += "%s sim,%s data,%s error," % (
             lm[i].name, lm[i].name, lm[i].name)
 
