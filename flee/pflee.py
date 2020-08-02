@@ -63,13 +63,13 @@ class Person(flee.Person):
         # If turning back is NOT allowed, remove weight from the last location.
         if not SimulationSettings.TurnBackAllowed:
             if link.endpoint == self.last_location:
-                # float(0.1 / float(SimulationSettings.Softening + link.distance))
+                # float(0.1 / float(SimulationSettings.Softening + link.get_distance()))
                 return 0.0
 
         if awareness_level < 0:
             return 1.0
 
-        return float(self.e.scores[(link.endpoint.id * 4) + awareness_level] / float(SimulationSettings.Softening + link.distance))
+        return float(self.e.scores[(link.endpoint.id * 4) + awareness_level] / float(SimulationSettings.Softening + link.get_distance()))
 
     def getEndPointScore(self, link):
         """
