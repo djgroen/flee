@@ -27,7 +27,7 @@ import matplotlib.patches as mpatches
 class CouplingInterface:
 
     def __init__(self, e, submodel, worker_index=None, num_workers=None,
-                 coupling_type="file", outputdir="out", log_exchange_data=True):
+                 coupling_type="file", weather_coupling=False, outputdir="out", log_exchange_data=True):
         """ Constructor.
         e = FLEE ecosystem
         Coupling types to support eventually:
@@ -48,12 +48,21 @@ class CouplingInterface:
         self.names = []
         self.directions = []
         self.intervals = []
-        self.outputdir = outputdir
+        self.weather_coupling = weather_coupling
+        if self.weather_coupling == True:
+            self.outputdir = os.path.join(outputdir, "weather")
+        else:
+            self.outputdir = outputdir
         self.submodel = submodel  # micro / macro / manager
 
         self.worker_index = worker_index
         self.num_workers = num_workers
 
+        if self.submodel == 'micro':
+            self.weather_coupling=weather_coupling
+        else:
+            self.weather_coupling=False
+            
         # for logging
         self.log_exchange_data = log_exchange_data
 

@@ -217,10 +217,16 @@ if __name__ == "__main__":
         submodel_id = 0
         validation_data_directory = os.path.join(data_dir, "source_data-0")
         if submodel == 'macro':
-            out_csv_file = os.path.join(work_dir, "out",
-                                        coupling_type, "macro",
-                                        "out[%d].csv" % (worker_index)
-                                        )
+            if weather_coupling == True:
+                out_csv_file = os.path.join(work_dir, "out",
+                                            "weather", coupling_type, "macro",
+                                            "out[%d].csv" % (worker_index)
+                                            )
+            else:
+                out_csv_file = os.path.join(work_dir, "out",
+                                            coupling_type, "macro",
+                                            "out[%d].csv" % (worker_index)
+                                            )
 
     elif submodel in ['micro', 'micro_manager']:
         from flee import pmicro_flee as flee
@@ -229,10 +235,16 @@ if __name__ == "__main__":
         submodel_id = 1
         validation_data_directory = os.path.join(data_dir, "source_data-1")
         if submodel == 'micro':
-            out_csv_file = os.path.join(work_dir, "out",
-                                        coupling_type, "micro",
-                                        "out[%d].csv" % (worker_index)
-                                        )
+            if weather_coupling == True:
+                out_csv_file = os.path.join(work_dir, "out",
+                                            "weather", coupling_type, "micro",
+                                            "out[%d].csv" % (worker_index)
+                                            )
+            else:
+                out_csv_file = os.path.join(work_dir, "out",
+                                            coupling_type, "micro",
+                                            "out[%d].csv" % (worker_index)
+                                            )
 
     print("This is submodel {}".format(submodel_id), file=sys.stderr)
 
@@ -253,7 +265,7 @@ if __name__ == "__main__":
                                                                                                        "conflict_period.csv"
                                                                                                        )
                                                                                           )
-        weather_source_files['output_log'] = os.path.join(work_dir, "out",
+        weather_source_files['output_log'] = os.path.join(work_dir, "out", "weather",
                                                           coupling_type, submodel,
                                                           "weather_log[%d].csv" % (
                                                               worker_index)
@@ -268,6 +280,7 @@ if __name__ == "__main__":
                                    worker_index=worker_index,
                                    num_workers=num_workers,
                                    coupling_type=coupling_type,
+                                   weather_coupling=weather_coupling,
                                    outputdir=os.path.join(work_dir, "out"),
                                    log_exchange_data=log_exchange_data
                                    )

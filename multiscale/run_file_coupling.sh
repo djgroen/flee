@@ -10,7 +10,7 @@ RUN_PYTHON_FILE="run_mscale.py"
 
 LOG_EXCHANGE_DATA="True"
 COUPLING_TYPE="file"
-WEATHER_COUPLING="True"
+WEATHER_COUPLING="False"
 
 #-------------------------------------------------------
 #             parse input arguments
@@ -54,12 +54,25 @@ set_run_command
 #-------------------------------------------------------
 #             clean output directory
 #-------------------------------------------------------
-rm -rf out/$COUPLING_TYPE/*
-mkdir -p out/$COUPLING_TYPE/coupled
-mkdir -p out/$COUPLING_TYPE/macro
-mkdir -p out/$COUPLING_TYPE/micro
-mkdir -p out/$COUPLING_TYPE/log_exchange_data
-mkdir -p out/$COUPLING_TYPE/plot_exchange_data
+
+
+if [ $WEATHER_COUPLING = "True" ];
+then
+  rm -rf out/weather/$COUPLING_TYPE/*
+  mkdir -p out/weather/$COUPLING_TYPE/coupled
+  mkdir -p out/weather/$COUPLING_TYPE/macro
+  mkdir -p out/weather/$COUPLING_TYPE/micro
+  mkdir -p out/weather/$COUPLING_TYPE/log_exchange_data
+  mkdir -p out/weather/$COUPLING_TYPE/plot_exchange_data
+else
+  rm -rf out/$COUPLING_TYPE/*
+  mkdir -p out/$COUPLING_TYPE/coupled
+  mkdir -p out/$COUPLING_TYPE/macro
+  mkdir -p out/$COUPLING_TYPE/micro
+  mkdir -p out/$COUPLING_TYPE/log_exchange_data
+  mkdir -p out/$COUPLING_TYPE/plot_exchange_data
+fi
+
 
 #-------------------------------------------------------
 #             return common input arguments
