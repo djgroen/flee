@@ -10,7 +10,7 @@ RUN_PYTHON_FILE="run_mscale.py"
 
 LOG_EXCHANGE_DATA="True"
 COUPLING_TYPE="file"
-WEATHER_COUPLING="False"
+WEATHER_COUPLING="True"
 
 #-------------------------------------------------------
 #             parse input arguments

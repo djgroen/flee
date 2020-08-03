@@ -8,7 +8,7 @@ import argparse
 import os
 from pprint import pprint
 import csv
-
+import pandas as pd
 work_dir = os.path.dirname(os.path.abspath(__file__))
 insert_day0_refugees_in_camps = False
 
@@ -42,7 +42,7 @@ def run_micro_macro_model(e, c, submodel, ig, d, camp_locations, end_time):
 
     while c.reuse_coupling():
         for t in range(0, end_time):
-
+            flee.t_day = t
             # if t>0:
             ig.AddNewConflictZones(e, t)
 
@@ -236,6 +236,32 @@ if __name__ == "__main__":
 
     print("This is submodel {}".format(submodel_id), file=sys.stderr)
 
+    if submodel == 'micro' and weather_coupling == True:
+        weather_source_files = {}
+
+        weather_source_files['precipitation'] = pd.read_csv(os.path.join(data_dir,
+                                                                         "weather_data",
+                                                                         "precipitation.csv"
+                                                                         )
+                                                            )
+        weather_source_files['40yrs_total_precipitation'] = pd.read_csv(os.path.join(data_dir,
+                                                                                     "weather_data",
+                                                                                     "40yrs_tp.csv"
+                                                                                     )
+                                                                        )
+        weather_source_files['conflict_start_date'], _ = read_period.read_conflict_period(os.path.join(data_dir,
+                                                                                                       "conflict_period.csv"
+                                                                                                       )
+                                                                                          )
+        weather_source_files['output_log'] = os.path.join(work_dir, "out",
+                                                          coupling_type, submodel,
+                                                          "weather_log[%d].csv" % (
+                                                              worker_index)
+                                                          )
+        flee.weather_source_files = weather_source_files
+        flee.t_day = 0
+        flee.Link = flee.Link_weather_coupling
+
     e = flee.Ecosystem()
 
     c = coupling.CouplingInterface(e, submodel,
@@ -268,15 +294,8 @@ if __name__ == "__main__":
     ig.ReadLocationsFromCSV(os.path.join(
         data_dir, "locations-%d.csv" % (submodel_id)))
 
-    if weather_coupling == True and submodel == 'micro':
-
-        os.system('python3 weather.py --input_dir {}'.format(data_dir))
-        ig.ReadLinksFromCSV(os.path.join(
-            data_dir, "weather_data/routes-m.csv"))
-
-    else:
-        ig.ReadLinksFromCSV(os.path.join(
-            data_dir, "routes-%d.csv" % (submodel_id)))
+    ig.ReadLinksFromCSV(os.path.join(
+        data_dir, "routes-%d.csv" % (submodel_id)))
 
     ig.ReadClosuresFromCSV(os.path.join(
         data_dir, "closures-%d.csv" % (submodel_id)))
@@ -331,7 +350,7 @@ if __name__ == "__main__":
                 f.write('\n')
                 f.flush()
 
-    #end_time = 10
+    #end_time = 5
     if submodel in ['macro', 'micro']:
         run_micro_macro_model(e, c, submodel, ig, d, camp_locations, end_time)
     elif submodel in ['macro_manager', 'micro_manager']:

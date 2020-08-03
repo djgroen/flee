@@ -6,6 +6,8 @@ from flee import pflee
 # from flee import micro_flee as flee
 from mpi4py import MPI
 from mpi4py.MPI import ANY_SOURCE
+import math
+import datetime
 
 
 class MPIManager(pflee.MPIManager):
@@ -24,13 +26,6 @@ class Location(pflee.Location):
 
     def __init__(self, e, cur_id, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown"):
         super().__init__(e, cur_id, name, x, y, movechance, capacity, pop, foreign, country)
-
-
-class Link(pflee.Link):
-
-    def __init__(self, startpoint, endpoint, distance, forced_redirection=False, link_type=None):
-        super().__init__(startpoint, endpoint, distance, forced_redirection)
-        self.link_type = link_type
 
 
 class Ecosystem(pflee.Ecosystem):
@@ -75,6 +70,171 @@ class Ecosystem(pflee.Ecosystem):
                 distance
             )
         )
+
+
+#-------------------------------------------------------------------------
+#           modified version of class Link for weather coupling
+#-------------------------------------------------------------------------
+class Link(pflee.Link):
+
+    def __init__(self, startpoint, endpoint, distance, forced_redirection=False, link_type=None):
+        super().__init__(startpoint, endpoint, distance, forced_redirection)
+        self.link_type = link_type
+
+weather_source_files = {}
+t_day = -1
+
+
+class Link_weather_coupling(pflee.Link):
+
+    def __init__(self, startpoint, endpoint, distance, forced_redirection=False, link_type=None):
+        self.name = "__link__"
+        self.closed = False
+
+        # distance in km.
+        self.__distance = float(distance)
+
+        # links for now always connect two endpoints
+        self.startpoint = startpoint
+        self.endpoint = endpoint
+
+        # number of agents that are in transit.
+        self.numAgents = 0
+        # refugee population on current rank (for pflee).
+        self.numAgentsOnRank = 0
+
+        # if True, then all Persons will go down this link.
+        self.forced_redirection = forced_redirection
+
+        self.link_type = link_type
+
+    def DecrementNumAgents(self):
+        self.numAgents -= 1
+
+    def IncrementNumAgents(self):
+        self.numAgents += 1
+
+    def get_start_date(self):
+
+        start_date = weather_source_files['conflict_start_date']
+        date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
+        date += datetime.timedelta(t_day)
+        date = date.strftime('%Y-%m-%d')
+        return date
+
+    def midpoint(self, link, date):
+        # This function returns the geoghraphical midpoint of two given
+        # locations
+        lat1 = math.radians(self.get_latitude(link[0]))
+        lon1 = math.radians(self.get_longitude(link[0]))
+        lat2 = math.radians(self.get_latitude(link[1]))
+        lon2 = math.radians(self.get_longitude(link[1]))
+
+        bx = math.cos(lat2) * math.cos(lon2 - lon1)
+        by = math.cos(lat2) * math.sin(lon2 - lon1)
+        latMid = math.atan2(math.sin(lat1) +
+                            math.sin(lat2),
+                            math.sqrt((math.cos(lat1) + bx) *
+                                      (math.cos(lat1) + bx) +
+                                      by**2)
+                            )
+        lonMid = lon1 + math.atan2(by, math.cos(lat1) + bx)
+
+        latMid = round(math.degrees(latMid), 2)
+        lonMid = round(math.degrees(lonMid), 2)
+
+        latMid = float(round(latMid))
+        lonMid = float(round(lonMid))
+
+        return latMid, lonMid
+
+    def get_longitude(self, location):
+
+        # This function returns the longitude of given location based on 40
+        # years dataset of South Sudan total precipitation
+        history = weather_source_files['40yrs_total_precipitation']
+        coordination = history[history["names"] == location]
+        longitude = coordination["longitude"].mean()
+        return longitude
+
+    def get_latitude(self, location):
+
+        # This function returns the latitude of given location based on 40
+        # years dataset of South Sudan total precipitation
+        history = weather_source_files['40yrs_total_precipitation']
+        coordination = history[history["names"] == location]
+        latitude = coordination["latitude"].mean()
+
+        return latitude
+
+    def X1_X2(self, link, date):
+
+        # This function returns the two treshholds of X1 and X2.
+        # The way of calculating threshholds needs to be discussed!
+        # print(link)
+        X1 = []
+        X2 = []
+        latMid, lonMid = self.midpoint(link, date)
+        history = weather_source_files['40yrs_total_precipitation']
+        latitude = history[history["latitude"] == latMid]
+
+        if latitude.empty:
+            result_index = history.iloc[
+                (history["latitude"] - latMid).abs().argsort()[:1]]
+            latitude_index = result_index["latitude"].to_numpy()
+            latitude = history[history["latitude"] == float(latitude_index)]
+
+        treshhold_tp = latitude[latitude["longitude"] == lonMid]
+
+        if treshhold_tp.empty:
+            result_index = latitude.iloc[
+                (latitude["longitude"] - lonMid).abs().argsort()[:1]]
+            longitude_index = result_index["longitude"].to_numpy()
+            treshhold_tp = latitude[
+                latitude["longitude"] == float(longitude_index)]
+
+        X1 = treshhold_tp["tp"].quantile(q=0.15)
+        X2 = treshhold_tp["tp"].quantile(q=0.75)
+
+        return X1, X2
+
+    def get_distance(self):
+        if len(weather_source_files) == 0:
+            print("Error !!! there is NO input file names for weather coupling")
+            exit()
+        else:
+            date = self.get_start_date()
+            link = [self.startpoint.name, self.endpoint.name]
+
+            X1, X2 = self.X1_X2(link, date)
+            df = weather_source_files['precipitation']
+            columns = df.columns.values
+
+            link_direct = self.startpoint.name + ' - ' + self.endpoint.name
+            link_reverse = self.endpoint.name + ' - ' + self.startpoint.name
+            for i in range(1, len(columns)):
+                if (link_direct == columns[i] or link_reverse == columns[i]):
+                    tp = df.loc[df.index[t_day], columns[i]]
+
+        log_flag = False
+        if tp <= X1:
+            new_distance = self.__distance * 1
+        elif tp <= X2:
+            new_distance = self.__distance * 2
+            log_flag = True
+        else:
+            new_distance = self.__distance * 1000
+            log_flag = True
+
+        if log_flag == True:
+            log_file = weather_source_files['output_log']
+            with open(log_file, 'a+') as f:
+                f.write("day %d distance between %s - %s change from %f --> %f\n" %
+                        (t_day, self.startpoint.name, self.endpoint.name, self.__distance, new_distance))
+                f.flush()
+
+        return new_distance
+
 
 if __name__ == "__main__":
     print("No testing functionality here yet.")
