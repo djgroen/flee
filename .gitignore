@@ -90,3 +90,7 @@ ENV/
 
 #PyCharm
 .idea/
+
+
+# folders to be ignored from multiscale
+multiscale/out/
