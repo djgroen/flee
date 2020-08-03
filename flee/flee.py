@@ -77,17 +77,17 @@ class Person:
                 self.distance_moved_this_timestep += SimulationSettings.MaxMoveSpeed
 
             # If destination has been reached.
-            if self.distance_travelled_on_link > self.location.distance:
+            if self.distance_travelled_on_link > self.location.get_distance():
 
                 self.places_travelled += 1
                 # remove the excess km tracked by the
                 # distance_moved_this_timestep var.
-                self.distance_moved_this_timestep += self.location.distance - \
+                self.distance_moved_this_timestep += self.location.get_distance() - \
                     self.distance_travelled_on_link
 
                 # update agent logs
                 if SimulationSettings.AgentLogLevel > 0:
-                    self.distance_travelled += self.location.distance
+                    self.distance_travelled += self.location.get_distance()
 
                 # if link is closed, bring agent to start point instead of the
                 # destination and return.
@@ -144,7 +144,7 @@ class Person:
         if awareness_level < 0:
             return 1.0
 
-        return float(link.endpoint.scores[awareness_level] / float(SimulationSettings.Softening + link.distance))
+        return float(link.endpoint.scores[awareness_level] / float(SimulationSettings.Softening + link.get_distance()))
 
     def normalizeWeights(self, weights):
         if np.sum(weights) > 0.0:
@@ -192,10 +192,10 @@ class Person:
         Loops are avoided.
         """
         weight = float(self.getEndPointScore(link) / float(SimulationSettings.Softening +
-                                                           link.distance + prior_distance)) * link.endpoint.getCapMultiplier(link.numAgents)
+                                                           link.get_distance() + prior_distance)) * link.endpoint.getCapMultiplier(link.numAgents)
         if debug:
             print("step {}, dest {}, dist {}, prior_dist {}, score {}, weight {}".format(
-                step, link.endpoint.name, link.distance, prior_distance, self.getEndPointScore(link), weight))
+                step, link.endpoint.name, link.get_distance(), prior_distance, self.getEndPointScore(link), weight))
 
         if SimulationSettings.AwarenessLevel > step:
             # Traverse the tree one step further.
@@ -204,7 +204,7 @@ class Person:
                     pass
                 else:
                     weight = max(weight, self.calculateLinkWeight(
-                        e, prior_distance + link.distance, origin_names + [link.endpoint.name], step + 1, debug))
+                        e, prior_distance + link.get_distance(), origin_names + [link.endpoint.name], step + 1, debug))
 
         if debug:
             print("step {}, total weight returned {}".format(step, weight))
@@ -320,7 +320,7 @@ class Location:
             self.name, self.x, self.y, self.movechance, self.capacity, self.pop, self.country, self.conflict, self.camp), file=sys.stderr)
         for l in self.links:
             print("Link from %s to %s, dist: %s, pop. %s" % (
-                self.name, l.endpoint.name, l.distance, l.numAgents), file=sys.stderr)
+                self.name, l.endpoint.name, l.get_distance(), l.numAgents), file=sys.stderr)
 
     def SetConflictMoveChance(self):
         """ Modify move chance to the default value set for conflict regions. """
@@ -400,8 +400,8 @@ class Location:
 
         for i in self.links:
             self.NeighbourhoodScore += i.endpoint.LocationScore / \
-                float(i.distance)
-            total_link_weight += 1.0 / float(i.distance)
+                float(i.get_distance())
+            total_link_weight += 1.0 / float(i.get_distance())
 
         self.NeighbourhoodScore /= total_link_weight
         self.setScore(2, self.NeighbourhoodScore)
@@ -419,8 +419,8 @@ class Location:
 
         for i in self.links:
             self.RegionScore += i.endpoint.NeighbourhoodScore / \
-                float(i.distance)
-            total_link_weight += 1.0 / float(i.distance)
+                float(i.get_distance())
+            total_link_weight += 1.0 / float(i.get_distance())
 
         self.RegionScore /= total_link_weight
         self.setScore(3, self.RegionScore)
@@ -433,7 +433,7 @@ class Link:
         self.closed = False
 
         # distance in km.
-        self.distance = float(distance)
+        self.__distance = float(distance)
 
         # links for now always connect two endpoints
         self.startpoint = startpoint
@@ -452,6 +452,9 @@ class Link:
 
     def IncrementNumAgents(self):
         self.numAgents += 1
+
+    def get_distance(self):
+        return self.__distance
 
 
 class Ecosystem:
@@ -487,7 +490,7 @@ class Ecosystem:
         for l in self.locations:
             vertices += [l.name]
             for p in l.links:
-                edges += [[l.name, p.endpoint.name, p.distance]]
+                edges += [[l.name, p.endpoint.name, p.get_distance()]]
 
         return vertices, edges
 
@@ -970,9 +973,11 @@ class Ecosystem:
             Link(self.locations[endpoint2_index], self.locations[endpoint1_index], distance))
 
     def printInfo(self):
-        print("Time: {}, # of agents: {}, # of conflict zones {}.".format(self.time, len(self.agents), len(self.conflict_zones)), file=sys.stderr)
-        if len(self.conflict_zones)>0:
-            print("First conflict zone is called {}".format(self.conflict_zones[0].name), file=sys.stderr)
+        print("Time: {}, # of agents: {}, # of conflict zones {}.".format(
+            self.time, len(self.agents), len(self.conflict_zones)), file=sys.stderr)
+        if len(self.conflict_zones) > 0:
+            print("First conflict zone is called {}".format(
+                self.conflict_zones[0].name), file=sys.stderr)
         for l in self.locations:
             print(l.name, l.numAgents, file=sys.stderr)
 
