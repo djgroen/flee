@@ -274,6 +274,11 @@ if __name__ == "__main__":
         flee.t_day = 0
         flee.Link = flee.Link_weather_coupling
 
+    if weather_coupling == True:
+        outputdir = os.path.join(work_dir, "out", "weather")
+    else:
+        outputdir = os.path.join(work_dir, "out")
+
     e = flee.Ecosystem()
 
     c = coupling.CouplingInterface(e, submodel,
@@ -281,7 +286,7 @@ if __name__ == "__main__":
                                    num_workers=num_workers,
                                    coupling_type=coupling_type,
                                    weather_coupling=weather_coupling,
-                                   outputdir=os.path.join(work_dir, "out"),
+                                   outputdir=outputdir,
                                    log_exchange_data=log_exchange_data
                                    )
 

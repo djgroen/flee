@@ -48,21 +48,11 @@ class CouplingInterface:
         self.names = []
         self.directions = []
         self.intervals = []
-        self.weather_coupling = weather_coupling
-        if self.weather_coupling == True:
-            self.outputdir = os.path.join(outputdir, "weather")
-        else:
-            self.outputdir = outputdir
         self.submodel = submodel  # micro / macro / manager
 
         self.worker_index = worker_index
         self.num_workers = num_workers
 
-        if self.submodel == 'micro':
-            self.weather_coupling=weather_coupling
-        else:
-            self.weather_coupling=False
-            
         # for logging
         self.log_exchange_data = log_exchange_data
 
