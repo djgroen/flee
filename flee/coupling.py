@@ -48,8 +48,8 @@ class CouplingInterface:
         self.names = []
         self.directions = []
         self.intervals = []
+        self.outputdir = outputdir
         self.submodel = submodel  # micro / macro / manager
-
         self.worker_index = worker_index
         self.num_workers = num_workers
 
