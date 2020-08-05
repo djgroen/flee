@@ -270,9 +270,15 @@ if __name__ == "__main__":
                                                           "weather_log[%d].csv" % (
                                                               worker_index)
                                                           )
+        prec_len = len(weather_source_files['precipitation'].index)
+
+        if prec_len < end_time:
+            print("The lenght of precipitation.csv ({}) is lower than the simulation end_time ({})!".format(prec_len, end_time))
+            exit()
+
         flee.Link = flee.Link_weather_coupling
         flee.weather_source_files = weather_source_files
-
+        
     if weather_coupling == True:
         outputdir = os.path.join(work_dir, "out", "weather")
     else:
