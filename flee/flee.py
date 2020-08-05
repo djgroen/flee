@@ -39,7 +39,7 @@ class Person:
         if SimulationSettings.AgentLogLevel > 0:
             self.distance_travelled = 0
 
-    def evolve(self, ForceTownMove=False):
+    def evolve(self, time, ForceTownMove=False):
 
         if self.travelling == False:
             if self.location.town and ForceTownMove:
@@ -53,9 +53,9 @@ class Person:
             if outcome < movechance:
                 # determine here which route to take?
                 if SimulationSettings.UseV1Rules:
-                    chosenRoute = self.selectRouteRuleset1()
+                    chosenRoute = self.selectRouteRuleset1(time)
                 else:
-                    chosenRoute = self.selectRouteRuleset2()
+                    chosenRoute = self.selectRouteRuleset2(time)
 
                 # if there is a viable route to a different location.
                 if chosenRoute >= 0:
@@ -66,7 +66,7 @@ class Person:
                     self.travelling = True
                     self.distance_travelled_on_link = 0
 
-    def finish_travel(self):
+    def finish_travel(self, time):
         if self.travelling:
 
             if self.places_travelled == 1 and SimulationSettings.StartOnFoot:  # First journey
@@ -77,17 +77,17 @@ class Person:
                 self.distance_moved_this_timestep += SimulationSettings.MaxMoveSpeed
 
             # If destination has been reached.
-            if self.distance_travelled_on_link > self.location.get_distance():
+            if self.distance_travelled_on_link > self.location.get_distance(time):
 
                 self.places_travelled += 1
                 # remove the excess km tracked by the
                 # distance_moved_this_timestep var.
-                self.distance_moved_this_timestep += self.location.get_distance() - \
+                self.distance_moved_this_timestep += self.location.get_distance(time) - \
                     self.distance_travelled_on_link
 
                 # update agent logs
                 if SimulationSettings.AgentLogLevel > 0:
-                    self.distance_travelled += self.location.get_distance()
+                    self.distance_travelled += self.location.get_distance(time)
 
                 # if link is closed, bring agent to start point instead of the
                 # destination and return.
@@ -127,10 +127,10 @@ class Person:
                             # Flee 2.0 Changeset 1, factor 2.
                             if (self.recent_travel_distance + (self.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed)) / 2.0 < 0.5:
                                 ForceTownMove = True
-                        self.evolve(ForceTownMove)
-                        self.finish_travel()
+                        self.evolve(time, ForceTownMove)
+                        self.finish_travel(time)
 
-    def getLinkWeight(self, link, awareness_level):
+    def getLinkWeight(self, link, awareness_level, time):
         """
         Calculate the weight of an adjacent link. Weight = probability that it will be chosen.
         """
@@ -144,7 +144,7 @@ class Person:
         if awareness_level < 0:
             return 1.0
 
-        return float(link.endpoint.scores[awareness_level] / float(SimulationSettings.Softening + link.get_distance()))
+        return float(link.endpoint.scores[awareness_level] / float(SimulationSettings.Softening + link.get_distance(time)))
 
     def normalizeWeights(self, weights):
         if np.sum(weights) > 0.0:
@@ -160,7 +160,7 @@ class Person:
             weights = self.normalizeWeights(weights)
             return np.random.choice(list(range(0, len(linklist))), p=weights)
 
-    def selectRouteRuleset1(self):
+    def selectRouteRuleset1(self, time):
         linklen = len(self.location.links)
         weights = np.zeros(linklen)
 
@@ -173,7 +173,7 @@ class Person:
                 return i
             else:
                 weights[i] = self.getLinkWeight(
-                    self.location.links[i], SimulationSettings.AwarenessLevel)
+                    self.location.links[i], SimulationSettings.AwarenessLevel, time)
 
                 # Throttle down weight when occupancy is close to peak
                 # capacity.
@@ -186,16 +186,16 @@ class Person:
         #print(link.endpoint.name, link.endpoint.scores)
         return link.endpoint.scores[1]
 
-    def calculateLinkWeight(self, link, prior_distance, origin_names, step, debug=False):
+    def calculateLinkWeight(self, link, prior_distance, origin_names, step, time, debug=False):
         """
         Calculates Link Weights recursively based on awareness level.
         Loops are avoided.
         """
         weight = float(self.getEndPointScore(link) / float(SimulationSettings.Softening +
-                                                           link.get_distance() + prior_distance)) * link.endpoint.getCapMultiplier(link.numAgents)
+                                                           link.get_distance(time) + prior_distance)) * link.endpoint.getCapMultiplier(link.numAgents)
         if debug:
             print("step {}, dest {}, dist {}, prior_dist {}, score {}, weight {}".format(
-                step, link.endpoint.name, link.get_distance(), prior_distance, self.getEndPointScore(link), weight))
+                step, link.endpoint.name, link.get_distance(time), prior_distance, self.getEndPointScore(link), weight))
 
         if SimulationSettings.AwarenessLevel > step:
             # Traverse the tree one step further.
@@ -204,13 +204,13 @@ class Person:
                     pass
                 else:
                     weight = max(weight, self.calculateLinkWeight(
-                        e, prior_distance + link.get_distance(), origin_names + [link.endpoint.name], step + 1, debug))
+                        e, prior_distance + link.get_distance(time), origin_names + [link.endpoint.name], step + 1, time, debug))
 
         if debug:
             print("step {}, total weight returned {}".format(step, weight))
         return weight
 
-    def selectRouteRuleset2(self, debug=False):
+    def selectRouteRuleset2(self, time, debug=False):
         linklen = len(self.location.links)
         weights = np.zeros(linklen)
 
@@ -219,7 +219,7 @@ class Person:
 
         for k, e in enumerate(self.location.links):
             weights[k] = self.calculateLinkWeight(
-                e, 0.0, [self.location.name], 1, debug)
+                e, 0.0, [self.location.name], 1, time, debug)
 
         return self.chooseFromWeights(weights, self.location.links)
 
@@ -320,7 +320,7 @@ class Location:
             self.name, self.x, self.y, self.movechance, self.capacity, self.pop, self.country, self.conflict, self.camp), file=sys.stderr)
         for l in self.links:
             print("Link from %s to %s, dist: %s, pop. %s" % (
-                self.name, l.endpoint.name, l.get_distance(), l.numAgents), file=sys.stderr)
+                self.name, l.endpoint.name, l.get_distance(self.time), l.numAgents), file=sys.stderr)
 
     def SetConflictMoveChance(self):
         """ Modify move chance to the default value set for conflict regions. """
@@ -400,8 +400,8 @@ class Location:
 
         for i in self.links:
             self.NeighbourhoodScore += i.endpoint.LocationScore / \
-                float(i.get_distance())
-            total_link_weight += 1.0 / float(i.get_distance())
+                float(i.get_distance(self.time))
+            total_link_weight += 1.0 / float(i.get_distance(self.time))
 
         self.NeighbourhoodScore /= total_link_weight
         self.setScore(2, self.NeighbourhoodScore)
@@ -419,8 +419,8 @@ class Location:
 
         for i in self.links:
             self.RegionScore += i.endpoint.NeighbourhoodScore / \
-                float(i.get_distance())
-            total_link_weight += 1.0 / float(i.get_distance())
+                float(i.get_distance(self.time))
+            total_link_weight += 1.0 / float(i.get_distance(self.time))
 
         self.RegionScore /= total_link_weight
         self.setScore(3, self.RegionScore)
@@ -453,7 +453,7 @@ class Link:
     def IncrementNumAgents(self):
         self.numAgents += 1
 
-    def get_distance(self):
+    def get_distance(self, time):
         return self.__distance
 
 
@@ -490,7 +490,7 @@ class Ecosystem:
         for l in self.locations:
             vertices += [l.name]
             for p in l.links:
-                edges += [[l.name, p.endpoint.name, p.get_distance()]]
+                edges += [[l.name, p.endpoint.name, p.get_distance(self.time)]]
 
         return vertices, edges
 
@@ -873,10 +873,10 @@ class Ecosystem:
 
         # update agent locations
         for a in self.agents:
-            a.evolve()
+            a.evolve(self.time)
 
         for a in self.agents:
-            a.finish_travel()
+            a.finish_travel(self.time)
             a.timesteps_since_departure += 1
 
         if SimulationSettings.AgentLogLevel > 0:

@@ -82,7 +82,6 @@ class Link(pflee.Link):
         self.link_type = link_type
 
 weather_source_files = {}
-t_day = -1
 
 
 class Link_weather_coupling(pflee.Link):
@@ -114,11 +113,11 @@ class Link_weather_coupling(pflee.Link):
     def IncrementNumAgents(self):
         self.numAgents += 1
 
-    def get_start_date(self):
+    def get_start_date(self, time):
 
         start_date = weather_source_files['conflict_start_date']
         date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
-        date += datetime.timedelta(t_day)
+        date += datetime.timedelta(time)
         date = date.strftime('%Y-%m-%d')
         return date
 
@@ -198,12 +197,12 @@ class Link_weather_coupling(pflee.Link):
 
         return X1, X2
 
-    def get_distance(self):
+    def get_distance(self, time):
         if len(weather_source_files) == 0:
             print("Error !!! there is NO input file names for weather coupling")
             exit()
         else:
-            date = self.get_start_date()
+            date = self.get_start_date(time)
             link = [self.startpoint.name, self.endpoint.name]
 
             X1, X2 = self.X1_X2(link, date)
@@ -214,7 +213,7 @@ class Link_weather_coupling(pflee.Link):
             link_reverse = self.endpoint.name + ' - ' + self.startpoint.name
             for i in range(1, len(columns)):
                 if (link_direct == columns[i] or link_reverse == columns[i]):
-                    tp = df.loc[df.index[t_day], columns[i]]
+                    tp = df.loc[df.index[time], columns[i]]
 
         log_flag = False
         if tp <= X1:
@@ -230,7 +229,7 @@ class Link_weather_coupling(pflee.Link):
             log_file = weather_source_files['output_log']
             with open(log_file, 'a+') as f:
                 f.write("day %d distance between %s - %s change from %f --> %f\n" %
-                        (t_day, self.startpoint.name, self.endpoint.name, self.__distance, new_distance))
+                        (time, self.startpoint.name, self.endpoint.name, self.__distance, new_distance))
                 f.flush()
 
         return new_distance

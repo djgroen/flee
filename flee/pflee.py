@@ -49,11 +49,11 @@ class Person(flee.Person):
         super().__init__(location)
         self.e = e
 
-    def evolve(self, ForceTownMove=False):
-        super().evolve(ForceTownMove)
+    def evolve(self, time, ForceTownMove=False):
+        super().evolve(time, ForceTownMove)
 
-    def finish_travel(self):
-        super().finish_travel()
+    def finish_travel(self, time):
+        super().finish_travel(time)
 
     def getLinkWeight(self, link, awareness_level):
         """
@@ -394,13 +394,13 @@ class Ecosystem(flee.Ecosystem):
 
         # update agent locations
         for a in self.agents:
-            a.evolve()
+            a.evolve(self.time)
 
         #print("NumAgents after evolve:", file=sys.stderr)
         self.updateNumAgents(CountClosed=True, log=False)
 
         for a in self.agents:
-            a.finish_travel()
+            a.finish_travel(self.time)
             a.timesteps_since_departure += 1
 
         if SimulationSettings.AgentLogLevel > 0:

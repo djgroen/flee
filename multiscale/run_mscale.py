@@ -42,7 +42,7 @@ def run_micro_macro_model(e, c, submodel, ig, d, camp_locations, end_time):
 
     while c.reuse_coupling():
         for t in range(0, end_time):
-            flee.t_day = t
+
             # if t>0:
             ig.AddNewConflictZones(e, t)
 
@@ -270,9 +270,8 @@ if __name__ == "__main__":
                                                           "weather_log[%d].csv" % (
                                                               worker_index)
                                                           )
-        flee.weather_source_files = weather_source_files
-        flee.t_day = 0
         flee.Link = flee.Link_weather_coupling
+        flee.weather_source_files = weather_source_files
 
     if weather_coupling == True:
         outputdir = os.path.join(work_dir, "out", "weather")
