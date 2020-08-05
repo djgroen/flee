@@ -44,7 +44,7 @@ def test_awareness():
 
     e.addAgent(location=l1)
 
-    e.agents[0].selectRouteRuleset2(debug=True)
+    e.agents[0].selectRouteRuleset2(time=0, debug=True)
 
     # for t in range(0,end_time):
 
