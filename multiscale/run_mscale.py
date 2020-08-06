@@ -256,6 +256,11 @@ if __name__ == "__main__":
                                                                          "precipitation.csv"
                                                                          )
                                                             )
+        weather_source_files['river_discharge'] = pd.read_csv(os.path.join(data_dir,
+                                                                         "weather_data",
+                                                                         "river_discharge.csv"
+                                                                         )
+                                                            )
         weather_source_files['40yrs_total_precipitation'] = pd.read_csv(os.path.join(data_dir,
                                                                                      "weather_data",
                                                                                      "40yrs_tp.csv"
@@ -278,7 +283,7 @@ if __name__ == "__main__":
 
         flee.Link = flee.Link_weather_coupling
         flee.weather_source_files = weather_source_files
-        
+
     if weather_coupling == True:
         outputdir = os.path.join(work_dir, "out", "weather")
     else:
