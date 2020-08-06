@@ -4,6 +4,7 @@ import csv
 import math
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import datetime
 import argparse
 from flee.datamanager import read_period
@@ -30,15 +31,15 @@ input_dir = os.path.join(work_dir, args.input_dir)
 
 data_dir = os.path.join(input_dir, 'weather_data')
 
-history = pd.read_csv("%s/weather_data/40yrs_tp.csv" %(input_dir), sep=',', encoding='latin1')
+history = pd.read_csv("%s/40yrs_tp.csv" %(data_dir), sep=',', encoding='latin1')
 
-daily=pd.read_csv("%s/weather_data/daily_tp.csv" %(input_dir), sep=',', encoding='latin1')
+daily=pd.read_csv("%s/daily_tp.csv" %(data_dir), sep=',', encoding='latin1')
 
 
 
 def X1_X2(link,date):
 
-#This function returns the two treshholds of X1 and X2.
+#This function returns the two treshholds of X1 and X2 for multiplier function
 #The way of calculating threshholds needs to be discussed!
     #print(link)
     X1 = []
@@ -130,12 +131,31 @@ def return_date(day):
 
     date_1 = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
 
+    if isinstance(day, np.generic):
+        day = np.asscalar(day)    
+
     date = date_1 + datetime.timedelta(day)
 
     date = date.strftime('%Y-%m-%d')
 
     return date
 
+def months(first_date, second_date):
+    year1, month1, year2, month2 = map(
+        int, 
+        (first_date[:4], first_date[5:7], second_date[:4], second_date[5:7])
+    )
+
+    return [
+        '{:0>4}-{:0>2}'.format(year, month)
+        for year in range(year1, year2 + 1)
+        for month in range(month1 
+            if year == year1 
+            else 1, 
+            month2 + 1
+            if year == year2 
+            else 13)
+    ]
 
 def multiplier(startpoint, endpoint, day):
 
@@ -220,8 +240,35 @@ if __name__ == "__main__":
             f.flush()  
     
 
-    print("The precipitation.csv is stored in {}".format(data_dir))
+    end_date = return_date(end_time)  
+
+    months = months(start_date, end_date)
+
+    num_months = len(months) + 1
+
+    df = pd.read_csv("{}/precipitation.csv".format(data_dir), index_col='Day') 
+
+    df.plot(kind='line', figsize=(20, 10), color='#A0A0A0', legend=None)
+
+    df['Average'] = df.mean(axis=1)
+
+    df['Average'].plot.line(color='blue', legend='Average')
+
+    plt.xlabel('Days (Simulation Period)')
+
+    plt.ylabel('Total Precipitation Level (mm)')
+
+    plt.title("Total Precipitation of '{}' Model".format(args.input_dir))
+
+    plt.xticks(np.linspace(0,end_time, num_months)[:-1], months)
+ 
+    plt.savefig("{}/precipitation_plot.png".format(data_dir))
     
+    plt.clf()
+
+
+    print("The precipitation.csv and plot are stored in {}".format(data_dir))
+
 
 
     
