@@ -224,19 +224,8 @@ class Link_weather_coupling(pflee.Link):
             for i in range(1, len(columns)):
                 if (link_direct == columns[i] or link_reverse == columns[i]):
                     tp = df.loc[df.index[time], columns[i]]
-
-        log_flag = False
-        if tp <= X1:
-            new_distance = self.__distance * 1
-        elif tp <= X2:
-            new_distance = self.__distance * 2
-            log_flag = True
-        else:
-            new_distance = self.__distance * 10000
-            log_flag = True
-
+        
         if self.link_type == 'crossing':
-            
             latMid, lonMid = self.midpoint(link, date)
             discharge = weather_source_files['river_discharge']
             discharge_dict = discharge[['lat', 'lon']].to_dict('records')
@@ -244,10 +233,13 @@ class Link_weather_coupling(pflee.Link):
             closest_location = self.closest(discharge_dict, midpoint)
 
             mask = ((discharge['time']==date) & (discharge['lat']==closest_location['lat']) & (discharge['lon']==closest_location['lon']))
+
             dl = discharge.loc[mask]
             
+
             dis_level = dl.iloc[0]['dis24']
-            dis_threshold = discharge['dis24'].quantile(q=0.5)
+            #dis_threshold = discharge['dis24'].quantile(q=0.5)
+            dis_threshold = 900
 
             log_flag = False
             if dis_level < dis_threshold:
@@ -255,6 +247,21 @@ class Link_weather_coupling(pflee.Link):
             else:
                 new_distance = self.__distance * 10000
                 log_flag = True
+        
+        log_flag = False
+        if tp <= X1:
+            new_distance = self.__distance * 1              
+        elif tp <= X2:
+            new_distance = self.__distance * 2
+            log_flag = True
+        elif tp > X2 and tp > 15:
+            new_distance = self.__distance * 10000
+            log_flag = True
+        else:
+            new_distance = self.__distance * 2
+            log_flag = True 
+
+
 
         if log_flag == True:
             log_file = weather_source_files['output_log']
@@ -262,8 +269,7 @@ class Link_weather_coupling(pflee.Link):
                 f.write("day %d distance between %s - %s change from %f --> %f\n" %
                         (time, self.startpoint.name, self.endpoint.name, self.__distance, new_distance))
                 f.flush()
-
-
+        
         return new_distance
 
 
