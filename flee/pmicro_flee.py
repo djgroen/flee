@@ -242,7 +242,7 @@ class Link_weather_coupling(pflee.Link):
 
             dis_level = dl.iloc[0]['dis24']
             #dis_threshold = discharge['dis24'].quantile(q=0.5)
-            dis_threshold = 900
+            dis_threshold = 8000
 
             log_flag = False
             if dis_level < dis_threshold:
