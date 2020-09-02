@@ -5,7 +5,7 @@ export PYTHONPATH="$(dirname "$PWD")"
 NUM_WORKERS=3
 cores=1
 
-INPUT_DATA_DIR="ssudan-mscale-test"
+INPUT_DATA_DIR="ssudan-mscale"
 RUN_PYTHON_FILE="run_mscale.py"
 
 LOG_EXCHANGE_DATA="True"

@@ -14,7 +14,7 @@ class SimulationSettings:
     # set to 1 for basic information on locations added and conflict zones
     # assigned.
     InitLogLevel = 0
-    TakeRefugeesFromPopulation = True
+    TakeRefugeesFromPopulation = False
 
     sqrt_ten = 3.16227766017  # square root of ten (10^0.5).
 
