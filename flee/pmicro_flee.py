@@ -221,14 +221,9 @@ class Link_weather_coupling(pflee.Link):
 
             link_direct = self.startpoint.name + ' - ' + self.endpoint.name
             link_reverse = self.endpoint.name + ' - ' + self.startpoint.name
-            '''
             for i in range(1, len(columns)):
                 if (link_direct == columns[i] or link_reverse == columns[i]):
                     tp = df.loc[df.index[time], columns[i]]
-                    break
-            '''
-            tp = df.loc[df.index[time], df.columns.isin(
-                [link_direct, link_reverse])].values[0]
         
         if self.link_type == 'crossing':
             latMid, lonMid = self.midpoint(link, date)
@@ -267,14 +262,14 @@ class Link_weather_coupling(pflee.Link):
             log_flag = True 
 
 
-        '''
+
         if log_flag == True:
             log_file = weather_source_files['output_log']
             with open(log_file, 'a+') as f:
                 f.write("day %d distance between %s - %s change from %f --> %f\n" %
                         (time, self.startpoint.name, self.endpoint.name, self.__distance, new_distance))
                 f.flush()
-        '''
+        
         return new_distance
 
 
