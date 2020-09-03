@@ -107,6 +107,9 @@ class Link_weather_coupling(pflee.Link):
 
         self.link_type = link_type
 
+        self.latMid, self.lonMid = self.midpoint()
+        self.X1, self.X2 = self.X1_X2()
+
     def DecrementNumAgents(self):
         self.numAgents -= 1
 
@@ -121,13 +124,13 @@ class Link_weather_coupling(pflee.Link):
         date = date.strftime('%Y-%m-%d')
         return date
 
-    def midpoint(self, link, date):
+    def midpoint(self):
         # This function returns the geoghraphical midpoint of two given
         # locations
-        lat1 = math.radians(self.get_latitude(link[0]))
-        lon1 = math.radians(self.get_longitude(link[0]))
-        lat2 = math.radians(self.get_latitude(link[1]))
-        lon2 = math.radians(self.get_longitude(link[1]))
+        lat1 = math.radians(self.get_latitude(self.startpoint.name))
+        lon1 = math.radians(self.get_longitude(self.startpoint.name))
+        lat2 = math.radians(self.get_latitude(self.endpoint.name))
+        lon2 = math.radians(self.get_longitude(self.endpoint.name))
 
         bx = math.cos(lat2) * math.cos(lon2 - lon1)
         by = math.cos(lat2) * math.sin(lon2 - lon1)
@@ -166,28 +169,27 @@ class Link_weather_coupling(pflee.Link):
 
         return latitude
 
-    def X1_X2(self, link, date):
+    def X1_X2(self):
 
         # This function returns the two treshholds of X1 and X2.
         # The way of calculating threshholds needs to be discussed!
         # print(link)
         X1 = []
         X2 = []
-        latMid, lonMid = self.midpoint(link, date)
         history = weather_source_files['40yrs_total_precipitation']
-        latitude = history[history["latitude"] == latMid]
+        latitude = history[history["latitude"] == self.latMid]
 
         if latitude.empty:
             result_index = history.iloc[
-                (history["latitude"] - latMid).abs().argsort()[:1]]
+                (history["latitude"] - self.latMid).abs().argsort()[:1]]
             latitude_index = result_index["latitude"].to_numpy()
             latitude = history[history["latitude"] == float(latitude_index)]
 
-        treshhold_tp = latitude[latitude["longitude"] == lonMid]
+        treshhold_tp = latitude[latitude["longitude"] == self.lonMid]
 
         if treshhold_tp.empty:
             result_index = latitude.iloc[
-                (latitude["longitude"] - lonMid).abs().argsort()[:1]]
+                (latitude["longitude"] - self.lonMid).abs().argsort()[:1]]
             longitude_index = result_index["longitude"].to_numpy()
             treshhold_tp = latitude[
                 latitude["longitude"] == float(longitude_index)]
@@ -212,9 +214,7 @@ class Link_weather_coupling(pflee.Link):
             exit()
         else:
             date = self.get_start_date(time)
-            link = [self.startpoint.name, self.endpoint.name]
 
-            X1, X2 = self.X1_X2(link, date)
             df = weather_source_files['precipitation']
             columns = df.columns.values
 
@@ -229,10 +229,9 @@ class Link_weather_coupling(pflee.Link):
                 [link_direct, link_reverse])].values[0]
 
         if self.link_type == 'crossing':
-            latMid, lonMid = self.midpoint(link, date)
             discharge = weather_source_files['river_discharge']
             discharge_dict = discharge[['lat', 'lon']].to_dict('records')
-            midpoint = {'lat': latMid, 'lon': lonMid}
+            midpoint = {'lat': self.latMid, 'lon': self.lonMid}
             closest_location = self.closest(discharge_dict, midpoint)
 
             mask = ((discharge['time'] == date) & (discharge['lat'] == closest_location[
@@ -252,12 +251,12 @@ class Link_weather_coupling(pflee.Link):
                 log_flag = True
 
         log_flag = False
-        if tp <= X1:
+        if tp <= self.X1:
             new_distance = self.__distance * 1
-        elif tp <= X2:
+        elif tp <= self.X2:
             new_distance = self.__distance * 2
             log_flag = True
-        elif tp > X2 and tp > 15:
+        elif tp > self.X2 and tp > 15:
             new_distance = self.__distance * 10000
             log_flag = True
         else:
