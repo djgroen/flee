@@ -249,19 +249,19 @@ class Link_weather_coupling(pflee.Link):
             else:
                 new_distance = self.__distance * 10000
                 log_flag = True
-
-        log_flag = False
-        if tp <= self.X1:
-            new_distance = self.__distance * 1
-        elif tp <= self.X2:
-            new_distance = self.__distance * 2
-            log_flag = True
-        elif tp > self.X2 and tp > 15:
-            new_distance = self.__distance * 10000
-            log_flag = True
         else:
-            new_distance = self.__distance * 2
-            log_flag = True
+            log_flag = False
+            if tp <= self.X1:
+                new_distance = self.__distance * 1
+            elif tp <= self.X2:
+                new_distance = self.__distance * 2
+                log_flag = True
+            elif tp > self.X2 and tp > 15:
+                new_distance = self.__distance * 10000
+                log_flag = True
+            else:
+                new_distance = self.__distance * 2
+                log_flag = True
 
         '''
         if log_flag == True:
