@@ -110,6 +110,11 @@ class Link_weather_coupling(pflee.Link):
         self.latMid, self.lonMid = self.midpoint()
         self.X1, self.X2 = self.X1_X2()
 
+        df = weather_source_files['precipitation']
+        link_direct = self.startpoint.name + ' - ' + self.endpoint.name
+        link_reverse = self.endpoint.name + ' - ' + self.startpoint.name
+        self.prec = df.loc[:, df.columns.isin([link_direct, link_reverse])]
+
         if self.link_type == 'crossing':
             self.discharge = weather_source_files['river_discharge']
             self.discharge_dict = self.discharge[
@@ -224,24 +229,9 @@ class Link_weather_coupling(pflee.Link):
         if len(weather_source_files) == 0:
             print("Error !!! there is NO input file names for weather coupling")
             exit()
-        else:
+
+        elif self.link_type == 'crossing':
             date = self.get_start_date(time)
-
-            df = weather_source_files['precipitation']
-            columns = df.columns.values
-
-            link_direct = self.startpoint.name + ' - ' + self.endpoint.name
-            link_reverse = self.endpoint.name + ' - ' + self.startpoint.name
-            '''
-            for i in range(1, len(columns)):
-                if (link_direct == columns[i] or link_reverse == columns[i]):
-                    tp = df.loc[df.index[time], columns[i]]
-            '''
-            tp = df.loc[df.index[time], df.columns.isin(
-                [link_direct, link_reverse])].values[0]
-
-        if self.link_type == 'crossing':
-
             dis_level = self.dl[self.dl['time'] == date].iloc[0]['dis24']
             dis_threshold = 8000
 
@@ -253,6 +243,7 @@ class Link_weather_coupling(pflee.Link):
                 log_flag = True
         else:
             log_flag = False
+            tp = self.prec.loc[self.prec.index[time]].values[0]
             if tp <= self.X1:
                 new_distance = self.__distance * 1
             elif tp <= self.X2:
