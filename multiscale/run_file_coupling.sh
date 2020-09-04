@@ -2,15 +2,16 @@
 export PYTHONPATH="$(dirname "$PWD")"
 
 # setting variables
-NUM_WORKERS=3
+NUM_WORKERS=1
 cores=1
 
-INPUT_DATA_DIR="ssudan-mscale"
+#INPUT_DATA_DIR="ssudan-mscale"
+INPUT_DATA_DIR="ssudan-mscale-test"
 RUN_PYTHON_FILE="run_mscale.py"
 
 LOG_EXCHANGE_DATA="True"
 COUPLING_TYPE="file"
-WEATHER_COUPLING="False"
+WEATHER_COUPLING="True"
 
 #-------------------------------------------------------
 #             parse input arguments

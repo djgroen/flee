@@ -110,6 +110,18 @@ class Link_weather_coupling(pflee.Link):
         self.latMid, self.lonMid = self.midpoint()
         self.X1, self.X2 = self.X1_X2()
 
+        if self.link_type == 'crossing':
+            self.discharge = weather_source_files['river_discharge']
+            self.discharge_dict = self.discharge[
+                ['lat', 'lon']].to_dict('records')
+            self.closest_location = self.closest(self.discharge_dict,
+                                                 {'lat': self.latMid, 'lon': self.lonMid})
+
+            self.dl = self.discharge[
+                (self.discharge['lat'] == self.closest_location['lat']) &
+                (self.discharge['lon'] == self.closest_location['lon'])
+            ]
+
     def DecrementNumAgents(self):
         self.numAgents -= 1
 
@@ -229,18 +241,8 @@ class Link_weather_coupling(pflee.Link):
                 [link_direct, link_reverse])].values[0]
 
         if self.link_type == 'crossing':
-            discharge = weather_source_files['river_discharge']
-            discharge_dict = discharge[['lat', 'lon']].to_dict('records')
-            midpoint = {'lat': self.latMid, 'lon': self.lonMid}
-            closest_location = self.closest(discharge_dict, midpoint)
 
-            mask = ((discharge['time'] == date) & (discharge['lat'] == closest_location[
-                    'lat']) & (discharge['lon'] == closest_location['lon']))
-
-            dl = discharge.loc[mask]
-
-            dis_level = dl.iloc[0]['dis24']
-            #dis_threshold = discharge['dis24'].quantile(q=0.5)
+            dis_level = self.dl[self.dl['time'] == date].iloc[0]['dis24']
             dis_threshold = 8000
 
             log_flag = False
