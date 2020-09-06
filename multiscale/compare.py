@@ -230,10 +230,10 @@ def compare(input_dir_1,input_dir_2, first_sim, second_sim, mscale_model, **kwar
         
     if uncoupled_model == "whole":
 
-        plt.legend(handles=[labeldiff_rescaled1, labeldiff_rescaled2, labeldiff_rescaled3 ,labeldiff1, labeldiff2, labeldiff3], loc=7, prop={'size': 14})
+        plt.legend(handles=[labeldiff_rescaled1, labeldiff_rescaled2, labeldiff_rescaled3 ,labeldiff1, labeldiff2, labeldiff3], loc=1, prop={'size': 14})
 
     else:
-        plt.legend(handles=[labeldiff_rescaled1, labeldiff_rescaled2, labeldiff1, labeldiff2], loc=7, prop={'size': 14})
+        plt.legend(handles=[labeldiff_rescaled1, labeldiff_rescaled2, labeldiff1, labeldiff2], loc=1, prop={'size': 14})
 
     pfo.set_margins()
 
@@ -333,7 +333,7 @@ if __name__ == "__main__":
     parser.add_argument('--first_sim', 
         required=True, action="store", type=str, choices=['file', 'muscle3'])
     parser.add_argument('--second_sim', 
-        required=True, action="store", type=str, choices=['file', 'muscle3'])
+        required=True, action="store", type=str, choices=['file', 'muscle3', 'weather/file', 'weather/muscle3'])
     parser.add_argument('--mscale_model', 
         required=True, action="store", type=str, choices=['micro', 'macro'])
                    
