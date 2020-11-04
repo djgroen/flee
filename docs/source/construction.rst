@@ -6,7 +6,7 @@ Simulation instance construction
 This documentation details how to construct a conflict scenario for forced displacement simulation. Each conflict situation requires input data (in **input_csv** directory), validation data (in **source_data** directory) and execution scripts (**run.py**, **run_par.py** and **simsetting.csv**) as illustrated below:
 
 .. image:: ../images/config_template.png
-   :width: 200
+   :width: 300
    :align: center
 
 
