@@ -3,30 +3,26 @@
 Simulation instance construction
 ================================
 
-This documentation details how to construct a conflict scenario for forced displacement simulation. Each conflict situation requires:
+This documentation details how to construct a conflict scenario for forced displacement simulation. Each conflict situation requires input data (in **input_csv** directory), validation data (in **source_data** directory) and execution scripts (**run.py**, **run_par.py** and **simsetting.csv**) as illustrated below:
 
-- Three input CSV files:
-
-  - input_csv/locations.csv
-  - input_csv/routes.csv
-  - input_csv/closures.csv
-   
-- Validation data files:
-
-  - source_data/refugees.csv
-  - source_data/data_layout.csv
-  - source_data/<country_name-camp_name1>.csv
-  - source_data/<country_name-camp_name2>.csv
+.. image:: ../images/config_template.png
+   :width: 200
+   :align: center
 
 
-Extract forced displacement data from the following databases to create input and validation files: 
+To create input and validation data files, the following forced displacement databases are considered:
 
-- the United Nations High Commissioner for Refugees database (UNHCR, https://data2.unhcr.org/en/situations).
-- the Armed Conflict Location and Event Data Project (ACLED, https://www.acleddata.com/data).
+- the Armed Conflict Location and Event Data Project (ACLED, https://www.acleddata.com/data);
+- the United Nations High Commissioner for Refugees database (UNHCR, https://data2.unhcr.org/en/situations);
+- the population databases (e.g. https://www.citypopulation.de);
+- the geospatial databases (e.g. https://www.openstreetmap.org or http://www.bing.com/maps).
 
+  
+Construct an input **locations.csv** file
+--------------------------------------------
 
-Extracting input data 
----------------------
+1. ACLED conflict locations extraction
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The **ACLED** database provides conflict location data for forced displacement simulations. To obtain data on chosen conflict situation, complete the ACLED data export tool fields (https://acleddata.com/acleddatanew/data-export-tool/) as follows:
   - Provide dates of interest for conflict situation (i.e. From and To).
@@ -42,29 +38,7 @@ The **ACLED** database provides conflict location data for forced displacement s
   - Click on Export and Accept Terms of Use and Attribution Policy.
   - Click Export again and <name>.csv file exports to Downloads automatically.
 
-  There are two options at this point:
 
-  - Rename the file <name>.csv to `acled.csv` and place it in the relevant conflict directory in `config_files`. For example, if you collected data for Mali, you would place it in `(FabSim3 Home)/plugins/FabFlee/config_files/mali`;
-
-  - Keep it as it is, and use the ``path=`` argument when issuing the process_acled command.
-  
-
-The **UNHCR** situations provides an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
-  - Select an active (conflict) situation of interest from an interactive map and click to access data and documentation      
-    relevant to a chosen conflict situation from https://data2.unhcr.org/en/situations.
-  - Select a simulation period for conflict situation from ``Refugees and asylum-seekers from `chosen situation name` -       
-    Total`` timeline, which also presents forced displacement counts for a chosen period.
-  - Obtain total counts of forcibly displaced people by clicking JSON button of ``Refugees and asylum-seekers from `chosen       
-    situation name` - Total`` section. 
-  - Identify camps for each neighbouring country through ``Breakdown by Country`` section of the conflict situation.
-  - Collect and save data for each camp (e.g. <country_name-camp_name>.csv).
-  
-  
-1. Construct an input **locations.csv** file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-ACLED conflict locations extraction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The ACLED conflict data provides conflict locations to construct **locations.csv** input file for simulation purposes. After identifying conflict locations and producing **locations.csv**, the last column is filled with population data for conflict locations.
 
 =====  =======  ========  ====  =====  ==============  ==============  ====================
@@ -76,38 +50,20 @@ name   region   country   lat   long   location_type   conflict_date   populatio
 ...      ...      ...     ...    ...         ...            ...                ...          
 =====  =======  ========  ====  =====  ==============  ==============  ====================
 
-To construct conflict locations input file from ACLED for the FabFlee simulations, simply type:
 
-.. code:: console
+2. UNHCR forced migrant counts and camp locations extraction
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-          fabsim localhost process_acled:country=<country>,start_date=<dd-mm-yyyy>,filter=earliest/fatalities
+The **UNHCR** situations provides an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
+  - Select an active (conflict) situation of interest from an interactive map and click to access data and documentation      
+    relevant to a chosen conflict situation from https://data2.unhcr.org/en/situations.
+  - Select a simulation period for conflict situation from ``Refugees and asylum-seekers from `chosen situation name` -       
+    Total`` timeline, which also presents forced displacement counts for a chosen period.
+  - Obtain total counts of forcibly displaced people by clicking JSON button of ``Refugees and asylum-seekers from `chosen       
+    situation name` - Total`` section. 
+  - Identify camps for each neighbouring country through ``Breakdown by Country`` section of the conflict situation.
+  - Collect and save data for each camp (e.g. <country_name-camp_name>.csv).
 
-If your <name>.csv file is not stored in a conflict directory of `config_files`:
-
-.. code:: console
-
-          fabsim localhost process_acled:country=<country>,start_date=<dd-mm-yyyy>,filter=earliest/fatalities,path=<~/path/to/<name>.csv>
-
-.. note:: 
-
-- **country** is the name of the country directory the acled.csv is stored in.
-- **start_date** uses dd--mm-yyyy format and is the date which conflict_date will be calculated from.
-- **filter** takes earliest or fatalities. Earliest will keep the first occurring (using date) location and remove all occurrences that location after that date. Fatalities will keep the highest fatalities of each location and remove all other occurrences of that location.
-- **path** is the path to your acled csv file if it is not already stored in config_files. This argument is optional.
-
-This will produce the locations.csv into the input_csv directory in `(FabSim3 Home)/plugins/FabFlee/config_files/<conflict_name>` for the given country. If there is not an `input_csv` folder in the conflict situation directory, one will be created.
-
-
-To demonstrate, the following command uses the Mali conflict situation:  
-
-.. code:: console
-
-          fabsim localhost process_acled:country=mali,start_date=20-01-2010,filter=earliest    
-
-In this case, the locations.csv can be found in `(FabSim3 Home)/plugins/FabFlee/config_files/mali/input_csv`. 
-
-UNHCR camp locations extraction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Input camp names (i.e. destination locations) and their capacity into **locations.csv** file. Camp capacity is the highest number of forced migrants for each camp and obtained from individual camp CSV files that are set in **locations.csv**. For instance, CampZ.csv has the highest number of forcibly displaced people (18129) on 2015-09-30, which is the camp capacity for CampZ.
 
 ===========  =======
@@ -121,14 +77,15 @@ Input camp names (i.e. destination locations) and their capacity into **location
 ...          ...
 ===========  =======
 
-Population data extraction
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-Currently, the population figures for each location will need to be collected and written to the `population/capacity` column manually using a resource, such as www.citypopulation.de. After the population data has been collected for each location, input these population numbers in `locations.csv`, which can be then used for simulation execution.
+3. Population data extraction
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Currently, the population figures for each location will need to be collected and written to the `population/capacity` column from www.citypopulation.de. After the population data has been collected for each location, input these population numbers in `locations.csv`, which can be then used for simulation execution.
 
 
-2. Construct an input **routes.csv** file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Identified conflict zones and camps provide origin and destination locations. We connect these locations to represent how forcibly displaced people flee. We use http://www.bing.com/maps (or other mapping services) to connect conflict zones and camps, and add additional locations (if required) as a location type **town** to locations.csv as illustrated below:
+Construct an input **routes.csv** file
+--------------------------------------
+
+Identified conflict zones and camps provide origin and destination locations. We connect these locations to represent how forcibly displaced people flee. We use  https://www.openstreetmap.org or http://www.bing.com/maps (or other mapping services) to connect conflict zones and camps, and add additional locations (if required) as a location type **town** to locations.csv as illustrated below:
 
 =====  =======  ========  ====  =====  ==============  ==============  ====================
 name   region   country   lat   long   location_type   conflict_date   population/capacity 
@@ -136,7 +93,7 @@ name   region   country   lat   long   location_type   conflict_date   populatio
  A       AA       ABC     xxx    xxx      conflict          xxx                xxx        
  B       BB       ABC     xxx    xxx      conflict          xxx                xxx          
  C       CC       ABC     xxx    xxx      conflict          xxx                xxx          
- Z       ZZ       ZZZ     xxx    xxx        camp                               xxx         
+ Z       ZZ       ZZZ     xxx    xxx        camp                               xxx       
  N       NN       ABC     xxx    xxx        town                                         
 ...      ...      ...     ...    ...         ...            ...                ...          
 =====  =======  ========  ====  =====  ==============  ==============  ====================
@@ -159,8 +116,8 @@ name1   name2   distance[km]   forced_redirection
 **forced_redirection** refers to redirection from source location (can be town or camp) to destination location (mainly camp) and source location indicated as forwarding_hub. The value of 0 indicates no redirection, 1 indicates redirection (from name2) to name1and 2 corresponds to redirection (from name1) to name2.
 
 
-3. Define location and border closures in **closures.csv** file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Define location and border closures in **closures.csv** file
+------------------------------------------------------------
 We identify location or border closure events and document them in **closures.csv** file:
 
 =============  ======  ======  ==================  =================
@@ -179,8 +136,38 @@ closure_type   name1   name2   closure_start = 0   closure_end = -1
 **closure_start** and **closure_end** are given as integers, counting the number of days after the simulation start. The value of 0 indicates the start, while -1 indicates the end of the simulation.
 
 
-4. Construct a network map for a conflict situation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Define a conflict period for a conflict situation
+-------------------------------------------------
+
+We define the simulation period of a confict situation using **conflict_period.csv** file, which has the following format:
+
+==========  ==================
+StartDate   YYYY-MM-DD
+----------  ------------------
+Length      simulation_period 
+==========  ==================
+
+
+Record conflict locations in **conflicts.csv** file
+---------------------------------------------------
+
+We create a **conflicts.csv** file to record conflict locations indicating the start of conflicts in the simulation execution (represented as 1):
+
+=====  =====  ====  ====  ====  ====
+#Day   name    A     B     C     Z
+-----  -----  ----  ----  ----  ----
+0      0      1     0     0     0
+1      0      1     0     0     0
+2      0      1     1     0     0
+3      0      1     1     0     0
+4      0      1     1     1     0
+5      0      1     1     1     0
+...    ...    ...   ...   ...   ...
+=====  =====  ====  ====  ====  ====
+
+Construct a network map for a conflict situation
+------------------------------------------------
+
 Construct an agent-based network map from **locations.csv** and **routes.csv** using https://carto.com.
 
 .. image:: ../images/network.png
@@ -188,9 +175,8 @@ Construct an agent-based network map from **locations.csv** and **routes.csv** u
    :align: center
 
 
-
-Constructing validation data
-----------------------------
+Construct validation data
+-------------------------
 
 There are three CSV file formats required for validation of simulation outputs. CSV file containing total forced migrant counts **refugees.csv** comprises total counts of forcibly displaced people from ``Refugees and asylum-seekers from `chosen situation name` - Total`` JSON file and has the format as demonstrated:
 
@@ -217,48 +203,10 @@ YYYY-MM-DD   xxx
 **data_layout.csv** contains camp names for each camp/destination locations:
 
 ===========  ============================
-Total        forced_migrants.csv          
+total        refugees.csv          
 -----------  ---------------------------- 
 camp_name1   country_name-camp_name1.csv  
 camp_name2   country_name-camp_name2.csv  
 ...                     ...              
 ===========  ============================
-
-
-Constructing a conflict directory
----------------------------------
-
-1. Create <country_name> conflict directory in **~/flee** directory.
-
-2. Create **input_csv** sub-directory to store input CSV files.
-
-3. Create the second sub-directory **source_data** and place inside validation data files.
-
-4. Create <country_name>.py file for a conflict situation. To demonstrate, 
-https://github.com/djgroen/flee-release/blob/master/test_csv.py is an example script,
-which you can copy and modify according to your choice of conflict scenario.
-
-- Change date in <country_name>.py to the start of conflict simulation date:
-
-  .. code-block:: python
-   
-                   def date_to_sim_days(date):
-                     return DataTable.subtract_dates(date,"2010-01-01")
-                     ...
-                     d = handle_refugee_data.RefugeeTable(csvformat="generic", ... start_date="2010-01-01", ...)
-
-- Declare input and validation data locations in <country_name>.py file:
-
-  .. code-block:: python
-
-                     ig.ReadLocationsFromCSV("test_data/test_input_csv/locations.csv")
-
-                     ig.ReadLinksFromCSV("test_data/test_input_csv/routes.csv")
-
-                     ig.ReadClosuresFromCSV("test_data/test_input_csv/closures.csv")
-
-                     ...
-
-                    d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="test_data/test_input_csv/refugee_data", ...)
-                    
 
