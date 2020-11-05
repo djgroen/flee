@@ -1,0 +1,3 @@
+#closure_type,name1,name2,closure_start,closure_end
+country,<country_name1>,<country_name2>,<simulation_day>,<simulation_day>
+location,<location_name1>,<location_name2>,<simulation_day>,<simulation_day>

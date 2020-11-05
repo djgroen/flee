@@ -1,0 +1,6 @@
+name,region,country,latitude,longitude,location_type,conflict_date,population
+A,AA,ABC,,,conflict_zone,0,10
+B,BB,ABC,,,conflict_zone,7,25
+C,CC,ABC,,,conflict_zone,8,8
+Y,YY,ZZZ,,,camp,,
+Z,ZZ,ZZZ,,,camp,,
