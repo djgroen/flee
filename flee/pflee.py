@@ -115,7 +115,17 @@ class Location(flee.Location):
         self.updateNeighbourhoodScore()
         self.updateLocationScore()
 
+class Link(flee.Link):
 
+    def __init__(self, endpoint, distance, forced_redirection=False):
+        super().__init__(endpoint, distance, forced_redirection)
+
+    def DecrementNumAgents():
+        self.numAgentsOnRank -= 1
+
+    def IncrementNumAgents():
+        self.numAgentsOnRank += 1
+        
 class Ecosystem(flee.Ecosystem):
 
     def __init__(self):
