@@ -177,6 +177,7 @@ Constructing validation data
 
 There are three CSV file formats required for validation of simulation outputs in both Macro and Micro models.
 CSV file containing total forced migrant counts **refugees.csv** comprises total counts of forcibly displaced people from ``Refugees and asylum-seekers from `chosen situation name` - Total`` JSON file and has the format as demonstrated:
+
 The **refugees.csv** file has the same value in both models.
 
 ===========  ====
