@@ -139,7 +139,7 @@ closure_type   name1   name2   closure_start = 0   closure_end = -1
 Define a conflict period for a conflict situation
 -------------------------------------------------
 
-We define the simulation period of a confict situation using **conflict_period.csv** file, which has the following format:
+We define the simulation period of a conflict situation using **conflict_period.csv** file, which has the following format:
 
 ==========  ==================
 StartDate   YYYY-MM-DD
