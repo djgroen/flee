@@ -114,12 +114,12 @@ closure_type   name1   name2   closure_start = 0   closure_end = -1
 **closure_start** and **closure_end** are given as integers, counting the number of days after the simulation start. The value of 0 indicates the start, while -1 indicates the end of the simulation.
 
 5. Define registration corrections
-----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For each Macro and Micro models we will define and construct registration corrections based of validation camp files.
 
 6. Record conflict locations in **conflicts-#.csv** file
-------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We create a **conflicts-0.csv** file for Macro Model and a **conflicts-1.csv** file for Micro Model to record conflict locations indicating the start of conflicts in the simulation execution:
 
@@ -136,7 +136,7 @@ We create a **conflicts-0.csv** file for Macro Model and a **conflicts-1.csv** f
 =====  =====  ====  ====  ====  ====
 
 7. Define a conflict period for a conflict situation
------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We define the simulation period of a conflict situation using conflict_period.csv file, which has the following format:
 
@@ -147,7 +147,7 @@ Length      simulation_period
 ==========  ==================
 
 8. Define coupled locations for coupling between both models
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to make coupling works between both Macro and Micro models, there is a need to define the coupled locations in a separate file.
 Besides, since the conflict locations of Micro Model should be added to Macro model and then agents will be spawned through these ghost locations to the Micro model, then all these ghost locations or in fact all Micro model conflict locations must be added to coupled_locations.csv file.
@@ -173,7 +173,7 @@ Construct an agent-based network map from **locations.csv** and **routes.csv** u
 
 
 Constructing validation data
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are three CSV file formats required for validation of simulation outputs in both Macro and Micro models.
 CSV file containing total forced migrant counts **refugees.csv** comprises total counts of forcibly displaced people from ``Refugees and asylum-seekers from `chosen situation name` - Total`` JSON file and has the format as demonstrated:
