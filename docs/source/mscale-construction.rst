@@ -17,12 +17,12 @@ Please follow the guidelines in serial mode conflict scenario construction and p
 
 - Micro input CSV files:
 
-    - input_files_1/locations-1.csv
-    - input_files_1/routes-1.csv
-    - input_files_1/closures-1.csv
-    - input_files_1/coupled_locations-1.csv
-    - input_files_1/registration_corrections-1.csv
-    - input_files_1/conflicts-1.csv
+  - input_files_1/locations-1.csv
+  - input_files_1/routes-1.csv
+  - input_files_1/closures-1.csv
+  - input_files_1/coupled_locations-1.csv
+  - input_files_1/registration_corrections-1.csv
+  - input_files_1/conflicts-1.csv
 
 - Macro Validation data files:
 
@@ -118,10 +118,17 @@ closure_type   name1   name2   closure_start = 0   closure_end = -1
 
 For each Macro and Micro models we will define and construct registration corrections based of validation camp files.
 
+============  ============  ===========
+   camp_A      YYYY-MM-DD    normalize
+   camp_B      YYYY-MM-DD    normalize
+   camp_C      YYYY-MM-DD    normalize 
+    ...           ...           ...
+============  ============  ==========
+
 6. Record conflict locations in **conflicts-#.csv** file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We create a **conflicts-0.csv** file for Macro Model and a **conflicts-1.csv** file for Micro Model to record conflict locations indicating the start of conflicts in the simulation execution:
+We create a **conflicts-0.csv** file for Macro Model and a **conflicts-1.csv** file for Micro Model to record conflict locations indicating the start of conflicts in the simulation execution (represented as 1):
 
 =====  =====  ====  ====  ====  ====
 #Day   name    A     B     C     Z
@@ -154,7 +161,6 @@ Besides, since the conflict locations of Micro Model should be added to Macro mo
 
 ========
   ...
---------
    A
    B
    C
