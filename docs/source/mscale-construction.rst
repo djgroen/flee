@@ -79,19 +79,20 @@ We connect these locations to represent how forcibly displaced people flee.
 Record distances between locations in **routes.csv** file for simulation using the following format:
 
 ======  ======  =============  ===================  =============
-name1   name2   distance[km]   forced_redirection*    link_type**
+name1   name2   distance[km]    forced_redirection    link_type
 ------  ------  -------------  -------------------  -------------
- A        B      x1                                  walk
- B        C      x2                                  drive
- A        C      x3                                  crossing
- B        N      x4                                    ...
- C        N      x3                                    ...
- N        Z      x5                                    ...
- ...     ...     ...                                   ...
+ A        B      x1                                   walk
+ B        C      x2                                   drive
+ A        C      x3                                   crossing
+ B        N      x4                                     ...
+ C        N      x3                                     ...
+ N        Z      x5                                     ...
+ ...     ...     ...                                    ...
 ======  ======  =============  ===================  =============
 
-*The main difference between Macro and Micro models' routes file is that in the Micro model all links have specific type which are represented by the link_type column with three possible values; walk, drive, and crossing.
 **forced_redirection** refers to redirection from source location (can be town or camp) to destination location (mainly camp) and source location indicated as forwarding_hub. The value of 0 indicates no redirection, 1 indicates redirection (from name2) to name1and 2 corresponds to redirection (from name1) to name2.
+
+**link_type**: The main difference between Macro and Micro models' routes file is that in the Micro model all links have specific type which are represented by the link_type column with three possible values; walk, drive, and crossing.
 
 
 4. Define location and border closures in **closures-#.csv** file
