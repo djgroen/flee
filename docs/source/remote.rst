@@ -11,21 +11,21 @@ Before running any simulation on a remote supercomputer, the following is requir
 
 - Make sure the target remote machine is properly defined in `(FabSim Home)/deploy/machines.yml` 
 
-- In Flee, some python libraries such as `numpy` will be used for the job execution, in case of nonexistent of those packages, we recommended to install a *_virtualenv_* on the target machine. It can be done by running:
+- In Flee, some python libraries such as `numpy` will be used for the job execution, in case of nonexistent of those packages, we recommended to install a virtual environment (*_venv_*) on the target machine. It can be done by running:
 
   - For QCG machine: 
   
   .. code:: console
    
-          fab qcg install_app:QCG-PilotJob,virtual_env=True
+          fab qcg install_app:QCG-PilotJob,venv=True
 	
   - For SLURM machine: 
   
   .. code:: console
    
-          fab <remote_machine_name> install_app:QCG-PilotJob,virtual_env=True
+          fab <remote_machine_name> install_app:QCG-PilotJob,venv=True
           
-  .. note:: The installation path (``virtual_env_path``) is set on ``machines.yml`` as one of parameters for the target remote machine. By installing this ``_virtualenv_`` on the target remote machine, the QCG Pilot Job (https://github.com/vecma-project/QCG-PilotJob) service will be also installed alongside with other required dependencies.
+  .. note:: The installation path (``virtual_env_path``) is set on ``machines.yml`` as one of parameters for the target remote machine. By installing this ``_venv_`` on the target remote machine, the QCG Pilot Job (https://github.com/vecma-project/QCG-PilotJob) service will be also installed alongside with other required dependencies.
 
 
 Running an ensemble simulation on a supercomputer using Pilot Jobs and QCG Broker
@@ -34,20 +34,20 @@ Running an ensemble simulation on a supercomputer using Pilot Jobs and QCG Broke
 
   .. code:: console
 
-          fabsim qcg flee_ensemble:<conflict_name>,N=20,simulation_period=<number>,PilotJob=true
+          fabsim qcg flee_ensemble:<conflict_name>,N=20,simulation_period=<number>,PJ=true
 
 or 
 
   .. code:: console
 
-          fabsim <remote_machine_name> flee_ensemble:<conflict_name>,N=20,simulation_period=<number>,PilotJob=true
+          fabsim <remote_machine_name> flee_ensemble:<conflict_name>,N=20,simulation_period=<number>,PJ=true
 
 
 To showcase the execution of ensemble simulation using Pilot Job, simply run Mali conflict instance:
  
   .. code:: console
    
-          fabsim eagle_vecma flee_ensemble:mali,N=20,simulation_period=50,PilotJob=true
+          fabsim eagle_vecma flee_ensemble:mali,N=20,simulation_period=50,PJ=true
 
 2. To check if your jobs are finished or not, simply run:
 

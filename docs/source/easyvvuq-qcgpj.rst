@@ -165,25 +165,25 @@ Execution on a remote machine using QCG-Pilot Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 For QCG-PilotJob installation, see https://github.com/vecma-project/QCG-PilotJob/blob/master/INSTALL.txt 
 
-.. note:: if QCG-PJ is installed in the target remote machine, by using PilotJob=True, the native QCG-PilotJob will be lunched for execution. Otherwise you require to install the QCG-PilotJob service in a VirtualEnv in the target machine, and then PilotJob=True option will load QCG-PJ services from VirtualEnv. 
+.. note:: if QCG-PilotJob is installed in the target remote machine, by using PJ=True, the native QCG-PilotJob will be lunched for execution. Otherwise you require to install the QCG-PilotJob service in a virtual environment (venv) in the target machine, and then PJ=True option will load QCG-PilotJob services from venv. 
 
 To install virtual environment on the remote machine alongside with QCG-PilotJob, just run: 
 
   .. code:: console
   
-          fab <remote machine name> install_app:QCG-PilotJob,virtual_env=True
+          fab <remote machine name> install_app:QCG-PilotJob,venv=True
 
 To execute easyvvuq for migration prediction using Pilot Job, run
 
   .. code:: console
   
-          fab <remote machine name> flee_init_SC:<conflict_name>,simulation_period=<number>,PilotJob=True
+          fab <remote machine name> flee_init_SC:<conflict_name>,simulation_period=<number>,PJ=True
           
   or 
   
   .. code:: console
   
-          fab <remote machine name> flee_init_PCE:<conflict_name>,simulation_period=<number>,PilotJob=True
+          fab <remote machine name> flee_init_PCE:<conflict_name>,simulation_period=<number>,PJ=True
   
 
 2. Run the following command to copy back results from the remote machine and perform analysis. The results will then be in a directory inside ``(FabSim Home)/results``, which is most likely called <conflict_name>_<remote_machine_name>_<number> (e.g. mali_eagle_vecma_16).
