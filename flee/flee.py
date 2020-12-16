@@ -805,7 +805,7 @@ class Ecosystem:
         print(
             "ERROR in flee.add_conflict_zone: location with name [%s] appears not to exist in the FLEE ecosystem (see diagnostic above)." % (name))
 
-    def remove_conflict_zone(self, name):
+    def remove_conflict_zone(self, name, change_movechance=True):
         """
         Shorthand function to remove a conflict zone from the list.
         (not used yet)
@@ -820,6 +820,11 @@ class Ecosystem:
                 new_conflict_zone_names += [self.conflict_zone_names[i]]
                 new_weights = np.append(
                     new_weights, [self.conflict_weights[i]])
+            else:
+                if change_movechance:
+                    self.conflict_zones[i].movechance = SimulationSettings.DefaultMoveChance
+                self.conflict_zones[i].conflict = False
+                self.conflict_zones[i].town = True
 
         self.conflict_zones = new_conflict_zones
         self.conflict_weights = new_weights
