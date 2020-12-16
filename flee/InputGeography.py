@@ -195,3 +195,8 @@ class InputGeography:
                         print("Time = %s. Adding a new conflict zone [%s]" % (
                             time, l), file=sys.stderr)
                         e.add_conflict_zone(l)
+                if self.conflicts[l][time] == 0 and time > 0:
+                    if self.conflicts[l][time - 1] == 1:
+                        print("Time = %s. Removing conflict zone [%s]" % (
+                            time, l), file=sys.stderr)
+                        e.remove_conflict_zone(l)
