@@ -815,7 +815,7 @@ class Ecosystem:
         new_weights = np.array([])
 
         for i in range(0, len(self.conflict_zones)):
-            if conflict_zones[i].name is not name:
+            if self.conflict_zones[i].name is not name:
                 new_conflict_zones += [self.conflict_zones[i]]
                 new_conflict_zone_names += [self.conflict_zone_names[i]]
                 new_weights = np.append(
