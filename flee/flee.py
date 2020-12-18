@@ -801,9 +801,10 @@ class Ecosystem:
                               self.conflict_pop)
                     return
 
-        print("Diagnostic: self.locationNames: ", self.locationNames)
+        print("Diagnostic: self.locationNames: ", self.locationNames, file=sys.stderr)
+        print("Diagnostic: self.conflict_zone_names: ", self.conflict_zone_names, file=sys.stderr)
         print(
-            "ERROR in flee.add_conflict_zone: location with name [%s] appears not to exist in the FLEE ecosystem (see diagnostic above)." % (name))
+            "ERROR in flee.add_conflict_zone: location with name [%s] appears not to exist in the FLEE ecosystem (see diagnostic above)." % (name), file=sys.stderr)
 
     def remove_conflict_zone(self, name, change_movechance=True):
         """
@@ -815,7 +816,7 @@ class Ecosystem:
         new_weights = np.array([])
 
         for i in range(0, len(self.conflict_zones)):
-            if self.conflict_zones[i].name is not name:
+            if not self.conflict_zones[i].name == name:
                 new_conflict_zones += [self.conflict_zones[i]]
                 new_conflict_zone_names += [self.conflict_zone_names[i]]
                 new_weights = np.append(
@@ -830,6 +831,7 @@ class Ecosystem:
         self.conflict_zones = new_conflict_zones
         self.conflict_weights = new_weights
         self.conflict_pop = sum(self.conflict_weights)
+
 
     def pick_conflict_location(self):
         #print("Warning: this function is now deprecated as of ruleset 2.0. Please use pick_conflict_locations() instead in your scripts.", file=sys.stderr)
