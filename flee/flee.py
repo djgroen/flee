@@ -274,7 +274,7 @@ class Location:
 
         # Automatically tags a location as a Camp if refugees are less than 2%
         # likely to move out on a given day.
-        if self.movechance < 0.02 and not self.camp:
+        if self.movechance < 0.005 and not self.camp:
             print("Warning: automatically setting location %s to camp, as movechance = %s" % (
                 self.name, self.movechance), file=sys.stderr)
             self.camp = True
