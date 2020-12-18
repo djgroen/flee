@@ -172,12 +172,14 @@ class DataTable:
         self.data_table.append(ConvertCsvFileToNumPyTable(
             "%s" % (data_file_name), start_date=self.start_date))
 
-    def get_daily_difference(self, day, day_column=0, count_column=1, Debug=False, FullInterpolation=True):
+    def get_daily_difference(self, day, day_column=0, count_column=1, Debug=False, FullInterpolation=True, SumFromCamps=True):
         """
         Extrapolate count of new refugees at a given time point, based on input data.
         count_column = column which contains the relevant difference.
         FullInterpolation: when disabled, the function ignores any decreases in refugee count.
         when enabled, the function can return negative numbers when the new total is higher than the older one.
+        SumFromCamps: when enabled, adds up all the camp numbers when calculating totals. When disabled, simply takes the value from the "total" field
+        (which usually maps to refugees.csv).
         """
 
         self.total_refugee_column = count_column
@@ -193,25 +195,36 @@ class DataTable:
             ref_table = self.data_table[0]
 
             new_refugees = 0
-            for i in self.header[1:]:
-                new_refugees += self.get_field(i, 0, FullInterpolation)
-                #print("Day 0 data:",i,self.get_field(i, 0, FullInterpolation))
+            if SumFromCamps:
+                for i in self.header[1:]:
+                    new_refugees += self.get_field(i, 0, FullInterpolation)
+                    #print("Day 0 data:",i,self.get_field(i, 0, FullInterpolation))
+            else:
+                new_refugees += self.get_field("total", 0, FullInterpolation)
+
 
             return int(new_refugees)
 
         else:
 
             new_refugees = 0
-            for i in self.header[1:]:
-                new_refugees += self.get_field(i, day, FullInterpolation) - \
-                    self.get_field(i, day - 1, FullInterpolation)
+            if SumFromCamps:
+                for i in self.header[1:]:
+                    new_refugees += self.get_field(i, day, FullInterpolation) - \
+                        self.get_field(i, day - 1, FullInterpolation)
+            else:
+                new_refugees += self.get_field("total", day, FullInterpolation) - self.get_field("total", day - 1, FullInterpolation)
 
-                # print self.get_field("Mbera", day), self.get_field("Mbera",
-                # day-1)
             return int(new_refugees)
 
         # If the day exceeds the validation data table, then we return 0
         return 0
+
+    def dump(self, day, length):
+        print("Agent count data table DUMP:")
+        for i in range(0, length):
+            print(self.get_daily_difference(day+i))
+
 
     def get_interpolated_data(self, column, day):
         """
