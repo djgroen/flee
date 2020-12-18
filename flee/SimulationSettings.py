@@ -18,9 +18,9 @@ class SimulationSettings:
 
     sqrt_ten = 3.16227766017  # square root of ten (10^0.5).
 
-    CampWeight = 1  # attraction factor for camps.
+    CampWeight = 1.0  # attraction factor for camps.
     # reduction factor for refugees entering conflict zones.
-    ConflictWeight = 10 / sqrt_ten
+    ConflictWeight = 1.0 / sqrt_ten
     # most number of km that we expect refugees to traverse per time step (30
     # km/h * 12 hours).
     MaxMoveSpeed = 40
