@@ -15,9 +15,9 @@ def initiate_food():
     # critict=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv")["Dates"]
     # IPC_all=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv",index_col=0)
     critict = pd.read_csv(
-        "~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv")["Dates"]
+        "source_data/ssudan2014/food/IPC.csv")["Dates"]
     IPC_all = pd.read_csv(
-        "~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv", index_col=0)
+        "source_data/ssudan2014/food/IPC.csv", index_col=0)
     current_i = 0
 
     return [critict, IPC_all, current_i]

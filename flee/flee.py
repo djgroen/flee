@@ -826,6 +826,7 @@ class Ecosystem:
                 self.conflict_zones[i].conflict = False
                 self.conflict_zones[i].town = True
 
+        self.conflict_zone_names = new_conflict_zone_names
         self.conflict_zones = new_conflict_zones
         self.conflict_weights = new_weights
         self.conflict_pop = sum(self.conflict_weights)
