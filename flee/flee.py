@@ -274,7 +274,7 @@ class Location:
 
         # Automatically tags a location as a Camp if refugees are less than 2%
         # likely to move out on a given day.
-        if self.movechance < 0.02 and not self.camp:
+        if self.movechance < 0.005 and not self.camp:
             print("Warning: automatically setting location %s to camp, as movechance = %s" % (
                 self.name, self.movechance), file=sys.stderr)
             self.camp = True
@@ -826,6 +826,7 @@ class Ecosystem:
                 self.conflict_zones[i].conflict = False
                 self.conflict_zones[i].town = True
 
+        self.conflict_zone_names = new_conflict_zone_names
         self.conflict_zones = new_conflict_zones
         self.conflict_weights = new_weights
         self.conflict_pop = sum(self.conflict_weights)
