@@ -232,6 +232,13 @@ This does the following:
   
 Local results are typically locations in the ``~/FabSim3/results/`` subdirectory.
 
+5. To plot the results use:
+
+  .. code:: console
+  
+          fabsim localhost plot_output:<conflict_name>,out
+
+If the results directory includes Multiscale results, it will plot them too. Otherwise, it only plots serial mode results.
 
 Ensemble execution
 ~~~~~~~~~~~~~~~~~~
