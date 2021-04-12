@@ -314,6 +314,130 @@ def error_quantification(config, data, name, naieve_model=True):
 
     return lerr
 
+def plot_aggregated_errors(macro_df, micro_df, config, macro_output_dir, micro_output_dir):
+
+    
+    # Macro and Micro Concatination
+    #######################################################################################
+
+    macro_filtered = macro_df.drop(['Total error', 'refugees in camps (UNHCR)', 'total refugees (simulation)',
+     'raw UNHCR refugee count', 'refugees in camps (simulation)', 'refugee_debt'], axis=1)
+
+    micro_filtered = micro_df.drop(['Total error', 'refugees in camps (UNHCR)', 'total refugees (simulation)',
+     'raw UNHCR refugee count', 'refugees in camps (simulation)', 'refugee_debt'], axis=1)
+    
+    merged_file_out = pd.concat([macro_filtered, micro_filtered], axis=1, sort=False)
+
+    # Identifying location names for graphs
+
+    cols = list(merged_file_out.columns.values)
+
+    location_names = []
+
+    for i in cols:
+            if " sim" in i:
+                if "numAgents" not in i:
+                    location_names.append(' '.join(i.split()[:-1])) 
+
+    # abs Error calculations
+    abs_error = 0
+    for i in location_names:
+        abs_error += merged_file_out["{} sim".format(i)] - merged_file_out["{} data".format(i)]  
+
+    merged_file_out["abs error"] = round(abs(abs_error), a.ROUND_NDIGITS)
+
+    merged_file_out["raw UNHCR refugee count"] = macro_df["raw UNHCR refugee count"]
+
+    total_error = round((merged_file_out["abs error"] / merged_file_out["raw UNHCR refugee count"]).fillna(0), a.ROUND_NDIGITS)
+        
+    merged_file_out["total_error"] = total_error
+
+    merged_file_out["refugees in camps (UNHCR)"] = macro_df["refugees in camps (UNHCR)"] + micro_df["refugees in camps (UNHCR)"]
+
+    merged_file_out["total refugees (simulation)"] = macro_df["total refugees (simulation)"] + micro_df["total refugees (simulation)"]
+
+    merged_file_out["refugees in camps (simulation)"] = macro_df["refugees in camps (simulation)"] + micro_df["refugees in camps (simulation)"]
+
+    merged_file_out["refugee_debt"] = macro_df["refugee_debt"] + micro_df["refugee_debt"]
+
+    merged_file_out.to_csv('merged_file_out.csv', index=True, header=True)
+    
+   
+    # ERROR PLOTS
+    #######################################################################################
+
+    un_refs1 = merged_file_out.loc[
+        :, ["refugees in camps (UNHCR)"]].to_numpy().flatten()
+        
+    
+    loc_errors1 = []
+    
+
+    nmodel = False
+
+    
+    for i in location_names:
+        
+        loc_errors1.append(error_quantification(output_dir, merged_file_out, i, naieve_model=nmodel))
+
+
+    sim_errors1 = SimulationErrors(loc_errors1)
+
+    print(loc_errors1)
+   
+    matplotlib.rcParams.update({'font.size': 20})
+    plt.clf()
+
+    # Size of plots/figures
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(14, 10)
+    plt.rc('xtick',labelsize=18)
+    plt.rc('ytick',labelsize=18)
+    set_margins()
+
+    # Plotting and saving error (differences) graph
+    plt.ylabel("Averaged relative difference", fontsize=24)
+    plt.xlabel("Days elapsed", fontsize=24)
+    plt.title("{} Simulation: Averaged relative difference".format(config), fontsize=24)
+
+
+    diffdata1 = sim_errors1.abs_diff(rescaled=False) / np.maximum(un_refs1, np.ones(len(un_refs1)))
+   
+    diffdata1_rescaled = sim_errors1.abs_diff() / np.maximum(un_refs1, np.ones(len(un_refs1)))
+
+    
+    
+    print("Aggregated averaged error normal: ", np.mean(diffdata1),
+          ", rescaled: ", np.mean(diffdata1_rescaled), ", len: ", len(diffdata1))
+    
+
+    labeldiff_rescaled1, = plt.plot(np.arange(len(diffdata1_rescaled)), diffdata1_rescaled, 
+        linewidth=5, label="Error of Multiscale Simulation")
+    
+        
+    plt.legend(handles=[labeldiff_rescaled1], loc=7, prop={'size': 14})
+   
+    set_margins()
+
+    mkdir_p("{}/Error_plots/".format(output_dir))
+
+    plt.savefig("{}/Error_plots/error.png".format(output_dir))
+
+
+    #ERROR COMPARISON
+    #######################################################################################
+
+    labeldiff1, = plt.plot(np.arange(len(diffdata1)), diffdata1, 
+        linewidth=5, label="Error- Multiscale Simulation (not rescaled)")
+    
+        
+    plt.legend(handles=[labeldiff_rescaled1, labeldiff1], loc=1, prop={'size': 14})
+
+    set_margins()
+
+    plt.savefig("{}/Error_plots/error_comparison.png".format(output_dir))
+
+    plt.clf()
 
 def mkdir_p(mypath):
     # Creates a directory. equivalent to using mkdir -p on the command line
@@ -347,7 +471,7 @@ def plot_flee_output(input_dir, output_dir, mscale=False):
     #   micro Multiscale results preparation    #
     #############################################
     micro_input_dir = os.path.join(input_dir, 'micro')
-    micro_output_dir = os.path.join(output_dir, 'micro')
+    micro_output_dir = os.path.join(output_dir, 'Micro_plots')
     micro_df_PATH=os.path.join(micro_input_dir,'out.csv')
     
 
@@ -355,7 +479,7 @@ def plot_flee_output(input_dir, output_dir, mscale=False):
     #   macro Multiscale results preparation    #
     #############################################
     macro_input_dir = os.path.join(input_dir, 'macro')
-    macro_output_dir = os.path.join(output_dir, 'macro')
+    macro_output_dir = os.path.join(output_dir, 'Macro_plots')
     macro_df_PATH=os.path.join(macro_input_dir,'out.csv')
     
 
@@ -387,7 +511,6 @@ def plot_flee_output(input_dir, output_dir, mscale=False):
         plot_camps(micro_df, config, micro_output_dir)
         # RAW UNHCR Counts need to be addressed
         plot_numagents(micro_df, config, micro_output_dir)
-        plot_errors(micro_df, config, micro_output_dir, model='micro')
         print('The results of micro simulation are stored '
               'in %s directory.' % (micro_output_dir))
 
@@ -400,9 +523,14 @@ def plot_flee_output(input_dir, output_dir, mscale=False):
         plot_camps(macro_df, config, macro_output_dir)
         # RAW UNHCR Counts need to be addressed
         plot_numagents(macro_df, config, macro_output_dir)
-        plot_errors(macro_df, config, macro_output_dir)
         print('The results of macro simulation are stored '
               'in %s directory.' % (macro_output_dir))
+
+    if isfile(micro_df_PATH) and isfile(macro_df_PATH):
+
+        plot_aggregated_errors(macro_df, micro_df, config, macro_output_dir, micro_output_dir)
+        print('The error plots are stored '
+              'in %s/Error_plots directory.' % (output_dir))
 
 
 if __name__ == "__main__":
