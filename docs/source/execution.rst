@@ -15,47 +15,44 @@ To run simulation instance using Flee with test, simply type:
 .. note:: The **2>/dev/null** ensures that any diagnostics are not displayed on the screen. Instead, pure CSV output for the toy model should appear on the screen if this works correctly.
   
 
-Execute a conflict scenario
+Execute a conflict scenario 
 ---------------------------
 
-1. Create an output directory **out<country_name>**.
-
-2. Run the following command to execute <country_name>.py and obtain the simulation output, which will be written to out<country_name> as out.csv:
+1. Create an output directory **out<country_name>**, where <country_name> refers to a conflict instance name. For instance, create an output directory **outcar** for the Central African Republic (CAR) situation. 
+  
+   .. code:: console
    
+          mkdir outcar
+          
+2. Execute a conflict scenario by following the execution template demonstrated below:
+
    .. code:: console
 
-           python3 <country_name>.py <simulation_period> > out<country_name>/out.csv
+           python3 conflicts/<country_name>.py <simulation_period> > out<country_name>/out.csv
+           
+where **conflicts/<country_name>.py** is a conflict instance script, **<simulation_period>** represents the simulation duration and **out<country_name>/out.csv** stores the simulation output. 
 
-3. Plot the simulation output using:
-
-   .. code:: console
-
-           python3 plot-flee-output.py out<country_name>
-
-4. To analyse and interpret simulation output, open out<country_name>, which will contain simulation output and UNHCR data comparison graphs for each camp, as well as average relative difference graph for the simulated conflict situation.
-
-   
-
-Execute simplified simulation of Central African Republic (CAR) situation
--------------------------------------------------------------------------
-
-To run the (simplified) CAR simulation:
-
-1. Create an output directory **outcar**.
-
-2. Execute car-csv.py in conflicts directory and obtain the simulation output:
+For example, execute **car-csv.py** in the **conflicts** directory for the simulation duration of 50 days and store the simulation output in **outcar/out.csv**:
 
    .. code:: console
 
            python3 conflicts/car-csv.py 50 > outcar/out.csv
+   
+   
+3. To plot the simulation output, simply follow the command template below:
 
-3. Plot the simulation output using:
+   .. code:: console
+
+           python3 plot-flee-output.py out<country_name>
+           
+where **out<country_name>** represents the simulation output directory (Step 1). To illustrate, plot the simulation output for CAR, simply execute:
 
    .. code:: console
 
            python3 plot-flee-output.py outcar
-    
-4. Analyse and interpret simulation output graphs in the **outcar** directory.
+
+4. To analyse and interpret simulation output, open **out<country_name>**  , which will contain simulation output and UNHCR data comparison graphs for each camp, as well as average relative difference graph for the simulated conflict situation. To illustrate, analyse and interpret simulation output graphs in the **outcar** directory.
+
 
 
 Parallel Performance Testing
