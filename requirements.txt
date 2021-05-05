@@ -1,4 +1,6 @@
-numpy
+networkx
+matplotlib
 pandas
-mpi4py
 pytest
+mpi4py
+numpy
