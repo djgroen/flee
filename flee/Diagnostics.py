@@ -6,7 +6,7 @@ def write_agents_par(rank, agents, time, max_written=-1, timestep_interval=1):
     my_file = None
     if time == 0:
         my_file = open('agents.out.%s' % rank, 'w', encoding='utf-8')
-        print("#time, rank-agentid, agent location, gps_x, gps_y, is_travelling, distance_travelled, places_travelled, distance_moved_this_timestep", file=my_file)
+        print("#time,rank-agentid,agent location,gps_x,gps_y,is_travelling,distance_travelled,places_travelled,distance_moved_this_timestep", file=my_file)
     else:
         my_file = open('agents.out.%s' % rank, 'a', encoding='utf-8')
 
