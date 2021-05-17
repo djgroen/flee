@@ -1,0 +1,77 @@
+name: Run PyTests
+
+on:
+  push:
+  pull_request:
+    branches: ["master"]   
+
+env:
+  PY_COLORS: 1
+
+  
+jobs:
+  build:
+    name: Python ${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.mpi }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:        
+        os: [ "ubuntu-latest", "macOS-latest" ]
+        python-version: ["3.7", "3.8", "3.9" ]
+        mpi: [mpich, openmpi]
+        include:
+        - os: ubuntu-latest
+          mpi: mpich
+          install-mpi: sudo apt install -y mpich libmpich-dev
+        - os: ubuntu-latest
+          mpi: openmpi
+          install-mpi: sudo apt install -y openmpi-bin libopenmpi-dev
+        - os: macos-latest
+          mpi: mpich
+          install-mpi: brew install mpich
+        - os: macos-latest
+          mpi: openmpi
+          install-mpi: brew install openmpi
+
+    steps:
+      - name: Checkout  🛎️
+        uses: "actions/checkout@v2"    
+
+      - name: Set up Python ${{ matrix.python-version }}  🐍
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: System Info  💻
+        run: |
+          python -c "from multiprocessing import cpu_count ; print('cpu_count={}'.format(cpu_count()))"
+
+          if [ "$RUNNER_OS" == "macOS" ]; then
+              echo "***************************"
+              system_profiler SPHardwareDataType
+              echo "***************************"
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+              echo "***************************"          
+              lscpu | egrep 'Model name|Socket|Thread|NUMA|CPU\(s\)'
+              lshw -short -C memory
+              echo "***************************"
+          fi
+
+          python3 --version
+          python --version
+
+      - name: Install MPI 📥
+        run: ${{ matrix.install-mpi }}
+
+
+      - name: Install Python Dependencies 📥
+        run: |
+          python3 -m pip install --upgrade pip wheel
+          python3 -m pip install --upgrade -r requirements.txt
+
+      - name: Test with pytest 🚀
+        run: |
+          export PYTHONPATH=${{ github.workspace }}:$PYTHONPATH          
+          git clone https://github.com/djgroen/FabFlee.git         
+          python3 -m pytest --log-cli-level=DEBUG tests/
+
