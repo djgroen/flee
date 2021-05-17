@@ -10,7 +10,11 @@ def test_datatable():
     print("Testing basic data handling kernel.")
 
     d = handle_refugee_data.RefugeeTable(
-        csvformat="generic", data_directory="test_data", start_date="2010-06-01", data_layout="data_layout.csv")
+        csvformat="generic",
+        data_directory="test_data",
+        start_date="2010-06-01",
+        data_layout="data_layout.csv"
+    )
 
     # print(d.header)
     # print(d.data_table)
@@ -41,6 +45,7 @@ def test_datatable():
     assert d.get_field("Total", 700) == int(311338 / 2)
 
     print("SUCCESS")
+
 
 if __name__ == "__main__":
     test_datatable()

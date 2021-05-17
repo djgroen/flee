@@ -28,7 +28,11 @@ def test_toy_escape():
     e.linkUp("A", "D", "536.0")
 
     d = handle_refugee_data.RefugeeTable(
-        csvformat="generic", data_directory="test_data", start_date="2010-01-01", data_layout="data_layout.csv")
+        csvformat="generic",
+        data_directory="test_data",
+        start_date="2010-01-01",
+        data_layout="data_layout.csv"
+    )
 
     for t in range(0, end_time):
         new_refs = d.get_new_refugees(t)

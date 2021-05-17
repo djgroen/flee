@@ -5,6 +5,7 @@ from flee import InputGeography
 import numpy as np
 import flee.postprocessing.analysis as a
 import sys
+import os
 
 
 def AddInitialRefugees(e, d, loc):
@@ -24,7 +25,9 @@ def test_csv(end_time=50, last_physical_day=50):
 
     ig = InputGeography.InputGeography()
 
-    flee.SimulationSettings.FlareConflictInputFile = "test_data/test_input_csv/flare-out.csv"
+    flee.SimulationSettings.FlareConflictInputFile = os.path.join(
+        "test_data", "test_input_csv", "flare-out.csv"
+    )
     ig.ReadFlareConflictInputCSV(
         flee.SimulationSettings.FlareConflictInputFile)
 
@@ -44,10 +47,12 @@ def test_csv(end_time=50, last_physical_day=50):
 
     e, lm = ig.StoreInputGeographyInEcosystem(e)
 
-    #print("Network data loaded")
-
     d = handle_refugee_data.RefugeeTable(
-        csvformat="generic", data_directory="test_data/test_input_csv/refugee_data", start_date="2010-01-01", data_layout="data_layout.csv")
+        csvformat="generic",
+        data_directory="test_data/test_input_csv/refugee_data",
+        start_date="2010-01-01",
+        data_layout="data_layout.csv"
+    )
 
     output_header_string = "Day,"
 
@@ -59,7 +64,9 @@ def test_csv(end_time=50, last_physical_day=50):
         output_header_string += "%s sim,%s data,%s error," % (
             lm[l].name, lm[l].name, lm[l].name)
 
-    output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
+    output_header_string += "Total error,refugees in camps (UNHCR),"
+    "total refugees (simulation),raw UNHCR refugee count,"
+    "refugees in camps (simulation),refugee_debt"
 
     print(output_header_string)
 
@@ -123,16 +130,21 @@ def test_csv(end_time=50, last_physical_day=50):
                                         ].numAgents, loc_data[i], errors[i])
 
         if refugees_raw > 0:
-            #output_string += ",%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw)
-            output += ",%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors)) / float(refugees_raw), int(
-                sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt)
+            output += ",%s,%s,%s,%s,%s,%s" % (
+                float(np.sum(abs_errors)) / float(refugees_raw),
+                int(sum(loc_data)),
+                e.numAgents(),
+                refugees_raw,
+                refugees_in_camps_sim,
+                refugee_debt
+            )
         else:
             output += ",0,0,0,0,0,0,0"
-            #output_string += ",0"
 
         print(output)
 
     print('Test successfully completed.')
+
 
 if __name__ == "__main__":
     end_time = 50

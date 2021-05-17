@@ -43,5 +43,6 @@ def test_tiny_closure():
 
     print("Test successful!")
 
+
 if __name__ == "__main__":
     test_tiny_closure()

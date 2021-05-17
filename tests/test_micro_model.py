@@ -51,5 +51,6 @@ def test_micro_model():
 
     print("Test successful!")
 
+
 if __name__ == "__main__":
     test_micro_model()

@@ -53,5 +53,6 @@ def test_awareness():
 
     print("Test successful!")
 
+
 if __name__ == "__main__":
     test_awareness()

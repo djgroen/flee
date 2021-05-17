@@ -37,5 +37,6 @@ def test_path_choice():
 
     print("Test successful!")
 
+
 if __name__ == "__main__":
     test_path_choice()
