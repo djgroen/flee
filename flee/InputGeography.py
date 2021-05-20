@@ -1,7 +1,7 @@
 import csv
 import sys
 from flee import flee
-from flee import SimulationSettings
+from flee.SimulationSettings import SimulationSettings
 
 
 class InputGeography:
@@ -44,7 +44,7 @@ class InputGeography:
         # TODO: make test verifying this in test_csv.py
 
     def getConflictLocationNames(self):
-        if len(SimulationSettings.SimulationSettings.FlareConflictInputFile) == 0:
+        if len(SimulationSettings.FlareConflictInputFile) == 0:
             conflict_names = []
             for l in self.locations:
                 if "conflict" in l[4].lower():
@@ -78,7 +78,7 @@ class InputGeography:
                     pass
                 else:
                     # print(row)
-                    self.locations.append([row[c["name"]], row[c["pop/cap"]], row[c["gps_x"]], row[c["gps_y"]], row[
+                    self.locations.append([row[c["name"]], row[c["pop/cap"]]), row[c["gps_x"]], row[c["gps_y"]], row[
                                           c["location_type"]], row[c["conflict_date"]], row[c["region"]], row[c["country"]]])
 
     def ReadLinksFromCSV(self, csv_name, name1_col=0, name2_col=1, dist_col=2):
@@ -126,8 +126,11 @@ class InputGeography:
         for l in self.locations:
             # if population field is empty, just set it to 0.
             if len(l[1]) < 1:
-                l[1] = "0"
-            # if population field is empty, just set it to 0.
+                l[1] = 0
+            else:
+                l[1] = int(l[1])/SimulationSettings.PopulationScaledownFactor
+
+            # if country field is empty, just set it to unknown.
             if len(l[7]) < 1:
                 l[7] = "unknown"
 
@@ -172,7 +175,7 @@ class InputGeography:
         If there is one, then the data from Flare is used instead.
         Note: there is no support for *removing* conflict zones at this stage.
         """
-        if len(SimulationSettings.SimulationSettings.FlareConflictInputFile) == 0:
+        if len(SimulationSettings.FlareConflictInputFile) == 0:
             for l in self.locations:
                 if "conflict" in l[4].lower() and int(l[5]) == time:
                     if e.print_location_output:

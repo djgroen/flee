@@ -25,7 +25,7 @@ def steps_to_date(steps, start_date):
     return new_date
 
 
-def _processEntry(row, table, data_type, date_column, count_column, start_date):
+def _processEntry(row, table, data_type, date_column, count_column, start_date, population_scaledown_factor=1):
     """
     Code to process a population count from a CSV file.
     column <date_column> contains the corresponding date in %Y-%m-%d format.
@@ -46,10 +46,10 @@ def _processEntry(row, table, data_type, date_column, count_column, start_date):
 
     if data_type == "int":
         table = np.vstack(
-            [table, [int(row[date_column]), int(row[count_column])]])
+            [table, [int(row[date_column]), int(row[count_column])/population_scaledown_factor]])
     else:
         table = np.vstack(
-            [table, [float(row[date_column]), float(row[count_column])]])
+            [table, [float(row[date_column]), float(row[count_column])/float(population_scaledown_factor)]])
 
     return table
 
@@ -94,7 +94,7 @@ def AddCSVTables(table1, table2):
     return table
 
 
-def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, count_column=1, start_date="2012-02-29"):
+def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, count_column=1, start_date="2012-02-29", population_scaledown_factor=1):
     """
     Converts a CSV file to a table with date offsets from 29 feb 2012.
     CSV format for each line is:
@@ -114,18 +114,18 @@ def ConvertCsvFileToNumPyTable(csv_name, data_type="int", date_column=0, count_c
         if(len(row) > 1):
             if len(row[0]) > 0 and row[0] not in ["DateTime", "Date"]:
                 table = _processEntry(
-                    row, table, data_type, date_column, count_column, start_date)
+                    row, table, data_type, date_column, count_column, start_date, population_scaledown_factor=population_scaledown_factor)
 
         for row in values:
             table = _processEntry(row, table, data_type,
-                                  date_column, count_column, start_date)
+                                  date_column, count_column, start_date, population_scaledown_factor=population_scaledown_factor)
 
     return table
 
 
 class DataTable:
 
-    def __init__(self, data_directory="mali2012", data_layout="data_layout_refugee.csv", start_date="2012-02-29", csvformat="generic"):
+    def __init__(self, data_directory="mali2012", data_layout="data_layout_refugee.csv", start_date="2012-02-29", csvformat="generic", population_scaledown_factor=1):
         """
         read in CSV data files containing refugee data.
         """
@@ -151,7 +151,7 @@ class DataTable:
 
                         #print("%s/%s" % (data_directory, row[1]))
                         csv_total = ConvertCsvFileToNumPyTable(
-                            "%s/%s" % (data_directory, row[1]), start_date=start_date)
+                            "%s/%s" % (data_directory, row[1]), start_date=start_date, population_scaledown_factor=population_scaledown_factor)
 
                         for added_csv in row[2:]:
                             csv_total = AddCSVTables(csv_total, ConvertCsvFileToNumPyTable(

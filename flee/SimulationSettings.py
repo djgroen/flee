@@ -49,6 +49,8 @@ class SimulationSettings:
     # -1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
     AwarenessLevel = 1
 
+    PopulationScaledownFactor = 1 # Speed up execution by scaling down population numbers (inputs, capacities and validations)
+
     # NumProcs = 1 #This is not supported at the moment.
 
     UseV1Rules = False
@@ -99,6 +101,8 @@ class SimulationSettings:
                     SimulationSettings.DefaultMoveChance = float(row[1])
                 elif row[0].lower() == "awarenesslevel":
                     SimulationSettings.AwarenessLevel = int(row[1])
+                elif row[0].lower() == "populationscaledownfactor":
+                    SimulationSettings.PopulationScaledownFactor = int(row[1])
                 elif row[0].lower() == "flareconflictinputfile":
                     SimulationSettings.FlareConflictInputFile = row[1]
                 elif row[0].lower() == "usev1rules":
