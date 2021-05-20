@@ -78,7 +78,7 @@ class InputGeography:
                     pass
                 else:
                     # print(row)
-                    self.locations.append([row[c["name"]], row[c["pop/cap"]]), row[c["gps_x"]], row[c["gps_y"]], row[
+                    self.locations.append([row[c["name"]], row[c["pop/cap"]], row[c["gps_x"]], row[c["gps_y"]], row[
                                           c["location_type"]], row[c["conflict_date"]], row[c["region"]], row[c["country"]]])
 
     def ReadLinksFromCSV(self, csv_name, name1_col=0, name2_col=1, dist_col=2):
