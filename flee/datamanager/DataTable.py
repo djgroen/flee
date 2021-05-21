@@ -155,7 +155,7 @@ class DataTable:
 
                         for added_csv in row[2:]:
                             csv_total = AddCSVTables(csv_total, ConvertCsvFileToNumPyTable(
-                                "%s/%s" % (data_directory, added_csv), start_date=start_date), population_scaledown_factor=population_scaledown_factor)
+                                "%s/%s" % (data_directory, added_csv), start_date=start_date, population_scaledown_factor=population_scaledown_factor))
 
                         self.data_table.append(csv_total)
 
