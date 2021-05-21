@@ -155,7 +155,7 @@ class DataTable:
 
                         for added_csv in row[2:]:
                             csv_total = AddCSVTables(csv_total, ConvertCsvFileToNumPyTable(
-                                "%s/%s" % (data_directory, added_csv), start_date=start_date))
+                                "%s/%s" % (data_directory, added_csv), start_date=start_date), population_scaledown_factor=population_scaledown_factor)
 
                         self.data_table.append(csv_total)
 
@@ -170,7 +170,7 @@ class DataTable:
 
         self.header.append("total (modified input)")
         self.data_table.append(ConvertCsvFileToNumPyTable(
-            "%s" % (data_file_name), start_date=self.start_date))
+            "%s" % (data_file_name), start_date=self.start_date), population_scaledown_factor=population_scaledown_factor)
 
     def get_daily_difference(self, day, day_column=0, count_column=1, Debug=False, FullInterpolation=True, SumFromCamps=True):
         """
