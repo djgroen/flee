@@ -49,7 +49,9 @@ class SimulationSettings:
     # -1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
     AwarenessLevel = 1
 
-    PopulationScaledownFactor = 1 # Speed up execution by scaling down population numbers (inputs, capacities and validations)
+    # Speed up execution by scaling down population numbers (inputs,
+    # capacities and validations)
+    PopulationScaledownFactor = 1
 
     # NumProcs = 1 #This is not supported at the moment.
 
@@ -73,9 +75,12 @@ class SimulationSettings:
 
         with open(csv_name, newline='') as csvfile:
             values = csv.reader(csvfile)
-
             for row in values:
-                if row[0][0] == "#":
+                # ignore getting IndexError in case of having empty line in
+                # simsetting.csv file
+                if len(row) == 0:
+                    continue
+                elif row[0][0] == "#":
                     pass
                 elif row[0].lower() == "agentloglevel":
                     SimulationSettings.AgentLogLevel = int(row[1])
