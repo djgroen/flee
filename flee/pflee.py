@@ -239,9 +239,9 @@ class Ecosystem(flee.Ecosystem):
 
             self.total_agents = np.sum(new_buffer)
 
-        if self.mpi.rank == 0:
-            print("Total agents in simulation:",
-                  self.total_agents, file=sys.stderr)
+        #if self.mpi.rank == 0:
+        #    print("Total agents in simulation:",
+        #          self.total_agents, file=sys.stderr)
 
     """
   Add & insert agent functions.

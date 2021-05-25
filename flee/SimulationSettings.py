@@ -5,7 +5,7 @@ import csv
 class SimulationSettings:
     # KM added to every link distance to eliminate needless distinction
     # between very short routes.
-    Softening = 10.0
+    Softening = 40.0
     # TurnBackAllowed = True # feature disabled for now.
     AgentLogLevel = 0  # set to 1 for basic agent information.
     # set to 1 to obtain average times for agents to reach camps at any time
@@ -14,16 +14,16 @@ class SimulationSettings:
     # set to 1 for basic information on locations added and conflict zones
     # assigned.
     InitLogLevel = 0
-    TakeRefugeesFromPopulation = True
+    TakeRefugeesFromPopulation = False
 
     sqrt_ten = 3.16227766017  # square root of ten (10^0.5).
 
-    CampWeight = sqrt_ten  # attraction factor for camps.
+    CampWeight = 1.0  # attraction factor for camps.
     # reduction factor for refugees entering conflict zones.
     ConflictWeight = 1.0 / sqrt_ten
     # most number of km that we expect refugees to traverse per time step (30
     # km/h * 12 hours).
-    MaxMoveSpeed = 360
+    MaxMoveSpeed = 40
     # most number of km that we expect refugees to traverse per time step on
     # foot (3.5 km/h * 10 hours).
     MaxWalkSpeed = 35
@@ -37,17 +37,19 @@ class SimulationSettings:
     # default move chance
     ConflictMoveChance = 1.0
     CampMoveChance = 0.001
-    DefaultMoveChance = 0.3
+    DefaultMoveChance = 0.01
 
     # Specific enhancements for the 2.0 ruleset.
     # This includes a movespeed of 420 and a walk speed of 42.
     # Displaced people will not take a break unless they at least travelled
     # for a full day's distance in the last two days.
-    AvoidShortStints = True
+    AvoidShortStints = False
 
     FlareConflictInputFile = ""
     # -1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
     AwarenessLevel = 1
+
+    PopulationScaledownFactor = 1 # Speed up execution by scaling down population numbers (inputs, capacities and validations)
 
     # NumProcs = 1 #This is not supported at the moment.
 
@@ -99,6 +101,8 @@ class SimulationSettings:
                     SimulationSettings.DefaultMoveChance = float(row[1])
                 elif row[0].lower() == "awarenesslevel":
                     SimulationSettings.AwarenessLevel = int(row[1])
+                elif row[0].lower() == "populationscaledownfactor":
+                    SimulationSettings.PopulationScaledownFactor = int(row[1])
                 elif row[0].lower() == "flareconflictinputfile":
                     SimulationSettings.FlareConflictInputFile = row[1]
                 elif row[0].lower() == "usev1rules":
