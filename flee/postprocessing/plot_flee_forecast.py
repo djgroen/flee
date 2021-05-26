@@ -181,7 +181,7 @@ def plot_flee_forecast(input_dir, output_dir):
 
         plot_file_name = 'All %s runs for [%s] with Mean and Percentiles' % (
             len(all_files), camp_name)
-        plt.ylim([0, 1000])
+        plt.ylim([0,])
         plt.savefig("{}/{}.png".format(output, plot_file_name), dpi=200)
 
 if __name__ == "__main__":

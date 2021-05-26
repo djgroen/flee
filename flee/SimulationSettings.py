@@ -23,7 +23,7 @@ class SimulationSettings:
     ConflictWeight = 1.0 / sqrt_ten
     # most number of km that we expect refugees to traverse per time step (30
     # km/h * 12 hours).
-    MaxMoveSpeed = 40
+    MaxMoveSpeed = 360
     # most number of km that we expect refugees to traverse per time step on
     # foot (3.5 km/h * 10 hours).
     MaxWalkSpeed = 35
@@ -37,7 +37,7 @@ class SimulationSettings:
     # default move chance
     ConflictMoveChance = 1.0
     CampMoveChance = 0.001
-    DefaultMoveChance = 0.01
+    DefaultMoveChance = 0.03
 
     # Specific enhancements for the 2.0 ruleset.
     # This includes a movespeed of 420 and a walk speed of 42.
