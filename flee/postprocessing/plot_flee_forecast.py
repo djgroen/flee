@@ -11,60 +11,6 @@ import glob
 from pprint import pprint
 from shutil import rmtree
 
-def plot_camps(data, mean, std, output):
-    
-    # Plotting function for camps.
-
-    data_filtered = data.drop(['Total error', 'refugees in camps (UNHCR)', 'total refugees (simulation)',
-     'raw UNHCR refugee count', 'refugees in camps (simulation)', 'refugee_debt'], axis=1)
-
-    mean_filtered = mean.drop(['Total error', 'refugees in camps (UNHCR)', 'total refugees (simulation)',
-     'raw UNHCR refugee count', 'refugees in camps (simulation)', 'refugee_debt'], axis=1)
-
-    std_filtered = std.drop(['Total error', 'refugees in camps (UNHCR)', 'total refugees (simulation)',
-     'raw UNHCR refugee count', 'refugees in camps (simulation)', 'refugee_debt'], axis=1)
-
-
-    cols = list(data_filtered.columns.values)
-
-    output = os.path.join(output, 'camps')
-        
-    mkdir_p(output)
-
-    for i in range(len(cols)):
-
-        name = cols[i].split()
-
-        y1 = data_filtered["%s data" % name[0]]
-        y2 = data_filtered["%s sim" % name[0]]
-        y3 = mean_filtered["%s sim" % name[0]]
-        y4 = std_filtered["%s sim" % name[0]]
-        y5 = y3 - y4
-        y6 = y3 + y4
-
-        X = range(len(y3))
-        
-        fig = plt.figure()
-        #fig.set_size_inches(14, 10)
-
-        ax = fig.add_subplot(111, xlabel="Days elapsed",
-                             ylabel="Number of refugees",
-                             title="{} Simulation with mean +/- standard deviation".format(name[0]))
-        ax.plot(X, y1, 'k', label='data')
-        #ax.plot(X, y2, 'b', label='sim')
-        ax.plot(X, y3, 'g-', label='mean')
-        ax.plot(X, y5, '--r', label='+1 std-dev')
-        ax.plot(X, y6, '--r')
-        ax.fill_between(X, y5, y6, color='Pink', alpha=0.2)
-        plt.tight_layout()
-        plt.legend(loc='best')
-        plot_file_name = 'plot_statistical_moments[%s]' % (name[0])
-
-        plt.savefig(os.path.join(output, plot_file_name), dpi=200)
-               
-        #plt.savefig("{}/{}.png".format(output,plot_file_name))
-        
-        plt.clf()
 
 def mkdir_p(mypath):
     # Creates a directory. equivalent to using mkdir -p on the command line
@@ -74,77 +20,155 @@ def mkdir_p(mypath):
     os.makedirs(mypath)
 
 
-
-def plot_flee_forecast(input_dir, output_dir):
+def plot_flee_forecast(input_dir, region_names=[]):
     data_dir = os.path.join(input_dir, 'RUNS')
-    
-    print(data_dir)
 
-    output_dir = os.path.join(data_dir, 'result_plots')
-    mkdir_p(output_dir)
     print('INPUT DIRECTORY={}'.format(input_dir))
-    print('OUTPUT DIRECTORY={}'.format(output_dir))
+    # print("data_dir = {}".format(data_dir))
 
-   
-    all_files = glob.glob(input_dir + "/RUNS/**/out.csv")
+    # we add empty string here to calculate results contains from all
+    # available region folder names in RUNS directory
+    region_names.append('')
+    # print("region_names = {}".format(region_names))
 
-    li = []
+    # clear the result_plots directory
+    mkdir_p(os.path.join(input_dir, 'plots'))
 
-    for filename in all_files:
-        df = pd.read_csv(filename, index_col=None, header=0)
-        li.append(df)
+    for region_name in region_names:
+        output_dir = os.path.join(input_dir, 'plots')
 
-    dfList = [pd.read_csv(file, index_col='Day', header=0)
-              for file in all_files]
-    output = os.path.join(output_dir, 'camps')
-    mkdir_p(output)
+        if len(region_name) > 0:
+            output_dir = os.path.join(output_dir, region_name)
+        else:
+            output_dir = os.path.join(output_dir, "entire_runs")
+        print('OUTPUT DIRECTORY={}'.format(output_dir))
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
 
-    #******************************************#
-    #************Mean and STD Plots************#
-    #******************************************#
+        if len(region_name) == 0:
+            all_files = glob.glob(input_dir + "/RUNS/**/out.csv")
+        else:
+            all_files = [f for f in glob.glob(
+                input_dir + "/RUNS/**/out.csv")
+                if region_name in os.path.abspath(f) and
+                os.path.basename(os.path.dirname(f)).index(region_name) == 0
+            ]
 
-    frame = pd.concat(li, axis=0, ignore_index=True)
+        #print("Collected out.csv files for analysis:")
+        #pprint(all_files)
 
-    frame.to_csv('{}/all_out.csv'.format(output_dir), index=False)
+        li = []
 
-    mean_df = frame.groupby(['Day']).mean()
+        for filename in all_files:
+            df = pd.read_csv(filename, index_col=None, header=0)
+            li.append(df)
 
-    mean_df = mean_df.reset_index()
+        dfList = [pd.read_csv(file, index_col='Day', header=0)
+                  for file in all_files]
+        output = os.path.join(output_dir, 'camps')
+        mkdir_p(output)
 
-    std_df = frame.groupby(['Day']).std()
+        # ******************************************#
+        # ************Mean and STD Plots************#
+        # ******************************************#
 
-    std_df = std_df.reset_index()
+        frame = pd.concat(li, axis=0, ignore_index=True)
 
-    mean_df.to_csv('{}/mean_df.csv'.format(output_dir), index=False)
-    
-    std_df.to_csv('{}/std_df.csv'.format(output_dir), index=False)
+        frame.to_csv('{}/all_out.csv'.format(output_dir), index=False)
 
-    mean_filtered = mean_df.drop(['Total error', 'refugees in camps (UNHCR)', 'total refugees (simulation)',
-     'raw UNHCR refugee count', 'refugees in camps (simulation)', 'refugee_debt'], axis=1)
+        mean_df = frame.groupby(['Day']).mean()
 
-    std_filtered = std_df.drop(['Total error', 'refugees in camps (UNHCR)', 'total refugees (simulation)',
-     'raw UNHCR refugee count', 'refugees in camps (simulation)', 'refugee_debt'], axis=1)
+        mean_df = mean_df.reset_index()
 
-    # find the camps camp_names
-    camp_names = []
-    for col in list(dfList[0].columns.values):
-        if col.find(" data") != -1:
-            camp_names.append(col.split()[0])
+        std_df = frame.groupby(['Day']).std()
 
-    print(camp_names)
+        std_df = std_df.reset_index()
 
-    #evenly_spaced_interval = np.linspace(0.1, 1, len(all_files))
-    #colors = [cm.rainbow(x) for x in evenly_spaced_interval]
+        mean_df.to_csv('{}/mean_df.csv'.format(output_dir), index=False)
 
-    for camp_index, camp_name in enumerate(camp_names):
-        fig = plt.figure()
+        std_df.to_csv('{}/std_df.csv'.format(output_dir), index=False)
 
-        ax = fig.add_subplot(
-            111, xlabel="Days elapsed",
-            ylabel="Number of refugees",
-            title="All Simulation runs ({}) for {} with mean and percentiles".format(len(all_files), camp_name)
+        mean_filtered = mean_df.drop(
+            ['Total error', 'refugees in camps (UNHCR)',
+             'total refugees (simulation)', 'raw UNHCR refugee count',
+             'refugees in camps (simulation)', 'refugee_debt'],
+            axis=1
         )
 
+        std_filtered = std_df.drop(
+            ['Total error', 'refugees in camps (UNHCR)',
+             'total refugees (simulation)', 'raw UNHCR refugee count',
+             'refugees in camps (simulation)', 'refugee_debt'],
+            axis=1
+        )
+
+        # find the camps camp_names
+        camp_names = []
+        for col in list(dfList[0].columns.values):
+            if col.find(" data") != -1:
+                camp_names.append(col.split()[0])
+
+        # print(camp_names)
+
+        # evenly_spaced_interval = np.linspace(0.1, 1, len(all_files))
+        # colors = [cm.rainbow(x) for x in evenly_spaced_interval]
+
+        for camp_index, camp_name in enumerate(camp_names):
+            fig = plt.figure()
+
+            ax = fig.add_subplot(
+                111, xlabel="Days elapsed",
+                ylabel="Number of refugees",
+                title="All Simulation runs ({}) for {} "
+                "with mean and percentiles".format(
+                    len(all_files), camp_name
+                )
+            )
+
+            boxplot_data = []
+            for i in range(len(all_files)):
+                y1 = dfList[i]["%s data" % camp_name]
+                y2 = dfList[i]["%s sim" % camp_name]
+                ax.plot(y1, 'k')
+                ax.plot(y2, color='Silver')
+
+                boxplot_data.append(y2.values)
+
+            y3 = mean_filtered["%s sim" % camp_name]
+            X = range(len(y3))
+            ax.plot(X, y3, 'b-', label='mean')
+
+            boxplot_data = np.array(boxplot_data).T
+            percentile_5 = np.percentile(boxplot_data, 5, axis=1)
+            percentile_95 = np.percentile(boxplot_data, 90, axis=1)
+            ax.plot(X, percentile_5, linestyle='--',
+                    color='r', label='5th percentile')
+            ax.plot(X, percentile_95, linestyle='-.',
+                    color='red', label='90th percentile')
+            ax.fill_between(X, percentile_5, percentile_95,
+                            color='Pink', alpha=0.5)
+
+            plt.tight_layout()
+
+            custom_lines = [Line2D([0], [0], color='k', lw=2),
+                            Line2D([0], [0], color='b', lw=2),
+                            Line2D([0], [0], color='Silver', lw=2),
+                            Line2D([0], [0], color='red', lw=2, ls='-.'),
+                            Line2D([0], [0], color='red', lw=2, ls='--')]
+
+            ax.legend(custom_lines, ['Data', 'Mean', 'Runs',
+                                     '90th percentile', '5th percentile'])
+
+            plot_file_name = 'All %s runs for [%s] with Mean and Percentiles' % (
+                len(all_files), camp_name)
+            plt.gca().set_ylim(bottom=0)
+            plt.savefig("{}/{}.png".format(output, plot_file_name), dpi=200)
+
+            # to avoid all figure to avoid warning about too many open figures
+            plt.close('all')
+
+<<<<<<< HEAD
+=======
         boxplot_data = []
         for i in range(len(all_files)):
             y1 = dfList[i]["%s data" % camp_name]
@@ -183,9 +207,10 @@ def plot_flee_forecast(input_dir, output_dir):
             len(all_files), camp_name)
         plt.ylim([0,])
         plt.savefig("{}/{}.png".format(output, plot_file_name), dpi=200)
+>>>>>>> fc6b09aa61da3ad927b0203b37fd42d9175c8663
 
 if __name__ == "__main__":
 
     input_dir = os.path.dirname(os.path.abspath(__file__))
-    plot_flee_forecast(input_dir)
-    
+    region_names = ["all", "tigray", "benshangul", "oromia"]
+    plot_flee_forecast(input_dir, region_names=region_names)
