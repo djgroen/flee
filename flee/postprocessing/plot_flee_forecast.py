@@ -167,8 +167,7 @@ def plot_flee_forecast(input_dir, region_names=[]):
             # to avoid all figure to avoid warning about too many open figures
             plt.close('all')
 
-<<<<<<< HEAD
-=======
+
         boxplot_data = []
         for i in range(len(all_files)):
             y1 = dfList[i]["%s data" % camp_name]
@@ -207,7 +206,7 @@ def plot_flee_forecast(input_dir, region_names=[]):
             len(all_files), camp_name)
         plt.ylim([0,])
         plt.savefig("{}/{}.png".format(output, plot_file_name), dpi=200)
->>>>>>> fc6b09aa61da3ad927b0203b37fd42d9175c8663
+
 
 if __name__ == "__main__":
 
