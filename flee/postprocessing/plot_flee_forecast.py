@@ -27,7 +27,7 @@ def plot_flee_forecast(input_dir, region_names=[]):
     # print("data_dir = {}".format(data_dir))
 
     # we add empty string here to calculate results contains from all
-    # available region folder names in RUNS directory
+    # available config folder names in RUNS directory
     region_names.append('')
     # print("region_names = {}".format(region_names))
 
