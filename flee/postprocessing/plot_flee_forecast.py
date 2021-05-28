@@ -119,9 +119,8 @@ def plot_flee_forecast(input_dir, region_names=[]):
             ax = fig.add_subplot(
                 111, xlabel="Days elapsed",
                 ylabel="Number of refugees",
-                title="All Simulation runs ({}) for {} "
-                "with mean and percentiles".format(
-                    len(all_files), camp_name
+                title='All %s runs for %s with Mean and Percentiles' % (
+                	len(all_files), camp_name
                 )
             )
 
@@ -159,8 +158,7 @@ def plot_flee_forecast(input_dir, region_names=[]):
             ax.legend(custom_lines, ['Data', 'Mean', 'Runs',
                                      '90th percentile', '5th percentile'])
 
-            plot_file_name = 'All %s runs for [%s] with Mean and Percentiles' % (
-                len(all_files), camp_name)
+            plot_file_name = '%s' % camp_name
             plt.gca().set_ylim(bottom=0)
             plt.savefig("{}/{}.png".format(output, plot_file_name), dpi=200)
 
