@@ -5,7 +5,7 @@ import csv
 class SimulationSettings:
     # KM added to every link distance to eliminate needless distinction
     # between very short routes.
-    Softening = 40.0
+    Softening = 10.0
     # TurnBackAllowed = True # feature disabled for now.
     AgentLogLevel = 0  # set to 1 for basic agent information.
     # set to 1 to obtain average times for agents to reach camps at any time
@@ -37,13 +37,13 @@ class SimulationSettings:
     # default move chance
     ConflictMoveChance = 1.0
     CampMoveChance = 0.001
-    DefaultMoveChance = 0.03
+    DefaultMoveChance = 0.3
 
     # Specific enhancements for the 2.0 ruleset.
     # This includes a movespeed of 420 and a walk speed of 42.
     # Displaced people will not take a break unless they at least travelled
     # for a full day's distance in the last two days.
-    AvoidShortStints = False
+    AvoidShortStints = True
 
     FlareConflictInputFile = ""
     # -1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
