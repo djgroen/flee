@@ -151,13 +151,13 @@ class InputGeography:
         for l in self.links:
             if (len(l) > 3):
                 if int(l[3]) == 1:
-                    e.linkUp(l[0], l[1], int(l[2]), True)
+                    e.linkUp(l[0], l[1], float(l[2]), True)
                 if int(l[3]) == 2:
-                    e.linkUp(l[1], l[0], int(l[2]), True)
+                    e.linkUp(l[1], l[0], float(l[2]), True)
                 else:
-                    e.linkUp(l[0], l[1], int(l[2]), False)
+                    e.linkUp(l[0], l[1], float(l[2]), False)
             else:
-                e.linkUp(l[0], l[1], int(l[2]), False)
+                e.linkUp(l[0], l[1], float(l[2]), False)
 
         e.closures = []
         for l in self.closures:
