@@ -1,0 +1,19 @@
+#name,region,country,lat,lon,location_type,conflict_date,population
+Iraq,Iraq,Iraq,36.78109,42.881187,camp,,195215
+Jordan,Kordan,Jordan,32.293578,36.327833,camp,,581814
+Lebanon,Lebanon,Lebanon,33.698,35.923,camp,,1016892
+Turkey,Turkey,Turkey,36.7062,37.1091,camp,,2167360
+Hama,Hama,Syria,35.13872,36.75606,conflict_zone,269,1628000
+Idleb,Idleb,Syria,35.9267,36.6306,conflict_zone,107,1500000
+Aleppo,Aleppo,Syria,36.206,37.1524,conflict_zone,0,4867000
+Deir_ez_Zur,Deir_ez_Zur,Syria,35.3248,40.1111,conflict_zone,287,1239000
+Latakia,Lattakia,Syria,35.53562,35.79115,conflict_zone,216,1278000
+Damascus,Damascus,Syria,33.5172,36.2767,conflict_zone,0,2211000
+Daraa,Dar'a,Syria,32.6241,36.1049,conflict_zone,82,998000
+Homs,Homs,Syria,34.73,36.7197,conflict_zone,122,1763000
+Qalamoun,Rural Damascus,Syria,34.0686,36.5419,conflict_zone,319,2831000
+Quneitra,Quneitra,Syria,33.1242,35.8264,conflict_zone,481,87000
+Shadadeh,Shadadeh,Syria,36.0534,40.7268,conflict_zone,45,15000
+Raqqa,Raqqa,Syria,35.9518,39.0121,conflict_zone,61,921000
+Al_Hasakeh,Al_Hasakeh,Syria,36.5028,40.749,conflict_zone,199,1512000
+As-Sweida,As-Sweida,Syria,32.7068,36.568,town,,364000
