@@ -121,10 +121,10 @@ class Link(flee.Link):
         super().__init__(startpoint, endpoint, distance, forced_redirection)  
 
     def DecrementNumAgents():
-        self.numAgentsOnRank -= 1
+        self.numAgents -= 1
 
     def IncrementNumAgents():
-        self.numAgentsOnRank += 1         
+        self.numAgents += 1         
 
 class Ecosystem(flee.Ecosystem):
 
