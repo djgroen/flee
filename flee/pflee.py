@@ -93,10 +93,10 @@ class Location(flee.Location):
         self.scores = []
 
     def DecrementNumAgents(self):
-        self.numAgentsOnRank -= 1
+        self.numAgents -= 1
 
     def IncrementNumAgents(self):
-        self.numAgentsOnRank += 1
+        self.numAgents += 1
 
     def print(self):
         if self.e.mpi.rank == 0:
