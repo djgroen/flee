@@ -2,6 +2,7 @@
 # File which contains the multiscale coupling interface for FLEE.
 # Idea is to support a wide range of coupling mechanisms within this
 # Python file.
+from __future__ import print_function
 import matplotlib
 matplotlib.use('Agg')
 import os.path
