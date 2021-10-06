@@ -1,0 +1,22 @@
+ymmsl_version: v0.1
+
+model:
+  name: multiscale_sim
+  components:
+    micro_manager: micro_manager
+    macro_manager: macro_manager
+    macro:
+      implementation: macro
+      multiplicity: NUM_INSTANCES
+    micro:
+      implementation: micro
+      multiplicity: NUM_INSTANCES
+  conduits:
+    micro.out : micro_manager.in
+    micro_manager.out : macro.in
+    macro.out : macro_manager.in
+    macro_manager.out : micro.in
+settings:
+  {}
+
+
