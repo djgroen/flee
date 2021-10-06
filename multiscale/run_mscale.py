@@ -421,7 +421,7 @@ if __name__ == "__main__":
                 f.write("\n")
                 f.flush()
 
-    end_time = 30
+    # end_time = 30
     if submodel in ["macro", "micro"]:
         run_micro_macro_model(
             e, c, submodel, ig, d, camp_locations, end_time
