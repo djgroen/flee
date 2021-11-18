@@ -1,7 +1,4 @@
 from flee import flee
-from flee.datamanager import handle_refugee_data
-import numpy as np
-import flee.postprocessing.analysis as a
 
 """
 Generation 1 code. Incorporates only distance, travel always takes one day.
@@ -15,23 +12,22 @@ def test_1_agent():
     flee.SimulationSettings.MaxMoveSpeed = 5000.0
     flee.SimulationSettings.MaxWalkSpeed = 42.0
 
-    end_time = 10
+    end_time = 30
     e = flee.Ecosystem()
 
-    l1 = e.addLocation("A", movechance=0.3)
+    l1 = e.addLocation(name="A", movechance=0.3)
+    l2 = e.addLocation(name="B", movechance=0.0)
+    l3 = e.addLocation(name="C", movechance=0.0)
+    l4 = e.addLocation(name="D", movechance=0.0)
 
-    l2 = e.addLocation("B", movechance=0.0)
-    l3 = e.addLocation("C", movechance=0.0)
-    l4 = e.addLocation("D", movechance=0.0)
-
-    e.linkUp("A", "B", "100.0")
-    e.linkUp("A", "C", "100.0")
-    e.linkUp("A", "D", "100.0")
+    e.linkUp(endpoint1="A", endpoint2="B", distance=100.0)
+    e.linkUp(endpoint1="A", endpoint2="C", distance=100.0)
+    e.linkUp(endpoint1="A", endpoint2="D", distance=100.0)
 
     new_refs = 1
 
     # Insert refugee agents
-    for i in range(0, new_refs):
+    for _ in range(0, new_refs):
         e.addAgent(location=l1)
 
     for t in range(0, end_time):
@@ -41,10 +37,16 @@ def test_1_agent():
 
         print("Our single agent is at", e.agents[0].location.name)
 
-        print(t, l1.numAgents + l2.numAgents + l3.numAgents + l4.numAgents,
-              l1.numAgents, l2.numAgents, l3.numAgents, l4.numAgents)
+        print(
+            t,
+            l1.numAgents + l2.numAgents + l3.numAgents + l4.numAgents,
+            l1.numAgents,
+            l2.numAgents,
+            l3.numAgents,
+            l4.numAgents,
+        )
 
-    assert t == 9
+    assert t == end_time - 1
     assert l1.numAgents + l2.numAgents + l3.numAgents + l4.numAgents == 1
 
     print("Test successful!")

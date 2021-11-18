@@ -1,0 +1,41 @@
+[tool.black]
+
+# How many characters per line to allow. default = 88
+line-length = 100
+
+# A regular expression that matches files and directories that should be included on
+# recursive searches. An empty value means all files are included regardless of the name.
+# Use forward slashes for directories on all platforms (Windows, too).
+# Exclusions are calculated first, inclusions later. default: \.pyi?$
+include = '\.pyi?$'
+
+# A regular expression that matches files and directories that should be excluded on
+# recursive searches. An empty value means no paths are excluded. Use forward slashes for
+# directories on all platforms (Windows, too).
+# Exclusions are calculated first, inclusions later. 
+exclude = '''
+/(
+  _version.py
+  | __init__.py 
+  | food_flee.py
+  | food_modifications.py
+  | InputGeography_food.py
+  | old
+  | config_template
+)
+'''
+
+# Don't write the files back, just output a diff for each file on stdout.
+diff = true
+
+# Don't write the files back, just return the status. Return code 0 means nothing would change. 
+# Return code 1 means some files would be reformatted.
+# Return code 123 means there was an internal error.
+check = true
+
+# Show colored diff. Only applies when `--diff` is given.
+color = true
+
+# Also emit messages to stderr about files that were not changed or were ignored
+# due to exclusion patterns.
+verbose = true

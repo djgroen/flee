@@ -1,14 +1,26 @@
-import pandas as pd
-import matplotlib
-matplotlib.use('Pdf')
-import matplotlib.pyplot as plt
-import numpy as np
+import os
 import sys
-from flee.datamanager import handle_refugee_data
 import warnings
+from functools import wraps
+from typing import Type
+
+# from flee.datamanager import handle_refugee_data
 import flee.postprocessing.analysis as a
+import numpy as np
+import pandas as pd
 
 warnings.filterwarnings("ignore")
+
+if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
+    from beartype import beartype as check_args_type
+else:
+
+    def check_args_type(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        return wrapper
 
 
 """
@@ -38,7 +50,17 @@ class SimulationErrors:
     def __init__(self, location_errors):
         self.location_errors = location_errors
 
+    @check_args_type
     def abs_diff(self, rescaled=True):
+        """
+        Summary
+
+        Args:
+            rescaled (bool, optional): Description
+
+        Returns:
+            TYPE: Description
+        """
         # true_total_refs is the number of total refugees according to the
         # data.
 
@@ -53,26 +75,40 @@ class SimulationErrors:
 
         return self.tmp
 
-    def get_error(self, err_type):
+    @check_args_type
+    def get_error(self, err_type: str) -> float:
         """
         Here err_type is the string name of the error that needs to be aggregated.
+
+        Args:
+            err_type (str): Description
+
+        Returns:
+            float: Description
         """
-        self.tmp = self.location_errors[0].errors[
-            err_type] * self.location_errors[0].errors["N"]
+        self.tmp = self.location_errors[0].errors[err_type] * self.location_errors[0].errors["N"]
         N = self.location_errors[0].errors["N"]
 
         for lerr in self.location_errors[1:]:
-            self.tmp = np.add(self.tmp, lerr.errors[
-                              err_type] * lerr.errors["N"])
+            self.tmp = np.add(self.tmp, lerr.errors[err_type] * lerr.errors["N"])
             N += lerr.errors["N"]
 
-        #print(self.tmp, N, self.tmp/ N)
+        # print(self.tmp, N, self.tmp/ N)
         return self.tmp / N
 
 
-def plotme(data, name, naieve_model=True):
+@check_args_type
+def plotme(data: Type[pd.DataFrame], name: str, naieve_model: bool = True) -> "LocationErrors":
     """
     Advanced plotting function for validation of refugee registration numbers in camps.
+
+    Args:
+        data (DataFrame): Description
+        name (str): Description
+        naieve_model (bool, optional): Description
+
+    Returns:
+        LocationErrors: Description
     """
 
     # data.loc[:,["%s sim" % name,"%s data" % name]]).values
@@ -88,8 +124,8 @@ def plotme(data, name, naieve_model=True):
     untot = data["refugees in camps (UNHCR)"].values.flatten()
 
     y1_rescaled = np.zeros(len(y1))
-    for i in range(0, len(y1_rescaled)):
-            # Only rescale if simtot > 0
+    for i, _ in enumerate(y1_rescaled):
+        # Only rescale if simtot > 0
         if simtot[i] > 0:
             y1_rescaled[i] = y1[i] * untot[i] / simtot[i]
 
@@ -104,7 +140,7 @@ def plotme(data, name, naieve_model=True):
         # Sloped line from day 7
         n3 = np.empty(len(days))
         n3.fill(y2[naieve_early_day])
-        for i in range(0, len(n3)):
+        for i, _ in enumerate(n3):
             if y2[naieve_early_day] > 0:
                 n3[i] *= i * y2[naieve_early_day] / y2[naieve_early_day]
             else:
@@ -112,20 +148,19 @@ def plotme(data, name, naieve_model=True):
         # Sloped line from day 30
         n4 = np.empty(len(days))
         n4.fill(y2[naieve_training_day])
-        for i in range(0, len(n4)):
+        for i, _ in enumerate(n4):
             if y2[naieve_early_day] > 0:
                 n4[i] *= i * y2[naieve_training_day] / y2[naieve_training_day]
             else:
                 n4[i] = 0
         # Flat ratio from day 7
         n5 = np.empty(len(days))
-        for i in range(0, len(n5)):
+        for i, _ in enumerate(n5):
             n5[i] = untot[i] * (y2[naieve_early_day] / untot[naieve_early_day])
         # Flat ratio from day 7
         n6 = np.empty(len(days))
-        for i in range(0, len(n6)):
-            n6[i] = untot[i] * (y2[naieve_training_day] /
-                                untot[naieve_training_day])
+        for i, _ in enumerate(n6):
+            n6[i] = untot[i] * (y2[naieve_training_day] / untot[naieve_training_day])
 
     """
   Error quantification phase:
@@ -135,20 +170,22 @@ def plotme(data, name, naieve_model=True):
     lerr = LocationErrors()
 
     # absolute difference
-    lerr.errors["absolute difference"] = a.abs_diffs(y1, y2)
-    lerr.errors["absolute difference ave"] = np.mean(
-        lerr.errors["absolute difference"])
+    lerr.errors["absolute difference"] = a.abs_diffs(forecast_vals=y1, correct_vals=y2)
+    lerr.errors["absolute difference ave"] = np.mean(lerr.errors["absolute difference"])
 
     # absolute difference (rescaled)
-    lerr.errors["absolute difference rescaled"] = a.abs_diffs(y1_rescaled, y2)
+    lerr.errors["absolute difference rescaled"] = a.abs_diffs(
+        forecast_vals=y1_rescaled, correct_vals=y2
+    )
     lerr.errors["absolute difference rescaled ave"] = np.mean(
-        lerr.errors["absolute difference rescaled"])
+        lerr.errors["absolute difference rescaled"]
+    )
 
     # ratio difference
-    lerr.errors["ratio difference"] = a.abs_diffs(
-        y1, y2) / (np.maximum(untot, np.ones(len(untot))))
-    lerr.errors["ratio difference ave"] = np.mean(
-        lerr.errors["ratio difference"])
+    lerr.errors["ratio difference"] = a.abs_diffs(forecast_vals=y1, correct_vals=y2) / (
+        np.maximum(untot, np.ones(len(untot)))
+    )
+    lerr.errors["ratio difference ave"] = np.mean(lerr.errors["ratio difference"])
 
     """ Errors of which I'm usure whether to report:
    - accuracy ratio (forecast / true value), because it crashes if denominator is 0.
@@ -164,26 +201,64 @@ def plotme(data, name, naieve_model=True):
         lerr.errors["N"] = np.sum(y2)
 
         # flat naieve model (7 day)
+        # flat naieve model (7 day)
         lerr.errors["MASE7"] = a.calculate_MASE(
-            y1_rescaled, y2, n1, naieve_early_day)
-        lerr.errors[
-            "MASE7-sloped"] = a.calculate_MASE(y1_rescaled, y2, n3, naieve_early_day)
-        lerr.errors[
-            "MASE7-ratio"] = a.calculate_MASE(y1_rescaled, y2, n5, naieve_early_day)
+            forecast_vals=y1_rescaled,
+            actual_vals=y2,
+            naieve_vals=n1,
+            start_of_forecast_period=naieve_early_day,
+        )
+        lerr.errors["MASE7-sloped"] = a.calculate_MASE(
+            forecast_vals=y1_rescaled,
+            actual_vals=y2,
+            naieve_vals=n3,
+            start_of_forecast_period=naieve_early_day,
+        )
+        lerr.errors["MASE7-ratio"] = a.calculate_MASE(
+            forecast_vals=y1_rescaled,
+            actual_vals=y2,
+            naieve_vals=n5,
+            start_of_forecast_period=naieve_early_day,
+        )
 
         # flat naieve model (30 day)
         lerr.errors["MASE30"] = a.calculate_MASE(
-            y1_rescaled, y2, n2, naieve_training_day)
-        lerr.errors[
-            "MASE30-sloped"] = a.calculate_MASE(y1_rescaled, y2, n4, naieve_training_day)
-        lerr.errors[
-            "MASE30-ratio"] = a.calculate_MASE(y1_rescaled, y2, n6, naieve_training_day)
+            forecast_vals=y1_rescaled,
+            actual_vals=y2,
+            naieve_vals=n2,
+            start_of_forecast_period=naieve_training_day,
+        )
+        lerr.errors["MASE30-sloped"] = a.calculate_MASE(
+            forecast_vals=y1_rescaled,
+            actual_vals=y2,
+            naieve_vals=n4,
+            start_of_forecast_period=naieve_training_day,
+        )
+        lerr.errors["MASE30-ratio"] = a.calculate_MASE(
+            forecast_vals=y1_rescaled,
+            actual_vals=y2,
+            naieve_vals=n6,
+            start_of_forecast_period=naieve_training_day,
+        )
 
-        print("  %s:\n    mase7: %s\n    mase7-sloped: %s\n    mase7-ratio: %s\n    mase30: %s\n    mase30-sloped: %s\n    mase30-ratio: %s\n    N: %s" % (name, lerr.errors[
-              "MASE7"], lerr.errors["MASE7-sloped"], lerr.errors["MASE7-ratio"], lerr.errors["MASE30"], lerr.errors["MASE30-sloped"], lerr.errors["MASE30-ratio"], lerr.errors["N"]))
-        print("    absolute difference ave: {absolute difference ave}\n    absolute difference rescaled ave: {absolute difference rescaled ave}\n    ratio difference ave: {ratio difference ave}".format(
-            **lerr.errors))
-        #print("  absolute difference: {absolute difference}\n  absolute difference rescaled: {absolute difference rescaled}\n  ratio difference: {ratio difference}".format(**lerr.errors))
+        print(
+            "\t{}:\n\tmase7: {}\n\tmase7-sloped: {}\n\tmase7-ratio: {}\n\tmase30: {}\n"
+            "\tmase30-sloped: {}\n\tmase30-ratio: {}\n\tN: {}".format(
+                name,
+                lerr.errors["MASE7"],
+                lerr.errors["MASE7-sloped"],
+                lerr.errors["MASE7-ratio"],
+                lerr.errors["MASE30"],
+                lerr.errors["MASE30-sloped"],
+                lerr.errors["MASE30-ratio"],
+                lerr.errors["N"],
+            )
+        )
+        print(
+            "\tabsolute difference ave: {absolute difference ave}\n"
+            "\tabsolute difference rescaled ave: {absolute difference rescaled ave}\n"
+            "\tratio difference ave: {ratio difference ave}".format(**lerr.errors)
+        )
 
     return lerr
 
@@ -196,8 +271,7 @@ if __name__ == "__main__":
     else:
         in_dir = "out"
 
-    refugee_data = pd.read_csv(
-        "%s/out.csv" % (in_dir), sep=',', encoding='latin1', index_col='Day')
+    refugee_data = pd.read_csv("%s/out.csv" % (in_dir), sep=",", encoding="latin1", index_col="Day")
 
     # Identifying location names for graphs
     rd_cols = list(refugee_data.columns.values)
@@ -205,23 +279,29 @@ if __name__ == "__main__":
     for i in rd_cols:
         if " sim" in i:
             if "numAgents" not in i:
-                location_names.append(' '.join(i.split()[:-1]))
+                location_names.append(" ".join(i.split()[:-1]))
 
     if "refugee_debt" in refugee_data.columns:
-        refugee_data.loc[:, ["total refugees (simulation)", "refugees in camps (simulation)",
-                             "raw UNHCR refugee count", "refugee_debt"]].plot(linewidth=5)
+        refugee_data.loc[
+            :,
+            [
+                "total refugees (simulation)",
+                "refugees in camps (simulation)",
+                "raw UNHCR refugee count",
+                "refugee_debt",
+            ],
+        ].plot(linewidth=5)
     else:
-        refugee_data.loc[:, [
-            "total refugees (simulation)", "refugees in camps (UNHCR)", "raw UNHCR refugee count"]].plot(linewidth=5)
+        refugee_data.loc[
+            :,
+            ["total refugees (simulation)", "refugees in camps (UNHCR)", "raw UNHCR refugee count"],
+        ].plot(linewidth=5)
 
     # Calculate the best offset.
 
-    sim_refs = refugee_data.loc[
-        :, ["refugees in camps (simulation)"]].values.flatten()
-    un_refs = refugee_data.loc[
-        :, ["refugees in camps (UNHCR)"]].values.flatten()
-    raw_refs = refugee_data.loc[
-        :, ["raw UNHCR refugee count"]].values.flatten()
+    sim_refs = refugee_data.loc[:, ["refugees in camps (simulation)"]].values.flatten()
+    un_refs = refugee_data.loc[:, ["refugees in camps (UNHCR)"]].values.flatten()
+    raw_refs = refugee_data.loc[:, ["raw UNHCR refugee count"]].values.flatten()
 
     # Plots for all locations, one .png file for every time plotme is called.
     # Also populated LocationErrors classes.
@@ -233,19 +313,29 @@ if __name__ == "__main__":
     for i in location_names:
         loc_errors.append(plotme(refugee_data, i, naieve_model=nmodel))
 
-    sim_errors = SimulationErrors(loc_errors)
+    sim_errors = SimulationErrors(location_errors=loc_errors)
 
     print("input directory: {}".format(in_dir))
 
     print("totals:")
     if nmodel:
-        print("  mase7: %s\n  mase7-sloped: %s\n  mase7-ratio: %s\n  mase30: %s\n  mase30-sloped: %s\n  mase30-ratio: %s" % (sim_errors.get_error("MASE7"), sim_errors.get_error(
-            "MASE7-sloped"), sim_errors.get_error("MASE7-ratio"), sim_errors.get_error("MASE30"), sim_errors.get_error("MASE30-sloped"), sim_errors.get_error("MASE30-ratio")))
-        #print("%s & %s & %s & %s & %s & %s & %s\\\\" % (in_dir, sim_errors.get_error("MASE7"), sim_errors.get_error("MASE7-sloped"),sim_errors.get_error("MASE7-ratio"),sim_errors.get_error("MASE30"),sim_errors.get_error("MASE30-sloped"),sim_errors.get_error("MASE30-ratio")))
+        print(
+            "\tmase7: {}\n\tmase7-sloped: {}\n\tmase7-ratio: {}\n\tmase30: {}\n"
+            "\tmase30-sloped: {}\n\tmase30-ratio: {}".format(
+                sim_errors.get_error(err_type="MASE7"),
+                sim_errors.get_error(err_type="MASE7-sloped"),
+                sim_errors.get_error(err_type="MASE7-ratio"),
+                sim_errors.get_error(err_type="MASE30"),
+                sim_errors.get_error(err_type="MASE30-sloped"),
+                sim_errors.get_error(err_type="MASE30-ratio"),
+            )
+        )
 
-    diffdata = sim_errors.abs_diff(
-        rescaled=False) / np.maximum(un_refs, np.ones(len(un_refs)))
-    diffdata_rescaled = sim_errors.abs_diff() / np.maximum(un_refs,
-                                                           np.ones(len(un_refs)))
-    print("  Error (normal): {}\n  Error (rescaled): {}\n  Simulation Period: {}".format(
-        np.mean(diffdata), np.mean(diffdata_rescaled), len(diffdata)))
+    diffdata = sim_errors.abs_diff(rescaled=False) / np.maximum(un_refs, np.ones(len(un_refs)))
+    diffdata_rescaled = sim_errors.abs_diff() / np.maximum(un_refs, np.ones(len(un_refs)))
+
+    print(
+        "  Error (normal): {}\n  Error (rescaled): {}\n  Simulation Period: {}".format(
+            np.mean(diffdata), np.mean(diffdata_rescaled), len(diffdata)
+        )
+    )

@@ -1,22 +1,24 @@
-from flee import flee
-from flee.datamanager import handle_refugee_data
-from flee.datamanager import DataTable  # DataTable.subtract_dates()
-from flee import InputGeography
-import numpy as np
-import flee.postprocessing.analysis as a
-import sys
 import os
+import sys
+
+import flee.postprocessing.analysis as a
+import numpy as np
+from flee import InputGeography, flee
+from flee.datamanager import DataTable  # DataTable.subtract_dates()
+from flee.datamanager import handle_refugee_data
 
 
 def AddInitialRefugees(e, d, loc):
-    """ Add the initial refugees to a location, using the location name"""
-    num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
-    for i in range(0, num_refugees):
+    """
+    Add the initial refugees to a location, using the location name
+    """
+    num_refugees = int(d.get_field(name=loc.name, day=0, FullInterpolation=True))
+    for _ in range(0, num_refugees):
         e.addAgent(location=loc)
 
 
 def date_to_sim_days(date):
-    return DataTable.subtract_dates(date, "2010-01-01")
+    return DataTable.subtract_dates(date1=date, date2="2010-01-01")
 
 
 def test_csv(end_time=50, last_physical_day=50):
@@ -28,8 +30,7 @@ def test_csv(end_time=50, last_physical_day=50):
     flee.SimulationSettings.FlareConflictInputFile = os.path.join(
         "test_data", "test_input_csv", "flare-out.csv"
     )
-    ig.ReadFlareConflictInputCSV(
-        flee.SimulationSettings.FlareConflictInputFile)
+    ig.ReadFlareConflictInputCSV(csv_name=flee.SimulationSettings.FlareConflictInputFile)
 
     print(ig.conflicts)
 
@@ -39,19 +40,19 @@ def test_csv(end_time=50, last_physical_day=50):
     assert ig.conflicts["A"][0] == 1
     assert ig.conflicts["C2"][94] == 0
 
-    ig.ReadLocationsFromCSV("test_data/test_input_csv/locations.csv")
+    ig.ReadLocationsFromCSV(csv_name=os.path.join("test_data", "test_input_csv/locations.csv"))
 
-    ig.ReadLinksFromCSV("test_data/test_input_csv/routes.csv")
+    ig.ReadLinksFromCSV(csv_name=os.path.join("test_data", "test_input_csv/routes.csv"))
 
-    ig.ReadClosuresFromCSV("test_data/test_input_csv/closures.csv")
+    ig.ReadClosuresFromCSV(csv_name=os.path.join("test_data", "test_input_csv/closures.csv"))
 
-    e, lm = ig.StoreInputGeographyInEcosystem(e)
+    e, lm = ig.StoreInputGeographyInEcosystem(e=e)
 
     d = handle_refugee_data.RefugeeTable(
         csvformat="generic",
-        data_directory="test_data/test_input_csv/refugee_data",
+        data_directory=os.path.join("test_data", "test_input_csv", "refugee_data"),
         start_date="2010-01-01",
-        data_layout="data_layout.csv"
+        data_layout="data_layout.csv",
     )
 
     output_header_string = "Day,"
@@ -59,10 +60,11 @@ def test_csv(end_time=50, last_physical_day=50):
     camp_locations = ["D", "E", "F"]
     # TODO: Add Camps from CSV based on their location type.
 
-    for l in camp_locations:
-        AddInitialRefugees(e, d, lm[l])
-        output_header_string += "%s sim,%s data,%s error," % (
-            lm[l].name, lm[l].name, lm[l].name)
+    for camp_name in camp_locations:
+        AddInitialRefugees(e, d, lm[camp_name])
+        output_header_string += "{} sim,{} data,{} error,".format(
+            lm[camp_name].name, lm[camp_name].name, lm[camp_name].name
+        )
 
     output_header_string += "Total error,refugees in camps (UNHCR),"
     "total refugees (simulation),raw UNHCR refugee count,"
@@ -78,12 +80,11 @@ def test_csv(end_time=50, last_physical_day=50):
     for t in range(0, end_time):
 
         # if t>0:
-        ig.AddNewConflictZones(e, t)
+        ig.AddNewConflictZones(e=e, time=t)
 
         # Determine number of new refugees to insert into the system.
-        new_refs = d.get_daily_difference(
-            t, FullInterpolation=True) - refugee_debt
-        refugees_raw += d.get_daily_difference(t, FullInterpolation=True)
+        new_refs = d.get_daily_difference(day=t, FullInterpolation=True) - refugee_debt
+        refugees_raw += d.get_daily_difference(day=t, FullInterpolation=True)
 
         if new_refs < 0:
             refugee_debt = -new_refs
@@ -92,12 +93,12 @@ def test_csv(end_time=50, last_physical_day=50):
             refugee_debt = 0
 
         # Insert refugee agents
-        e.add_agents_to_conflict_zones(new_refs)
+        e.add_agents_to_conflict_zones(number=new_refs)
 
         e.refresh_conflict_weights()
-        t_data = t
+        # t_data = t
 
-        e.enact_border_closures(t)
+        e.enact_border_closures(time=t)
         e.evolve()
 
         # Calculation of error terms
@@ -106,9 +107,9 @@ def test_csv(end_time=50, last_physical_day=50):
         loc_data = []
 
         camps = []
-        for i in camp_locations:
-            camps += [lm[i]]
-            loc_data += [d.get_field(i, t)]
+        for camp_name in camp_locations:
+            camps += [lm[camp_name]]
+            loc_data += [d.get_field(name=camp_name, day=t)]
 
         # calculate retrofitted time.
         refugees_in_camps_sim = 0
@@ -118,16 +119,15 @@ def test_csv(end_time=50, last_physical_day=50):
         # calculate errors
         j = 0
         for i in camp_locations:
-            errors += [a.rel_error(lm[i].numAgents, loc_data[j])]
-            abs_errors += [a.abs_error(lm[i].numAgents, loc_data[j])]
+            errors += [a.rel_error(val=lm[i].numAgents, correct_val=loc_data[j])]
+            abs_errors += [a.abs_error(val=lm[i].numAgents, correct_val=loc_data[j])]
 
             j += 1
 
         output = "%s" % t
 
         for i in range(0, len(errors)):
-            output += ",%s,%s,%s" % (lm[camp_locations[i]
-                                        ].numAgents, loc_data[i], errors[i])
+            output += ",%s,%s,%s" % (lm[camp_locations[i]].numAgents, loc_data[i], errors[i])
 
         if refugees_raw > 0:
             output += ",%s,%s,%s,%s,%s,%s" % (
@@ -136,14 +136,14 @@ def test_csv(end_time=50, last_physical_day=50):
                 e.numAgents(),
                 refugees_raw,
                 refugees_in_camps_sim,
-                refugee_debt
+                refugee_debt,
             )
         else:
             output += ",0,0,0,0,0,0,0"
 
         print(output)
 
-    print('Test successfully completed.')
+    print("Test successfully completed.")
 
 
 if __name__ == "__main__":

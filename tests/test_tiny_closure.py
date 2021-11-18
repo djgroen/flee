@@ -1,7 +1,4 @@
 from flee import flee
-from flee.datamanager import handle_refugee_data
-import numpy as np
-import flee.postprocessing.analysis as a
 
 """
 Generation 1 code. Incorporates only distance, travel always takes one day.
@@ -17,10 +14,10 @@ def test_tiny_closure():
     end_time = 100
     e = flee.Ecosystem()
 
-    l1 = e.addLocation("A", movechance=1.0)
-    l2 = e.addLocation("B", movechance=0.0)
+    l1 = e.addLocation(name="A", movechance=1.0)
+    l2 = e.addLocation(name="B", movechance=0.0)
 
-    e.linkUp("A", "B", "5.0")
+    e.linkUp(endpoint1="A", endpoint2="B", distance=5.0)
 
     for t in range(0, end_time):
         # Insert refugee agents
@@ -30,9 +27,9 @@ def test_tiny_closure():
         e.evolve()
 
         if t == 2:
-            assert e.close_location("B")
+            assert e.close_location(location_name="B")
 
-        print(t, l1.numAgents, l2.numAgents)
+        print("t = {}, l1.numAgents = {}, l2.numAgents = {}".format(t, l1.numAgents, l2.numAgents))
         e.printComplete()
 
     assert t == 99

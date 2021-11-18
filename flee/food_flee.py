@@ -1,19 +1,23 @@
 # food_flee.py
 # A modified implementation of FLEE to account for the food security
 # conditions. Movechances are modified.
+import sys
 
 import numpy as np
-import sys
-import random
-from flee.SimulationSettings import SimulationSettings
-from flee import flee
-import csv
 import pandas as pd
+
+from flee import flee
+from flee.SimulationSettings import SimulationSettings
 
 
 def initiate_food():
-    # critict=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv")["Dates"]
-    # IPC_all=pd.read_csv("~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv",index_col=0)
+    """
+    Summary
+    """
+    # path = "~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv"
+    # critict = pd.read_csv(path)["Dates"]
+    # path = "~/Documents/Python/SSudan/ICCS/flee/source_data/ssudan2014/food/IPC.csv"
+    # IPC_all=pd.read_csv(path,index_col=0)
     critict = pd.read_csv(
         "source_data/ssudan2014/food/IPC.csv")["Dates"]
     IPC_all = pd.read_csv(
@@ -24,6 +28,9 @@ def initiate_food():
 
 
 def line42day(t, current_i, critict):
+    """
+    Summary
+    """
     current_critict = critict[current_i]
     while current_critict < t:
         current_i = current_i + 1
@@ -32,27 +39,37 @@ def line42day(t, current_i, critict):
 
 
 class Location(flee.Location):
+    """
+    the Location class
+    """
 
-    def __init__(self, name, x=0.0, y=0.0, movechance=0.001, capacity=-1, pop=0, foreign=False, country="unknown", region="unknown", IPC=0):
-        super().__init__(name, x, y, movechance, capacity, pop, foreign, country)
+    def __init__(self, name, x=0.0, y=0.0, location_type=None, capacity=-1, pop=0, foreign=False,
+                 country="unknown", region="unknown", IPC=0):
+        super().__init__(name, x, y, location_type, capacity, pop, foreign, country)
         self.region = region
         self.IPC = IPC
 
 
 class Ecosystem(flee.Ecosystem):
+    """
+    the Ecosystem class
+    """
 
     def __init__(self):
         super().__init__()
 
         # IPC specific configuration variables.
         self.IPCAffectsMoveChance = True  # IPC modified move chances
-        #(Warning: lower validation error correlates with higher average move chances)
+        # (Warning: lower validation error correlates with higher average move chances)
         self.IPCUseMezumanEq = False  # Use modified piece-wise equation.
         self.MezumanEqThresholdMstar = 0.8  # M* (used in Mezuman equation).
         # IPC affects Spawn location distribution.
         self.IPCAffectsSpawnLocation = False
 
     def update_IPC_MC(self, line_IPC, IPC_all):  # maybe better (less computation time)
+        """
+        Summary
+        """
         self.IPC_location_weights = []
         self.IPC_locations = []
         self.total_weight = 0.0
@@ -79,18 +96,26 @@ class Ecosystem(flee.Ecosystem):
 
                 # 3. Adjust move chances, taking into account IPC scores.
                 if self.IPCAffectsMoveChance:
-                    if not self.locations[i].conflict and not self.locations[i].camp and not self.locations[i].forward:
+                    if not self.locations[i].conflict and \
+                            not self.locations[i].camp and \
+                            not self.locations[i].forward:
                         IPC = self.locations[i].IPC / 100.0
                         if self.IPCUseMezumanEq:
                             if self.locations[i].IPC < self.MezumanEqThresholdMstar:
-                                self.locations[
-                                    i].movechance = IPC + SimulationSettings.DefaultMoveChance * (1 - IPC)
+                                self.locations[i].movechance = IPC +\
+                                    SimulationSettings.DefaultMoveChance * (1 - IPC)
                             else:
-                                self.locations[i].movechance = ((((1.0 - SimulationSettings.DefaultMoveChance) * self.MezumanEqThresholdMstar) +
-                                                                 SimulationSettings.DefaultMoveChance) / (1.0 - self.MezumanEqThresholdMstar)) * (1 - IPC)
+                                self.locations[i].movechance = (
+                                    (
+                                        (
+                                            (1.0 - SimulationSettings.DefaultMoveChance) *
+                                            self.MezumanEqThresholdMstar
+                                        ) + SimulationSettings.DefaultMoveChance
+                                    ) / (1.0 - self.MezumanEqThresholdMstar)
+                                ) * (1 - IPC)
                         else:
-                            self.locations[
-                                i].movechance = IPC + SimulationSettings.DefaultMoveChance * (1 - IPC)
+                            self.locations[i].movechance = IPC + \
+                                SimulationSettings.DefaultMoveChance * (1 - IPC)
 
     def pick_conflict_location(self):
         """
@@ -98,32 +123,50 @@ class Ecosystem(flee.Ecosystem):
         This function returns a number, which is an index in the array of conflict locations.
         """
         if self.IPCAffectsSpawnLocation:
-            return np.random.choice(self.IPC_locations, p=self.IPC_location_weights / self.total_weight)
-        else:
-            return np.random.choice(self.conflict_zones, p=self.conflict_weights / self.conflict_pop)
+            return np.random.choice(
+                self.IPC_locations, p=self.IPC_location_weights / self.total_weight
+            )
 
-    def addLocation(self, name, x="0.0", y="0.0", movechance=SimulationSettings.DefaultMoveChance, capacity=-1, pop=0, foreign=False, country="unknown", region="unknown", IPC=0):
-        """ Add a location to the ABM network graph """
+        return np.random.choice(
+            self.conflict_zones, p=self.conflict_weights / self.conflict_pop
+        )
 
-        l = Location(name, x, y, movechance, capacity,
-                     pop, foreign, country, region, IPC)
+    def addLocation(self, name, x="0.0", y="0.0", location_type="default",
+                    capacity=-1, pop=0, foreign=False, country="unknown", region="unknown", IPC=0):
+        """
+        Add a location to the ABM network graph
+        """
+
+        loc = Location(name=name, x=x, y=y, location_type=location_type, capacity=capacity,
+                       pop=pop, foreign=foreign, country=country, region=region, IPC=IPC)
         if SimulationSettings.InitLogLevel > 0:
-            print("Location:", name, x, y, l.movechance, capacity,
-                  ", pop. ", pop, foreign, "State: ", l.region, "IPC: ", l.IPC)
-        self.locations.append(l)
-        self.locationNames.append(l.name)
-        return l
+            print("Location:", name, x, y, loc.movechance, capacity,
+                  ", pop. ", pop, foreign, "State: ", loc.region, "IPC: ", loc.IPC)
+        self.locations.append(loc)
+        self.locationNames.append(loc.name)
+        return loc
 
     def printInfo(self):
+        """
+        Summary
+        """
         # print("Time: ", self.time, ", # of agents: ", len(self.agents))
         if self.IPCAffectsSpawnLocation:
-            for l in range(len(self.IPC_locations)):
-                print(self.IPC_locations[l].name, "Conflict:", self.locations[l].conflict, "Pop:", self.IPC_locations[l].pop, "IPC:", self.IPC_locations[
-                      l].IPC, "mc:", self.IPC_locations[l].movechance, "weight:", self.IPC_location_weights[l], file=sys.stderr)
+            for i, loc in enumerate(self.IPC_locations):
+                print(
+                    loc.name,
+                    "Conflict:", self.locations[i].conflict,
+                    "Pop:", loc.pop,
+                    "IPC:", loc.IPC,
+                    "mc:", loc.movechance,
+                    "weight:", self.IPC_location_weights[i],
+                    file=sys.stderr
+                )
         else:
-            for l in self.locations:
-                print(l.name, "Agents: ", l.numAgents, "State: ", l.region,
-                      "IPC: ", l.IPC, "movechance: ", l.movechance, file=sys.stderr)
+            for loc in self.locations:
+                print(loc.name, "Agents: ", loc.numAgents, "State: ", loc.region,
+                      "IPC: ", loc.IPC, "movechance: ", loc.movechance, file=sys.stderr)
+
 
 if __name__ == "__main__":
     print("Flee, prototype version.")
@@ -141,7 +184,7 @@ if __name__ == "__main__":
     e.linkUp("Source", "Sink1", "5.0")
     e.linkUp("Source", "Sink2", "10.0")
 
-    for i in range(0, 100):
+    for _ in range(0, 100):
         e.addAgent(location=l1)
 
     print("Initial state")

@@ -1,5 +1,3 @@
-import csv
-import numpy as np
 import pandas as pd
 
 
@@ -41,15 +39,17 @@ def update_IPC_MC(self, line_IPC):  # maybe better (less computation time)
             if not self.locations[i].conflict and not self.locations[i].camp:
                 self.locations[i].movechance = self.locations[i].IPC / 100
 
+
 if __name__ == "__main__":
 
     # has to go in the main part of flee before starting time count
     [critict, IPC_all, current_i] = initiate_food()
 
+    end_time = 300
     for t in range(0, end_time):
         # has to go in the time count of flee to choose the values of IPC
         # according to t
         line_IPC = line42day(t, current_i)
         # update all locations in the ecosystem: IPC indexes and movechances
         # (inside t loop)
-        e.update_IPC_MC(line_IPC)
+        update_IPC_MC(line_IPC)

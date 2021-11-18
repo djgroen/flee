@@ -1,0 +1,247 @@
+###########################
+#   Project information   #
+###########################
+site_name: FLEE
+# site_url: https://flee.readthedocs.io
+site_description: Simulation toolkit for the movement of individuals
+
+##################
+#   Repository   #
+##################
+repo_name: djgroen/flee
+repo_url: https://github.com/djgroen/flee
+
+site_author: Hamid Arabnejad
+docs_dir: docs/
+
+# Copyright
+copyright: Derek Groen
+
+####################
+#   Social Media   #
+####################
+extra:
+  social:
+    # - icon: fontawesome/solid/home
+    #   link: https://up42.com
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/djgroen/flee
+    # - icon: fontawesome/brands/docker
+    #   link: https://hub.docker.com/u/up42
+    - icon: fontawesome/solid/envelope
+      link: mailto:djgroen@gmail.com 
+
+#####################
+#   Configuration   #
+#####################
+theme:
+  name: material
+  # 404 page
+  custom_dir: docs/static/theme/overrides
+  static_templates:
+    - 404.html  
+  include_search_page: false
+  search_index_only: true
+  # Default values, taken from mkdocs_theme.yml
+  language: en  
+  # palette:
+  #   # primary: indigo
+  #   # accent: indigo
+  #   primary: "blue grey"
+  #   accent: "blue"    
+  #   # scheme: preference
+  font:    
+    text: Roboto
+    code: Roboto Mono
+  # palette:
+  #   # primary: blue grey
+  #   # accent: red
+  #   - scheme: default
+  #     toggle:
+  #       icon: material/weather-sunny
+  #       name: Switch to dark mode
+  #     # primary: teal
+  #     # accent: red        
+  #   - scheme: slate 
+  #     toggle:
+  #       icon: material/weather-night
+  #       name: Switch to light mode     
+  #     # primary: teal
+  #     # accent: red
+
+  features:
+    - search.suggest
+    - search.highlight    
+    - navigation.tabs
+    - navigation.expand  
+  favicon: images/logo/logo.png # browser tab icon
+  logo: images/empty.png
+  icon:
+    repo: fontawesome/brands/github
+
+###############
+#   Plugins   #
+###############
+plugins:
+  - search
+  # - enumerate-headings  
+  - autolinks
+  - awesome-pages:
+      collapse_single_pages: true
+      strict: true  
+  - macros
+  - mkdocstrings:
+      default_handler: python    
+      handlers:
+          python:
+            setup_commands:
+              - import sys
+              - sys.path.append("flee")
+            # #   - sys.path.insert(0, ".")            
+            #   - sys.path.append('../')
+            rendering:
+              show_root_toc_entry: false
+              show_root_heading: false
+              show_root_full_path: true
+              show_object_full_path: false
+              show_source: true
+              show_category_heading: true
+              show_if_no_docstring: false
+              group_by_category: true
+              heading_level: 2
+            selection:
+              new_path_syntax: True
+              filters:
+                - "!^_"  # exlude all members starting with _
+              members: true
+              inherited_members: True                
+              docstring_style: google
+              docstring_options:
+                replace_admonitions: false
+  - mermaid2:
+      arguments:
+        securityLevel: 'loose'
+        theme: 'forest'
+
+
+
+#################
+#   Extra CSS   #
+#################
+extra_css:
+  - static/css/custom.css
+
+################
+#   Extra JS   #
+################
+# source https://gokumohandas.github.io/MLOps/tagifai/data/#tagifai.data
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - https://unpkg.com/mermaid/dist/mermaid.min.js
+  - static/js/extra.js
+
+##################
+#   Extensions   #
+##################
+markdown_extensions:
+  # - admonition
+  - markdown.extensions.admonition # alerts  
+  # - attr_list
+  - markdown.extensions.attr_list # add HTML and CSS to Markdown elements
+  # - def_list  
+  - markdown.extensions.def_list
+  # - footnotes
+  - markdown.extensions.footnotes
+  # - meta  
+  - markdown.extensions.meta
+  # - toc:
+  #     toc_depth: 4  
+  - markdown.extensions.toc:
+      baselevel: 1
+      permalink: true
+      toc_depth: 4
+  - pymdownx.arithmatex: # mathjax
+      generic: true      
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details #  collapsible alerts
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight:
+      use_pygments: true
+  - pymdownx.escapeall:
+      nbsp: true      
+  - pymdownx.inlinehilite # inline code highlights
+  - pymdownx.keys # show keystroke symbols
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets: # insert content from other files
+      check_paths: true
+  - pymdownx.superfences: # nest code and content inside alerts
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid
+  - pymdownx.tabbed # content tabs
+  - pymdownx.tasklist:
+      custom_checkbox: true
+      clickable_checkbox: true      
+  - pymdownx.tilde
+  - pymdownx.tabbed
+  - codehilite:
+      guess_lang: False
+      use_pygments: True
+      noclasses: True
+      pygments_style: monokai      
+  - toc:
+      permalink: true
+#################
+#   Page tree   #
+#################
+nav:
+    - Home:
+      - Introduction: index.md
+      - Installation and Testing: Installation_and_Testing.md
+      - Simulation instance construction: Simulation_instance_construction.md
+      - Simulation instance execution : Simulation_instance_execution.md
+      - "FabFlee : Automated Flee-based simulation": FabFlee_Automated_Flee_based_simulation.md
+      - Remote execution on a supercomputer : Remote_execution_on_a_supercomputer.md
+      - Multiscale Simulation instance construction : Multiscale_Simulation_instance_construction.md
+      - Sensitivity analysis of parameters using EasyVVUQ : Sensitivity_analysis_of_parameters_using_EasyVVUQ.md
+    #   - Getting Started: pages/GettingStarted.md
+    #   - Examples:
+    #     - Add Tasks: pages/examples/add_tasks.md
+    #     - Static Min-Min: pages/examples/min_min_scheduling_static.md
+
+    - Code Reference:
+       - FLEE:
+          - Person: code_reference/flee/person.md
+          - Location: code_reference/flee/location.md
+          - Link: code_reference/flee/link.md
+          - Ecosystem: code_reference/flee/ecosystem.md
+          - Diagnostics: code_reference/flee/diagnostics.md
+          - InputGeography: code_reference/flee/inputGeography.md
+       - P-FLEE:
+          - Person: code_reference/pflee/person.md
+          - Location: code_reference/pflee/location.md
+          - Link: code_reference/pflee/link.md
+          - Ecosystem: code_reference/pflee/ecosystem.md
+       - multiscale-FLEE:
+          - CouplingInterface: code_reference/multiscale/coupling.md
+          - pmicro-FLEE:
+            - Person: code_reference/multiscale/pmicro_flee/person.md
+            - Location: code_reference/multiscale/pmicro_flee/location.md
+            - Link: code_reference/multiscale/pmicro_flee/link.md
+            - Link Weather Coupling : code_reference/multiscale/pmicro_flee/link_weather_coupling.md
+            - Ecosystem: code_reference/multiscale/pmicro_flee/ecosystem.md
+            - InputGeography: code_reference/multiscale/pmicro_flee/inputGeography.md
+
+
+    - Contributing: contributing.md
+    - Credits : credits.md
+    - Publications: papers/papers.md

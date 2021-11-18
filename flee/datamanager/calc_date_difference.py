@@ -1,9 +1,6 @@
-from flee import flee
-from flee.datamanager import handle_refugee_data
-from flee.datamanager import DataTable
-import numpy as np
-import flee.postprocessing.analysis as a
 import sys
+
+from flee.datamanager import DataTable
 
 """
 calc_date_difference.py
@@ -15,4 +12,4 @@ Usage python3 calc_date_difference.py <YYYY-MM-DD earlier date> <YYYY-MM-DD late
 
 
 if __name__ == "__main__":
-    print(DataTable.subtract_dates(sys.argv[2], sys.argv[1]))
+    print(DataTable.subtract_dates(date1=sys.argv[2], date2=sys.argv[1]))

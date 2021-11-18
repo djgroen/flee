@@ -1,0 +1,44 @@
+[flake8]
+
+# Set the maximum length that any line (with some exceptions) may be.
+max-line-length = 100
+
+# Redirect all output to the specified file.
+output-file = .linter_reports/.flake8.log
+# Also print output to stdout if output-file has been configured.
+tee = True
+
+
+# Select the formatter used to display errors to the user.
+format=html
+htmldir=.linter_reports/flake-report
+
+# Print the total number of errors.
+count = True
+# Print the source code generating the error/warning in question.
+show-source = True
+# Count the number of occurrences of each error/warning code and print a report.
+statistics = True
+
+
+
+# exclude = old
+# Provide a comma-separated list of glob patterns to exclude from checks.
+exclude =
+    old
+    # python cache
+    __pycache__,
+    # pytest cache
+    .pytest_cache,
+
+# Specify the list of error codes you wish Flake8 to report.
+select = BLK,C,E,F,W,B,B901
+
+# Specify a list of mappings of files and the codes that should be ignored for the entirety of the
+# file.
+per-file-ignores = __init__.py:F401
+
+extend-ignore = B006, E203, E402
+# extend-ignore = E203, W503, B006, 
+
+

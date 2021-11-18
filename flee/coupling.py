@@ -1,34 +1,54 @@
-# coupling.py
-# File which contains the multiscale coupling interface for FLEE.
-# Idea is to support a wide range of coupling mechanisms within this
-# Python file.
-from __future__ import print_function
-import matplotlib
-matplotlib.use("Agg")
-import os.path
-import time
+from __future__ import annotations, print_function
+
 import csv
+import logging
+import os.path
 import sys
+import time
+from functools import wraps
+from typing import List, Tuple
+
+import matplotlib
+
+# pylint: disable=wrong-import-position
+matplotlib.use("Agg")
+# pylint: enable=wrong-import-position
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
 from libmuscle import Instance, Message
 from ymmsl import Operator
-import logging
-import numpy as np
-from pprint import pprint
-import pandas as pd
 
-# import matplotlib
-# matplotlib.use("Pdf"")
-import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.colors import ListedColormap
-import matplotlib.patches as mpatches
+if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
+    from beartype import beartype as check_args_type
+else:
+
+    def check_args_type(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        return wrapper
 
 
 class CouplingInterface:
+    """
+    The Coupling Interface class
+    """
 
-    def __init__(self, e, submodel, instance_index=None, num_instances=None,
-                 coupling_type="file", weather_coupling=False, outputdir="out",
-                 log_exchange_data=True):
+    @check_args_type
+    def __init__(
+        self,
+        e,
+        submodel: str,
+        instance_index: int = None,
+        num_instances: int = None,
+        coupling_type: str = "file",
+        weather_coupling: bool = False,
+        outputdir: str = "out",
+        log_exchange_data: bool = True,
+    ) -> None:
         """
         e = FLEE ecosystem
         Coupling types to support eventually:
@@ -62,41 +82,43 @@ class CouplingInterface:
             self.logger.propagate = False
 
             if self.submodel in ["macro", "micro"]:
-                self.instance = Instance({
-                    Operator.O_I: ["out"],
-                    Operator.S: ["in"]})
+                self.instance = Instance({Operator.O_I: ["out"], Operator.S: ["in"]})
             elif self.submodel in ["macro_manager", "micro_manager"]:
-                self.instance = Instance({
-                    Operator.O_I: ["out[]"],
-                    Operator.S: ["in[]"]})
+                self.instance = Instance({Operator.O_I: ["out[]"], Operator.S: ["in[]"]})
 
+    # pylint: disable=missing-function-docstring
     def reuse_coupling(self):
         if self.coupling_type == "file":
             return True
-        elif self.coupling_type == "muscle3":
+
+        if self.coupling_type == "muscle3":
             return self.instance.reuse_instance()
 
-    def addCoupledLocation(self, location, name, direction="inout",
-                           interval=1):
+    @check_args_type
+    def addCoupledLocation(
+        self, location, name: str, direction: str = "inout", interval: int = 1
+    ) -> None:
         """
+
         Adds a locations to the so-called *Coupled Region*.
-        * Location is the (p)Flee location object.
-        * Name is a location identifier that is identical to
-            the one in the other code.
-        * Direction can be (once the code is done):
-          - "out" -> agents are removed and stored in the coupling link.
-          - "in" -> agents written to the coupling link by the other process
-                    are added to this location.
-          - "inout" -> both out and in.
-          - "inout indirect" -> changes in agent numbers are stored in the
-                                coupling link. No agents are added or removed.
-        * Interval is the timestep interval of the coupling, ensuring that the
-            coupling activity is performed every <interval> time steps.
+
+        Args:
+            location (Location): is the (p)Flee location object.
+            name (str): Name is a location identifier that is identical to the one
+                in the other code.
+            direction (str, optional): Direction can be (once the code is done):
+                - `out` -> agents are removed and stored in the coupling link.
+                - `in` -> agents written to the coupling link by the other process
+                        are added to this location.
+                - `inout` -> both out and in.
+                - `inout indirect` -> changes in agent numbers are stored in the
+                    coupling link. No agents are added or removed.
+            interval (int, optional): is the timestep interval of the coupling, ensuring that the
+                coupling activity is performed every <interval> time steps.
         """
         if location.name not in self.location_names:
 
-            self.location_ids += [
-                self.e._convert_location_name_to_index(location.name)]
+            self.location_ids += [self.e._convert_location_name_to_index(name=location.name)]
             self.location_names += [location.name]
             """
             disabled by HAMID
@@ -117,52 +139,69 @@ class CouplingInterface:
                 "(ignore this if a location is both a coupled location and "
                 "a conflict location). Only one coupled location will be "
                 "created.".format(self.submodel, location.name),
-                file=sys.stderr
+                file=sys.stderr,
             )
 
-    def addGhostLocations(self, ig):
+    def addGhostLocations(self, ig) -> None:
+        """
+        Summary
+
+        Args:
+            ig (Type[InputGeography]): Description
+        """
         conflict_name_list = ig.getConflictLocationNames()
         print("Adding Ghosts", file=sys.stderr)
 
-        for ln in conflict_name_list:
-            for i in range(0, len(self.e.locationNames)):
-                if self.e.locationNames[i] == ln:
-                    l = self.e.locations[i]
-                    # print("L", l.name, len(l.links), file=sys.stderr)
-                    if len(l.links) == 0:
-                        if l.name not in self.location_names:
-                            print("Adding ghost location {}".format(
-                                l.name),
-                                file=sys.stderr
-                            )
+        for conflict_name in conflict_name_list:
+            for i, location_name in enumerate(self.e.locationNames):
+                if location_name == conflict_name:
+                    loc = self.e.locations[i]
+                    # print("L", loc.name, len(loc.links), file=sys.stderr)
+                    if len(loc.links) == 0:
+                        if loc.name not in self.location_names:
+                            print("Adding ghost location {}".format(loc.name), file=sys.stderr)
                             self.addCoupledLocation(
-                                l, l.name, "out", interval=1
+                                location=loc, name=loc.name, direction="out", interval=1
                             )
 
-    def addMicroConflictLocations(self, ig):
+    def addMicroConflictLocations(self, ig) -> None:
+        """
+        Summary
+
+        Args:
+            ig (Type[InputGeography]): Description
+        """
         conflict_name_list = ig.getConflictLocationNames()
         print("Adding micro conflict coupling", file=sys.stderr)
 
-        for ln in conflict_name_list:
-            for i in range(0, len(self.e.locationNames)):
-                if self.e.locationNames[i] == ln:
-                    l = self.e.locations[i]
-                    # print("L", l.name, len(l.links), file=sys.stderr)
-                    print("Adding micro coupled conflict location {}".format(
-                        l.name),
-                        file=sys.stderr
+        for conflict_name in conflict_name_list:
+            for i, location_name in enumerate(self.e.locationNames):
+                if location_name == conflict_name:
+                    loc = self.e.locations[i]
+                    # print("L", loc.name, len(loc.links), file=sys.stderr)
+                    print(
+                        "Adding micro coupled conflict location {}".format(loc.name),
+                        file=sys.stderr,
                     )
 
-                    self.addCoupledLocation(l, l.name, "in", interval=1)
+                    self.addCoupledLocation(location=loc, name=loc.name, direction="in", interval=1)
 
-    def Couple(self, t):  # TODO: make this code more dynamic/flexible
+    @check_args_type
+    def Couple(self, time: int) -> None:
+        """
+        Summary
+
+        Args:
+            time (int): Description
+        """
+
         newAgents = None
 
         # for the time being all intervals will have to be the same...
 
         # for current interval=1 we can ignore this check, but it should be
         # added later if we need higher interval values here
-        if t % self.intervals[0] == 0:
+        if time % self.intervals[0] == 0:
             # if True:
             if self.coupling_type == "muscle3":
                 if self.coupling_rank:
@@ -174,34 +213,30 @@ class CouplingInterface:
                         for slot in range(self.num_instances):
                             msg = self.instance.receive("in", slot)
                             curr_newAgent = self.extractNewAgentsFromCSVString(
-                                msg.data["newAgents"].split("\n")
+                                csv_string=msg.data["newAgents"].split("\n")
                             )
 
                             if len(newAgents) == 0:
                                 newAgents = curr_newAgent
                             else:
-                                for name in curr_newAgent:
-                                    if type(newAgents[name]) is not list:
+                                for name, newAgents_num in curr_newAgent.items():
+                                    if not isinstance(newAgents[name], list):
                                         newAgents[name] = [newAgents[name]]
-                                    newAgents[name].append(curr_newAgent[name])
+                                    newAgents[name].append(newAgents_num)
 
                         # combined founded newAgents per location by each
                         # instance into one
                         # for now, we use arithmetic mean,
                         # we may need to change it to another approach later
                         for name in newAgents:
-                            newAgents[name] = int(
-                                round(np.mean(newAgents[name]))
-                            )
+                            newAgents[name] = int(round(np.mean(newAgents[name])))
 
-                        data_to_micro = "\n".join("{},{}".format(
-                            key, value) for key, value in newAgents.items()
+                        data_to_micro = "\n".join(
+                            "{},{}".format(key, value) for key, value in newAgents.items()
                         )
 
                         for slot in range(self.num_instances):
-                            self.instance.send("out",
-                                               Message(t, None, data_to_micro),
-                                               slot)
+                            self.instance.send("out", Message(time, None, data_to_micro), slot)
 
                     elif self.submodel == "micro_manager":
 
@@ -210,50 +245,45 @@ class CouplingInterface:
                         for slot in range(self.num_instances):
                             msg = self.instance.receive("in", slot)
                             curr_newAgent = self.extractNewAgentsFromCSVString(
-                                msg.data["newAgents"].split("\n")
+                                csv_string=msg.data["newAgents"].split("\n")
                             )
 
                             if len(newAgents) == 0:
                                 newAgents = curr_newAgent
                             else:
-                                for name in curr_newAgent:
-                                    if type(newAgents[name]) is not list:
+                                for name, newAgents_num in curr_newAgent.items():
+                                    if not isinstance(newAgents[name], list):
                                         newAgents[name] = [newAgents[name]]
-                                    newAgents[name].append(curr_newAgent[name])
+                                    newAgents[name].append(newAgents_num)
 
                         # combined founded newAgents per location by
                         # each instance into one
                         # for now, we use arithmetic mean,
                         # we may need to change it to another approach later
                         for name in newAgents:
-                            newAgents[name] = int(
-                                round(np.mean(newAgents[name])))
+                            newAgents[name] = int(round(np.mean(newAgents[name])))
 
-                        data_to_macro = "\n".join("{},{}".format(
-                            key, value) for key, value in newAgents.items()
+                        data_to_macro = "\n".join(
+                            "{},{}".format(key, value) for key, value in newAgents.items()
                         )
                         # send to macro
                         for slot in range(self.num_instances):
-                            self.instance.send("out",
-                                               Message(t, None, data_to_macro),
-                                               slot)
+                            self.instance.send("out", Message(time, None, data_to_macro), slot)
 
                     elif self.submodel in ["macro", "micro"]:
 
-                        newAgents_str = self.generateOutputCSVString(t)
+                        newAgents_str = self.generateOutputCSVString()
                         # here, in addition to newAgents, we can also pass
                         # other variables if are required
-                        msg = {
-                            "newAgents": newAgents_str
-                        }
-                        self.instance.send("out", Message(t, None, msg))
+                        msg = {"newAgents": newAgents_str}
+                        self.instance.send("out", Message(time, None, msg))
 
                         if self.log_exchange_data is True:
-                            self.logExchangeData(t)
+                            self.logExchangeData(t=time)
 
                         msg = self.instance.receive("in")
                         newAgents = self.extractNewAgentsFromCSVString(
-                            msg.data.split("\n")
+                            csv_string=msg.data.split("\n")
                         )
 
                 # If MPI is used, broadcast newAgents to all other processes
@@ -264,64 +294,82 @@ class CouplingInterface:
                 # default is coupling through file IO.
                 if self.coupling_rank:
                     # If MPI is used, this will be the process with rank 0
-                    self.writeOutputToFile(t)
+                    self.writeOutputToFile(day=time)
                     if self.log_exchange_data is True:
-                        self.logExchangeData(t)
+                        self.logExchangeData(t=time)
 
-                newAgents = self.readInputFromFile(t)
+                newAgents = self.readInputFromFile(t=time)
 
-            # TODO: make this conditional on coupling type.
             if self.submodel in ["micro", "macro"]:
-                self.e.clearLocationsFromAgents(self.location_names)
+                self.e.clearLocationsFromAgents(location_names=self.location_names)
                 for i in range(0, len(self.location_names)):
                     # write departing agents to file
                     # read incoming agents from file
                     # print(self.names, i, newAgents)
                     if "in" in self.directions[i]:
 
-                        print("Couple IN: {} {}".format(
-                            self.names[i], newAgents[self.names[i]]),
-                            file=sys.stderr
+                        print(
+                            "Couple IN: {} {}".format(self.names[i], newAgents[self.names[i]]),
+                            file=sys.stderr,
                         )
 
                         if self.names[i] in newAgents:
                             self.e.insertAgents(
-                                self.e.locations[self.location_ids[i]],
-                                newAgents[self.names[i]]
+                                location=self.e.locations[self.location_ids[i]],
+                                number=newAgents[self.names[i]],
                             )
                     if hasattr(self.e, "mpi"):
                         self.e.updateNumAgents(log=False)
 
-    def setCouplingChannel(self, outputchannel, inputchannel):
+    @check_args_type
+    def setCouplingChannel(self, outputchannel: str, inputchannel: str) -> None:
         """
         Sets the coupling output file name (for file coupling).
         Name should be WITHOUT .csv extension.
+
+        Args:
+            outputchannel (str): Description
+            inputchannel (str): Description
         """
         if self.coupling_type == "file":
 
             self.outputfilename = outputchannel
             self.inputfilename = inputchannel
 
-    def generateOutputCSVString(self, t):
+    @check_args_type
+    def generateOutputCSVString(self) -> str:
+        """
+        Summary
+
+        Returns:
+            str: Description
+        """
         out_csv_string = ""
-        for i in range(0, len(self.location_ids)):
+        for i, location_id in enumerate(self.location_ids):
             if "out" in self.directions[i]:
                 out_csv_string += "{},{}\n".format(
-                    self.names[i],
-                    self.e.locations[self.location_ids[i]].numAgents
+                    self.names[i], self.e.locations[location_id].numAgents
                 )
-                print("Couple OUT: {} {}".format(
-                    self.names[i],
-                    self.e.locations[self.location_ids[i]].numAgents),
-                    file=sys.stderr
+                print(
+                    "Couple OUT: {} {}".format(
+                        self.names[i], self.e.locations[location_id].numAgents
+                    ),
+                    file=sys.stderr,
                 )
 
         return out_csv_string
 
-    def extractNewAgentsFromCSVString(self, csv_string):
+    @check_args_type
+    def extractNewAgentsFromCSVString(self, csv_string: List[str]) -> dict:
         """
         Reads in a CSV string with coupling information, and extracts a list
         of New Agents.
+
+        Args:
+            csv_string (List[str]): Description
+
+        Returns:
+            dict: Description
         """
         newAgents = {}
 
@@ -338,24 +386,38 @@ class CouplingInterface:
 
         return newAgents
 
-    def writeOutputToFile(self, t):
-        out_csv_string = self.generateOutputCSVString(t)
-        outputfile = os.path.join(
-            self.outputdir, "file", "coupled",
-            "{}[{}].{}.csv".format(self.outputfilename, self.instance_index, t)
-        )
+    @check_args_type
+    def writeOutputToFile(self, day: int) -> None:
+        """
+        Summary
 
-        with open(outputfile, "a") as file:
+        Args:
+            day (int): Description
+
+        """
+        out_csv_string = self.generateOutputCSVString()
+        csv_outputfile_name = "{}[{}].{}.csv".format(self.outputfilename, self.instance_index, day)
+        csv_outputfile_path = os.path.join(self.outputdir, "file", "coupled", csv_outputfile_name)
+
+        with open(csv_outputfile_path, "a", encoding="utf-8") as file:
             file.write(out_csv_string)
 
         print(
-            "{}[{}] t={} Couple: output written to {}[{}].{}.csv".format(
-                self.submodel, self.instance_index, t,
-                self.outputfilename, self.instance_index, t),
-            file=sys.stderr
+            "{}[{}] t={} Couple: output written to {}".format(
+                self.submodel, self.instance_index, day, csv_outputfile_name
+            ),
+            file=sys.stderr,
         )
 
-    def waitForInputFiles(self, check_dir, in_fnames):
+    @check_args_type
+    def waitForInputFiles(self, check_dir: str, in_fnames: dict) -> None:
+        """
+        Summary
+
+        Args:
+            check_dir (str): Description
+            in_fnames (str): Description
+        """
         # input format for in_fnames : [dic{"fileName",False}]
         founded_files = 0
         # wait until input files from all instances are available
@@ -367,36 +429,41 @@ class CouplingInterface:
                         in_fnames[fname] = True
                         founded_files += 1
 
-    def readInputFromFile(self, t):
+    @check_args_type
+    def readInputFromFile(self, t: int) -> dict:
         """
         Returns a dictionary with key <coupling name> and
         value <number of agents>.
+
+        Args:
+            t (int): Description
+
+        Returns:
+            dict: Description
         """
         in_fnames = {}
         for i in range(self.num_instances):
             fname = "{}[{}].{}.csv".format(self.inputfilename, i, t)
             in_fnames[fname] = False
 
-        dirInputFiles = os.path.join(
-            self.outputdir, self.coupling_type, "coupled"
-        )
+        dirInputFiles = os.path.join(self.outputdir, self.coupling_type, "coupled")
         # wait until input files from all instances are available
-        self.waitForInputFiles(dirInputFiles, in_fnames)
+        self.waitForInputFiles(check_dir=dirInputFiles, in_fnames=in_fnames)
 
         # aggrgate newAgents from each input files
         aggNewAgents = {}
-        for i, fname in enumerate(in_fnames):
-            with open(os.path.join(dirInputFiles, fname)) as csvfile:
+        for fname in in_fnames:
+            with open(os.path.join(dirInputFiles, fname), encoding="utf-8") as csvfile:
                 csv_string = csvfile.read().split("\n")
 
-            curr_newAgent = self.extractNewAgentsFromCSVString(csv_string)
+            curr_newAgent = self.extractNewAgentsFromCSVString(csv_string=csv_string)
             if len(aggNewAgents) == 0:
                 aggNewAgents = curr_newAgent
             else:
-                for name in curr_newAgent:
-                    if type(aggNewAgents[name]) is not list:
+                for name, newAgents_num in curr_newAgent.items():
+                    if not isinstance(aggNewAgents[name], list):
                         aggNewAgents[name] = [aggNewAgents[name]]
-                    aggNewAgents[name].append(curr_newAgent[name])
+                    aggNewAgents[name].append(newAgents_num)
 
         # combined founded newAgents per location by each instance into one
         # for now, we use arithmetic mean,
@@ -410,31 +477,28 @@ class CouplingInterface:
     #                           log Exchanged Data
     # ------------------------------------------------------------------------
 
-    def saveExchangeDataToFile(self):
+    def saveExchangeDataToFile(self) -> None:
+        """
+        Summary
+        """
         # save logTotalAgents to file
         if hasattr(self, "logTotalAgents"):
-            filename = "logTotalAgents_{}[{}].csv".format(
-                self.submodel, self.instance_index
-            )
+            filename = "logTotalAgents_{}[{}].csv".format(self.submodel, self.instance_index)
             outputfile = os.path.join(
-                self.outputdir, self.coupling_type,
-                "log_exchange_data", filename
+                self.outputdir, self.coupling_type, "log_exchange_data", filename
             )
             # output csv header
             header_csv = "day,total_agents"
-            with open(outputfile, "a") as file:
+            with open(outputfile, "a", encoding="utf-8") as file:
                 file.write("{}\n".format(header_csv))
                 csvWriter = csv.writer(file, delimiter=",")
                 csvWriter.writerows(self.logTotalAgents)
 
         # save logLocationsNumAgents to file
         if hasattr(self, "logLocationsNumAgents"):
-            filename = "logLocationsNumAgents_{}[{}].csv".format(
-                self.submodel, self.instance_index
-            )
+            filename = "logLocationsNumAgents_{}[{}].csv".format(self.submodel, self.instance_index)
             outputfile = os.path.join(
-                self.outputdir, self.coupling_type,
-                "log_exchange_data", filename
+                self.outputdir, self.coupling_type, "log_exchange_data", filename
             )
 
             # output csv header
@@ -443,37 +507,47 @@ class CouplingInterface:
                 if "out" in self.directions[i]:
                     header_csv += ",{}".format(self.names[i])
 
-            with open(outputfile, "a") as file:
+            with open(outputfile, "a", encoding="utf-8") as file:
                 file.write("{}\n".format(header_csv))
                 csvWriter = csv.writer(file, delimiter=",")
                 csvWriter.writerows(self.logLocationsNumAgents)
 
         # save logNewRefugees to file
         if hasattr(self, "logNewRefugees"):
-            filename = "logNewRefugees_{}[{}].csv".format(
-                self.submodel, self.instance_index
-            )
+            filename = "logNewRefugees_{}[{}].csv".format(self.submodel, self.instance_index)
             outputfile = os.path.join(
-                self.outputdir, self.coupling_type,
-                "log_exchange_data", filename
+                self.outputdir, self.coupling_type, "log_exchange_data", filename
             )
             # output csv header
             header_csv = "day,new_refs"
-            with open(outputfile, "a") as file:
+            with open(outputfile, "a", encoding="utf-8") as file:
                 file.write("{}\n".format(header_csv))
                 csvWriter = csv.writer(file, delimiter=",")
                 csvWriter.writerows(self.logNewRefugees)
 
-    def logNewAgents(self, t, new_refs):
-        # create log all variables only if they are not exist
+    @check_args_type
+    def logNewAgents(self, t: int, new_refs: int) -> None:
+        """
+        create log all variables only if they are not exist
+
+        Args:
+            t (int): Description
+            new_refs (int): Description
+        """
         if not hasattr(self, "logNewRefugees"):
             self.logNewRefugees = []
             # logNewRefugees.append([day,new_refs])
 
         self.logNewRefugees.append([t, new_refs])
 
-    def logExchangeData(self, t):
+    @check_args_type
+    def logExchangeData(self, t: int) -> None:
+        """
+        Summary
 
+        Args:
+            t (int): Description
+        """
         # save log of total agents
         if not hasattr(self, "logTotalAgents"):
             self.logTotalAgents = []
@@ -487,52 +561,47 @@ class CouplingInterface:
             # logLocationsNumAgents.append([day,location_ids[i]].numAgents])
 
         data = [t]
-        for i in range(0, len(self.location_ids)):
+        for i, location_id in enumerate(self.location_ids):
             if "out" in self.directions[i]:
-                data.append(self.e.locations[self.location_ids[i]].numAgents)
+                data.append(self.e.locations[location_id].numAgents)
 
         self.logLocationsNumAgents.append(data)
 
-    def sumOutputCSVFiles(self):
+    def sumOutputCSVFiles(self) -> None:
+        """
+        Summary
+        """
         in_fnames = {}
         for i in range(self.num_instances):
             fname = "out[{}].csv".format(i)
             in_fnames[fname] = False
 
-        dirInputFiles = os.path.join(
-            self.outputdir, self.coupling_type, self.submodel
-        )
+        dirInputFiles = os.path.join(self.outputdir, self.coupling_type, self.submodel)
 
         # wait until input files from all instances are available
-        self.waitForInputFiles(dirInputFiles, in_fnames)
+        self.waitForInputFiles(check_dir=dirInputFiles, in_fnames=in_fnames)
 
         dfs = []
-        for i, fname in enumerate(in_fnames):
-            df = pd.read_csv(
-                os.path.join(dirInputFiles, fname),
-                index_col=None, header=0
-            )
+        for fname in in_fnames:
+            df = pd.read_csv(os.path.join(dirInputFiles, fname), index_col=None, header=0)
             dfs.append(df)
 
-        frame = pd.concat(
-            dfs, axis=0, ignore_index=True
-        ).groupby(["Day"]).mean()
+        frame = pd.concat(dfs, axis=0, ignore_index=True).groupby(["Day"]).mean()
 
         for column_name in list(frame):
             if "error" not in column_name.lower():
                 frame[column_name].round(0).astype(int)
 
-        df.to_csv(
-            os.path.join(dirInputFiles, "out.csv"),
-            encoding="utf-8",
-            index=False
-        )
+        df.to_csv(os.path.join(dirInputFiles, "out.csv"), encoding="utf-8", index=False)
 
     # ------------------------------------------------------------------------
     #                           Plotting functions
     # ------------------------------------------------------------------------
-    def plotExchangedData(self):
 
+    def plotExchangedData(self) -> None:
+        """
+        Summary
+        """
         if hasattr(self, "logTotalAgents"):
             self.plotTotalAgentsHistory()
 
@@ -542,27 +611,27 @@ class CouplingInterface:
         if hasattr(self, "logNewRefugees"):
             self.plotNewRefugeesHistory()
 
-    def plotLocationsNumAgentsHistory(self):
-
+    def plotLocationsNumAgentsHistory(self) -> None:
+        """
+        Summary
+        """
         in_fnames = {}
         for i in range(self.num_instances):
-            fname = "logLocationsNumAgents_{}[{}].csv".format(
-                self.submodel, i
-            )
+            fname = "logLocationsNumAgents_{}[{}].csv".format(self.submodel, i)
             in_fnames[fname] = False
-        dirInputFiles = os.path.join(
-            self.outputdir, self.coupling_type, "log_exchange_data"
-        )
+        dirInputFiles = os.path.join(self.outputdir, self.coupling_type, "log_exchange_data")
 
         # wait until input files from all instances are available
-        self.waitForInputFiles(dirInputFiles, in_fnames)
+        self.waitForInputFiles(check_dir=dirInputFiles, in_fnames=in_fnames)
 
         csv_header = []
         for i in range(0, len(self.location_ids)):
             if "out" in self.directions[i]:
                 csv_header.append(self.names[i])
         days, LocationsNumAgents = self.readCSVLogFiles(
-            dirInputFiles, in_fnames, csv_header
+            dirInputFiles=dirInputFiles,
+            inputFileNames=list(in_fnames.keys()),
+            columnHeader=csv_header
         )
 
         # plot data
@@ -580,139 +649,142 @@ class CouplingInterface:
 
         LINE_STYLES = ["solid", "dashed", "dotted"]
         NUM_STYLES = len(LINE_STYLES)
-        legends = []
         for i, (loc_name, loc_res) in enumerate(LocationsNumAgents.items()):
-            fig.add_subplot(ROWS, COLUMNS, POSITION[
-                i], frameon=False)
+            fig.add_subplot(ROWS, COLUMNS, POSITION[i], frameon=False)
             # xlabel=xlabel, ylabel=ylabel)
             set_legend = True
             for res in loc_res:
                 if set_legend:
                     plt.plot(
-                        days, res,
+                        days,
+                        res,
                         color=cmp[i],
                         linestyle=LINE_STYLES[i % NUM_STYLES],
-                        label=loc_name
+                        label=loc_name,
                     )
                     set_legend = False
                 else:
-                    plt.plot(
-                        days, res,
-                        color=cmp[i],
-                        linestyle=LINE_STYLES[i % NUM_STYLES]
-                    )
+                    plt.plot(days, res, color=cmp[i], linestyle=LINE_STYLES[i % NUM_STYLES])
 
             plt.legend()
-            ymin, ymax = plt.ylim()
+            _, ymax = plt.ylim()  # returns bottom and top of the current ylim
             plt.ylim(0, ymax if ymax > 1 else 1)
 
         plt.tight_layout()
         outputPlotFile = os.path.join(
-            self.outputdir, self.coupling_type,
+            self.outputdir,
+            self.coupling_type,
             "plot_exchange_data",
-            "plotLocationsNumAgents[{}].pdf".format(self.submodel)
+            "plotLocationsNumAgents[{}].pdf".format(self.submodel),
         )
         plt.savefig(outputPlotFile)
 
-    def plotTotalAgentsHistory(self):
-
+    def plotTotalAgentsHistory(self) -> None:
+        """
+        Summary
+        """
         in_fnames = {}
         for i in range(self.num_instances):
-            fname = "logTotalAgents_{}[{}].csv".format(
-                self.submodel, i
-            )
+            fname = "logTotalAgents_{}[{}].csv".format(self.submodel, i)
             in_fnames[fname] = False
 
-        dirInputFiles = os.path.join(
-            self.outputdir, self.coupling_type, "log_exchange_data"
-        )
+        dirInputFiles = os.path.join(self.outputdir, self.coupling_type, "log_exchange_data")
 
         # wait until input files from all instances are available
-        self.waitForInputFiles(dirInputFiles, in_fnames)
+        self.waitForInputFiles(check_dir=dirInputFiles, in_fnames=in_fnames)
 
         csv_header = ["total_agents"]
         days, TotalAgents = self.readCSVLogFiles(
-            dirInputFiles, in_fnames, csv_header
+            dirInputFiles=dirInputFiles,
+            inputFileNames=list(in_fnames.keys()),
+            columnHeader=csv_header
         )
 
         # plotting preparation
         cmp = sns.color_palette("colorblind", self.num_instances)
         fig = plt.figure()
-        ax = fig.add_subplot(111, xlabel="day", ylabel="total_agents")
+        _ = fig.add_subplot(111, xlabel="day", ylabel="total_agents")
 
         # plot newAgents from each input files
-        for column_header in TotalAgents.keys():
-            for i, data in enumerate(TotalAgents[column_header]):
-                total_agents = data
+        for _, data in TotalAgents.items():
+            for i, total_agents in enumerate(data):
                 label = "{}[{}]".format(self.submodel, i)
-                plt.plot(
-                    days, total_agents,
-                    color=cmp[i],
-                    label=label
-                )
+                plt.plot(days, total_agents, color=cmp[i], label=label)
 
         plt.legend()
         plt.tight_layout()
         outputPlotFile = os.path.join(
-            self.outputdir, self.coupling_type,
+            self.outputdir,
+            self.coupling_type,
             "plot_exchange_data",
-            "plotTotalAgents[{}].pdf".format(self.submodel)
+            "plotTotalAgents[{}].pdf".format(self.submodel),
         )
         plt.savefig(outputPlotFile)
 
-    def plotNewRefugeesHistory(self):
+    def plotNewRefugeesHistory(self) -> None:
+        """
+        Summary
+        """
         in_fnames = {}
 
         for i in range(self.num_instances):
-            fname = "logNewRefugees_{}[{}].csv".format(
-                self.submodel, i
-            )
+            fname = "logNewRefugees_{}[{}].csv".format(self.submodel, i)
             in_fnames[fname] = False
 
-        dirInputFiles = os.path.join(
-            self.outputdir, self.coupling_type, "log_exchange_data"
-        )
+        dirInputFiles = os.path.join(self.outputdir, self.coupling_type, "log_exchange_data")
 
         # wait until input files from all instances are available
-        self.waitForInputFiles(dirInputFiles, in_fnames)
+        self.waitForInputFiles(check_dir=dirInputFiles, in_fnames=in_fnames)
 
         csv_header = ["new_refs"]
         days, NewRefugees = self.readCSVLogFiles(
-            dirInputFiles, in_fnames, csv_header
+            dirInputFiles=dirInputFiles,
+            inputFileNames=list(in_fnames.keys()),
+            columnHeader=csv_header
         )
 
         # plotting preparation
         cmp = sns.color_palette("colorblind", self.num_instances)
         fig = plt.figure()
-        ax = fig.add_subplot(111, xlabel="day", ylabel="NewRefugees")
+        _ = fig.add_subplot(111, xlabel="day", ylabel="NewRefugees")
         # plot NewRefugees from each input files
-        for column_header in NewRefugees.keys():
-            for i, data in enumerate(NewRefugees[column_header]):
-                total_agents = data
+        for _, data in NewRefugees.items():
+            for i, total_agents in enumerate(data):
                 label = "{}[{}]".format(self.submodel, i)
                 # for fist day, we have high number of NewRefugees
-                plt.plot(
-                    days[1:], total_agents[1:],
-                    color=cmp[i],
-                    label=label
-                )
+                plt.plot(days[1:], total_agents[1:], color=cmp[i], label=label)
 
         plt.legend()
         plt.tight_layout()
         outputPlotFile = os.path.join(
-            self.outputdir, self.coupling_type,
+            self.outputdir,
+            self.coupling_type,
             "plot_exchange_data",
-            "plotNewRefugees[{}].pdf".format(self.submodel)
+            "plotNewRefugees[{}].pdf".format(self.submodel),
         )
         plt.savefig(outputPlotFile)
 
-    def readCSVLogFiles(self, dirInputFiles, inputFileNames, columnHeader):
+    @check_args_type
+    def readCSVLogFiles(
+        self, dirInputFiles: str, inputFileNames: List[str], columnHeader: List[str]
+    ) -> Tuple[np.ndarray, dict]:
+        """
+        Summary
+
+        Args:
+            dirInputFiles (str): Description
+            inputFileNames (List[str]): Description
+            columnHeader (List[str]): Description
+
+        No Longer Returned:
+            Tuple[np.ndarray, dict]: Description
+        """
         dict_res = {}
-        days = []
+        days = np.array([])
         for name in columnHeader:
             dict_res[name] = []
 
-        for i, fname in enumerate(inputFileNames):
+        for fname in inputFileNames:
             with open(os.path.join(dirInputFiles, fname), "rb") as csvfile:
                 data = np.loadtxt(csvfile, delimiter=",", skiprows=1)
 

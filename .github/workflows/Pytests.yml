@@ -16,26 +16,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:        
-        os: [ "ubuntu-latest", "macOS-latest" ]
+        # os: [ "ubuntu-18.04", "macos-11" ]
+        os: [ "ubuntu-18.04"]
         python-version: ["3.7", "3.8", "3.9" ]
         mpi: [mpich, openmpi]
         include:
-        - os: ubuntu-latest
+        - os: ubuntu-18.04
           mpi: mpich
-          install-mpi: sudo apt install -y mpich libmpich-dev
-        - os: ubuntu-latest
+          install-mpi: sudo apt install -y mpich libmpich-dev tree
+        - os: ubuntu-18.04
           mpi: openmpi
-          install-mpi: sudo apt install -y openmpi-bin libopenmpi-dev
-        - os: macos-latest
-          mpi: mpich
-          install-mpi: brew install mpich
-        - os: macos-latest
-          mpi: openmpi
-          install-mpi: brew install openmpi
+          install-mpi: sudo apt install -y openmpi-bin libopenmpi-dev tree
+        # - os: macos-11
+        #   mpi: mpich
+        #   install-mpi: brew install mpich tree
+        # - os: macos-11
+        #   mpi: openmpi
+        #   install-mpi: brew install open-mpi tree
 
     steps:
       - name: Checkout  🛎️
         uses: "actions/checkout@v2"    
+
+      - name: Install MPI 📥
+        run: |
+          ${{ matrix.install-mpi }}          
+          mpirun --version
+
+          which mpirun
+          which tree
+          
 
       - name: Set up Python ${{ matrix.python-version }}  🐍
         uses: actions/setup-python@v2
@@ -60,10 +70,6 @@ jobs:
           python3 --version
           python --version
 
-      - name: Install MPI 📥
-        run: ${{ matrix.install-mpi }}
-
-
       - name: Install Python Dependencies 📥
         run: |
           python3 -m pip install --upgrade pip wheel
@@ -71,7 +77,19 @@ jobs:
 
       - name: Test with pytest 🚀
         run: |
-          export PYTHONPATH=${{ github.workspace }}:$PYTHONPATH          
+          python3 setup.py install      
           git clone https://github.com/djgroen/FabFlee.git         
+          
+          export TMPDIR=/tmp
+          export OMPI_MCA_btl=self,tcp
+          export OMPI_MCA_btl_vader_backing_directory=/tmp
+          export FLEE_TYPE_CHECK=true 
+
+          cd FabFlee/config_files/mali
+          
+          mpiexec -n 2 python3 run_par.py input_csv source_data 50 simsetting.csv
+          mpirun -n 2 python3 run_par.py input_csv source_data 50 simsetting.csv
+          cd ../../..
+
           python3 -m pytest --log-cli-level=DEBUG tests/
 

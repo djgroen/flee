@@ -1,17 +1,32 @@
-# pflee.py
-# A parallelized implementation of FLEE (with original rules)
-# example to run: mpiexec -n 4 python3 pflee.py 100
-import numpy as np
+from __future__ import annotations
+
+import os
 import sys
-import random
-from flee.SimulationSettings import SimulationSettings
+from functools import wraps
+from typing import List, Optional
+
+import numpy as np
 from flee import flee
-from mpi4py import MPI
-from mpi4py.MPI import ANY_SOURCE
 from flee.Diagnostics import write_agents_par
+from flee.SimulationSettings import SimulationSettings
+from mpi4py import MPI
+
+if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
+    from beartype import beartype as check_args_type
+else:
+
+    def check_args_type(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        return wrapper
 
 
 class MPIManager:
+    """
+    The MPIManager class
+    """
 
     def __init__(self):
         if not MPI.Is_initialized():
@@ -21,13 +36,16 @@ class MPIManager:
         self.rank = self.comm.Get_rank()
         self.size = self.comm.Get_size()
 
+    # pylint: disable=missing-function-docstring
+    @check_args_type
     def CalcCommWorldTotalSingle(self, i):
-
         total = np.array([-1])
         # If you want this number on rank 0, just use Reduce.
         self.comm.Allreduce(np.array([i]), total, op=MPI.SUM)
         return total[0]
 
+    # pylint: disable=missing-function-docstring
+    @check_args_type
     def CalcCommWorldTotal(self, np_array):
         assert np_array.size > 0
 
@@ -40,27 +58,60 @@ class MPIManager:
 
 
 class Person(flee.Person):
+    """
+    The Person class
+    """
 
-    __slots__ = ["location", "home_location", "timesteps_since_departure",
-                 "places_travelled", "recent_travel_distance",
-                 "distance_moved_this_timestep", "travelling",
-                 "distance_travelled_on_link", "e"
-                 ]
+    __slots__ = [
+        "location",
+        "home_location",
+        "timesteps_since_departure",
+        "places_travelled",
+        "recent_travel_distance",
+        "distance_moved_this_timestep",
+        "travelling",
+        "distance_travelled_on_link",
+        "e",
+    ]
 
+    @check_args_type
     def __init__(self, e, location):
         super().__init__(location)
         self.e = e
 
-    def evolve(self, ForceTownMove=False):
-        super().evolve(ForceTownMove)
+    @check_args_type
+    def evolve(self, time: int, ForceTownMove: bool = False) -> None:
+        """
+        Summary
 
-    def finish_travel(self):
-        super().finish_travel()
+        Args:
+            time (int): Description
+            ForceTownMove (bool, optional): Description
+        """
+        super().evolve(time=time, ForceTownMove=ForceTownMove)
 
-    def getLinkWeight(self, link, awareness_level):
+    @check_args_type
+    def finish_travel(self, time: int) -> None:
+        """
+        Summary
+
+        Args:
+            time (int): Description
+        """
+        super().finish_travel(time=time)
+
+    @check_args_type
+    def getLinkWeight(self, link, awareness_level: int) -> float:
         """
         Calculate the weight of an adjacent link. Weight = probability that
         it will be chosen.
+
+        Args:
+            link (Link): Description
+            awareness_level (int): Description
+
+        Returns:
+            float: Description
         """
 
         # If turning back is NOT allowed, remove weight from the last location.
@@ -75,54 +126,120 @@ class Person(flee.Person):
             return 1.0
 
         return float(
-            self.e.scores[(link.endpoint.id * 4) + awareness_level] /
-            float(SimulationSettings.Softening + link.get_distance())
+            self.e.scores[(link.endpoint.id * 4) + awareness_level]
+            / float(SimulationSettings.Softening + link.get_distance())
         )
 
-    def getEndPointScore(self, link):
+    @check_args_type
+    def getEndPointScore(self, link) -> float:
         """
         Overwrite serial function because we have a different data structure
         for endpoint scores.
+
+        Args:
+            link (Link) : Description
+
+        Returns:
+            float: Description
         """
         return float(self.e.scores[(link.endpoint.id * 4) + 1])
 
 
 class Location(flee.Location):
+    """
+    The Location class
+    """
 
-    def __init__(self, e, cur_id, name, x=0.0, y=0.0, movechance=0.001,
-                 capacity=-1, pop=0, foreign=False, country="unknown"):
+    @check_args_type
+    def __init__(
+        self,
+        e,
+        cur_id: int,
+        name: str,
+        x: float = 0.0,
+        y: float = 0.0,
+        location_type: Optional[str] = None,
+        movechance: float = 0.001,
+        capacity: int = -1,
+        pop: int = 0,
+        foreign: bool = False,
+        country: str = "unknown",
+    ) -> None:
         self.e = e
 
         self.id = cur_id
         self.numAgentsSpawnedOnRank = 0
 
         # If it is referred to in Flee in any way, the code should crash.
-        super().__init__(name, x, y, movechance, capacity, pop,
-                         foreign, country)
+        super().__init__(
+            name=name,
+            x=x,
+            y=y,
+            location_type=location_type,
+            movechance=movechance,
+            capacity=capacity,
+            pop=pop,
+            foreign=foreign,
+            country=country,
+        )
 
         # Emptying this array, as it is not used in the parallel version.
         self.scores = []
 
-    def DecrementNumAgents(self):
+    @check_args_type
+    def DecrementNumAgents(self) -> None:
+        """
+        Summary
+        """
         self.numAgentsOnRank -= 1
 
-    def IncrementNumAgents(self):
+    @check_args_type
+    def IncrementNumAgents(self) -> None:
+        """
+        Summary
+        """
         self.numAgentsOnRank += 1
 
-    def print(self):
+    @check_args_type
+    def print(self) -> None:
+        """
+        Summary
+        """
         if self.e.mpi.rank == 0:
             super().print()
 
-    def getScore(self, index):
+    @check_args_type
+    def getScore(self, index: int) -> float:
+        """
+        Summary
+
+        Args:
+            index (int): Description
+
+        Returns:
+            float: Description
+        """
         return self.e.scores[self.id * self.e.scores_per_location + index]
 
-    def setScore(self, index, value):
+    @check_args_type
+    def setScore(self, index: int, value: float) -> None:
+        """
+        Summary
+
+        Args:
+            index (int): Description
+            value (float): Description
+        """
         self.e.scores[self.id * self.e.scores_per_location + index] = value
 
-    def updateAllScores(self, time):
+    @check_args_type
+    def updateAllScores(self, time: int) -> None:
         """
         Updates all scores of a particular location. Different to
         Serial Flee, due to the reversed order there.
+
+        Args:
+            time (int): Description
         """
         self.time = time
         self.updateRegionScore()
@@ -131,20 +248,35 @@ class Location(flee.Location):
 
 
 class Link(flee.Link):
+    """
+    The Link class
+    """
 
-    def __init__(self, startpoint, endpoint, distance,
-                 forced_redirection=False):
+    @check_args_type
+    def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False):
         super().__init__(startpoint, endpoint, distance, forced_redirection)
 
-    def DecrementNumAgents(self):
+    @check_args_type
+    def DecrementNumAgents(self) -> None:
+        """
+        Summary
+        """
         self.numAgents -= 1
 
-    def IncrementNumAgents(self):
+    @check_args_type
+    def IncrementNumAgents(self) -> None:
+        """
+        Summary
+        """
         self.numAgents += 1
 
 
 class Ecosystem(flee.Ecosystem):
+    """
+    The Ecosystem class
+    """
 
+    @check_args_type
     def __init__(self):
         self.locations = []
         self.locationNames = []
@@ -180,7 +312,8 @@ class Ecosystem(flee.Ecosystem):
             self.num_arrivals = []  # one element per time step.
             self.travel_durations = []  # one element per time step.
 
-    def getRankN(self, t):
+    @check_args_type
+    def getRankN(self, t: int) -> bool:
         """
         Returns the <rank N> value, which is the rank meant to perform
         diagnostics at a given time step.
@@ -189,6 +322,12 @@ class Ecosystem(flee.Ecosystem):
 
         NOTE: This is overwritten to just give rank 0, to prevent garbage
         output ordering...
+
+        Args:
+            t (int): Description
+
+        Returns:
+            bool: Description
         """
         # N = t % self.mpi.size
         # if self.mpi.rank == N:
@@ -196,30 +335,32 @@ class Ecosystem(flee.Ecosystem):
             return True
         return False
 
-    def updateNumAgents(self, CountClosed=False, log=True):
+    @check_args_type
+    def updateNumAgents(self, CountClosed: bool = False, log: bool = True) -> None:
+        """
+        Summary
+
+        Args:
+            CountClosed (bool, optional): Description
+            log (bool, optional): Description
+        """
         mode = self.latency_mode
 
         total = 0
 
         if mode == "low_latency":
             for loc in self.locations:
-                loc.numAgents = self.mpi.CalcCommWorldTotalSingle(
-                    loc.numAgentsOnRank)
+                loc.numAgents = self.mpi.CalcCommWorldTotalSingle(loc.numAgentsOnRank)
                 total += loc.numAgents
-                # print("location:", self.time, loc.name, loc.numAgents,
-                #       file=sys.stderr)
+                # print("location:", self.time, loc.name, loc.numAgents, file=sys.stderr)
                 for link in loc.links:
-                    link.numAgents = self.mpi.CalcCommWorldTotalSingle(
-                        link.numAgentsOnRank)
-                    # print(self.time, "link:", loc.name, link.numAgents,
-                    #       file=sys.stderr)
+                    link.numAgents = self.mpi.CalcCommWorldTotalSingle(link.numAgentsOnRank)
+                    # print(self.time, "link:", loc.name, link.numAgents, file=sys.stderr)
                     total += link.numAgents
                 if CountClosed:
                     for link in loc.closed_links:
-                        link.numAgents = self.mpi.CalcCommWorldTotalSingle(
-                            link.numAgentsOnRank)
-                        # print(self.time, "link [closed]:",
-                        #       loc.name, link.numAgents,
+                        link.numAgents = self.mpi.CalcCommWorldTotalSingle(link.numAgentsOnRank)
+                        # print(self.time, "link [closed]:", loc.name, link.numAgents,
                         #       file=sys.stderr)
                         total += link.numAgents
             self.total_agents = total
@@ -264,8 +405,9 @@ class Ecosystem(flee.Ecosystem):
             self.total_agents = np.sum(new_buffer)
 
         if self.mpi.rank == 0 and log is True:
-            print("NumAgents updated. Total agents in simulation:",
-                  self.total_agents, file=sys.stderr)
+            print(
+                "NumAgents updated. Total agents in simulation:", self.total_agents, file=sys.stderr
+            )
 
     """
     Add & insert agent functions.
@@ -273,7 +415,14 @@ class Ecosystem(flee.Ecosystem):
     over time due to removals by clearLocationFromAgents?
     """
 
-    def addAgent(self, location):
+    @check_args_type
+    def addAgent(self, location) -> None:
+        """
+        Summary
+
+        Args:
+            location (Location): Description
+        """
         if SimulationSettings.TakeRefugeesFromPopulation:
             if location.conflict:
                 if location.pop > 1:
@@ -281,44 +430,61 @@ class Ecosystem(flee.Ecosystem):
                     location.numAgentsSpawnedOnRank += 1
                     location.numAgentsSpawned += 1
                 else:
-                    print("ERROR: Number of agents in the simulation is "
-                          "larger than the combined population of the "
-                          "conflict zones. Please amend locations.csv.")
+                    print(
+                        "ERROR: Number of agents in the simulation is larger than the combined "
+                        "population of the conflict zones. Please amend locations.csv."
+                    )
                     location.print()
                     assert location.pop > 1
         self.total_agents += 1
         if self.total_agents % self.mpi.size == self.mpi.rank:
-            self.agents.append(Person(self, location))
+            self.agents.append(Person(self, location=location))
 
-    def insertAgent(self, location):
+    @check_args_type
+    def insertAgent(self, location) -> None:
         """
         Note: insert Agent does NOT take from Population.
+
+        Args:
+            location (Location): Description
         """
         self.total_agents += 1
         if self.total_agents % self.mpi.size == self.mpi.rank:
-            self.agents.append(Person(self, location))
+            self.agents.append(Person(self, location=location))
 
-    def insertAgents(self, location, number):
-        for i in range(0, number):
-            self.insertAgent(location)
+    @check_args_type
+    def insertAgents(self, location, number: int) -> None:
+        """
+        Summary
 
-    def clearLocationsFromAgents(self, location_names):
+        Args:
+            location (Location): Description
+            number (int): Description
+        """
+        for _ in range(0, number):
+            self.insertAgent(location=location)
+
+    @check_args_type
+    def clearLocationsFromAgents(self, location_names: List[str]) -> None:
         """
         Remove all agents from a list of locations by name.
         Useful for couplings to other simulation codes.
 
         TODO : REWRITE!!
+
+        Args:
+            location_names (List[str]): Description
         """
 
         new_agents = []
-        for i in range(0, len(self.agents)):
-            if self.agents[i].location.name not in location_names:
-                new_agents += [self.agents[i]]
+        for agent in self.agents:
+            if agent.location.name not in location_names:
+                new_agents += [agent]
             else:
-                # print("Agent removed: ", self.agents[i].location.name)
+                # print("Agent removed: ", agent.location.name)
                 # agent is removed from ecosystem and number of agents in
                 # location drops by one.
-                self.agents[i].location.numAgentsOnRank -= 1
+                agent.location.numAgentsOnRank -= 1
 
         self.agents = new_agents
         print("clearLocationsFromAgents()", file=sys.stderr)
@@ -326,29 +492,45 @@ class Ecosystem(flee.Ecosystem):
         # MPI_Allreduce)
         self.updateNumAgents(log=False)
 
-    def numAgents(self):
-        return self.total_agents
+    @check_args_type
+    def numAgents(self) -> int:
+        """
+        Summary
 
-    def numAgentsOnRank(self):
+        Returns:
+            int: Description
+        """
+        return int(self.total_agents)
+
+    @check_args_type
+    def numAgentsOnRank(self) -> int:
+        """
+        Summary
+
+        Returns:
+            int: Description
+        """
         return len(self.agents)
 
-    def synchronize_locations(self, start_loc_local, end_loc_local,
-                              Debug=False):
+    @check_args_type
+    def synchronize_locations(
+        self, start_loc_local: int, end_loc_local: int, Debug: bool = False
+    ) -> None:
         """
         Gathers the scores from all the updated locations, and propagates them
         across the processes.
+
+        Args:
+            start_loc_local (int): Description
+            end_loc_local (int): Description
+            Debug (bool, optional): Description
         """
 
-        base = int(
-            (len(self.scores) / self.scores_per_location) / self.mpi.size
-        )
-        leftover = int(
-            (len(self.scores) / self.scores_per_location) % self.mpi.size
-        )
+        base = int((len(self.scores) / self.scores_per_location) / self.mpi.size)
+        leftover = int((len(self.scores) / self.scores_per_location) % self.mpi.size)
 
         if Debug:
-            print("Sync Locs:", self.mpi.rank, base, leftover,
-                  len(self.scores), file=sys.stderr)
+            print("Sync Locs:", self.mpi.rank, base, leftover, len(self.scores), file=sys.stderr)
 
         sizes = np.ones(self.mpi.size, dtype="i") * base
         sizes[:leftover] += 1
@@ -362,41 +544,43 @@ class Ecosystem(flee.Ecosystem):
         # Populate scores array
         scores_start = int(offsets[self.mpi.rank])
         local_scores_size = int(sizes[self.mpi.rank])
-        local_scores = self.scores[
-            scores_start:scores_start + local_scores_size].copy()
+        local_scores = self.scores[scores_start : scores_start + local_scores_size].copy()
 
         if Debug and self.mpi.rank == 0:
             print("start of synchronize_locations MPI call.", file=sys.stderr)
             # print(self.mpi.rank, local_scores, self.scores, sizes, offsets)
-        self.mpi.comm.Allgatherv(
-            local_scores, [self.scores, sizes, offsets, MPI.DOUBLE])
+        self.mpi.comm.Allgatherv(local_scores, [self.scores, sizes, offsets, MPI.DOUBLE])
 
         if Debug and self.mpi.rank == 0:
             print("end of synchronize_locations", file=sys.stderr)
 
-    def evolve(self):
+    @check_args_type
+    def evolve(self) -> None:
+        """
+        Summary
+        """
         if self.time == 0:
             # print("rank, num_agents:", self.mpi.rank, len(self.agents))
 
             # Update all scores three times to ensure code starts with updated
             # scores.
-            for times in range(0, 3):
-                for i in range(0, len(self.locations)):
+            for _ in range(0, 3):
+                for i, loc in enumerate(self.locations):
                     if i % self.mpi.size == self.mpi.rank:
-                        self.locations[i].updateAllScores(self.time)
+                        loc.updateAllScores(time=self.time)
 
         if self.parallel_mode == "classic":
             # update level 1, 2 and 3 location scores.
             # Scores remain perfectly updated in classic mode.
-            for l in self.locations:
-                l.time = self.time
-                l.updateLocationScore()
+            for loc in self.locations:
+                loc.time = self.time
+                loc.updateLocationScore()
 
-            for l in self.locations:
-                l.updateNeighbourhoodScore()
+            for loc in self.locations:
+                loc.updateNeighbourhoodScore()
 
-            for l in self.locations:
-                l.updateRegionScore()
+            for loc in self.locations:
+                loc.updateRegionScore()
 
         elif self.parallel_mode == "loc-par":
             # update scores in reverse order for efficiency.
@@ -406,16 +590,17 @@ class Ecosystem(flee.Ecosystem):
             loc_per_rank = int(len(self.locations) / self.mpi.size)
             lpr_remainder = int(len(self.locations) % self.mpi.size)
 
-            offset = int(self.mpi.rank) * int(loc_per_rank) + \
-                int(min(self.mpi.rank, lpr_remainder))
+            offset = int(self.mpi.rank) * int(loc_per_rank) + int(min(self.mpi.rank, lpr_remainder))
             num_locs_on_this_rank = int(loc_per_rank)
             if self.mpi.rank < lpr_remainder:
                 num_locs_on_this_rank += 1
 
             for i in range(offset, offset + num_locs_on_this_rank):
-                self.locations[i].updateAllScores(self.time)
+                self.locations[i].updateAllScores(time=self.time)
 
-            self.synchronize_locations(offset, offset + num_locs_on_this_rank)
+            self.synchronize_locations(
+                start_loc_local=offset, end_loc_local=offset + num_locs_on_this_rank
+            )
 
         # SYNCHRONIZE SPAWN COUNTS IN LOCATIONS (needed for all versions).
         spawn_counts = np.zeros(len(self.locations), dtype="i")
@@ -432,22 +617,22 @@ class Ecosystem(flee.Ecosystem):
 
         # update agent locations
         for a in self.agents:
-            a.evolve(self.time)
+            a.evolve(time=self.time)
 
         # print("NumAgents after evolve:", file=sys.stderr)
         self.updateNumAgents(CountClosed=True, log=False)
 
         for a in self.agents:
-            a.finish_travel()
+            a.finish_travel(time=self.time)
             a.timesteps_since_departure += 1
 
         if SimulationSettings.AgentLogLevel > 0:
-            write_agents_par(self.mpi.rank, self.agents, self.time)
+            write_agents_par(rank=self.mpi.rank, agents=self.agents, time=self.time)
 
         for a in self.agents:
             a.recent_travel_distance = (
-                a.recent_travel_distance + (a.distance_moved_this_timestep /
-                                            SimulationSettings.MaxMoveSpeed)
+                a.recent_travel_distance
+                + (a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed)
             ) / 2.0
             a.distance_moved_this_timestep = 0
 
@@ -460,48 +645,101 @@ class Ecosystem(flee.Ecosystem):
 
         self.time += 1
 
-    def addLocation(self, name, x="0.0", y="0.0",
-                    movechance=SimulationSettings.DefaultMoveChance,
-                    capacity=-1, pop=0, foreign=False, country="unknown"):
-        """ Add a location to the ABM network graph """
+    @check_args_type
+    def addLocation(
+        self,
+        name: str,
+        x: float = 0.0,
+        y: float = 0.0,
+        location_type: Optional[str] = None,
+        movechance: float = SimulationSettings.DefaultMoveChance,
+        capacity: int = -1,
+        pop: int = 0,
+        foreign: bool = False,
+        country: str = "unknown",
+    ):
+        """
+        Add a location to the ABM network graph
+
+        Args:
+            name (str): Description
+            x (float, optional): Description
+            y (float, optional): Description
+            location_type (str, optional): Description
+            movechance (float, optional): Description
+            capacity (int, optional): Description
+            pop (int, optional): Description
+            foreign (bool, optional): Description
+            country (str, optional): Description
+
+        No Longer Returned:
+            Location: Description
+
+        """
 
         # Enlarge the scores array in Ecosystem to reflect the new location.
         # Pflee only.
         if self.cur_loc_id > 0:
-            self.scores = np.append(
-                self.scores, np.array([1.0, 1.0, 1.0, 1.0]))
+            self.scores = np.append(self.scores, np.array([1.0, 1.0, 1.0, 1.0]))
         # print(len(self.scores))
 
-        l = Location(self, self.cur_loc_id, name, x, y,
-                     movechance, capacity, pop, foreign, country)
+        loc = Location(
+            self,
+            cur_id=self.cur_loc_id,
+            name=name,
+            x=x,
+            y=y,
+            location_type=location_type,
+            movechance=movechance,
+            capacity=capacity,
+            pop=pop,
+            foreign=foreign,
+            country=country,
+        )
 
         self.cur_loc_id += 1
 
         if SimulationSettings.InitLogLevel > 0:
-            print("Location:", name, x, y, l.movechance, capacity,
-                  ", pop. ", pop, foreign, file=sys.stderr)
-        self.locations.append(l)
-        self.locationNames.append(l.name)
-        return l
+            print(
+                "Location: {} {} {} {} {} , pop. {} {}".format(
+                    name, x, y, loc.movechance, capacity, pop, foreign
+                ),
+                file=sys.stderr,
+            )
+        self.locations.append(loc)
+        self.locationNames.append(loc.name)
+        return loc
 
-    def printComplete(self):
+    @check_args_type
+    def printComplete(self) -> None:
+        """
+        Summary
+        """
         if self.mpi.rank == 0:
             super().printComplete()
 
-    def printInfo(self):
+    @check_args_type
+    def printInfo(self) -> None:
+        """
+        Summary
+        """
         if self.mpi.rank == 0:
             super().printInfo()
 
-    def add_agents_to_conflict_zones(self, number):
+    @check_args_type
+    def add_agents_to_conflict_zones(self, number: int) -> None:
         """
         Add a group of agents, distributed across conflict zones.
+
+        Args:
+            number (int): Description
         """
         number_on_rank = int(number / self.mpi.size)
         if number % self.mpi.size > self.mpi.rank:
             number_on_rank += 1
 
         self.total_agents += number
-        cl = self.pick_conflict_locations(number_on_rank)
+        cl = self.pick_conflict_locations(number=number_on_rank)
         for i in range(0, number_on_rank):
             if SimulationSettings.TakeRefugeesFromPopulation:
                 if cl[i].pop > 1:
@@ -509,12 +747,13 @@ class Ecosystem(flee.Ecosystem):
                     cl[i].numAgentsSpawnedOnRank += 1
                     cl[i].numAgentsSpawned += 1
                 else:
-                    print("ERROR: Number of agents in the simulation is "
-                          "larger than the combined population of the "
-                          "conflict zones. Please amend locations.csv.")
+                    print(
+                        "ERROR: Number of agents in the simulation is larger than the combined "
+                        "population of the conflict zones. Please amend locations.csv."
+                    )
                     cl[i].print()
                     assert cl[i].pop > 1
-            self.agents.append(Person(self, cl[i]))
+            self.agents.append(Person(self, location=cl[i]))
 
 
 if __name__ == "__main__":

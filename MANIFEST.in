@@ -1,0 +1,3 @@
+include versioneer.py
+include flee/_version.py
+include requirements.txt

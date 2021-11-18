@@ -1,0 +1,14 @@
+mkdocs
+mkdocs-autolinks-plugin
+mkdocs-autorefs
+mkdocs-awesome-pages-plugin
+mkdocs-enumerate-headings-plugin
+mkdocs-macros-plugin
+mkdocs-markdownextradata-plugin
+mkdocs-material
+mkdocs-material-extensions
+mkdocs-mermaid2-plugin
+mkdocs-minify-plugin
+mkdocs-print-site-plugin
+mkdocstrings
+pytkdocs==0.12

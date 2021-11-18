@@ -7,17 +7,21 @@ import flee.postprocessing.analysis as a
 import sys
 import argparse
 import time
+import os
 
 
 def date_to_sim_days(date):
-    return DataTable.subtract_dates(date, "2010-01-01")
+    return DataTable.subtract_dates(date1=date, date2="2010-01-01")
 
 
-def test_par(end_time=10, last_physical_day=10,
-             parallel_mode="advanced", latency_mode="high_latency",
+def test_par(end_time=10,
+             last_physical_day=10,
+             parallel_mode="advanced",
+             latency_mode="high_latency",
              inputdir="test_data/test_input_csv",
              initialagents=100000,
-             newagentsperstep=1000):
+             newagentsperstep=1000
+             ):
     t_exec_start = time.time()
 
     e = pflee.Ecosystem()
@@ -27,31 +31,40 @@ def test_par(end_time=10, last_physical_day=10,
 
     ig = InputGeography.InputGeography()
 
-    ig.ReadLocationsFromCSV("%s/locations.csv" % inputdir)
+    ig.ReadLocationsFromCSV(csv_name=os.path.join(inputdir, "locations.csv"))
 
-    ig.ReadLinksFromCSV("%s/routes.csv" % inputdir)
+    ig.ReadLinksFromCSV(csv_name=os.path.join(inputdir, "routes.csv"))
 
-    ig.ReadClosuresFromCSV("%s/closures.csv" % inputdir)
+    ig.ReadClosuresFromCSV(csv_name=os.path.join(inputdir, "closures.csv"))
 
-    e, lm = ig.StoreInputGeographyInEcosystem(e)
+    e, lm = ig.StoreInputGeographyInEcosystem(e=e)
 
-    #print("Network data loaded")
+    # print("Network data loaded")
 
-    #d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory="test_data/test_input_csv/refugee_data", start_date="2010-01-01", data_layout="data_layout.csv")
+    # d = handle_refugee_data.RefugeeTable(
+    #     csvformat="generic",
+    #     data_directory=os.path.join("test_data", "test_input_csv", "refugee_data"),
+    #     start_date="2010-01-01",
+    #     data_layout="data_layout.csv"
+    # )
 
     output_header_string = "Day,"
 
     camp_locations = e.get_camp_names()
 
-    ig.AddNewConflictZones(e, 0)
+    ig.AddNewConflictZones(e=e, time=0)
     # All initial refugees start in location A.
-    e.add_agents_to_conflict_zones(initialagents)
+    e.add_agents_to_conflict_zones(number=initialagents)
 
     for l in camp_locations:
-        output_header_string += "%s sim,%s data,%s error," % (
-            lm[l].name, lm[l].name, lm[l].name)
+        output_header_string += "{} sim,{} data,{} error,".format(
+            lm[l].name, lm[l].name, lm[l].name
+        )
 
-    output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
+    output_header_string += (
+        "Total error,refugees in camps (UNHCR),total refugees (simulation),"
+        "raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
+    )
 
     if e.getRankN(0):
         print(output_header_string)
@@ -62,7 +75,7 @@ def test_par(end_time=10, last_physical_day=10,
 
     t_exec_init = time.time()
     if e.getRankN(0):
-        my_file = open('perf.log', 'w', encoding='utf-8')
+        my_file = open("perf.log", "w", encoding="utf-8")
         print("Init time,{}".format(t_exec_init - t_exec_start), file=my_file)
 
     for t in range(0, end_time):
@@ -75,12 +88,12 @@ def test_par(end_time=10, last_physical_day=10,
         refugees_raw += new_refs
 
         # Insert refugee agents
-        e.add_agents_to_conflict_zones(new_refs)
+        e.add_agents_to_conflict_zones(number=new_refs)
 
         e.refresh_conflict_weights()
         t_data = t
 
-        e.enact_border_closures(t)
+        e.enact_border_closures(time=t)
         e.evolve()
 
         # Calculation of error terms
@@ -99,10 +112,10 @@ def test_par(end_time=10, last_physical_day=10,
         output = "%s" % t
 
         for i in range(0, len(camp_locations)):
-            output += ",%s" % (lm[camp_locations[i]].numAgents)
+            output += ",{}".format(lm[camp_locations[i]].numAgents)
 
         if refugees_raw > 0:
-            output += ",%s,%s" % (e.numAgents(), refugees_in_camps_sim)
+            output += ",{},{}".format(e.numAgents(), refugees_in_camps_sim)
         else:
             output += ",0,0"
 
@@ -111,9 +124,9 @@ def test_par(end_time=10, last_physical_day=10,
 
     t_exec_end = time.time()
     if e.getRankN(0):
-        my_file = open('perf.log', 'a', encoding='utf-8')
-        print("Time in main loop,{}".format(
-            t_exec_end - t_exec_init), file=my_file)
+        my_file = open("perf.log", "a", encoding="utf-8")
+        print("Time in main loop,{}".format(t_exec_end - t_exec_init), file=my_file)
+
 
 if __name__ == "__main__":
     end_time = 10
@@ -129,8 +142,10 @@ if __name__ == "__main__":
                         help="Number of agents added per time step.")
     parser.add_argument("-t", "--simulationperiod", type=int, default=10,
                         help="Duration of the simulation in days.")
-    parser.add_argument("-i", "--inputdir", type=str, default="test_data/test_input_csv",
-                        help="Directory with parallel test input. Must have locations named 'A','D','E' and 'F'.")
+    parser.add_argument(
+        "-i", "--inputdir", type=str, default="test_data/test_input_csv",
+        help="Directory with parallel test input. Must have locations named 'A','D','E' and 'F'."
+    )
 
     args = parser.parse_args()
 
@@ -152,7 +167,12 @@ if __name__ == "__main__":
 
     print("MODE: ", args, file=sys.stderr)
 
-    test_par(end_time, last_physical_day,
-             parallel_mode, latency_mode,
-             inputdir, initialagents,
-             newagentsperstep)
+    test_par(
+        end_time=end_time,
+        last_physical_day=last_physical_day,
+        parallel_mode=parallel_mode,
+        latency_mode=latency_mode,
+        inputdir=inputdir,
+        initialagents=initialagents,
+        newagentsperstep=newagentsperstep,
+    )
