@@ -175,8 +175,8 @@ class Link_weather_coupling(pflee.Link):
     @check_args_type
     def __init__(
         self,
-        startpoint: str,
-        endpoint: str,
+        startpoint,
+        endpoint,
         distance: float,
         forced_redirection: bool = False,
         link_type: Optional[str] = None,
