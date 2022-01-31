@@ -719,12 +719,13 @@ class Link:
     """
 
     @check_args_type
-    def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False):
+    def __init__(self, startpoint, endpoint, distances: list[float], forced_redirection: bool = False):
         self.name = "__link__"
         self.closed = False
 
         # distance in km.
-        self.__distance = distance
+        self.__distance = distances[0]
+        self.distances = distances
 
         # links for now always connect two endpoints
         self.startpoint = startpoint
@@ -751,6 +752,13 @@ class Link:
         Summary
         """
         self.numAgents += 1
+
+    def set_phase(self, phase: int) -> None:
+        if phase > len(self.distances):
+            print("Error: set_phase set with {}, but there are only {} phases.".format(phase, len(self.distances))
+            sys.exit()
+        self.__distance = self.distances[phase]
+
 
     def get_distance(self, time: int) -> float:
         """
@@ -1615,7 +1623,7 @@ class Ecosystem:
         self,
         endpoint1: str,
         endpoint2: str,
-        distance: float = 1.0,
+        distances: list[float] = [1.0],
         forced_redirection: bool = False,
     ) -> None:
         """
@@ -1656,7 +1664,8 @@ class Ecosystem:
             Link(
                 startpoint=self.locations[endpoint1_index],
                 endpoint=self.locations[endpoint2_index],
-                distance=distance,
+                distance=distances[0],
+                distances=distances
                 forced_redirection=forced_redirection,
             )
         )
@@ -1664,7 +1673,8 @@ class Ecosystem:
             Link(
                 startpoint=self.locations[endpoint2_index],
                 endpoint=self.locations[endpoint1_index],
-                distance=distance,
+                distance=distances[0],
+                distances=distances
             )
         )
 
