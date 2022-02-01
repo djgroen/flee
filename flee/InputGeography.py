@@ -290,7 +290,7 @@ class InputGeography:
                     e.linkUp(
                         endpoint1=link[source],
                         endpoint2=link[dest],
-                        distances=[float(link[2])],
+                        distances=[float(link[2]),float(link[3]),float(link[4]),float(link[5])],
                         forced_redirection=fr,
                     )
 
@@ -299,7 +299,7 @@ class InputGeography:
                 e.linkUp(
                     endpoint1=link[0],
                     endpoint2=link[1],
-                    distance=float(link[2]),
+                    distances=[float(link[2])],
                     forced_redirection=False,
                 )
 

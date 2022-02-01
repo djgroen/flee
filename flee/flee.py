@@ -764,6 +764,9 @@ class Link:
         if phase > len(self.distances):
             print("Error: set_phase set with {}, but there are only {} phases.".format(phase, len(self.distances)))
             sys.exit()
+        print(phase, self.distances, file=sys.stderr)
+        if self.distances[phase] != self.__distance:
+            print("LINK UPDATE: {}-{} Phase: {} Dist: {}->{}".format(self.startpoint.name, self.endpoint.name, phase, self.__distance, self.distances[phase]),file=sys.stderr)
         self.__distance = self.distances[phase]
 
 
@@ -1512,13 +1515,13 @@ class Ecosystem:
 
         # Bespoke code for Freek.
         if self.time == 31:
-            self.set_phase = 1
+            self.set_phase(1)
         if self.time == 122:
-            self.set_phase = 2
+            self.set_phase(2)
         if self.time == 214:
-            self.set_phase = 3
+            self.set_phase(3)
         if self.time == 306:
-            self.set_phase = 0
+            self.set_phase(0)
 
 
     @check_args_type
