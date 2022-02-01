@@ -1511,13 +1511,13 @@ class Ecosystem:
         self.time += 1
 
         # Bespoke code for Freek.
-        if self.time == 5:
+        if self.time == 31:
             self.set_phase = 1
-        if self.time == 97:
+        if self.time == 122:
             self.set_phase = 2
-        if self.time == 189:
+        if self.time == 214:
             self.set_phase = 3
-        if self.time == 281:
+        if self.time == 306:
             self.set_phase = 0
 
 
