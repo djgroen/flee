@@ -135,7 +135,7 @@ class InputGeography:
 
     @check_args_type
     def ReadLinksFromCSV(
-        self, csv_name: str, name1_col: int = 0, name2_col: int = 1, dist_col: int = 2
+        self, csv_name: str
     ) -> None:
         """
         Converts a CSV file to a locations information table
@@ -156,7 +156,25 @@ class InputGeography:
                     pass
                 else:
                     # print(row)
-                    self.links.append([row[name1_col], row[name2_col], row[dist_col]])
+                    self.links.append(row)
+
+
+    @check_args_type
+    def ReadAccessibilityFromCSV(self, csv_name: str) -> None:
+        self.links = []
+        self.accessibility = True
+
+        with open(csv_name, newline="", encoding="utf-8") as csvfile:
+            values = csv.reader(csvfile)
+
+            for row in values:
+                if len(row) == 0 or row[0][0] == "#":
+                    pass
+                else:
+                    print(row)
+                    self.links.append(row)
+
+
 
     @check_args_type
     def ReadClosuresFromCSV(self, csv_name: str) -> None:
@@ -237,28 +255,46 @@ class InputGeography:
                 )
 
         for link in self.links:
-            if len(link) > 3:
+            if len(link) == 4:
                 if int(link[3]) == 1:
                     e.linkUp(
                         endpoint1=link[0],
                         endpoint2=link[1],
-                        distance=float(link[2]),
+                        distances=[float(link[2])],
                         forced_redirection=True,
                     )
                 if int(link[3]) == 2:
                     e.linkUp(
                         endpoint1=link[1],
                         endpoint2=link[0],
-                        distance=float(link[2]),
+                        distances=[float(link[2])],
                         forced_redirection=True,
                     )
                 else:
                     e.linkUp(
                         endpoint1=link[0],
                         endpoint2=link[1],
-                        distance=float(link[2]),
+                        distances=[float(link[2])],
                         forced_redirection=False,
                     )
+            elif len(link) == 7:
+                    fr = False
+                    source = 0
+                    dest = 1
+                    if int(link[6]) > 0:
+                        fr = True
+                    if int(link[6] == 2:
+                        source = 1
+                        dest = 0
+
+                    e.linkUp(
+                        endpoint1=link[source],
+                        endpoint2=link[dest],
+                        distances=[float(link[2])],
+                        forced_redirection=fr,
+                    )
+
+
             else:
                 e.linkUp(
                     endpoint1=link[0],

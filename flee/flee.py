@@ -753,9 +753,16 @@ class Link:
         """
         self.numAgents += 1
 
+
     def set_phase(self, phase: int) -> None:
+        """
+        Summary
+
+        Args:
+            phase (int): index number of the value used from accessibility.csv (0-3 in Freek's prototype).
+        """
         if phase > len(self.distances):
-            print("Error: set_phase set with {}, but there are only {} phases.".format(phase, len(self.distances))
+            print("Error: set_phase set with {}, but there are only {} phases.".format(phase, len(self.distances)))
             sys.exit()
         self.__distance = self.distances[phase]
 
@@ -810,6 +817,14 @@ class Ecosystem:
             if loc.camp:
                 camp_names += [loc.name]
         return camp_names
+
+
+    @check_args_type
+    def set_phase(self, phase: int = 0) -> None:
+        for loc in self.locations:
+            for l in loc.links:
+                l.set_phase(phase)
+
 
     @check_args_type
     def export_graph(self, use_ids_instead_of_names: bool = False) -> Tuple[List[str], List[List]]:
@@ -1495,6 +1510,17 @@ class Ecosystem:
 
         self.time += 1
 
+        # Bespoke code for Freek.
+        if self.time == 5:
+            self.set_phase = 1
+        if self.time == 97:
+            self.set_phase = 2
+        if self.time == 189:
+            self.set_phase = 3
+        if self.time == 281:
+            self.set_phase = 0
+
+
     @check_args_type
     def addLocation(
         self,
@@ -1664,8 +1690,7 @@ class Ecosystem:
             Link(
                 startpoint=self.locations[endpoint1_index],
                 endpoint=self.locations[endpoint2_index],
-                distance=distances[0],
-                distances=distances
+                distances=distances,
                 forced_redirection=forced_redirection,
             )
         )
@@ -1673,7 +1698,6 @@ class Ecosystem:
             Link(
                 startpoint=self.locations[endpoint2_index],
                 endpoint=self.locations[endpoint1_index],
-                distance=distances[0],
                 distances=distances
             )
         )
