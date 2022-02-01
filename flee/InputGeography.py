@@ -283,7 +283,7 @@ class InputGeography:
                     dest = 1
                     if int(link[6]) > 0:
                         fr = True
-                    if int(link[6] == 2:
+                    if int(link[6]) == 2:
                         source = 1
                         dest = 0
 

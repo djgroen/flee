@@ -719,7 +719,7 @@ class Link:
     """
 
     @check_args_type
-    def __init__(self, startpoint, endpoint, distances: list[float], forced_redirection: bool = False):
+    def __init__(self, startpoint, endpoint, distances, forced_redirection: bool = False):
         self.name = "__link__"
         self.closed = False
 
@@ -1649,7 +1649,7 @@ class Ecosystem:
         self,
         endpoint1: str,
         endpoint2: str,
-        distances: list[float] = [1.0],
+        distances = [1.0],
         forced_redirection: bool = False,
     ) -> None:
         """
