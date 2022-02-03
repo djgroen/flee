@@ -2,7 +2,7 @@
 
 To use the Flee code, one requires:
 
-* Python 3 interpreter
+* Python 3 interpreter (3.7 or higher)
 * Python libraries
 	- numpy (see [https://www.numpy.org](https://www.numpy.org))
 	- pandas (see [https://pandas.pydata.org](https://pandas.pydata.org))
