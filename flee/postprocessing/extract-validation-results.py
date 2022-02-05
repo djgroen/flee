@@ -242,8 +242,8 @@ def plotme(data: Type[pd.DataFrame], name: str, naieve_model: bool = True) -> "L
         )
 
         print(
-            "\t{}:\n\tmase7: {}\n\tmase7-sloped: {}\n\tmase7-ratio: {}\n\tmase30: {}\n"
-            "\tmase30-sloped: {}\n\tmase30-ratio: {}\n\tN: {}".format(
+            "  {}:\n\tmase7: {}\n  mase7-sloped: {}\n  mase7-ratio: {}\n  mase30: {}\n"
+            "  mase30-sloped: {}\n  mase30-ratio: {}\n  N: {}".format(
                 name,
                 lerr.errors["MASE7"],
                 lerr.errors["MASE7-sloped"],
@@ -320,8 +320,8 @@ if __name__ == "__main__":
     print("totals:")
     if nmodel:
         print(
-            "\tmase7: {}\n\tmase7-sloped: {}\n\tmase7-ratio: {}\n\tmase30: {}\n"
-            "\tmase30-sloped: {}\n\tmase30-ratio: {}".format(
+            "  mase7: {}\n  mase7-sloped: {}\n  mase7-ratio: {}\n  mase30: {}\n"
+            "  mase30-sloped: {}\n  mase30-ratio: {}".format(
                 sim_errors.get_error(err_type="MASE7"),
                 sim_errors.get_error(err_type="MASE7-sloped"),
                 sim_errors.get_error(err_type="MASE7-ratio"),
