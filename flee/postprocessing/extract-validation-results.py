@@ -242,7 +242,7 @@ def plotme(data: Type[pd.DataFrame], name: str, naieve_model: bool = True) -> "L
         )
 
         print(
-            "  {}:\n\tmase7: {}\n  mase7-sloped: {}\n  mase7-ratio: {}\n  mase30: {}\n"
+            "  {}:\n  mase7: {}\n  mase7-sloped: {}\n  mase7-ratio: {}\n  mase30: {}\n"
             "  mase30-sloped: {}\n  mase30-ratio: {}\n  N: {}".format(
                 name,
                 lerr.errors["MASE7"],
@@ -255,9 +255,9 @@ def plotme(data: Type[pd.DataFrame], name: str, naieve_model: bool = True) -> "L
             )
         )
         print(
-            "\tabsolute difference ave: {absolute difference ave}\n"
-            "\tabsolute difference rescaled ave: {absolute difference rescaled ave}\n"
-            "\tratio difference ave: {ratio difference ave}".format(**lerr.errors)
+            "  absolute difference ave: {absolute difference ave}\n"
+            "  absolute difference rescaled ave: {absolute difference rescaled ave}\n"
+            "  ratio difference ave: {ratio difference ave}".format(**lerr.errors)
         )
 
     return lerr
