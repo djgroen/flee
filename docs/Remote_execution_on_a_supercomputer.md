@@ -27,12 +27,12 @@ Before running any simulation on a remote supercomputer, the following is requir
 	```
 	or
 	```sh
-	fabsim <remote_machine_name> flee_ensemble:<conflict_name>,N=20,simulation_period=<number>,PJ=true
+	fabsim <remote_machine_name> flee_ensemble:<conflict_name>,replicas=20,simulation_period=<number>,PJ=true
 	```
 	
 	To showcase the execution of ensemble simulation using Pilot Job, simply run Mali conflict instance:
 		```sh
-		fabsim eagle_vecma flee_ensemble:mali,N=20,simulation_period=50,PJ=true
+		fabsim eagle_vecma flee_ensemble:mali,replicas=20,simulation_period=50,PJ=true
 		```
 
 2. To check if your jobs are finished or not, simply run:
@@ -70,3 +70,5 @@ Before running any simulation on a remote supercomputer, the following is requir
 	```sh
 	fabsim localhost plot_uq_output:<conflict_name>_<remote_machine_name>_<number>,out
 	```
+
+NOTE: We use the parameter ''replicas'' to indicate the number of replicated Flee instances, and the parameter ''N'' to indicate the number of replicated Flare instances. In most cases, Flare will exhibit a much higher degree of aleatoric uncertainty than Flee.
