@@ -129,22 +129,21 @@ def plot_camps(data: pd.DataFrame, config: str, output: str) -> None:
 
         y1 = data_filtered["%s sim" % name[0]]
         y2 = data_filtered["%s data" % name[0]]
-
+          
         fig = matplotlib.pyplot.gcf()
-        fig.set_size_inches(14, 10)
+        fig.set_size_inches(10, 8)
 
-        plt.xlabel("Days elapsed")
-        plt.ylabel("Number of refugees")
-        plt.title("{} Simulation - config = {}".format(name[0], config))
+        plt.xlabel("Days elapsed", fontsize=14)
+        plt.ylabel("Number of refugees", fontsize=14)
+        plt.title("{} camp".format(name[0]), fontsize=18)
 
-        (label1,) = plt.plot(
-            data_filtered.index, y1, "g", linewidth=5, label="{} Simulation".format(name[0])
-        )
-        (label2,) = plt.plot(data_filtered.index, y2, "b", linewidth=5, label="UNHCR data")
+        (label1,) = plt.plot(data_filtered.index, y1, "r", linewidth=5, label="{} simulation".format(name[0]))
+        
+        (label2,) = plt.plot(data_filtered.index, y2, "b", linewidth=5, label="{} UNHCR data".format(name[0]))
 
         plt.legend(handles=[label1, label2], loc=0, prop={"size": 14})
 
-        plt.savefig("{}/{}.png".format(output, name[0]))
+        plt.savefig("{}/{}.png".format(output, name[0]), bbox_inches = 'tight')
 
         plt.clf()
 
@@ -199,15 +198,15 @@ def plot_numagents(data: pd.DataFrame, config: str, output: str) -> None:
     plt.ylabel("Number of refugees")
     plt.title("{} number of agents".format(config))
 
-    matplotlib.rcParams.update({"font.size": 20})
+    matplotlib.rcParams.update({"font.size": 14})
 
     # Size of plots/figures
     fig = matplotlib.pyplot.gcf()
-    fig.set_size_inches(14, 10)
+    fig.set_size_inches(12, 8)
 
     set_margins()
 
-    plt.savefig("{}/numagents.png".format(output))
+    plt.savefig("{}/numagents.png".format(output), bbox_inches = 'tight')
 
     plt.clf()
 
@@ -247,14 +246,14 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
 
     sim_errors = SimulationErrors(location_errors=loc_errors)
 
-    matplotlib.rcParams.update({"font.size": 20})
+    matplotlib.rcParams.update({"font.size": 16})
 
     plt.clf()
 
     # Size of plots/figures
     fig = matplotlib.pyplot.gcf()
 
-    fig.set_size_inches(14, 10)
+    fig.set_size_inches(12, 8)
 
     set_margins()
 
@@ -264,7 +263,7 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
 
     plt.ylabel("Averaged relative difference")
     plt.xlabel("Days elapsed")
-    plt.title("{} errors".format(config))
+    #plt.title("{}".format(config))
 
     diffdata = sim_errors.abs_diff(rescaled=False) / np.maximum(un_refs, np.ones(len(un_refs)))
     diffdata_rescaled = sim_errors.abs_diff() / np.maximum(un_refs, np.ones(len(un_refs)))
@@ -286,7 +285,7 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
 
     set_margins()
 
-    plt.savefig("{}/error.png".format(output))
+    plt.savefig("{}/error.png".format(output), bbox_inches = 'tight')
 
     ###############################################
     #               ERROR COMPARISON              #
@@ -300,7 +299,7 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
 
     set_margins()
 
-    plt.savefig("{}/error_comparison.png".format(output))
+    plt.savefig("{}/error_comparison.png".format(output), bbox_inches = 'tight')
 
     plt.clf()
 
@@ -389,6 +388,7 @@ def plot_flee_output(input_dir: str, output_dir: str, mscale: bool = False) -> N
         output_dir (str): Description
         mscale (bool, optional): Description
     """
+    matplotlib.style.use("ggplot")
     config = basename(normpath(input_dir)).split("_")[0]
 
     # mscale_micro = False
