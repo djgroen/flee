@@ -719,12 +719,13 @@ class Link:
     """
 
     @check_args_type
-    def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False):
+    def __init__(self, startpoint, endpoint, distances, forced_redirection: bool = False):
         self.name = "__link__"
         self.closed = False
 
         # distance in km.
-        self.__distance = distance
+        self.__distance = distances[0]
+        self.distances = distances
 
         # links for now always connect two endpoints
         self.startpoint = startpoint
@@ -751,6 +752,23 @@ class Link:
         Summary
         """
         self.numAgents += 1
+
+
+    def set_phase(self, phase: int) -> None:
+        """
+        Summary
+
+        Args:
+            phase (int): index number of the value used from accessibility.csv (0-3 in Freek's prototype).
+        """
+        if phase > len(self.distances):
+            print("Error: set_phase set with {}, but there are only {} phases.".format(phase, len(self.distances)))
+            sys.exit()
+        print(phase, self.distances, file=sys.stderr)
+        if self.distances[phase] != self.__distance:
+            print("LINK UPDATE: {}-{} Phase: {} Dist: {}->{}".format(self.startpoint.name, self.endpoint.name, phase, self.__distance, self.distances[phase]),file=sys.stderr)
+        self.__distance = self.distances[phase]
+
 
     def get_distance(self, time: int) -> float:
         """
@@ -802,6 +820,14 @@ class Ecosystem:
             if loc.camp:
                 camp_names += [loc.name]
         return camp_names
+
+
+    @check_args_type
+    def set_phase(self, phase: int = 0) -> None:
+        for loc in self.locations:
+            for l in loc.links:
+                l.set_phase(phase)
+
 
     @check_args_type
     def export_graph(self, use_ids_instead_of_names: bool = False) -> Tuple[List[str], List[List]]:
@@ -1487,6 +1513,17 @@ class Ecosystem:
 
         self.time += 1
 
+        # Bespoke code for Freek.
+        if self.time == 31:
+            self.set_phase(1)
+        if self.time == 122:
+            self.set_phase(2)
+        if self.time == 214:
+            self.set_phase(3)
+        if self.time == 306:
+            self.set_phase(0)
+
+
     @check_args_type
     def addLocation(
         self,
@@ -1615,7 +1652,7 @@ class Ecosystem:
         self,
         endpoint1: str,
         endpoint2: str,
-        distance: float = 1.0,
+        distances = [1.0],
         forced_redirection: bool = False,
     ) -> None:
         """
@@ -1656,7 +1693,7 @@ class Ecosystem:
             Link(
                 startpoint=self.locations[endpoint1_index],
                 endpoint=self.locations[endpoint2_index],
-                distance=distance,
+                distances=distances,
                 forced_redirection=forced_redirection,
             )
         )
@@ -1664,7 +1701,7 @@ class Ecosystem:
             Link(
                 startpoint=self.locations[endpoint2_index],
                 endpoint=self.locations[endpoint1_index],
-                distance=distance,
+                distances=distances
             )
         )
 
