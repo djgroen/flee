@@ -134,7 +134,7 @@ def plot_camps(data: pd.DataFrame, config: str, output: str) -> None:
         fig.set_size_inches(10, 8)
 
         plt.xlabel("Days elapsed", fontsize=14)
-        plt.ylabel("Number of refugees", fontsize=14)
+        plt.ylabel("Number of asylum seekers / unrecognised refugees", fontsize=14)
         plt.title("{} camp".format(name[0]), fontsize=18)
 
         (label1,) = plt.plot(data_filtered.index, y1, "r", linewidth=5, label="{} simulation".format(name[0]))
@@ -195,7 +195,7 @@ def plot_numagents(data: pd.DataFrame, config: str, output: str) -> None:
         """
 
     plt.xlabel("Days elapsed")
-    plt.ylabel("Number of refugees")
+    plt.ylabel("Number of asylum seekers / unrecognised refugees")
     plt.title("{} number of agents".format(config))
 
     matplotlib.rcParams.update({"font.size": 14})
