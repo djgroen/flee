@@ -1,10 +1,11 @@
-from flee import flee
-from flee.datamanager import handle_refugee_data, read_period
+from flee import pflee as flee
+from flee.datamanager import handle_refugee_data,read_period
 from flee.datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
 import numpy as np
 import flee.postprocessing.analysis as a
 import sys
+from datetime import datetime, timedelta
 
 def AddInitialRefugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
@@ -44,7 +45,7 @@ if __name__ == "__main__":
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv", population_scaledown_factor=flee.SimulationSettings.PopulationScaledownFactor)
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv")
 
   d.ReadL1Corrections("%s/registration_corrections.csv" % input_csv_directory)
 
@@ -59,7 +60,8 @@ if __name__ == "__main__":
 
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
 
-  print(output_header_string)
+  if e.getRankN(0):
+      print(output_header_string)
 
   # Set up a mechanism to incorporate temporary decreases in refugees
   refugee_debt = 0
@@ -119,6 +121,7 @@ if __name__ == "__main__":
 
       j += 1
 
+
     date = datetime.strptime(start_date, "%Y-%m-%d") + timedelta(days=t)
     output = "%s,%s" % (t, date)
 
@@ -130,4 +133,6 @@ if __name__ == "__main__":
     else:
       output += ",0,0,0,0,0,0"
 
-    print(output)
+    if e.getRankN(t):
+        print(output)
+
