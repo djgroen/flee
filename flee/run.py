@@ -6,6 +6,8 @@ import numpy as np
 import flee.postprocessing.analysis as a
 import sys
 
+from datetime import datetime,timedelta
+
 def AddInitialRefugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
   num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
