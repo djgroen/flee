@@ -16,11 +16,7 @@ if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lo
 else:
 
     def check_args_type(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-
-        return wrapper
+        return func
 
 
 class Person:
@@ -93,10 +89,10 @@ class Person:
                     chosenRoute = self.selectRouteRuleset2(time=time)
 
                 # if there is a viable route to a different location.
-                if chosenRoute >= 0:
+                if chosenRoute:
                     # update location to link endpoint
                     self.location.DecrementNumAgents()
-                    self.location = self.location.links[chosenRoute]
+                    self.location = chosenRoute
                     self.location.IncrementNumAgents()
                     self.travelling = True
                     self.distance_travelled_on_link = 0
@@ -244,7 +240,8 @@ class Person:
             return -1
 
         weights = self.normalizeWeights(weights=weights)
-        return int(np.random.choice(list(range(0, len(linklist))), p=weights))
+        result = random.choices(linklist, weights=weights)
+        return result[0]
 
     @check_args_type
     def selectRouteRuleset1(self, time: int) -> int:
@@ -393,7 +390,7 @@ class Person:
                 debug=debug,
             )
 
-        return int(self.chooseFromWeights(weights=weights, linklist=self.location.links))
+        return self.chooseFromWeights(weights=weights, linklist=self.location.links)
 
 
 class Location:
