@@ -29,7 +29,7 @@ class SimulationSettings:
         with open(ymlfile) as f:
             dp = yaml.safe_load(f)
 
-        number_of_steps = float(fetchss(dp,"number_of_steps",-1)
+        number_of_steps = float(fetchss(dp,"number_of_steps",-1))
         SimulationSettings.FlareConflictInputFile = fetchss(dp,"conflict_input_file","")
 
         dpll = dp["log_levels"]
@@ -44,7 +44,7 @@ class SimulationSettings:
 
 
         dps = dp["spawn_rules"]
-            SimulationSettings.move_rules["TakeFromPopulation"] = fetchss(dpr,"take_from_population").lower() == "true" 
+        SimulationSettings.move_rules["TakeFromPopulation"] = fetchss(dpr,"take_from_population").lower() == "true" 
 
 
 
@@ -79,19 +79,19 @@ class SimulationSettings:
 
         # Displaced people will not take a break unless they at least travelled
         # for a full day's distance in the last two days.
-        SimulationSettings.move_rules["AvoidShortStints"] = fetchss(dpr,"avoid_short_stints").lower() == "true"
+        SimulationSettings.move_rules["AvoidShortStints"] = fetchss(dpr,"avoid_short_stints","false").lower() == "true"
       
         # Agents traverse first link on foot.
-        SimulationSettings.move_rules["StartOnFoot"] = fetchss(dpr,"start_on_foot").lower() == "true"
+        SimulationSettings.move_rules["StartOnFoot"] = fetchss(dpr,"start_on_foot","false").lower() == "true"
 
-        SimulationSettings.UseV1Rules = fetchss(dpr,"use_v1_rules").lower() == "true"
+        SimulationSettings.UseV1Rules = fetchss(dpr,"use_v1_rules","false").lower() == "true"
         
         # KM added to every link distance to eliminate needless distinction
         # between very short routes.
-        SimulationSettings.move_rules["Softening"] = fetchss(dpr,"softening").lower() == "true"
+        SimulationSettings.move_rules["Softening"] = fetchss(dpr,"softening",10.0).lower() == "true"
 
         dpo = dp["optimisations"]
-        SimulationSettings.optimisations["PopulationScaleDownFactor"] = float(fetchss(dpo,"hasten"))
+        SimulationSettings.optimisations["PopulationScaleDownFactor"] = float(fetchss(dpo,"hasten",1.0))
 
         if self.UseV1Rules is True:
             self.move_rules["MaxMoveSpeed"] = 200

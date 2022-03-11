@@ -29,7 +29,7 @@ if __name__ == "__main__":
     end_time = int(sys.argv[3])
 
   if len(sys.argv)==5:
-    flee.SimulationSettings.ReadFromCSV(sys.argv[4])
+    flee.SimulationSettings.ReadFromYML(sys.argv[4])
   flee.SimulationSettings.FlareConflictInputFile = "%s/conflicts.csv" % input_csv_directory
 
   e = flee.Ecosystem()
