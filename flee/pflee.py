@@ -101,7 +101,7 @@ class Person(flee.Person):
         super().finish_travel(time=time)
 
     @check_args_type
-    def getLinkWeight(self, link, awareness_level: int) -> float:
+    def getLinkWeightV1(self, link, awareness_level: int) -> float:
         """
         Calculate the weight of an adjacent link. Weight = probability that
         it will be chosen.
@@ -113,14 +113,6 @@ class Person(flee.Person):
         Returns:
             float: Description
         """
-
-        # If turning back is NOT allowed, remove weight from the last location.
-        if not SimulationSettings.TurnBackAllowed:
-            if link.endpoint == self.last_location:
-                # float(0.1 / float(SimulationSettings.Softening +
-                #                   link.get_distance())
-                #       )
-                return 0.0
 
         if awareness_level < 0:
             return 1.0
