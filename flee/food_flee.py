@@ -103,19 +103,19 @@ class Ecosystem(flee.Ecosystem):
                         if self.IPCUseMezumanEq:
                             if self.locations[i].IPC < self.MezumanEqThresholdMstar:
                                 self.locations[i].movechance = IPC +\
-                                    SimulationSettings.DefaultMoveChance * (1 - IPC)
+                                    SimulationSettings.move_rules["DefaultMoveChance"] * (1 - IPC)
                             else:
                                 self.locations[i].movechance = (
                                     (
                                         (
-                                            (1.0 - SimulationSettings.DefaultMoveChance) *
+                                            (1.0 - SimulationSettings.move_rules["DefaultMoveChance"]) *
                                             self.MezumanEqThresholdMstar
-                                        ) + SimulationSettings.DefaultMoveChance
+                                        ) + SimulationSettings.move_rules["DefaultMoveChance"]
                                     ) / (1.0 - self.MezumanEqThresholdMstar)
                                 ) * (1 - IPC)
                         else:
                             self.locations[i].movechance = IPC + \
-                                SimulationSettings.DefaultMoveChance * (1 - IPC)
+                                SimulationSettings.move_rules["DefaultMoveChance"] * (1 - IPC)
 
     def pick_conflict_location(self):
         """

@@ -61,9 +61,6 @@ class Person:
         # current link.
         self.distance_travelled_on_link = 0
 
-        # if not SimulationSettings.TurnBackAllowed:
-        #  self.last_location = None
-
         if SimulationSettings.log_levels["agent"] > 0:
             self.distance_travelled = 0
 
@@ -111,13 +108,13 @@ class Person:
         """
         if self.travelling:
 
-            if self.places_travelled == 1 and SimulationSettings.StartOnFoot:
+            if self.places_travelled == 1 and SimulationSettings.move_rules["StartOnFoot"]:
                 # First journey
-                self.distance_travelled_on_link += SimulationSettings.MaxWalkSpeed
-                self.distance_moved_this_timestep += SimulationSettings.MaxWalkSpeed
+                self.distance_travelled_on_link += SimulationSettings.move_rules["MaxWalkSpeed"]
+                self.distance_moved_this_timestep += SimulationSettings.move_rules["MaxWalkSpeed"]
             else:
-                self.distance_travelled_on_link += SimulationSettings.MaxMoveSpeed
-                self.distance_moved_this_timestep += SimulationSettings.MaxMoveSpeed
+                self.distance_travelled_on_link += SimulationSettings.move_rules["MaxMoveSpeed"]
+                self.distance_moved_this_timestep += SimulationSettings.move_rules["MaxMoveSpeed"]
 
             # If destination has been reached.
             if self.distance_travelled_on_link > self.location.get_distance(time):
@@ -147,7 +144,7 @@ class Person:
                     # should go through another evolve() step in the new
                     # location.
                     evolveMore = False
-                    if self.distance_moved_this_timestep < SimulationSettings.MaxMoveSpeed:
+                    if self.distance_moved_this_timestep < SimulationSettings.move_rules["MaxMoveSpeed"]:
                         evolveMore = True
 
                     # update location (which is on a link) to link endpoint
@@ -169,13 +166,13 @@ class Person:
                     # to be taken into account.
                     if evolveMore is True:
                         ForceTownMove = False
-                        if SimulationSettings.AvoidShortStints:
+                        if SimulationSettings.move_rules["AvoidShortStints"]:
                             # Flee 2.0 Changeset 1, factor 2.
                             if (
                                 self.recent_travel_distance
                                 + (
                                     self.distance_moved_this_timestep
-                                    / SimulationSettings.MaxMoveSpeed
+                                    / SimulationSettings.move_rules["MaxMoveSpeed"]
                                 )
                             ) / 2.0 < 0.5:
                                 ForceTownMove = True
@@ -202,7 +199,7 @@ class Person:
 
         return float(
             link.endpoint.scores[awareness_level]
-            / float(SimulationSettings.Softening + link.get_distance(time))
+            / float(SimulationSettings.move_rules["Softening"] + link.get_distance(time))
         )
 
     @check_args_type
@@ -268,7 +265,7 @@ class Person:
             else:
                 weights[i] = self.getLinkWeightV1(
                     link=self.location.links[i],
-                    awareness_level=SimulationSettings.AwarenessLevel,
+                    awareness_level=SimulationSettings.move_rules["AwarenessLevel"],
                     time=time,
                 )
 
@@ -321,7 +318,7 @@ class Person:
         """
         weight = float(
             self.getEndPointScore(link=link)
-            / float(SimulationSettings.Softening + link.get_distance(time) + prior_distance)
+            / float(SimulationSettings.move_rules["Softening"] + link.get_distance(time) + prior_distance)
         ) * link.endpoint.getCapMultiplier(numOnLink=int(link.numAgents))
 
         if debug:
@@ -336,7 +333,7 @@ class Person:
                 )
             )
 
-        if SimulationSettings.AwarenessLevel > step:
+        if SimulationSettings.move_rules["AwarenessLevel"] > step:
             # Traverse the tree one step further.
             for e in link.endpoint.links:
                 if e.endpoint.name in origin_names:
@@ -374,7 +371,7 @@ class Person:
         linklen = len(self.location.links)
         weights = np.zeros(linklen)
 
-        if SimulationSettings.AwarenessLevel == 0:
+        if SimulationSettings.move_rules["AwarenessLevel"] == 0:
             return np.random.randint(0, linklen)
 
         for k, e in enumerate(self.location.links):
@@ -434,11 +431,11 @@ class Location:
 
         if location_type is not None:
             if "camp" in location_type.lower():
-                self.movechance = SimulationSettings.CampMoveChance
+                self.movechance = SimulationSettings.move_rules["CampMoveChance"]
                 self.camp = True
                 self.foreign = True
             elif "conflict" in location_type.lower():
-                self.movechance = SimulationSettings.ConflictMoveChance
+                self.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
                 self.conflict = True
             elif "forward" in location_type.lower():
                 self.movechance = 1.0
@@ -448,7 +445,7 @@ class Location:
                 self.marker = True
             elif "default" in location_type.lower() or "town" in location_type.lower():
                 self.town = True
-                self.movechance = SimulationSettings.DefaultMoveChance
+                self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
             else:
                 print(
                     "Error in creating Location() object: cannot parse location_type value of"
@@ -467,13 +464,13 @@ class Location:
             self.town = False
 
         # Value of Location. Should be between 0.5 and
-        # SimulationSettings.CampWeight.
+        # SimulationSettings.move_rules["CampWeight"].
         self.LocationScore = 1.0
         # Value of Neighbourhood. Should be between 0.5 and
-        # SimulationSettings.CampWeight.
+        # SimulationSettings.move_rules["CampWeight"].
         self.NeighbourhoodScore = 1.0
         # Value of surrounding region. Should be between 0.5 and
-        # SimulationSettings.CampWeight.
+        # SimulationSettings.move_rules["CampWeight"].
         self.RegionScore = 1.0
         self.scores = np.array([1.0, 1.0, 1.0, 1.0])
 
@@ -546,7 +543,7 @@ class Location:
         """
         Modify move chance to the default value set for conflict regions.
         """
-        self.movechance = SimulationSettings.ConflictMoveChance
+        self.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
 
     @check_args_type
     def SetCampMoveChance(self) -> None:
@@ -650,11 +647,11 @@ class Location:
         """
 
         if self.foreign or self.camp:
-            # * max(1.0,SimulationSettings.AwarenessLevel)
-            self.LocationScore = SimulationSettings.CampWeight
+            # * max(1.0,SimulationSettings.move_rules["AwarenessLevel"])
+            self.LocationScore = SimulationSettings.move_rules["CampWeight"]
         elif self.conflict:
-            # * max(1.0,SimulationSettings.AwarenessLevel)
-            self.LocationScore = SimulationSettings.ConflictWeight
+            # * max(1.0,SimulationSettings.move_rules["AwarenessLevel"])
+            self.LocationScore = SimulationSettings.move_rules["ConflictWeight"]
         else:
             self.LocationScore = 1.0
 
@@ -1333,7 +1330,7 @@ class Ecosystem:
             if self.locationNames[i] == name:
                 if name not in self.conflict_zone_names:
                     if change_movechance:
-                        self.locations[i].movechance = SimulationSettings.ConflictMoveChance
+                        self.locations[i].movechance = SimulationSettings.move_rules["ConflictMoveChance"]
                         self.locations[i].conflict = True
                         self.locations[i].town = False
 
@@ -1378,7 +1375,7 @@ class Ecosystem:
                 new_weights = np.append(new_weights, [self.conflict_weights[i]])
             else:
                 if change_movechance:
-                    self.conflict_zones[i].movechance = SimulationSettings.DefaultMoveChance
+                    self.conflict_zones[i].movechance = SimulationSettings.move_rules["DefaultMoveChance"]
                 self.conflict_zones[i].conflict = False
                 self.conflict_zones[i].town = True
 
@@ -1434,7 +1431,7 @@ class Ecosystem:
     def refresh_conflict_weights(self) -> None:
         """
         This function needs to be called when
-        SimulationSettings.TakeRefugeesFromPopulation is set to True.
+        SimulationSettings.move_rules["TakeFromPopulation"] is set to True.
         It will update the weights to reflect the new population numbers.
         """
         for i in range(0, len(self.conflict_zones)):
@@ -1471,7 +1468,7 @@ class Ecosystem:
         for a in self.agents:
             a.recent_travel_distance = (
                 a.recent_travel_distance
-                + (a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed)
+                + (a.distance_moved_this_timestep / SimulationSettings.move_rules["MaxMoveSpeed"])
             ) / 2.0
             a.distance_moved_this_timestep = 0
 
@@ -1488,7 +1485,7 @@ class Ecosystem:
         x: float = 0.0,
         y: float = 0.0,
         location_type: Optional[str] = None,
-        movechance: float = SimulationSettings.DefaultMoveChance,
+        movechance: float = SimulationSettings.move_rules["DefaultMoveChance"],
         capacity: int = -1,
         pop: int = 0,
         foreign: bool = False,
@@ -1538,7 +1535,7 @@ class Ecosystem:
         Args:
             location (Location): Description
         """
-        if SimulationSettings.TakeRefugeesFromPopulation:
+        if SimulationSettings.move_rules["TakeFromPopulation"]:
             if location.conflict:
                 if location.pop > 0:
                     location.pop -= 1

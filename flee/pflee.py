@@ -119,7 +119,7 @@ class Person(flee.Person):
 
         return float(
             self.e.scores[(link.endpoint.id * 4) + awareness_level]
-            / float(SimulationSettings.Softening + link.get_distance())
+            / float(SimulationSettings.move_rules["Softening"] + link.get_distance())
         )
 
     @check_args_type
@@ -415,7 +415,7 @@ class Ecosystem(flee.Ecosystem):
         Args:
             location (Location): Description
         """
-        if SimulationSettings.TakeRefugeesFromPopulation:
+        if SimulationSettings.move_rules["TakeFromPopulation"]:
             if location.conflict:
                 if location.pop > 1:
                     location.pop -= 1
@@ -624,7 +624,7 @@ class Ecosystem(flee.Ecosystem):
         for a in self.agents:
             a.recent_travel_distance = (
                 a.recent_travel_distance
-                + (a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed)
+                + (a.distance_moved_this_timestep / SimulationSettings.move_rules["MaxMoveSpeed"])
             ) / 2.0
             a.distance_moved_this_timestep = 0
 
@@ -644,7 +644,7 @@ class Ecosystem(flee.Ecosystem):
         x: float = 0.0,
         y: float = 0.0,
         location_type: Optional[str] = None,
-        movechance: float = SimulationSettings.DefaultMoveChance,
+        movechance: float = SimulationSettings.move_rules["DefaultMoveChance"],
         capacity: int = -1,
         pop: int = 0,
         foreign: bool = False,
@@ -733,7 +733,7 @@ class Ecosystem(flee.Ecosystem):
         self.total_agents += number
         cl = self.pick_conflict_locations(number=number_on_rank)
         for i in range(0, number_on_rank):
-            if SimulationSettings.TakeRefugeesFromPopulation:
+            if SimulationSettings.move_rules["TakeFromPopulation"]:
                 if cl[i].pop > 1:
                     cl[i].pop -= 1
                     cl[i].numAgentsSpawnedOnRank += 1

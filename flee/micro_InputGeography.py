@@ -71,11 +71,11 @@ class InputGeography(based_InputGeography_class):
         """
         if isinstance(row[link_type_col], str):
             if "drive" in row[link_type_col].lower():
-                flee.SimulationSettings.MaxMoveSpeed = flee.SimulationSettings.MaxMoveSpeed
+                flee.SimulationSettings.move_rules["MaxMoveSpeed"] = flee.SimulationSettings.move_rules["MaxMoveSpeed"]
             elif "walk" in row[link_type_col].lower():
-                flee.SimulationSettings.MaxMoveSpeed = flee.SimulationSettings.MaxWalkSpeed
+                flee.SimulationSettings.move_rules["MaxMoveSpeed"] = flee.SimulationSettings.MaxWalkSpeed
             elif "crossing" in row[link_type_col].lower():
-                flee.SimulationSettings.MaxMoveSpeed = flee.SimulationSettings.MaxCrossingSpeed
+                flee.SimulationSettings.move_rules["MaxMoveSpeed"] = flee.SimulationSettings.move_rules["MaxCrossingSpeed"]
             else:
                 print(
                     "Error in identifying link_type() object: cannot parse the type of link {}"
