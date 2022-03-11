@@ -64,7 +64,7 @@ class Person:
         # if not SimulationSettings.TurnBackAllowed:
         #  self.last_location = None
 
-        if SimulationSettings.AgentLogLevel > 0:
+        if SimulationSettings.log_levels["agent"] > 0:
             self.distance_travelled = 0
 
     @check_args_type
@@ -130,7 +130,7 @@ class Person:
                 )
 
                 # update agent logs
-                if SimulationSettings.AgentLogLevel > 0:
+                if SimulationSettings.log_levels["agent"] > 0:
                     self.distance_travelled += self.location.get_distance(time)
 
                 # if link is closed, bring agent to start point instead of the
@@ -158,7 +158,7 @@ class Person:
                     self.travelling = False
                     self.distance_travelled_on_link = 0
 
-                    if SimulationSettings.CampLogLevel > 0:
+                    if SimulationSettings.log_levels["camp"] > 0:
                         if self.location.Camp is True:
                             self.location.incoming_journey_lengths += [
                                 self.timesteps_since_departure
@@ -481,7 +481,7 @@ class Location:
         self.updateNeighbourhoodScore()
         self.updateRegionScore()
 
-        if SimulationSettings.CampLogLevel > 0:
+        if SimulationSettings.log_levels["camp"] > 0:
             # reinitializes every time step. Contains individual journey
             # lengths from incoming agents.
             self.incoming_journey_lengths = []
@@ -779,7 +779,7 @@ class Ecosystem:
         self.conflict_weights = np.array([])
         self.conflict_pop = 0
 
-        if SimulationSettings.CampLogLevel > 0:
+        if SimulationSettings.log_levels["camp"] > 0:
             self.num_arrivals = []  # one element per time step.
             self.travel_durations = []  # one element per time step.
 
@@ -823,7 +823,7 @@ class Ecosystem:
         Add up arrival statistics, to find out travel durations and
         total number of camp arrivals.
         """
-        if SimulationSettings.CampLogLevel > 0:
+        if SimulationSettings.log_levels["camp"] > 0:
             arrival_total = 0
             tmp_num_arrivals = 0
 
@@ -1343,7 +1343,7 @@ class Ecosystem:
                         self.conflict_weights, [self.locations[i].pop]
                     )
                     self.conflict_pop = sum(self.conflict_weights)
-                    if SimulationSettings.InitLogLevel > 0:
+                    if SimulationSettings.log_levels["init"] > 0:
                         print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
                         print("New total pop. in conflict zones: ", self.conflict_pop)
                     return
@@ -1465,7 +1465,7 @@ class Ecosystem:
             a.finish_travel(time=self.time)
             a.timesteps_since_departure += 1
 
-        if SimulationSettings.AgentLogLevel > 0:
+        if SimulationSettings.log_levels["agent"] > 0:
             write_agents(agents=self.agents, time=self.time)
 
         for a in self.agents:
@@ -1476,7 +1476,7 @@ class Ecosystem:
             a.distance_moved_this_timestep = 0
 
         # update link properties
-        if SimulationSettings.CampLogLevel > 0:
+        if SimulationSettings.log_levels["camp"] > 0:
             self._aggregate_arrivals()
 
         self.time += 1
@@ -1524,7 +1524,7 @@ class Ecosystem:
             foreign=foreign,
             country=country,
         )
-        if SimulationSettings.InitLogLevel > 0 and self.print_location_output:
+        if SimulationSettings.log_levels["init"] > 0 and self.print_location_output:
             print("Location:", name, x, y, loc.movechance, capacity, ", pop. ", pop, foreign)
         self.locations.append(loc)
         self.locationNames.append(loc.name)

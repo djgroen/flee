@@ -300,7 +300,7 @@ class Ecosystem(flee.Ecosystem):
         # more MPI calls with less prep.
         self.latency_mode = "high_latency"
 
-        if SimulationSettings.CampLogLevel > 0:
+        if SimulationSettings.log_levels["camp"] > 0:
             self.num_arrivals = []  # one element per time step.
             self.travel_durations = []  # one element per time step.
 
@@ -618,7 +618,7 @@ class Ecosystem(flee.Ecosystem):
             a.finish_travel(time=self.time)
             a.timesteps_since_departure += 1
 
-        if SimulationSettings.AgentLogLevel > 0:
+        if SimulationSettings.log_levels["agent"] > 0:
             write_agents_par(rank=self.mpi.rank, agents=self.agents, time=self.time)
 
         for a in self.agents:
@@ -632,7 +632,7 @@ class Ecosystem(flee.Ecosystem):
         self.updateNumAgents(log=False)
 
         # update link properties
-        if SimulationSettings.CampLogLevel > 0:
+        if SimulationSettings.log_levels["camp"] > 0:
             self._aggregate_arrivals()
 
         self.time += 1
@@ -691,7 +691,7 @@ class Ecosystem(flee.Ecosystem):
 
         self.cur_loc_id += 1
 
-        if SimulationSettings.InitLogLevel > 0:
+        if SimulationSettings.log_levels["init"] > 0:
             print(
                 "Location: {} {} {} {} {} , pop. {} {}".format(
                     name, x, y, loc.movechance, capacity, pop, foreign

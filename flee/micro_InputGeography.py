@@ -106,7 +106,7 @@ class InputGeography(based_InputGeography_class):
             if len(loc[1]) < 1:
                 population = 0
             else:
-                population = int(loc[1]) // SimulationSettings.PopulationScaledownFactor
+                population = int(loc[1]) // SimulationSettings.optimisations["PopulationScaleDownFactor"]
 
             x = float(loc[2]) if len(loc[2]) > 0 else 0.0
             y = float(loc[3]) if len(loc[3]) > 0 else 0.0
