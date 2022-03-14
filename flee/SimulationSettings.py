@@ -49,7 +49,12 @@ class SimulationSettings:
 
 
         dps = fetchss(dp,"spawn_rules",None)
-        SimulationSettings.move_rules["TakeFromPopulation"] = fetchss(dpr,"take_from_population").lower() == "true" 
+
+        # Spawned agents are subtracted from populations. This can lead to crashes if the number of spawned agents
+        # exceeds the total population in conflict zones.
+        print(fetchss(dps,"take_from_population","false"), file=sys.stderr)
+
+        SimulationSettings.move_rules["TakeFromPopulation"] = bool(fetchss(dps, "take_from_population", False))
 
 
 
@@ -58,27 +63,27 @@ class SimulationSettings:
 
         # most number of km that we expect refugees to traverse per time step (30
         # km/h * 12 hours).
-        SimulationSettings.move_rules["MaxMoveSpeed"] = float(fetchss(dpr,"max_move_speed"), 360.0)
+        SimulationSettings.move_rules["MaxMoveSpeed"] = float(fetchss(dpr,"max_move_speed", 360.0))
         
         # most number of km that we expect refugees to traverse per time step on
         # foot (3.5 km/h * 10 hours).
-        SimulationSettings.move_rules["MaxWalkSpeed"] = float(fetchss(dpr,"max_walk_speed"), 35.0)
+        SimulationSettings.move_rules["MaxWalkSpeed"] = float(fetchss(dpr,"max_walk_speed", 35.0))
 
         # most number of km that we expect refugees to traverse per time step on
         # boat/walk to cross river (2 km/h * 10 hours).
         SimulationSettings.move_rules["MaxCrossingSpeed"] = float(fetchss(dpr,"max_crossing_speed", 20.0))
 
 
-        SimulationSettings.move_rules["CampWeight"] = float(fetchss(dpr,"camp_weight"), 1.0) # attraction multiplier for camps.
-        SimulationSettings.move_rules["ConflictWeight"] = float(fetchss(dpr,"conflict_weight"), 1.0 / sqrt_ten) #attraction multiplier for source zones (conflict zones)
+        SimulationSettings.move_rules["CampWeight"] = float(fetchss(dpr,"camp_weight", 1.0)) # attraction multiplier for camps.
+        SimulationSettings.move_rules["ConflictWeight"] = float(fetchss(dpr,"conflict_weight", 1.0 / sqrt_ten)) #attraction multiplier for source zones (conflict zones)
 
 
-        SimulationSettings.move_rules["ConflictMoveChance"] = float(fetchss(dpr,"conflict_movechance"), 1.0) # chance of persons leaving a conflict zone per day.
-        SimulationSettings.move_rules["CampMoveChance"] = float(fetchss(dpr,"camp_movechance"), 0.001) # chance of persons leaving a camp.
-        SimulationSettings.move_rules["DefaultMoveChance"] = float(fetchss(dpr,"default_movechance"), 0.3) # chance of persons leaving a regular location per day.
+        SimulationSettings.move_rules["ConflictMoveChance"] = float(fetchss(dpr,"conflict_movechance", 1.0)) # chance of persons leaving a conflict zone per day.
+        SimulationSettings.move_rules["CampMoveChance"] = float(fetchss(dpr,"camp_movechance", 0.001)) # chance of persons leaving a camp.
+        SimulationSettings.move_rules["DefaultMoveChance"] = float(fetchss(dpr,"default_movechance", 0.3)) # chance of persons leaving a regular location per day.
         
 
-        SimulationSettings.move_rules["AwarenessLevel"] = float(fetchss(dpr,"awareness_level"), 1) # awareness of locations X link steps away by agents.
+        SimulationSettings.move_rules["AwarenessLevel"] = float(fetchss(dpr,"awareness_level", 1)) # awareness of locations X link steps away by agents.
         # -1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
         
 
