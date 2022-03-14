@@ -48,13 +48,13 @@ class SimulationSettings:
 
 
 
-        dps = dp["spawn_rules"]
+        dps = fetchss(dp,"spawn_rules",None)
         SimulationSettings.move_rules["TakeFromPopulation"] = fetchss(dpr,"take_from_population").lower() == "true" 
 
 
 
 
-        dpr = dp["move_rules"]
+        dpr = fetchss(dp,"move_rules",None)
 
         # most number of km that we expect refugees to traverse per time step (30
         # km/h * 12 hours).
@@ -95,7 +95,7 @@ class SimulationSettings:
         # between very short routes.
         SimulationSettings.move_rules["Softening"] = fetchss(dpr,"softening",10.0).lower() == "true"
 
-        dpo = dp["optimisations"]
+        dpo = fetchss(dp, "optimisations", None)
         SimulationSettings.optimisations["PopulationScaleDownFactor"] = float(fetchss(dpo,"hasten",1.0))
 
         if self.UseV1Rules is True:
