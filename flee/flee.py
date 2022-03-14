@@ -1485,7 +1485,7 @@ class Ecosystem:
         x: float = 0.0,
         y: float = 0.0,
         location_type: Optional[str] = None,
-        movechance: float = SimulationSettings.move_rules["DefaultMoveChance"],
+        movechance: float = 1.0,
         capacity: int = -1,
         pop: int = 0,
         foreign: bool = False,

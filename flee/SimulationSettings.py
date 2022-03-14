@@ -16,7 +16,7 @@ class SimulationSettings:
     The SimulationSettings class
     """
 
-    log_evels = {} #log level variables
+    log_levels = {} #log level variables
     spawn_rules = {} # ABM spawning rules
     move_rules = {} # ABM movement rules
 
@@ -26,13 +26,18 @@ class SimulationSettings:
 
 
     def ReadFromYML(ymlfile):
+
+        print("YAML file:", ymlfile, file=sys.stderr)
         with open(ymlfile) as f:
             dp = yaml.safe_load(f)
 
         number_of_steps = float(fetchss(dp,"number_of_steps",-1))
         SimulationSettings.FlareConflictInputFile = fetchss(dp,"conflict_input_file","")
 
-        dpll = dp["log_levels"]
+        print("YAML:", dp, file=sys.stderr)
+
+        dpll = fetchss(dp,"log_levels",None)
+
         SimulationSettings.log_levels["agent"] = int(fetchss(dpll,"agent",0))
         # set to 1 to obtain average times for agents to reach camps at any time
         # step (aggregate info).
