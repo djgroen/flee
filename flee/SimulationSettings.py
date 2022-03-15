@@ -5,6 +5,10 @@ import yaml
 # pylint: skip-file
 
 def fetchss(dataset,name,default):
+
+    if dataset is None:
+        return default
+
     if(name in dataset):
         return dataset[name]
     else:
