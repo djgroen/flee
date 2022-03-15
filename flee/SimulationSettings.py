@@ -23,6 +23,7 @@ class SimulationSettings:
     log_levels = {} #log level variables
     spawn_rules = {} # ABM spawning rules
     move_rules = {} # ABM movement rules
+    optimisations = {} # Settings to improve runtime performance
 
     sqrt_ten = 3.16227766017  # square root of ten (10^0.5).
 
@@ -79,7 +80,7 @@ class SimulationSettings:
 
 
         SimulationSettings.move_rules["CampWeight"] = float(fetchss(dpr,"camp_weight", 1.0)) # attraction multiplier for camps.
-        SimulationSettings.move_rules["ConflictWeight"] = float(fetchss(dpr,"conflict_weight", 1.0 / sqrt_ten)) #attraction multiplier for source zones (conflict zones)
+        SimulationSettings.move_rules["ConflictWeight"] = float(fetchss(dpr,"conflict_weight", 1.0 / SimulationSettings.sqrt_ten)) #attraction multiplier for source zones (conflict zones)
 
 
         SimulationSettings.move_rules["ConflictMoveChance"] = float(fetchss(dpr,"conflict_movechance", 1.0)) # chance of persons leaving a conflict zone per day.
@@ -102,20 +103,20 @@ class SimulationSettings:
         
         # KM added to every link distance to eliminate needless distinction
         # between very short routes.
-        SimulationSettings.move_rules["Softening"] = fetchss(dpr,"softening",10.0).lower() == "true"
+        SimulationSettings.move_rules["Softening"] = float(fetchss(dpr,"softening",10.0))
 
         dpo = fetchss(dp, "optimisations", None)
         SimulationSettings.optimisations["PopulationScaleDownFactor"] = float(fetchss(dpo,"hasten",1.0))
 
-        if self.UseV1Rules is True:
-            self.move_rules["MaxMoveSpeed"] = 200
-            self.move_rules["StartOnFoot"] = False
+        if SimulationSettings.UseV1Rules is True:
+            SimulationSettings.move_rules["MaxMoveSpeed"] = 200
+            SimulationSettings.move_rules["StartOnFoot"] = False
             # Displaced people will not take a break unless they at least travelled
             # for a full day's distance in the last two days.
-            self.move_rules["AvoidShortStints"] = False
-            self.move_rules["CampWeight"] = 2.0  # attraction factor for camps.
+            SimulationSettings.move_rules["AvoidShortStints"] = False
+            SimulationSettings.move_rules["CampWeight"] = 2.0  # attraction factor for camps.
             # reduction factor for refugees entering conflict zones.
-            self.move_rules["ConflictWeight"] = 0.25
+            SimulationSettings.move_rules["ConflictWeight"] = 0.25
 
         return number_of_steps
 
