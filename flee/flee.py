@@ -10,6 +10,7 @@ import numpy as np
 from flee.Diagnostics import write_agents
 from flee.SimulationSettings import SimulationSettings
 
+
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
 else:
@@ -236,7 +237,7 @@ class Person:
             float: Description
         """
         if len(weights) == 0:
-            return -1
+            return None
 
         weights = self.normalizeWeights(weights=weights)
         result = random.choices(linklist, weights=weights)
