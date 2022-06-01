@@ -6,7 +6,7 @@ import numpy as np
 import flee.postprocessing.analysis as a
 import sys
 
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 
 def AddInitialRefugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
@@ -21,7 +21,7 @@ if __name__ == "__main__":
   start_date,end_time = read_period.read_conflict_period("{}/conflict_period.csv".format(sys.argv[1]))
 
   if len(sys.argv)<4:
-    print("Please run using: python3 run.py <your_csv_directory> <your_refugee_data_directory> <duration in days> <optional: simusettings.yml> > <output_directory>/<output_csv_filename>")
+    print("Please run using: python3 run.py <your_csv_directory> <your_refugee_data_directory> <duration in days> <optional: simsettings.yml> > <output_directory>/<output_csv_filename>")
 
   input_csv_directory = sys.argv[1]
   validation_data_directory = sys.argv[2]
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv", population_scaledown_factor=flee.SimulationSettings.PopulationScaledownFactor)
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv")
 
   d.ReadL1Corrections("%s/registration_corrections.csv" % input_csv_directory)
 
@@ -123,6 +123,7 @@ if __name__ == "__main__":
       abs_errors += [a.abs_error(lm[i].numAgents, loc_data[j])]
 
       j += 1
+
 
     date = datetime.strptime(start_date, "%Y-%m-%d") + timedelta(days=t)
     output = "%s,%s" % (t, date.strftime("%Y-%m-%d"))
