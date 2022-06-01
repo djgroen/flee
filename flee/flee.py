@@ -4,23 +4,19 @@ import copy
 import os
 import random
 import sys
-from functools import wraps
 from typing import List, Optional, Tuple
 
 import numpy as np
 from flee.Diagnostics import write_agents
 from flee.SimulationSettings import SimulationSettings
 
+
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
 else:
 
     def check_args_type(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-
-        return wrapper
+        return func
 
 
 class Person:
@@ -93,10 +89,10 @@ class Person:
                     chosenRoute = self.selectRouteRuleset2(time=time)
 
                 # if there is a viable route to a different location.
-                if chosenRoute >= 0:
+                if chosenRoute:
                     # update location to link endpoint
                     self.location.DecrementNumAgents()
-                    self.location = self.location.links[chosenRoute]
+                    self.location = chosenRoute
                     self.location.IncrementNumAgents()
                     self.travelling = True
                     self.distance_travelled_on_link = 0
@@ -241,10 +237,11 @@ class Person:
             float: Description
         """
         if len(weights) == 0:
-            return -1
+            return None
 
         weights = self.normalizeWeights(weights=weights)
-        return int(np.random.choice(list(range(0, len(linklist))), p=weights))
+        result = random.choices(linklist, weights=weights)
+        return result[0]
 
     @check_args_type
     def selectRouteRuleset1(self, time: int) -> int:
@@ -393,7 +390,7 @@ class Person:
                 debug=debug,
             )
 
-        return int(self.chooseFromWeights(weights=weights, linklist=self.location.links))
+        return self.chooseFromWeights(weights=weights, linklist=self.location.links)
 
 
 class Location:
