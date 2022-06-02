@@ -1431,7 +1431,7 @@ class Ecosystem:
     def refresh_conflict_weights(self) -> None:
         """
         This function needs to be called when
-        SimulationSettings.move_rules["TakeFromPopulation"] is set to True.
+        SimulationSettings.spawn_rules["TakeFromPopulation"] is set to True.
         It will update the weights to reflect the new population numbers.
         """
         for i in range(0, len(self.conflict_zones)):
@@ -1535,7 +1535,7 @@ class Ecosystem:
         Args:
             location (Location): Description
         """
-        if SimulationSettings.move_rules["TakeFromPopulation"]:
+        if SimulationSettings.spawn_rules["TakeFromPopulation"]:
             if location.conflict:
                 if location.pop > 0:
                     location.pop -= 1

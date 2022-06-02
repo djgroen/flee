@@ -57,11 +57,19 @@ class SimulationSettings:
 
         # Spawned agents are subtracted from populations. This can lead to crashes if the number of spawned agents
         # exceeds the total population in conflict zones.
-        print(fetchss(dps,"take_from_population","false"), file=sys.stderr)
+        print("Take from population?", fetchss(dps,"take_from_population","false"), file=sys.stderr)
 
-        SimulationSettings.move_rules["TakeFromPopulation"] = bool(fetchss(dps, "take_from_population", False))
+        SimulationSettings.spawn_rules["TakeFromPopulation"] = bool(fetchss(dps, "take_from_population", False))
 
+        dpsc = fetchss(dps,"conflict_driven_spawning",None)
+        if dpsc is not None:
+          SimulationSettings.spawn_rules["conflict_driven_spawning"] = True
+          SimulationSettings.spawn_rules["conflict_spawn_mode"] = fetchss(dpsc,"spawn_mode","constant") # constant, Poisson
+          SimulationSettings.spawn_rules["displaced_per_conflict_day"] = int(fetchss(dpsc,"displaced_per_conflict_day",1000))
+       
 
+        SimulationSettings.spawn_rules["conflict_spawn_decay"] = fetchss(dps,"conflict_spawn_decay", None) # Expect an array or dict
+        print("Spawn decay set to:", SimulationSettings.spawn_rules["conflict_spawn_decay"], file=sys.stderr)
 
 
         dpr = fetchss(dp,"move_rules",None)
