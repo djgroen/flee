@@ -1433,10 +1433,12 @@ class Ecosystem:
         """
         This function needs to be called when
         SimulationSettings.spawn_rules["TakeFromPopulation"] is set to True.
+        Also needed to model the ConflictSpawnDecay.
         It will update the weights to reflect the new population numbers.
         """
         for i in range(0, len(self.conflict_zones)):
-            self.conflict_weights[i] = self.conflict_zones[i].pop
+            time_since_conflict = self.time - self.conflict_zones[i].time_of_conflict
+            self.conflict_weights[i] = self.conflict_zones[i].pop * SimulationSettings.get_conflict_decay(time_since_conflict)
         self.conflict_pop = sum(self.conflict_weights)
 
     @check_args_type
@@ -1444,6 +1446,8 @@ class Ecosystem:
         """
         Summary
         """
+        self.refresh_conflict_weights() # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
+
         # update level 1, 2 and 3 location scores
         for loc in self.locations:
             loc.updateLocationScore()

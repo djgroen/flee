@@ -29,6 +29,18 @@ class SimulationSettings:
 
     CapacityBuffer = 1.0
 
+    def get_conflict_decay(time_since_conflict):
+
+        spawn_len = len(SimulationSettings.spawn_rules["conflict_spawn_decay"])
+
+        if spawn_len < 1:
+            print("Warning: no conflict spawn decay set. Defaulting to no decay", file=sys.stderr)
+            return 1.0
+        else:
+            i = min(int(time_since_conflict / 30), spawn_len)
+            if SimulationSettings.log_levels["conflict"] > 0:
+              print("Conflict zone spawn status: time elapsed {}, decay factor {}".format(time_since_conflict, float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])), file=sys.stderr)
+            return float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])
 
     def ReadFromYML(ymlfile):
 
@@ -50,6 +62,8 @@ class SimulationSettings:
         # set to 1 for basic information on locations added and conflict zones
         # assigned.
         SimulationSettings.log_levels["init"] = int(fetchss(dpll,"init",0))
+        # set to 1 for information on conflict zone spawning
+        SimulationSettings.log_levels["conflict"] = int(fetchss(dpll,"conflict",0))
 
 
 
