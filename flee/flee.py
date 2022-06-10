@@ -117,18 +117,18 @@ class Person:
                 self.distance_moved_this_timestep += SimulationSettings.move_rules["MaxMoveSpeed"]
 
             # If destination has been reached.
-            if self.distance_travelled_on_link > self.location.get_distance(time):
+            if self.distance_travelled_on_link > self.location.get_distance():
 
                 self.places_travelled += 1
                 # remove the excess km tracked by the
                 # distance_moved_this_timestep var.
                 self.distance_moved_this_timestep += (
-                    self.location.get_distance(time) - self.distance_travelled_on_link
+                    self.location.get_distance() - self.distance_travelled_on_link
                 )
 
                 # update agent logs
                 if SimulationSettings.log_levels["agent"] > 0:
-                    self.distance_travelled += self.location.get_distance(time)
+                    self.distance_travelled += self.location.get_distance()
 
                 # if link is closed, bring agent to start point instead of the
                 # destination and return.
@@ -140,7 +140,7 @@ class Person:
                     self.distance_travelled_on_link = 0
 
                 else:
-                    # if the person has moved less than the minMoveSpeed, it
+                    # if the person has moved less than the MaxMoveSpeed, it
                     # should go through another evolve() step in the new
                     # location.
                     evolveMore = False
@@ -199,7 +199,7 @@ class Person:
 
         return float(
             link.endpoint.scores[awareness_level]
-            / float(SimulationSettings.move_rules["Softening"] + link.get_distance(time))
+            / float(SimulationSettings.move_rules["Softening"] + link.get_distance())
         )
 
     @check_args_type
@@ -318,7 +318,7 @@ class Person:
         """
         weight = float(
             self.getEndPointScore(link=link)
-            / float(SimulationSettings.move_rules["Softening"] + link.get_distance(time) + prior_distance)
+            / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)
         ) * link.endpoint.getCapMultiplier(numOnLink=int(link.numAgents))
 
         if debug:
@@ -326,7 +326,7 @@ class Person:
                 "step {}, dest {}, dist {}, prior_dist {}, score {}, weight {}".format(
                     step,
                     link.endpoint.name,
-                    link.get_distance(time),
+                    link.get_distance(),
                     prior_distance,
                     self.getEndPointScore(link=link),
                     weight,
@@ -344,7 +344,7 @@ class Person:
                         weight,
                         self.calculateLinkWeight(
                             link=e,
-                            prior_distance=prior_distance + link.get_distance(time),
+                            prior_distance=prior_distance + link.get_distance(),
                             origin_names=origin_names + [link.endpoint.name],
                             step=step + 1,
                             time=time,
@@ -420,13 +420,12 @@ class Location:
         self.foreign = foreign
         self.country = country
         self.conflict = False
+        self.conflict_date = -1 # date that last conflict erupted.
         self.camp = False
         self.town = False
         self.forward = False
         self.marker = False
-        # keep track of the time in the simulation locally, to build in
-        # capacity-related behavior.
-        self.time = 0
+        self.time_of_conflict = -1 # Time that a major conflict event last took place.
         self.numAgentsSpawned = 0
 
         if location_type is not None:
@@ -533,7 +532,7 @@ class Location:
         for link in self.links:
             print(
                 "Link from {} to {}, dist: {}, pop. {}".format(
-                    self.name, link.endpoint.name, link.get_distance(self.time), link.numAgents
+                    self.name, link.endpoint.name, link.get_distance(), link.numAgents
                 ),
                 file=sys.stderr,
             )
@@ -674,9 +673,9 @@ class Location:
 
             for link in self.links:
                 self.NeighbourhoodScore += link.endpoint.LocationScore / float(
-                    link.get_distance(self.time)
+                    link.get_distance()
                 )
-                total_link_weight += 1.0 / float(link.get_distance(self.time))
+                total_link_weight += 1.0 / float(link.get_distance())
 
             self.NeighbourhoodScore /= total_link_weight
             self.setScore(index=2, value=self.NeighbourhoodScore)
@@ -696,9 +695,9 @@ class Location:
 
             for link in self.links:
                 self.RegionScore += link.endpoint.NeighbourhoodScore / float(
-                    link.get_distance(self.time)
+                    link.get_distance()
                 )
-                total_link_weight += 1.0 / float(link.get_distance(self.time))
+                total_link_weight += 1.0 / float(link.get_distance())
 
             self.RegionScore /= total_link_weight
             self.setScore(index=3, value=self.RegionScore)
@@ -743,12 +742,11 @@ class Link:
         """
         self.numAgents += 1
 
-    def get_distance(self, time: int) -> float:
+    def get_distance(self) -> float:
         """
         Summary
 
         Args:
-            time (int): Description
 
         Returns:
             float: Description
@@ -810,7 +808,7 @@ class Ecosystem:
         for loc in self.locations:
             vertices += [loc.name]
             for p in loc.links:
-                edges += [[loc.name, p.endpoint.name, p.get_distance(self.time)]]
+                edges += [[loc.name, p.endpoint.name, p.get_distance()]]
 
         return vertices, edges
 
@@ -1340,6 +1338,9 @@ class Ecosystem:
                         self.conflict_weights, [self.locations[i].pop]
                     )
                     self.conflict_pop = sum(self.conflict_weights)
+
+                    self.locations[i].time_of_conflict = self.time
+                    
                     if SimulationSettings.log_levels["init"] > 0:
                         print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
                         print("New total pop. in conflict zones: ", self.conflict_pop)
@@ -1445,7 +1446,6 @@ class Ecosystem:
         """
         # update level 1, 2 and 3 location scores
         for loc in self.locations:
-            loc.time = self.time
             loc.updateLocationScore()
 
         for loc in self.locations:
