@@ -37,7 +37,7 @@ class SimulationSettings:
             print("Warning: no conflict spawn decay set. Defaulting to no decay", file=sys.stderr)
             return 1.0
         else:
-            i = min(int(time_since_conflict / 30), spawn_len)
+            i = min(int(time_since_conflict / 30), spawn_len-1)
             if SimulationSettings.log_levels["conflict"] > 0:
               print("Conflict zone spawn status: time elapsed {}, decay factor {}".format(time_since_conflict, float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])), file=sys.stderr)
             return float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])
