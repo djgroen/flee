@@ -1,7 +1,6 @@
 import csv
 import os
 import sys
-from functools import wraps
 from typing import List
 
 from flee.SimulationSettings import SimulationSettings
@@ -9,12 +8,13 @@ from flee.SimulationSettings import SimulationSettings
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
 else:
-
     def check_args_type(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-        return wrapper
+        #Commented out because it introduces 10% slowdown.
+        #@wraps(func)
+        #def wrapper(*args, **kwargs):
+        #    return func(*args, **kwargs)
+        #return wrapper
+        return func
 
 
 class InputGeography:
