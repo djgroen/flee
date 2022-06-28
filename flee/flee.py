@@ -216,7 +216,7 @@ class Person:
         return weights.tolist()
 
     @check_args_type
-    def chooseFromWeights(self, weights, linklist) -> int:
+    def chooseFromWeights(self, weights, linklist):
         """
         Summary
 
@@ -235,7 +235,7 @@ class Person:
         return result[0]
 
     @check_args_type
-    def selectRouteRuleset1(self, time: int) -> int:
+    def selectRouteRuleset1(self, time: int):
         """
         Summary
 
@@ -354,7 +354,7 @@ class Person:
         return weight
 
     @check_args_type
-    def selectRouteRuleset2(self, time: int, debug: bool = False) -> int:
+    def selectRouteRuleset2(self, time: int, debug: bool = False):
         """
         Summary
 
