@@ -58,8 +58,7 @@ if __name__ == "__main__":
   camp_locations      = e.get_camp_names()
 
   for l in camp_locations:
-      if insert_day0_refugees_in_camps:  
-          AddInitialRefugees(e,d,lm[l])
+      AddInitialRefugees(e,d,lm[l])
       output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
 
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
@@ -76,25 +75,7 @@ if __name__ == "__main__":
     #if t>0:
     ig.AddNewConflictZones(e,t)
 
-    # Determine number of new refugees to insert into the system.
-    new_refs = d.get_daily_difference(t, FullInterpolation=True, SumFromCamps=False) - refugee_debt
-    refugees_raw += d.get_daily_difference(t, FullInterpolation=True, SumFromCamps=False)
-
-    #Refugees are pre-placed in Mali, so set new_refs to 0 on Day 0.
-    if insert_day0_refugees_in_camps:  
-        if t == 0:
-            new_refs = 0
-            #refugees_raw = 0
-
-    if new_refs < 0:
-      refugee_debt = -new_refs
-      new_refs = 0
-    elif refugee_debt > 0:
-      refugee_debt = 0
-
-    #Insert refugee agents
-    for i in range(0, new_refs):
-      e.addAgent(e.pick_conflict_location())
+    new_refs,refugees_raw,refugee_debt = spawning.spawn_daily_displaced(e,t,d)
 
     e.refresh_conflict_weights()
     t_data = t

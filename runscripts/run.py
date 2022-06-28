@@ -62,6 +62,8 @@ if __name__ == "__main__":
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
 
   print(output_header_string)
+  refugee_debt = 0
+  refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
 
   for t in range(0,end_time):
 
