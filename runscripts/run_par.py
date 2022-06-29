@@ -8,12 +8,6 @@ import sys
 
 from datetime import datetime, timedelta
 
-def AddInitialRefugees(e, d, loc):
-  """ Add the initial refugees to a location, using the location name"""
-  num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
-  for i in range(0, num_refugees):
-    e.addAgent(location=loc)
-
 insert_day0_refugees_in_camps = True
 
 if __name__ == "__main__":
@@ -58,7 +52,7 @@ if __name__ == "__main__":
   camp_locations      = e.get_camp_names()
 
   for l in camp_locations:
-      AddInitialRefugees(e,d,lm[l])
+      spawning.add_initial_refugees(e,d,lm[l])
       output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
 
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"

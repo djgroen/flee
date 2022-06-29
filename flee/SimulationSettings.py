@@ -74,6 +74,8 @@ class SimulationSettings:
         print("Take from population?", fetchss(dps,"take_from_population","false"), file=sys.stderr)
 
         SimulationSettings.spawn_rules["TakeFromPopulation"] = bool(fetchss(dps, "take_from_population", False))
+        # Advanced settings
+        SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"] = bool(fetchss(dps, "insert_day0", True))
 
         dpsc = fetchss(dps,"conflict_driven_spawning",None)
         if dpsc is not None:
