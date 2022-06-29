@@ -1,16 +1,20 @@
 from flee.datamanager import handle_refugee_data, read_period
 from flee.datamanager import DataTable
 from flee.SimulationSettings import SimulationSettings
+import numpy as np
+import sys
 
 __refugees_raw = 0
 __refugee_debt = 0
+
 
 def add_initial_refugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
   if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"]:
     num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
     for i in range(0, num_refugees):
-      e.addAgent(location=loc) # Parallelization is incorporated *inside* the addAgent function.
+      e.addAgent(location=loc, age=np.random.random_integers(1,90), gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+
 
 def spawn_daily_displaced(e, t, d):
     global __refugees_raw, __refugee_debt
@@ -43,7 +47,7 @@ def spawn_daily_displaced(e, t, d):
 
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):
-          e.addAgent(e.conflict_zones[i])
+          e.addAgent(location=loc, age=np.random.random_integers(1,90), gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
 
 
     else:
@@ -66,6 +70,6 @@ def spawn_daily_displaced(e, t, d):
 
       #Insert refugee agents
       for i in range(0, new_refs):
-        e.addAgent(e.pick_conflict_location())
+        e.addAgent(location=e.pick_conflict_location(), age=np.random.random_integers(1,90), gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
 
     return new_refs, __refugees_raw, __refugee_debt

@@ -34,10 +34,13 @@ class Person:
         "distance_moved_this_timestep",
         "travelling",
         "distance_travelled_on_link",
+        "age",
+        "gender",
+        "attributes",
     ]
 
     @check_args_type
-    def __init__(self, location):
+    def __init__(self, location, age, gender, attributes):
         self.location = location
         self.home_location = location
         self.location.IncrementNumAgents()
@@ -56,6 +59,10 @@ class Person:
         # Tracks how much distance a Person has been able to travel on the
         # current link.
         self.distance_travelled_on_link = 0
+
+        self.age=age
+        self.gender=gender
+        self.attributes=attributes
 
         if SimulationSettings.log_levels["agent"] > 0:
             self.distance_travelled = 0
@@ -1416,14 +1423,6 @@ class Ecosystem:
             self.conflict_zones, number, p=self.conflict_weights / self.conflict_pop
         ).tolist()
 
-    @check_args_type
-    def add_agents_to_conflict_zones(self, number: int) -> None:
-        """
-        Add a group of agents, distributed across conflict zones.
-        """
-        cl = self.pick_conflict_locations(number=number)
-        for i in range(0, number):
-            self.addAgent(location=cl[i])
 
     @check_args_type
     def refresh_conflict_weights(self) -> None:
@@ -1529,7 +1528,7 @@ class Ecosystem:
         return loc
 
     @check_args_type
-    def addAgent(self, location) -> None:
+    def addAgent(self, location, age, gender, attributes) -> None:
         """
         Summary
 
@@ -1549,7 +1548,7 @@ class Ecosystem:
                     location.print()
                     assert location.pop > 1
 
-        self.agents.append(Person(location=location))
+        self.agents.append(Person(location=location, age=age, gender=gender, attributes=attributes))
 
     @check_args_type
     def insertAgent(self, location) -> None:

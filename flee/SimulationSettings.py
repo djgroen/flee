@@ -90,7 +90,8 @@ class SimulationSettings:
             SimulationSettings.spawn_rules["displaced_per_conflict_day"] = float(fetchss(dpsc,"displaced_per_conflict_day", 0.01))
           else:
             SimulationSettings.spawn_rules["displaced_per_conflict_day"] = int(fetchss(dpsc,"displaced_per_conflict_day", 500))
-       
+        else:
+          SimulationSettings.spawn_rules["conflict_driven_spawning"] = False
 
         SimulationSettings.spawn_rules["conflict_spawn_decay"] = fetchss(dps,"conflict_spawn_decay", None) # Expect an array or dict
         print("Spawn decay set to:", SimulationSettings.spawn_rules["conflict_spawn_decay"], file=sys.stderr)

@@ -72,11 +72,14 @@ class Person(flee.Person):
         "travelling",
         "distance_travelled_on_link",
         "e",
+        "age",
+        "gender",
+        "attributes",
     ]
 
     @check_args_type
-    def __init__(self, e, location):
-        super().__init__(location)
+    def __init__(self, e, location, age, gender, attributes):
+        super().__init__(location, age, gender, attributes)
         self.e = e
 
     @check_args_type
@@ -408,7 +411,7 @@ class Ecosystem(flee.Ecosystem):
     """
 
     @check_args_type
-    def addAgent(self, location) -> None:
+    def addAgent(self, location, age, gender, attributes) -> None:
         """
         Summary
 
@@ -430,7 +433,8 @@ class Ecosystem(flee.Ecosystem):
                     assert location.pop > 1
         self.total_agents += 1
         if self.total_agents % self.mpi.size == self.mpi.rank:
-            self.agents.append(Person(self, location=location))
+            self.agents.append(Person(self, location=location, age=age, gender=gender, attributes=attributes))
+
 
     @check_args_type
     def insertAgent(self, location) -> None:
@@ -717,35 +721,6 @@ class Ecosystem(flee.Ecosystem):
         """
         if self.mpi.rank == 0:
             super().printInfo()
-
-    @check_args_type
-    def add_agents_to_conflict_zones(self, number: int) -> None:
-        """
-        Add a group of agents, distributed across conflict zones.
-
-        Args:
-            number (int): Description
-        """
-        number_on_rank = int(number / self.mpi.size)
-        if number % self.mpi.size > self.mpi.rank:
-            number_on_rank += 1
-
-        self.total_agents += number
-        cl = self.pick_conflict_locations(number=number_on_rank)
-        for i in range(0, number_on_rank):
-            if SimulationSettings.move_rules["TakeFromPopulation"]:
-                if cl[i].pop > 1:
-                    cl[i].pop -= 1
-                    cl[i].numAgentsSpawnedOnRank += 1
-                    cl[i].numAgentsSpawned += 1
-                else:
-                    print(
-                        "ERROR: Number of agents in the simulation is larger than the combined "
-                        "population of the conflict zones. Please amend locations.csv."
-                    )
-                    cl[i].print()
-                    assert cl[i].pop > 1
-            self.agents.append(Person(self, location=cl[i]))
 
 
 if __name__ == "__main__":
