@@ -29,6 +29,7 @@ class SimulationSettings:
 
     CapacityBuffer = 1.0
 
+
     def get_conflict_decay(time_since_conflict):
 
         spawn_len = len(SimulationSettings.spawn_rules["conflict_spawn_decay"])
@@ -41,6 +42,7 @@ class SimulationSettings:
             if SimulationSettings.log_levels["conflict"] > 0:
               print("Conflict zone spawn status: time elapsed {}, decay factor {}".format(time_since_conflict, float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])), file=sys.stderr)
             return float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])
+
 
     def ReadFromYML(ymlfile):
 
@@ -77,11 +79,17 @@ class SimulationSettings:
         # Advanced settings
         SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"] = bool(fetchss(dps, "insert_day0", True))
 
+
         dpsc = fetchss(dps,"conflict_driven_spawning",None)
         if dpsc is not None:
           SimulationSettings.spawn_rules["conflict_driven_spawning"] = True
-          SimulationSettings.spawn_rules["conflict_spawn_mode"] = fetchss(dpsc,"spawn_mode","constant") # constant, Poisson
-          SimulationSettings.spawn_rules["displaced_per_conflict_day"] = int(fetchss(dpsc,"displaced_per_conflict_day",1000))
+          
+          SimulationSettings.spawn_rules["conflict_spawn_mode"] = fetchss(dpsc,"spawn_mode","constant") # constant, Poisson, pop_ratio
+
+          if SimulationSettings.spawn_rules["conflict_spawn_mode"] == "pop_ratio":
+            SimulationSettings.spawn_rules["displaced_per_conflict_day"] = float(fetchss(dpsc,"displaced_per_conflict_day", 0.01))
+          else:
+            SimulationSettings.spawn_rules["displaced_per_conflict_day"] = int(fetchss(dpsc,"displaced_per_conflict_day", 500))
        
 
         SimulationSettings.spawn_rules["conflict_spawn_decay"] = fetchss(dps,"conflict_spawn_decay", None) # Expect an array or dict
