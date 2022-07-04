@@ -3,17 +3,55 @@ from flee.datamanager import DataTable
 from flee.SimulationSettings import SimulationSettings
 import numpy as np
 import sys
+import os
+import pandas as pd
 
 __refugees_raw = 0
 __refugee_debt = 0
 
+__demographics = {}
+
+def read_demographic_csv(e, csvname):
+  """
+  Attribute CSV files have the following format:
+  Value,Default,LocA,LocB,...
+  ValueA,weight for that value by Default, ...
+  """
+  attribute = (csvname.split('.')[0]).split('_')[1]
+
+  if not os.path.exists("input_csv/{}".format(csvname)):
+      return
+
+  df = pd.read_csv("input_csv/{}".format(csvname))
+
+  if SimulationSettings.log_levels["init"] > 0:
+    print("INFO: ", attribute, " attributes loaded, with columns:", file=sys.stderr)
+    for col in df.columns:
+      print(col, file=sys.stderr)
+  
+  __demographics[attribute] = df
+
+def draw_sample(e, loc, attribute):
+  if loc.name in __demographics[attribute].columns:
+    a = __demographics[attribute].sample(n=1,weights=loc)[attribute]
+  else:
+    a = __demographics[attribute].sample(n=1,weights='Default')[attribute]
+
 
 def add_initial_refugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
+
+  read_demographic_csv(e, 'demographics_age.csv')
+
+
   if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"]:
     num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
     for i in range(0, num_refugees):
+      print(draw_sample(e, loc, 'age'), file=sys.stderr)
+      sys.exit()
       e.addAgent(location=loc, age=np.random.random_integers(1,90), gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+
+
 
 
 def spawn_daily_displaced(e, t, d):
