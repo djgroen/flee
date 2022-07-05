@@ -32,10 +32,15 @@ def read_demographic_csv(e, csvname):
   __demographics[attribute] = df
 
 def draw_sample(e, loc, attribute):
+  #print(__demographics[attribute], file=sys.stderr)
+  #print(__demographics[attribute].iloc[0]['Default'], file=sys.stderr)
+
   if loc.name in __demographics[attribute].columns:
-    a = __demographics[attribute].sample(n=1,weights=loc)[attribute]
+    a = __demographics[attribute].sample(n=1,weights=loc)
   else:
-    a = __demographics[attribute].sample(n=1,weights='Default')[attribute]
+    a = __demographics[attribute].sample(n=1,weights='Default')
+
+  return a.iloc[0]['Default']
 
 
 def add_initial_refugees(e, d, loc):
@@ -47,9 +52,8 @@ def add_initial_refugees(e, d, loc):
   if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"]:
     num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
     for i in range(0, num_refugees):
-      print(draw_sample(e, loc, 'age'), file=sys.stderr)
-      sys.exit()
-      e.addAgent(location=loc, age=np.random.random_integers(1,90), gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+      age = draw_sample(e, loc, 'age')
+      e.addAgent(location=loc, age=age, gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
 
 
 
@@ -85,7 +89,8 @@ def spawn_daily_displaced(e, t, d):
 
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):
-          e.addAgent(location=loc, age=np.random.random_integers(1,90), gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+          age = draw_sample(e, loc, 'age')
+          e.addAgent(location=loc, age=age, gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
 
 
     else:
