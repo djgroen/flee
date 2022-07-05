@@ -35,12 +35,15 @@ def draw_sample(e, loc, attribute):
   #print(__demographics[attribute], file=sys.stderr)
   #print(__demographics[attribute].iloc[0]['Default'], file=sys.stderr)
 
-  if loc.name in __demographics[attribute].columns:
-    a = __demographics[attribute].sample(n=1,weights=loc)
+  if attribute in __demographics:
+    if loc.name in __demographics[attribute].columns:
+      a = __demographics[attribute].sample(n=1,weights=loc)
+    else:
+      a = __demographics[attribute].sample(n=1,weights='Default')
   else:
-    a = __demographics[attribute].sample(n=1,weights='Default')
+    return -1
 
-  return a.iloc[0]['age']
+  return a.iloc[0][attribute]
 
 
 def add_initial_refugees(e, d, loc):
