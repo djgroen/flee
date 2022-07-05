@@ -40,7 +40,7 @@ def draw_sample(e, loc, attribute):
   else:
     a = __demographics[attribute].sample(n=1,weights='Default')
 
-  return a.iloc[0]['Default']
+  return a.iloc[0]['age']
 
 
 def add_initial_refugees(e, d, loc):
@@ -54,8 +54,6 @@ def add_initial_refugees(e, d, loc):
     for i in range(0, num_refugees):
       age = draw_sample(e, loc, 'age')
       e.addAgent(location=loc, age=age, gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
-
-
 
 
 def spawn_daily_displaced(e, t, d):
