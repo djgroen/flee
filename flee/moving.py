@@ -1,3 +1,10 @@
+import os
+import sys
+import numpy as np
+import random
+from typing import List, Optional, Tuple
+from flee.SimulationSettings import SimulationSettings
+
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
 else:
@@ -23,7 +30,7 @@ def getEndPointScore(link) -> float:
 
 @check_args_type
 def calculateLinkWeight(
-  link: Link,
+  link,
   prior_distance: float,
   origin_names: List[str],
   step: int,
@@ -44,8 +51,7 @@ def calculateLinkWeight(
   debug (bool, optional): Description
   """
   weight = float(getEndPointScore(link=link)
-          / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) 
-          * link.endpoint.getCapMultiplier(numOnLink=int(link.numAgents))
+          / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) * link.endpoint.getCapMultiplier(numOnLink=int(link.numAgents))
 
   if debug:
     print("step {}, dest {}, dist {}, prior_dist {}, score {}, weight {}".format(
