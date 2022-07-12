@@ -15,17 +15,61 @@ else:
 
 @check_args_type
 def getEndPointScore(link) -> float:
-  """
-  Summary
+    """
+    Summary
 
-  Args:
-    link (Link): Description
+    Args:
+        link (Link): Description
 
-  Returns:
-    float: Description
-  """
-  # print(link.endpoint.name, link.endpoint.scores)
-  return link.endpoint.scores[1]
+    Returns:
+        float: Description
+    """
+    # print(link.endpoint.name, link.endpoint.scores)
+    return link.endpoint.scores[1]
+
+
+@check_args_type
+def getCapMultiplier(location, numOnLink: int) -> float:
+    """
+    Checks whether a given location has reached full capacity
+    or is close to it.
+
+    Args:
+        numOnLink (int): Description
+
+    Returns:
+        float: return
+
+        - 1.0 if occupancy < nearly_full_occ (0.9).
+        - 0.0 if occupancy >= 1.0.
+        - a value in between for intermediate values
+    """
+
+    nearly_full_occ = 0.9  # occupancy rate to be considered nearly full.
+    # full occupancy limit (should be equal to self.capacity).
+    cap_limit = self.capacity * SimulationSettings.move_rules["CapacityBuffer"]
+
+    if self.capacity < 0:
+        return 1.0
+
+    if self.numAgents <= nearly_full_occ * cap_limit:
+        return 1.0
+
+    if self.numAgents >= 1.0 * cap_limit:
+        return 0.0
+
+    # should be a number equal in range [0 to 0.1*self.numAgents].
+    residual = self.numAgents - (nearly_full_occ * cap_limit)
+
+    # Calculate the residual weighting factor, when pop is between 0.9 and
+    # 1.0 of capacity (with default settings).
+    weight = 1.0 - (residual / (cap_limit * (1.0 - nearly_full_occ)))
+
+    assert weight >= 0.0
+    assert weight <= 1.0
+
+    return weight
+
 
 
 @check_args_type
@@ -53,9 +97,6 @@ def calculateLinkWeight(
   weight = float(getEndPointScore(link=link)
           / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) * link.endpoint.getCapMultiplier(numOnLink=int(link.numAgents))
 
-  if debug:
-    print("step {}, dest {}, dist {}, prior_dist {}, score {}, weight {}".format(
-        step, link.endpoint.name, link.get_distance(), prior_distance, getEndPointScore(link=link), weight))
 
   if SimulationSettings.move_rules["AwarenessLevel"] > step:
     # Traverse the tree one step further.

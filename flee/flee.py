@@ -348,68 +348,6 @@ class Location:
         """
         self.movechance = SimulationSettings.CampMoveChance
 
-    @check_args_type
-    def CalculateResidualWeightingFactor(
-        self, residual: float, cap_limit: float, nearly_full_occ: float
-    ) -> float:
-        """
-        Calculate the residual weighting factor, when pop is between 0.9 and
-        1.0 of capacity (with default settings).
-        Weight should be 1.0 at 0.9, and 0.0 at 1.0 capacity level.
-        Asserts are added to prevent corruption of simulation results in case
-        this function misbehaves.
-
-        Args:
-            residual (float): Description
-            cap_limit (float): Description
-            nearly_full_occ (float): Description
-
-        Returns:
-            float: Description
-        """
-
-        weight = 1.0 - (residual / (cap_limit * (1.0 - nearly_full_occ)))
-
-        assert weight >= 0.0
-        assert weight <= 1.0
-
-        return weight
-
-    @check_args_type
-    def getCapMultiplier(self, numOnLink: int) -> float:
-        """
-        Checks whether a given location has reached full capacity
-        or is close to it.
-
-        Args:
-            numOnLink (int): Description
-
-        Returns:
-            float: return
-
-            - 1.0 if occupancy < nearly_full_occ (0.9).
-            - 0.0 if occupancy >= 1.0.
-            - a value in between for intermediate values
-        """
-        nearly_full_occ = 0.9  # occupancy rate to be considered nearly full.
-        # full occupancy limit (should be equal to self.capacity).
-        cap_limit = self.capacity * SimulationSettings.CapacityBuffer
-
-        if self.capacity < 0:
-            return 1.0
-
-        if self.numAgents <= nearly_full_occ * cap_limit:
-            return 1.0
-
-        if self.numAgents >= 1.0 * cap_limit:
-            return 0.0
-
-        # should be a number equal in range [0 to 0.1*self.numAgents].
-        residual = self.numAgents - (nearly_full_occ * cap_limit)
-
-        return self.CalculateResidualWeightingFactor(
-            residual=residual, cap_limit=cap_limit, nearly_full_occ=nearly_full_occ
-        )
 
     @check_args_type
     def getScores(self, index: int) -> float:

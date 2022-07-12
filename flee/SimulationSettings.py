@@ -27,7 +27,6 @@ class SimulationSettings:
 
     sqrt_ten = 3.16227766017  # square root of ten (10^0.5).
 
-    CapacityBuffer = 1.0
 
 
     def get_conflict_decay(time_since_conflict):
@@ -123,7 +122,9 @@ class SimulationSettings:
 
         SimulationSettings.move_rules["AwarenessLevel"] = float(fetchss(dpr,"awareness_level", 1)) # awareness of locations X link steps away by agents.
         # -1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
-        
+       
+        # A location or camp is considered full if the number of agents there exceeds (capacity OR pop) * CapacityBuffer.
+        SimulationSettings.move_rules["CapacityBuffer"] = float(fetchss(dpr,"capacity_buffer", 1.0)) # awareness of locations X link steps away by agents.
 
         # Displaced people will not take a break unless they at least travelled
         # for a full day's distance in the last two days.
