@@ -66,6 +66,23 @@ class Person:
         if SimulationSettings.log_levels["agent"] > 0:
             self.distance_travelled = 0
 
+
+    @check_args_type
+    def handle_travel(self, location, travelling) -> None:
+        """
+        Summary
+
+        Args:
+            location: location to travel to (can be Location of Link type).
+            travelling: set to True if location is a Link, False if it is a Location object.
+        """
+        self.location.DecrementNumAgents()
+        self.location = location
+        self.location.IncrementNumAgents()
+        self.travelling = travelling
+        self.distance_travelled_on_link = 0
+
+
     @check_args_type
     def evolve(self, time: int, ForceTownMove: bool = False) -> None:
         """
@@ -91,11 +108,7 @@ class Person:
                 # if there is a viable route to a different location.
                 if chosenRoute:
                     # update location to link endpoint
-                    self.location.DecrementNumAgents()
-                    self.location = chosenRoute
-                    self.location.IncrementNumAgents()
-                    self.travelling = True
-                    self.distance_travelled_on_link = 0
+                    self.handle_travel(chosenRoute, travelling=True)
 
 
     @check_args_type
@@ -133,11 +146,7 @@ class Person:
                 # if link is closed, bring agent to start point instead of the
                 # destination and return.
                 if self.location.closed is True:
-                    self.location.DecrementNumAgents()
-                    self.location = self.location.startpoint
-                    self.location.IncrementNumAgents()
-                    self.travelling = False
-                    self.distance_travelled_on_link = 0
+                    self.handle_travel(self.location.startpoint, travelling=False)
 
                 else:
                     # if the person has moved less than the MaxMoveSpeed, it
@@ -148,12 +157,7 @@ class Person:
                         evolveMore = True
 
                     # update location (which is on a link) to link endpoint
-                    self.location.DecrementNumAgents()
-                    self.location = self.location.endpoint
-                    self.location.IncrementNumAgents()
-
-                    self.travelling = False
-                    self.distance_travelled_on_link = 0
+                    self.handle_travel(self.location.endpoint, travelling=False)
 
                     if SimulationSettings.log_levels["camp"] > 0:
                         if self.location.Camp is True:

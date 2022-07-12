@@ -55,13 +55,7 @@ def calculateLinkWeight(
 
   if debug:
     print("step {}, dest {}, dist {}, prior_dist {}, score {}, weight {}".format(
-        step,
-        link.endpoint.name,
-        link.get_distance(),
-        prior_distance,
-        getEndPointScore(link=link),
-        weight)
-    )
+        step, link.endpoint.name, link.get_distance(), prior_distance, getEndPointScore(link=link), weight))
 
   if SimulationSettings.move_rules["AwarenessLevel"] > step:
     # Traverse the tree one step further.
