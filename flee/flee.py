@@ -9,12 +9,11 @@ from typing import List, Optional, Tuple
 import numpy as np
 from flee.Diagnostics import write_agents
 from flee.SimulationSettings import SimulationSettings
-
+import flee.moving as moving
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
 else:
-
     def check_args_type(func):
         return func
 
@@ -87,10 +86,7 @@ class Person:
 
             if outcome < movechance:
                 # determine here which route to take?
-                if SimulationSettings.UseV1Rules:
-                    chosenRoute = self.selectRouteRuleset1(time=time)
-                else:
-                    chosenRoute = self.selectRouteRuleset2(time=time)
+                chosenRoute = moving.selectRoute(self, time=time)
 
                 # if there is a viable route to a different location.
                 if chosenRoute:
@@ -100,6 +96,7 @@ class Person:
                     self.location.IncrementNumAgents()
                     self.travelling = True
                     self.distance_travelled_on_link = 0
+
 
     @check_args_type
     def finish_travel(self, time: int) -> None:
@@ -181,214 +178,6 @@ class Person:
                                 ForceTownMove = True
                         self.evolve(time=time, ForceTownMove=ForceTownMove)
                         self.finish_travel(time=time)
-
-    @check_args_type
-    def getLinkWeightV1(self, link, time: int, awareness_level: int) -> float:
-        """
-        Calculate the weight of an adjacent link. Weight = probability that
-        it will be chosen.
-
-        Args:
-            link (Link): Description
-            time (int): Description
-            awareness_level (int): Description
-
-        Returns:
-            float: Description
-        """
-
-        if awareness_level < 0:
-            return 1.0
-
-        return float(
-            link.endpoint.scores[awareness_level]
-            / float(SimulationSettings.move_rules["Softening"] + link.get_distance())
-        )
-
-    @check_args_type
-    def normalizeWeights(self, weights) -> list:
-        """
-        Summary
-
-        Args:
-            weights (List[float]): Description
-
-        Returns:
-            list: Description
-        """
-        if np.sum(weights) > 0.0:
-            weights /= np.sum(weights)
-        else:  # if all have zero weight, then we do equal weighting.
-            weights += 1.0 / float(len(weights))
-        return weights.tolist()
-
-    @check_args_type
-    def chooseFromWeights(self, weights, linklist):
-        """
-        Summary
-
-        Args:
-            weights (List[float]): Description
-            linklist (List[Link]): Description
-
-        Returns:
-            float: Description
-        """
-        if len(weights) == 0:
-            return None
-
-        weights = self.normalizeWeights(weights=weights)
-        result = random.choices(linklist, weights=weights)
-        return result[0]
-
-    @check_args_type
-    def selectRouteRuleset1(self, time: int):
-        """
-        Summary
-
-        Returns:
-            int: Description
-
-        Args:
-            time (int): Description
-        """
-        linklen = len(self.location.links)
-        weights = np.zeros(linklen)
-
-        for i in range(0, linklen):
-            if (
-                self.location.links[i].endpoint.getCapMultiplier(
-                    numOnLink=self.location.links[i].numAgents
-                )
-            ) <= 0.000001:
-                weights[i] = 0.0
-            # forced redirection: if this is true for a link, return its value
-            # immediately.
-            elif self.location.links[i].forced_redirection is True:
-                return i
-            else:
-                weights[i] = self.getLinkWeightV1(
-                    link=self.location.links[i],
-                    awareness_level=SimulationSettings.move_rules["AwarenessLevel"],
-                    time=time,
-                )
-
-                # Throttle down weight when occupancy is close to peak
-                # capacity.
-                weights[i] *= self.location.links[i].endpoint.getCapMultiplier(
-                    numOnLink=self.location.links[i].numAgents
-                )
-
-        return self.chooseFromWeights(weights=weights, linklist=self.location.links)
-
-    @check_args_type
-    def getEndPointScore(self, link) -> float:
-        """
-        Summary
-
-        Args:
-            link (Link): Description
-
-        Returns:
-            float: Description
-        """
-        # print(link.endpoint.name, link.endpoint.scores)
-        return link.endpoint.scores[1]
-
-    @check_args_type
-    def calculateLinkWeight(
-        self,
-        link: Link,
-        prior_distance: float,
-        origin_names: List[str],
-        step: int,
-        time: int,
-        debug: bool = False,
-    ) -> float:
-        """
-        Calculates Link Weights recursively based on awareness level.
-        Loops are avoided.
-
-        Args:
-            link (Link): Description
-            prior_distance (float): Description
-            origin_names (List[str]): Description
-            step (int): Description
-            time (int): Description
-            debug (bool, optional): Description
-
-        No Longer Returned:
-            float: Description
-        """
-        weight = float(
-            self.getEndPointScore(link=link)
-            / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)
-        ) * link.endpoint.getCapMultiplier(numOnLink=int(link.numAgents))
-
-        if debug:
-            print(
-                "step {}, dest {}, dist {}, prior_dist {}, score {}, weight {}".format(
-                    step,
-                    link.endpoint.name,
-                    link.get_distance(),
-                    prior_distance,
-                    self.getEndPointScore(link=link),
-                    weight,
-                )
-            )
-
-        if SimulationSettings.move_rules["AwarenessLevel"] > step:
-            # Traverse the tree one step further.
-            for e in link.endpoint.links:
-                if e.endpoint.name in origin_names:
-                    # Link points back to an origin, so ignore.
-                    pass
-                else:
-                    weight = max(
-                        weight,
-                        self.calculateLinkWeight(
-                            link=e,
-                            prior_distance=prior_distance + link.get_distance(),
-                            origin_names=origin_names + [link.endpoint.name],
-                            step=step + 1,
-                            time=time,
-                            debug=debug,
-                        ),
-                    )
-
-        if debug:
-            print("step {}, total weight returned {}".format(step, weight))
-        return weight
-
-    @check_args_type
-    def selectRouteRuleset2(self, time: int, debug: bool = False):
-        """
-        Summary
-
-        Args:
-            time (int): Description
-            debug (bool, optional): Description
-
-        Returns:
-            int: Description
-        """
-        linklen = len(self.location.links)
-        weights = np.zeros(linklen)
-
-        if SimulationSettings.move_rules["AwarenessLevel"] == 0:
-            return np.random.randint(0, linklen)
-
-        for k, e in enumerate(self.location.links):
-            weights[k] = self.calculateLinkWeight(
-                link=e,
-                prior_distance=0.0,
-                origin_names=[self.location.name],
-                step=1,
-                time=time,
-                debug=debug,
-            )
-
-        return self.chooseFromWeights(weights=weights, linklist=self.location.links)
 
 
 class Location:
