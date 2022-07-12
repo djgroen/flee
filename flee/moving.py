@@ -47,19 +47,19 @@ def getCapMultiplier(location, numOnLink: int) -> float:
 
     nearly_full_occ = 0.9  # occupancy rate to be considered nearly full.
     # full occupancy limit (should be equal to self.capacity).
-    cap_limit = self.capacity * SimulationSettings.move_rules["CapacityBuffer"]
+    cap_limit = location.capacity * SimulationSettings.move_rules["CapacityBuffer"]
 
-    if self.capacity < 0:
+    if location.capacity < 0:
         return 1.0
 
-    if self.numAgents <= nearly_full_occ * cap_limit:
+    if location.numAgents <= nearly_full_occ * cap_limit:
         return 1.0
 
-    if self.numAgents >= 1.0 * cap_limit:
+    if location.numAgents >= 1.0 * cap_limit:
         return 0.0
 
     # should be a number equal in range [0 to 0.1*self.numAgents].
-    residual = self.numAgents - (nearly_full_occ * cap_limit)
+    residual = location.numAgents - (nearly_full_occ * cap_limit)
 
     # Calculate the residual weighting factor, when pop is between 0.9 and
     # 1.0 of capacity (with default settings).
@@ -95,7 +95,7 @@ def calculateLinkWeight(
   debug (bool, optional): Description
   """
   weight = float(getEndPointScore(link=link)
-          / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) * link.endpoint.getCapMultiplier(numOnLink=int(link.numAgents))
+          / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
 
 
   if SimulationSettings.move_rules["AwarenessLevel"] > step:
