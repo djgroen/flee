@@ -10,6 +10,7 @@ import numpy as np
 from flee.Diagnostics import write_agents
 from flee.SimulationSettings import SimulationSettings
 import flee.moving as moving
+import flee.spawning as spawning
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
@@ -506,7 +507,7 @@ class Ecosystem:
         # Bring conflict zone management into FLEE.
         self.conflict_zones = []
         self.conflict_zone_names = []
-        self.conflict_weights = np.array([])
+        self.conflict_spawn_weights = np.array([])
         self.conflict_pop = 0
 
         if SimulationSettings.log_levels["camp"] > 0:
@@ -1069,10 +1070,10 @@ class Ecosystem:
 
                     self.conflict_zone_names += [name]
                     self.conflict_zones += [self.locations[i]]
-                    self.conflict_weights = np.append(
-                        self.conflict_weights, [self.locations[i].pop]
+                    self.conflict_spawn_weights = np.append(
+                        self.conflict_spawn_weights, [self.locations[i].pop]
                     )
-                    self.conflict_pop = sum(self.conflict_weights)
+                    self.conflict_pop = sum(self.conflict_spawn_weights)
 
                     self.locations[i].time_of_conflict = self.time
                     
@@ -1108,7 +1109,7 @@ class Ecosystem:
             if not self.conflict_zones[i].name == name:
                 new_conflict_zones += [self.conflict_zones[i]]
                 new_conflict_zone_names += [self.conflict_zone_names[i]]
-                new_weights = np.append(new_weights, [self.conflict_weights[i]])
+                new_weights = np.append(new_weights, [self.conflict_spawn_weights[i]])
             else:
                 if change_movechance:
                     self.conflict_zones[i].movechance = SimulationSettings.move_rules["DefaultMoveChance"]
@@ -1117,8 +1118,8 @@ class Ecosystem:
 
         self.conflict_zone_names = new_conflict_zone_names
         self.conflict_zones = new_conflict_zones
-        self.conflict_weights = new_weights
-        self.conflict_pop = sum(self.conflict_weights)
+        self.conflict_spawn_weights = new_weights
+        self.conflict_pop = sum(self.conflict_spawn_weights)
 
     @check_args_type
     def pick_conflict_location(self):
@@ -1151,29 +1152,16 @@ class Ecosystem:
         assert len(self.conflict_zones) > 0
 
         return np.random.choice(
-            self.conflict_zones, number, p=self.conflict_weights / self.conflict_pop
+            self.conflict_zones, number, p=self.conflict_spawn_weights / self.conflict_pop
         ).tolist()
 
-
-    @check_args_type
-    def refresh_conflict_weights(self) -> None:
-        """
-        This function needs to be called when
-        SimulationSettings.spawn_rules["TakeFromPopulation"] is set to True.
-        Also needed to model the ConflictSpawnDecay.
-        It will update the weights to reflect the new population numbers.
-        """
-        for i in range(0, len(self.conflict_zones)):
-            time_since_conflict = self.time - self.conflict_zones[i].time_of_conflict
-            self.conflict_weights[i] = self.conflict_zones[i].pop * SimulationSettings.get_conflict_decay(time_since_conflict)
-        self.conflict_pop = sum(self.conflict_weights)
 
     @check_args_type
     def evolve(self) -> None:
         """
         Summary
         """
-        self.refresh_conflict_weights() # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
+        spawning.refresh_conflict_spawn_weights(e) # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
 
         # update level 1, 2 and 3 location scores
         for loc in self.locations:

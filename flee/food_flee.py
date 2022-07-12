@@ -128,7 +128,7 @@ class Ecosystem(flee.Ecosystem):
             )
 
         return np.random.choice(
-            self.conflict_zones, p=self.conflict_weights / self.conflict_pop
+            self.conflict_zones, p=self.conflict_spawn_weights / self.conflict_pop
         )
 
     def addLocation(self, name, x="0.0", y="0.0", location_type="default",

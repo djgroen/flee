@@ -11,6 +11,26 @@ __refugee_debt = 0
 
 __demographics = {}
 
+
+@check_args_type
+def refresh_conflict_spawn_weights(e) -> None:
+    """
+    This function needs to be called when
+    SimulationSettings.spawn_rules["TakeFromPopulation"] is set to True.
+    Also needed to model the ConflictSpawnDecay.
+    It will update the weights to reflect the new population numbers.
+    """
+    for i in range(0, len(e.conflict_zones)):
+        multiplier = 1.0
+        if SimulationSettings.spawn_rules["conflict_spawn_decay"]:
+            time_since_conflict = e.time - e.conflict_zones[i].time_of_conflict
+            multiplier = SimulationSettings.get_conflict_decay(time_since_conflict)
+
+        e.conflict_spawn_weights[i] = e.conflict_zones[i].pop * multiplier
+    e.conflict_pop = sum(e.conflict_spawn_weights)
+
+
+
 def read_demographic_csv(e, csvname):
   """
   Attribute CSV files have the following format:
@@ -30,6 +50,7 @@ def read_demographic_csv(e, csvname):
       print(col, file=sys.stderr)
   
   __demographics[attribute] = df
+
 
 def draw_sample(e, loc, attribute):
   #print(__demographics[attribute], file=sys.stderr)
@@ -82,17 +103,10 @@ def spawn_daily_displaced(e, t, d):
         elif SimulationSettings.spawn_rules["conflict_spawn_mode"].lower() == "Poisson":
           num_spawned = np.random.poisson(SimulationSettings.spawn_rules["displaced_per_conflict_day"])
 
-
-        ## ADD MULTIPLIER: SPAWN_DECAY
-        if SimulationSettings.spawn_rules["conflict_spawn_decay"]:
-          num_spawned = int(num_spawned * SimulationSettings.get_conflict_decay(time_since_conflict))
-        
-
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):
           age = draw_sample(e, loc, 'age')
           e.addAgent(location=loc, age=age, gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
-
 
     else:
 
