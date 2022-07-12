@@ -1161,7 +1161,7 @@ class Ecosystem:
         """
         Summary
         """
-        spawning.refresh_conflict_spawn_weights(e) # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
+        spawning.refresh_conflict_spawn_weights(self) # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
 
         # update level 1, 2 and 3 location scores
         for loc in self.locations:

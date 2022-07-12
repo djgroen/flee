@@ -12,8 +12,7 @@ __refugee_debt = 0
 __demographics = {}
 
 
-@check_args_type
-def refresh_conflict_spawn_weights(e) -> None:
+def refresh_conflict_spawn_weights(e):
     """
     This function needs to be called when
     SimulationSettings.spawn_rules["TakeFromPopulation"] is set to True.
