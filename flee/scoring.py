@@ -16,7 +16,7 @@ else:
 
 
 @check_args_type
-def updateLocationScore(loc) -> None:
+def updateLocationScore(time: int, loc) -> None:
     """
     Attractiveness of the local point, based on local point
     information only.
@@ -27,7 +27,7 @@ def updateLocationScore(loc) -> None:
         loc.setScore(1, SimulationSettings.move_rules["CampWeight"])
     elif loc.conflict:
         # * max(1.0,SimulationSettings.move_rules["AwarenessLevel"])
-        loc.setScore(1, SimulationSettings.move_rules["ConflictWeight"]**SimulationSettings.get_location_conflict_decay(loc))
+        loc.setScore(1, SimulationSettings.move_rules["ConflictWeight"]**SimulationSettings.get_location_conflict_decay(time, loc))
     else:
         loc.setScore(1, 1.0)
 

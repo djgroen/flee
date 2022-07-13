@@ -263,7 +263,7 @@ class Location:
 
         self.scores = np.array([1.0, 1.0, 1.0, 1.0])
 
-        scoring.updateLocationScore(self)
+        scoring.updateLocationScore(0,self)
         scoring.updateNeighbourhoodScore(self)
         scoring.updateRegionScore(self)
 
@@ -1093,7 +1093,7 @@ class Ecosystem:
 
         # update level 1, 2 and 3 location scores
         for loc in self.locations:
-            scoring.updateLocationScore(loc)
+            scoring.updateLocationScore(self.time, loc)
 
         for loc in self.locations:
             scoring.updateNeighbourhoodScore(loc)

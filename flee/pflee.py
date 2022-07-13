@@ -239,7 +239,7 @@ class Location(flee.Location):
         self.time = time
         scoring.updateRegionScore(loc)
         scoring.updateNeighbourhoodScore(loc)
-        scoring.updateLocationScore(loc)
+        scoring.updateLocationScore(time, loc)
 
 
 class Link(flee.Link):
