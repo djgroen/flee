@@ -62,7 +62,7 @@ class SimulationSettings:
         loc: location for which to calculate the decay multiplier.
         """
         time_since_conflict = time - loc.time_of_conflict
-        multiplier = get_conflict_decay(time_since_conflict)
+        multiplier = SimulationSettings.get_conflict_decay(time_since_conflict)
         return multiplier
 
 
