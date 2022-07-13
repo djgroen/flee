@@ -79,58 +79,44 @@ class InputGeography:
         return list(self.conflicts.keys())
 
     @check_args_type
-    def ReadLocationsFromCSV(self, csv_name: str, columns: List[str] = None) -> None:
+    def ReadLocationsFromCSV(self, csv_name: str) -> None:
         """
         Converts a CSV file to a locations information table
 
         Args:
             csv_name (str): Description
-            columns (List[str], optional): Description
         """
         self.locations = []
 
         c = {}  # column map
 
-        c["location_type"] = 0
-        c["conflict_date"] = 0
-        c["country"] = 0
-        c["region"] = 0
+        columns = [
+            "name",
+            "region",
+            "country",
+            "gps_x",
+            "gps_y",
+            "location_type",
+            "conflict_date",
+            "pop/cap",
+        ]
 
-        if columns is None:
-            columns = [
-                "name",
-                "region",
-                "country",
-                "gps_x",
-                "gps_y",
-                "location_type",
-                "conflict_date",
-                "pop/cap",
-            ]
-
-        for i in range(0, len(columns)):
-            c[columns[i]] = i
 
         with open(csv_name, newline="", encoding="utf-8") as csvfile:
             values = csv.reader(csvfile)
 
             for row in values:
                 if len(row) == 0 or row[0][0] == "#":
+                    if len(row) > 8:
+                        # First 8 columns have hard-coded names, other columns can be added to include custom (static) attributes
+                        for i in range(8,len(row)-1):
+                            columns.append(row[i])
+                    print("header", row, file=sys.stderr)
                     pass
                 else:
                     # print(row)
-                    self.locations.append(
-                        [
-                            row[c["name"]],
-                            row[c["pop/cap"]],
-                            row[c["gps_x"]],
-                            row[c["gps_y"]],
-                            row[c["location_type"]],
-                            row[c["conflict_date"]],
-                            row[c["region"]],
-                            row[c["country"]],
-                        ]
-                    )
+                    self.columns = columns
+                    self.locations.append(row)
 
     @check_args_type
     def ReadLinksFromCSV(
@@ -182,6 +168,9 @@ class InputGeography:
         """
         Store the geographic information in this class in a FLEE simulation,
         overwriting existing entries.
+
+        TODO:: Correct column order for first eight columns.
+        TODO:: include support for custom static attributes in later columns.
 
         Args:
             e (Ecosystem): Description

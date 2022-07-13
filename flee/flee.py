@@ -203,6 +203,7 @@ class Location:
         pop: int = 0,
         foreign: bool = False,
         country: str = "unknown",
+        attributes: dict = {},
     ) -> None:
         self.name = name
         self.x = x
@@ -226,6 +227,8 @@ class Location:
         self.marker = False
         self.time_of_conflict = -1 # Time that a major conflict event last took place.
         self.numAgentsSpawned = 0
+
+        self.attributes = attributes # This will store a range of attributes that are read from file.
 
         if location_type is not None:
             if "camp" in location_type.lower():

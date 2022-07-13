@@ -22,14 +22,14 @@ def updateLocationScore(time: int, loc) -> None:
     information only.
     """
 
+    score = 1.0
+
     if loc.foreign or loc.camp:
-        # * max(1.0,SimulationSettings.move_rules["AwarenessLevel"])
-        loc.setScore(1, SimulationSettings.move_rules["CampWeight"])
+        score *= SimulationSettings.move_rules["CampWeight"]
     elif loc.conflict:
-        # * max(1.0,SimulationSettings.move_rules["AwarenessLevel"])
-        loc.setScore(1, SimulationSettings.move_rules["ConflictWeight"]**SimulationSettings.get_location_conflict_decay(time, loc))
-    else:
-        loc.setScore(1, 1.0)
+        score *= SimulationSettings.move_rules["ConflictWeight"]**SimulationSettings.get_location_conflict_decay(time, loc)
+
+    loc.setScore(1, score)
 
     loc.setScore(0, 1.0)
     # print(loc.name,loc.camp,loc.foreign,loc.LocationScore)
