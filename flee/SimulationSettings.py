@@ -4,7 +4,17 @@ import yaml
 
 # pylint: skip-file
 
-def fetchss(dataset,name,default):
+from typing import List, Optional, Tuple
+
+if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
+    from beartype import beartype as check_args_type
+else:
+    def check_args_type(func):
+        return func
+
+
+@check_args_type
+def fetchss(dataset,name: str,default):
 
     if dataset is None:
         return default
@@ -28,8 +38,8 @@ class SimulationSettings:
     sqrt_ten = 3.16227766017  # square root of ten (10^0.5).
 
 
-
-    def get_conflict_decay(time_since_conflict):
+    @check_args_type
+    def get_conflict_decay(time_since_conflict: int):
 
         spawn_len = len(SimulationSettings.spawn_rules["conflict_spawn_decay"])
 
@@ -43,7 +53,20 @@ class SimulationSettings:
             return float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])
 
 
-    def ReadFromYML(ymlfile):
+    @check_args_type
+    def get_location_conflict_decay(time: int, loc):
+        """
+
+        time: e.time (time in simulation)
+        loc: location for which to calculate the decay multiplier.
+        """
+        time_since_conflict = time - loc.time_of_conflict
+        multiplier = get_conflict_decay(time_since_conflict)
+        return multiplier
+
+
+    @check_args_type
+    def ReadFromYML(ymlfile: str):
 
         print("YAML file:", ymlfile, file=sys.stderr)
         with open(ymlfile) as f:

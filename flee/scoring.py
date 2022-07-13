@@ -27,7 +27,7 @@ def updateLocationScore(loc) -> None:
         loc.setScore(1, SimulationSettings.move_rules["CampWeight"])
     elif loc.conflict:
         # * max(1.0,SimulationSettings.move_rules["AwarenessLevel"])
-        loc.setScore(1, SimulationSettings.move_rules["ConflictWeight"])
+        loc.setScore(1, SimulationSettings.move_rules["ConflictWeight"]**SimulationSettings.get_location_conflict_decay(loc))
     else:
         loc.setScore(1, 1.0)
 
