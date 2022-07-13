@@ -6,6 +6,15 @@ import sys
 import os
 import pandas as pd
 
+from typing import List, Optional, Tuple
+
+if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
+    from beartype import beartype as check_args_type
+else:
+    def check_args_type(func):
+        return func
+
+
 __refugees_raw = 0
 __refugee_debt = 0
 

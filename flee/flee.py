@@ -11,6 +11,7 @@ from flee.Diagnostics import write_agents
 from flee.SimulationSettings import SimulationSettings
 import flee.moving as moving
 import flee.spawning as spawning
+import flee.scoring as scoring
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
@@ -262,9 +263,9 @@ class Location:
 
         self.scores = np.array([1.0, 1.0, 1.0, 1.0])
 
-        self.updateLocationScore()
-        self.updateNeighbourhoodScore()
-        self.updateRegionScore()
+        scoring.updateLocationScore(self)
+        scoring.updateNeighbourhoodScore(self)
+        scoring.updateRegionScore(self)
 
         if SimulationSettings.log_levels["camp"] > 0:
             # reinitializes every time step. Contains individual journey
@@ -364,69 +365,6 @@ class Location:
             value (float): Description
         """
         self.scores[index] = value
-
-    @check_args_type
-    def updateLocationScore(self) -> None:
-        """
-        Attractiveness of the local point, based on local point
-        information only.
-        """
-
-        if self.foreign or self.camp:
-            # * max(1.0,SimulationSettings.move_rules["AwarenessLevel"])
-            self.setScore(1, SimulationSettings.move_rules["CampWeight"])
-        elif self.conflict:
-            # * max(1.0,SimulationSettings.move_rules["AwarenessLevel"])
-            self.setScore(1, SimulationSettings.move_rules["ConflictWeight"])
-        else:
-            self.setScore(1, 1.0)
-
-        self.setScore(0, 1.0)
-        # print(self.name,self.camp,self.foreign,self.LocationScore)
-
-    @check_args_type
-    def updateNeighbourhoodScore(self) -> None:
-        """
-        Attractiveness of the local point, based on information from local and
-        adjacent points, weighted by link length.
-        """
-        # No links connected or a Camp? Use LocationScore.
-        if len(self.links) == 0 or self.camp:
-            self.setScore(2, self.getScore(index=1))
-        else:
-            NeighbourhoodScore = 0.0
-            total_link_weight = 0.0
-
-            for link in self.links:
-                NeighbourhoodScore += link.endpoint.getScore(1) / float(
-                    link.get_distance()
-                )
-                total_link_weight += 1.0 / float(link.get_distance())
-
-            NeighbourhoodScore /= total_link_weight
-            self.setScore(2, NeighbourhoodScore)
-
-    @check_args_type
-    def updateRegionScore(self) -> None:
-        """
-        Attractiveness of the local point, based on neighbourhood information
-        from local and adjacent points, weighted by link length.
-        """
-        # No links connected or a Camp? Use LocationScore.
-        if len(self.links) == 0 or self.camp:
-            self.setScore(3, self.getScore(2))
-        else:
-            RegionScore = 0.0
-            total_link_weight = 0.0
-
-            for link in self.links:
-                RegionScore += link.endpoint.getScore(2) / float(
-                    link.get_distance()
-                )
-                total_link_weight += 1.0 / float(link.get_distance())
-
-            RegionScore /= total_link_weight
-            self.setScore(3, RegionScore)
 
 
 class Link:
@@ -1155,13 +1093,13 @@ class Ecosystem:
 
         # update level 1, 2 and 3 location scores
         for loc in self.locations:
-            loc.updateLocationScore()
+            scoring.updateLocationScore(loc)
 
         for loc in self.locations:
-            loc.updateNeighbourhoodScore()
+            scoring.updateNeighbourhoodScore(loc)
 
         for loc in self.locations:
-            loc.updateRegionScore()
+            scoring.updateRegionScore(loc)
 
         # update agent locations
         for a in self.agents:

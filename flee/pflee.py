@@ -6,7 +6,7 @@ from functools import wraps
 from typing import List, Optional
 
 import numpy as np
-from flee import flee
+from flee import flee,scoring
 from flee.Diagnostics import write_agents_par
 from flee.SimulationSettings import SimulationSettings
 from mpi4py import MPI
@@ -237,9 +237,9 @@ class Location(flee.Location):
             time (int): Description
         """
         self.time = time
-        self.updateRegionScore()
-        self.updateNeighbourhoodScore()
-        self.updateLocationScore()
+        scoring.updateRegionScore(loc)
+        scoring.updateNeighbourhoodScore(loc)
+        scoring.updateLocationScore(loc)
 
 
 class Link(flee.Link):
@@ -570,13 +570,13 @@ class Ecosystem(flee.Ecosystem):
             # Scores remain perfectly updated in classic mode.
             for loc in self.locations:
                 loc.time = self.time
-                loc.updateLocationScore()
+                scoring.updateLocationScore(loc)
 
             for loc in self.locations:
-                loc.updateNeighbourhoodScore()
+                scoring.updateNeighbourhoodScore(loc)
 
             for loc in self.locations:
-                loc.updateRegionScore()
+                scoring.updateRegionScore(loc)
 
         elif self.parallel_mode == "loc-par":
             # update scores in reverse order for efficiency.
