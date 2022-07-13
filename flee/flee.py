@@ -260,15 +260,6 @@ class Location:
             self.camp = True
             self.town = False
 
-        # Value of Location. Should be between 0.5 and
-        # SimulationSettings.move_rules["CampWeight"].
-        self.LocationScore = 1.0
-        # Value of Neighbourhood. Should be between 0.5 and
-        # SimulationSettings.move_rules["CampWeight"].
-        self.NeighbourhoodScore = 1.0
-        # Value of surrounding region. Should be between 0.5 and
-        # SimulationSettings.move_rules["CampWeight"].
-        self.RegionScore = 1.0
         self.scores = np.array([1.0, 1.0, 1.0, 1.0])
 
         self.updateLocationScore()
@@ -351,7 +342,7 @@ class Location:
 
 
     @check_args_type
-    def getScores(self, index: int) -> float:
+    def getScore(self, index: int) -> float:
         """
         Summary
 
@@ -383,15 +374,14 @@ class Location:
 
         if self.foreign or self.camp:
             # * max(1.0,SimulationSettings.move_rules["AwarenessLevel"])
-            self.LocationScore = SimulationSettings.move_rules["CampWeight"]
+            self.setScore(1, SimulationSettings.move_rules["CampWeight"])
         elif self.conflict:
             # * max(1.0,SimulationSettings.move_rules["AwarenessLevel"])
-            self.LocationScore = SimulationSettings.move_rules["ConflictWeight"]
+            self.setScore(1, SimulationSettings.move_rules["ConflictWeight"])
         else:
-            self.LocationScore = 1.0
+            self.setScore(1, 1.0)
 
-        self.setScore(index=0, value=1.0)
-        self.setScore(index=1, value=self.LocationScore)
+        self.setScore(0, 1.0)
         # print(self.name,self.camp,self.foreign,self.LocationScore)
 
     @check_args_type
@@ -402,19 +392,19 @@ class Location:
         """
         # No links connected or a Camp? Use LocationScore.
         if len(self.links) == 0 or self.camp:
-            self.NeighbourhoodScore = self.LocationScore
+            self.setScore(2, self.getScore(index=1))
         else:
-            self.NeighbourhoodScore = 0.0
+            NeighbourhoodScore = 0.0
             total_link_weight = 0.0
 
             for link in self.links:
-                self.NeighbourhoodScore += link.endpoint.LocationScore / float(
+                NeighbourhoodScore += link.endpoint.getScore(1) / float(
                     link.get_distance()
                 )
                 total_link_weight += 1.0 / float(link.get_distance())
 
-            self.NeighbourhoodScore /= total_link_weight
-            self.setScore(index=2, value=self.NeighbourhoodScore)
+            NeighbourhoodScore /= total_link_weight
+            self.setScore(2, NeighbourhoodScore)
 
     @check_args_type
     def updateRegionScore(self) -> None:
@@ -424,19 +414,19 @@ class Location:
         """
         # No links connected or a Camp? Use LocationScore.
         if len(self.links) == 0 or self.camp:
-            self.RegionScore = self.LocationScore
+            self.setScore(3, self.getScore(2))
         else:
-            self.RegionScore = 0.0
+            RegionScore = 0.0
             total_link_weight = 0.0
 
             for link in self.links:
-                self.RegionScore += link.endpoint.NeighbourhoodScore / float(
+                RegionScore += link.endpoint.getScore(2) / float(
                     link.get_distance()
                 )
                 total_link_weight += 1.0 / float(link.get_distance())
 
-            self.RegionScore /= total_link_weight
-            self.setScore(index=3, value=self.RegionScore)
+            RegionScore /= total_link_weight
+            self.setScore(3, RegionScore)
 
 
 class Link:
