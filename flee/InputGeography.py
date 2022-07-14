@@ -170,9 +170,6 @@ class InputGeography:
         Store the geographic information in this class in a FLEE simulation,
         overwriting existing entries.
 
-        TODO:: Correct column order for first eight columns.
-        TODO:: include support for custom static attributes in later columns.
-
         Args:
             e (Ecosystem): Description
 
