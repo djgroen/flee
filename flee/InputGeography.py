@@ -109,13 +109,14 @@ class InputGeography:
                 if len(row) == 0 or row[0][0] == "#":
                     if len(row) > 8:
                         # First 8 columns have hard-coded names, other columns can be added to include custom (static) attributes
-                        for i in range(8,len(row)-1):
+                        for i in range(8, len(row)):
+                            print("appending", file=sys.stderr)
                             columns.append(row[i])
-                    print("header", row, file=sys.stderr)
+                        self.columns = columns
+                    print("header", columns, row, len(row), file=sys.stderr)
                     pass
                 else:
                     # print(row)
-                    self.columns = columns
                     self.locations.append(row)
 
     @check_args_type
@@ -178,32 +179,41 @@ class InputGeography:
         Returns:
             Tuple[Ecosystem, Dict]: Description
         """
+
+        #0"name",1"region",2"country",3"gps_x",4"gps_y",5"location_type",6"conflict_date",7"pop/cap"
+
+
         lm = {}
         num_conflict_zones = 0
         for loc in self.locations:
 
             name = loc[0]
             # if population field is empty, just set it to 0.
-            if len(loc[1]) < 1:
+            if len(loc[7]) < 1:
                 population = 0
             else:
-                population = int(int(loc[1]) // SimulationSettings.optimisations["PopulationScaleDownFactor"])
+                population = int(int(loc[7]) // SimulationSettings.optimisations["PopulationScaleDownFactor"])
 
-            x = float(loc[2]) if len(loc[2]) > 0 else 0.0
-            y = float(loc[3]) if len(loc[3]) > 0 else 0.0
+            x = float(loc[3]) if len(loc[3]) > 0 else 0.0
+            y = float(loc[4]) if len(loc[4]) > 0 else 0.0
 
             # if country field is empty, just set it to unknown.
-            if len(loc[7]) < 1:
+            if len(loc[2]) < 1:
                 country = "unknown"
             else:
-                country = loc[7]
+                country = loc[2]
 
             # print(loc, file=sys.stderr)
-            location_type = loc[4]
+            location_type = loc[5]
             if "conflict" in location_type.lower():
                 num_conflict_zones += 1
-                if int(loc[5]) > 0:
+                if int(loc[6]) > 0:
                     location_type = "town"
+
+            attributes = {}
+            if len(loc) > 8:
+                for i in range(8, len(loc)):
+                    attributes[self.columns[i]] = loc[i]
 
             if "camp" in location_type.lower():
                 lm[name] = e.addLocation(
@@ -213,6 +223,7 @@ class InputGeography:
                     x=x,
                     y=y,
                     country=country,
+                    attributes=attributes
                 )
             else:
                 lm[name] = e.addLocation(
@@ -222,6 +233,7 @@ class InputGeography:
                     x=x,
                     y=y,
                     country=country,
+                    attributes=attributes
                 )
 
         for link in self.links:

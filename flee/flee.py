@@ -1140,6 +1140,7 @@ class Ecosystem:
         pop: int = 0,
         foreign: bool = False,
         country: str = "unknown",
+        attributes: dict = {},
     ):
         """
         Add a location to the ABM network graph
@@ -1170,9 +1171,10 @@ class Ecosystem:
             pop=pop,
             foreign=foreign,
             country=country,
+            attributes=attributes,
         )
         if SimulationSettings.log_levels["init"] > 0 and self.print_location_output:
-            print("Location:", name, x, y, loc.movechance, capacity, ", pop. ", pop, foreign)
+            print("Location:", name, x, y, loc.movechance, capacity, ", pop. ", pop, foreign, ", attrib. ",attributes)
         self.locations.append(loc)
         self.locationNames.append(loc.name)
         return loc
