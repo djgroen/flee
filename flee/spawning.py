@@ -5,6 +5,7 @@ import numpy as np
 import sys
 import os
 import pandas as pd
+import glob
 
 from typing import List, Optional, Tuple
 
@@ -44,19 +45,28 @@ def read_demographic_csv(e, csvname):
   Value,Default,LocA,LocB,...
   ValueA,weight for that value by Default, ...
   """
-  attribute = (csvname.split('.')[0]).split('_')[1]
+  attribute = (csvname.split('/')[1].split('.')[0]).split('_')[1]
 
-  if not os.path.exists("input_csv/{}".format(csvname)):
+  if not os.path.exists(csvname):
       return
 
-  df = pd.read_csv("input_csv/{}".format(csvname))
+  df = pd.read_csv(csvname)
 
-  if SimulationSettings.log_levels["init"] > 0:
-    print("INFO: ", attribute, " attributes loaded, with columns:", file=sys.stderr)
-    for col in df.columns:
-      print(col, file=sys.stderr)
+  if SimulationSettings.log_levels["init"] > -1:
+    print("INFO: ", attribute, " attributes loaded, with columns:", df.columns, file=sys.stderr)
   
   __demographics[attribute] = df
+
+
+def read_demographics(e):
+  if not os.path.exists("input_csv"):
+      return
+
+  csv_list = glob.glob("input_csv/demographics_*.csv")
+
+  for csvname in csv_list:
+      read_demographic_csv(e, csvname)
+  
 
 
 def draw_sample(e, loc, attribute):
@@ -77,14 +87,16 @@ def draw_sample(e, loc, attribute):
 def add_initial_refugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
 
-  read_demographic_csv(e, 'demographics_age.csv')
+  # Only initialize demographics when first called.
+  if len(__demographics) == 0:
+      read_demographics(e)
 
 
   if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"]:
-    num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
-    for i in range(0, num_refugees):
-      age = draw_sample(e, loc, 'age')
-      e.addAgent(location=loc, age=age, gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+      num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
+      for i in range(0, num_refugees):
+          age = draw_sample(e, loc, 'age')
+          e.addAgent(location=loc, age=age, gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
 
 
 def spawn_daily_displaced(e, t, d):
