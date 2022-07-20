@@ -96,7 +96,8 @@ def add_initial_refugees(e, d, loc):
       num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
       for i in range(0, num_refugees):
           age = draw_sample(e, loc, 'age')
-          e.addAgent(location=loc, age=age, gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+          gender = draw_sample(e, loc, 'gender')
+          e.addAgent(location=loc, age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
 
 
 def spawn_daily_displaced(e, t, d):
@@ -125,7 +126,8 @@ def spawn_daily_displaced(e, t, d):
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):
           age = draw_sample(e, loc, 'age')
-          e.addAgent(location=loc, age=age, gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+          gender = draw_sample(e, loc, 'gender')
+          e.addAgent(location=loc, age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
 
     else:
 
@@ -147,6 +149,8 @@ def spawn_daily_displaced(e, t, d):
 
       #Insert refugee agents
       for i in range(0, new_refs):
-        e.addAgent(location=e.pick_conflict_location(), age=np.random.random_integers(1,90), gender=np.random.random_integers(0,1), attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+        age = draw_sample(e, loc, 'age')
+        gender = draw_sample(e, loc, 'gender')
+        e.addAgent(location=e.pick_conflict_location(), age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
 
     return new_refs, __refugees_raw, __refugee_debt
