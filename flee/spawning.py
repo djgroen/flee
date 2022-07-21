@@ -44,10 +44,10 @@ def refresh_spawn_weights(e):
         # Conflict decay multiplier
         multiplier = 1.0
         if SimulationSettings.spawn_rules["conflict_spawn_decay"]:
-            multiplier = SimulationSettings.get_location_conflict_decay(e.time, e.conflict_zones[i])
+            multiplier = SimulationSettings.get_location_conflict_decay(e.time, e.locations[i])
 
         # Pop+conflict weight
-        e.spawn_weights[i] = e.conflict_zones[i].pop * pop_weight * multiplier
+        e.spawn_weights[i] = e.locations[i].pop * pop_weight * multiplier
 
 
     e.spawn_weight_total = sum(e.spawn_weights)
