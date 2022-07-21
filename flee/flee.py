@@ -1155,7 +1155,7 @@ class Ecosystem:
             print("Location:", name, x, y, loc.movechance, capacity, ", pop. ", pop, foreign, ", attrib. ",attributes)
 
         self.locations.append(loc)
-        spawn_weights = np.append(spawn_weights, [0.0])
+        self.spawn_weights = np.append(self.spawn_weights, [0.0])
         self.locationNames.append(loc.name)
 
         spawning.refresh_spawn_weights(self)

@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     new_refs,refugees_raw,refugee_debt = spawning.spawn_daily_displaced(e,t,d)
 
-    spawning.refresh_conflict_spawn_weights(e)
+    spawning.refresh_spawn_weights(e)
     t_data = t
 
     e.enact_border_closures(t)
