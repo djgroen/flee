@@ -1153,8 +1153,12 @@ class Ecosystem:
         )
         if SimulationSettings.log_levels["init"] > 0 and self.print_location_output:
             print("Location:", name, x, y, loc.movechance, capacity, ", pop. ", pop, foreign, ", attrib. ",attributes)
+
         self.locations.append(loc)
+        spawn_weights = np.append(spawn_weights, [0.0])
         self.locationNames.append(loc.name)
+
+        spawning.refresh_spawn_weights(self)
         return loc
 
     @check_args_type
