@@ -438,8 +438,7 @@ class Ecosystem:
         # Bring conflict zone management into FLEE.
         self.conflict_zones = []
         self.conflict_zone_names = []
-        self.conflict_spawn_weights = np.array([])
-        self.conflict_pop = 0
+        self.spawn_weights = np.array([])
 
         if SimulationSettings.log_levels["camp"] > 0:
             self.num_arrivals = []  # one element per time step.
@@ -1001,16 +1000,15 @@ class Ecosystem:
 
                     self.conflict_zone_names += [name]
                     self.conflict_zones += [self.locations[i]]
-                    self.conflict_spawn_weights = np.append(
-                        self.conflict_spawn_weights, [self.locations[i].pop]
+                    self.spawn_weights = np.append(
+                        self.spawn_weights, [self.locations[i].pop]
                     )
-                    self.conflict_pop = sum(self.conflict_spawn_weights)
 
                     self.locations[i].time_of_conflict = self.time
                     
                     if SimulationSettings.log_levels["init"] > 0:
                         print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
-                        print("New total pop. in conflict zones: ", self.conflict_pop)
+                        print("New total spawn weight: ", sum(self.spawn_weights))
                     return
 
         print("Diagnostic: self.locationNames: ", self.locationNames, file=sys.stderr)
@@ -1040,7 +1038,7 @@ class Ecosystem:
             if not self.conflict_zones[i].name == name:
                 new_conflict_zones += [self.conflict_zones[i]]
                 new_conflict_zone_names += [self.conflict_zone_names[i]]
-                new_weights = np.append(new_weights, [self.conflict_spawn_weights[i]])
+                new_weights = np.append(new_weights, [self.spawn_weights[i]])
             else:
                 if change_movechance:
                     self.conflict_zones[i].movechance = SimulationSettings.move_rules["DefaultMoveChance"]
@@ -1049,25 +1047,24 @@ class Ecosystem:
 
         self.conflict_zone_names = new_conflict_zone_names
         self.conflict_zones = new_conflict_zones
-        self.conflict_spawn_weights = new_weights
-        self.conflict_pop = sum(self.conflict_spawn_weights)
+        self.spawn_weights = new_weights
 
     @check_args_type
-    def pick_conflict_location(self):
+    def pick_spawn_location(self):
         """
         Summary
 
         !!! warning
             this function is now deprecated as of ruleset 2.0.
-            Please use `pick_conflict_locations()` instead in your scripts
+            Please use `pick_spawn_locations()` instead in your scripts
 
         Returns:
             Location: Description
         """
-        return self.pick_conflict_locations(1)[0]
+        return self.pick_spawn_locations(1)[0]
 
     @check_args_type
-    def pick_conflict_locations(self, number: int = 1) -> list:
+    def pick_spawn_locations(self, number: int = 1) -> list:
         """
         Returns a weighted random element from the list of conflict locations.
         This function returns a number, which is an index in the array of
@@ -1079,11 +1076,12 @@ class Ecosystem:
         Returns:
             list: Description
         """
-        assert self.conflict_pop > 0
-        assert len(self.conflict_zones) > 0
+        swtotal = sum(self.spawn_weights)
+
+        assert swtotal > 0
 
         return np.random.choice(
-            self.conflict_zones, number, p=self.conflict_spawn_weights / self.conflict_pop
+            self.locations, number, p=self.spawn_weights / swtotal
         ).tolist()
 
 
@@ -1092,7 +1090,7 @@ class Ecosystem:
         """
         Summary
         """
-        spawning.refresh_conflict_spawn_weights(self) # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
+        spawning.refresh_spawn_weights(self) # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
 
         # update level 1, 2 and 3 location scores
         for loc in self.locations:

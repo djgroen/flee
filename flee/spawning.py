@@ -22,20 +22,35 @@ __refugee_debt = 0
 __demographics = {}
 
 
-def refresh_conflict_spawn_weights(e):
+def refresh_spawn_weights(e):
     """
     This function needs to be called when
     SimulationSettings.spawn_rules["TakeFromPopulation"] is set to True.
     Also needed to model the ConflictSpawnDecay.
     It will update the weights to reflect the new population numbers.
     """
-    for i in range(0, len(e.conflict_zones)):
+
+    conflict_spawning_only = True
+    pop_weight = 1.0
+    attribute_weights = {}
+
+
+    for i in range(0, len(e.locations)):
+
+        if conflict_spawning_only and e.locations[i].conflict == False:
+            e.spawn_weights[i] = 0.0
+            continue
+
+        # Conflict decay multiplier
         multiplier = 1.0
         if SimulationSettings.spawn_rules["conflict_spawn_decay"]:
             multiplier = SimulationSettings.get_location_conflict_decay(e.time, e.conflict_zones[i])
 
-        e.conflict_spawn_weights[i] = e.conflict_zones[i].pop * multiplier
-    e.conflict_pop = sum(e.conflict_spawn_weights)
+        # Pop+conflict weight
+        e.spawn_weights[i] = e.conflict_zones[i].pop * pop_weight * multiplier
+
+
+    e.spawn_weight_total = sum(e.spawn_weights)
 
 
 
@@ -151,6 +166,6 @@ def spawn_daily_displaced(e, t, d):
       for i in range(0, new_refs):
         age = draw_sample(e, loc, 'age')
         gender = draw_sample(e, loc, 'gender')
-        e.addAgent(location=e.pick_conflict_location(), age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+        e.addAgent(location=e.pick_spawn_location(), age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
 
     return new_refs, __refugees_raw, __refugee_debt
