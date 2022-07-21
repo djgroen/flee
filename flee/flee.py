@@ -435,9 +435,7 @@ class Ecosystem:
         self.time = 0
         self.print_location_output = True  # print location output data
 
-        # Bring conflict zone management into FLEE.
-        self.conflict_zones = []
-        self.conflict_zone_names = []
+        # FLEE3 does not have a conflict zone list, and spawn weights cover all locations.
         self.spawn_weights = np.array([])
 
         if SimulationSettings.log_levels["camp"] > 0:
@@ -992,27 +990,20 @@ class Ecosystem:
         """
         for i in range(0, len(self.locationNames)):
             if self.locationNames[i] == name:
-                if name not in self.conflict_zone_names:
-                    if change_movechance:
-                        self.locations[i].movechance = SimulationSettings.move_rules["ConflictMoveChance"]
-                        self.locations[i].conflict = True
-                        self.locations[i].town = False
+                if change_movechance:
+                    self.locations[i].movechance = SimulationSettings.move_rules["ConflictMoveChance"]
+                    self.locations[i].conflict = True
+                    self.locations[i].town = False
 
-                    self.conflict_zone_names += [name]
-                    self.conflict_zones += [self.locations[i]]
-                    self.spawn_weights = np.append(
-                        self.spawn_weights, [self.locations[i].pop]
-                    )
+                self.locations[i].time_of_conflict = self.time                  
+                spawning.refresh_spawn_weights()
 
-                    self.locations[i].time_of_conflict = self.time
-                    
-                    if SimulationSettings.log_levels["init"] > 0:
-                        print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
-                        print("New total spawn weight: ", sum(self.spawn_weights))
-                    return
+                if SimulationSettings.log_levels["init"] > 0:
+                    print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
+                    print("New total spawn weight: ", sum(self.spawn_weights))
+                return
 
         print("Diagnostic: self.locationNames: ", self.locationNames, file=sys.stderr)
-        print("Diagnostic: self.conflict_zone_names: ", self.conflict_zone_names, file=sys.stderr)
         print(
             "ERROR in flee.add_conflict_zone: location with name [{}] "
             "appears not to exist in the FLEE ecosystem "
@@ -1030,24 +1021,13 @@ class Ecosystem:
             name (str): Description
             change_movechance (bool, optional): Description
         """
-        new_conflict_zones = []
-        new_conflict_zone_names = []
-        new_weights = np.array([])
-
         for i in range(0, len(self.conflict_zones)):
-            if not self.conflict_zones[i].name == name:
-                new_conflict_zones += [self.conflict_zones[i]]
-                new_conflict_zone_names += [self.conflict_zone_names[i]]
-                new_weights = np.append(new_weights, [self.spawn_weights[i]])
-            else:
-                if change_movechance:
-                    self.conflict_zones[i].movechance = SimulationSettings.move_rules["DefaultMoveChance"]
-                self.conflict_zones[i].conflict = False
-                self.conflict_zones[i].town = True
+            if change_movechance:
+                self.conflict_zones[i].movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+            self.conflict_zones[i].conflict = False
+            self.conflict_zones[i].town = True
 
-        self.conflict_zone_names = new_conflict_zone_names
-        self.conflict_zones = new_conflict_zones
-        self.spawn_weights = new_weights
+        spawning.refresh_spawn_weights()
 
     @check_args_type
     def pick_spawn_location(self):

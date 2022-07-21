@@ -291,8 +291,6 @@ class Ecosystem(flee.Ecosystem):
         self.scores = np.array([1.0, 1.0, 1.0, 1.0])
 
         # Bring conflict zone management into FLEE.
-        self.conflict_zones = []
-        self.conflict_zone_names = []
         self.spawn_weights = np.array([])
 
         # classic for replicated locations or loc-par for distributed
