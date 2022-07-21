@@ -126,23 +126,29 @@ def spawn_daily_displaced(e, t, d):
 
     if SimulationSettings.spawn_rules["conflict_driven_spawning"]:
 
-      for i in range(0, len(e.conflict_zones)):
+      for i in range(0, len(e.locations)):
  
         ## BASE RATES  
         if SimulationSettings.spawn_rules["conflict_spawn_mode"] == "constant":
-          num_spawned = SimulationSettings.spawn_rules["displaced_per_conflict_day"]
+            num_spawned = SimulationSettings.spawn_rules["displaced_per_conflict_day"]
 
         elif SimulationSettings.spawn_rules["conflict_spawn_mode"] == "pop_ratio":
-          num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.conflict_zones[i].pop)
+            if e.locations[i].conflict:  
+                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].pop)
+            else: 
+                num_spawned = 0
 
         elif SimulationSettings.spawn_rules["conflict_spawn_mode"].lower() == "Poisson":
-          num_spawned = np.random.poisson(SimulationSettings.spawn_rules["displaced_per_conflict_day"])
+            if e.locations[i].conflict:  
+                num_spawned = np.random.poisson(SimulationSettings.spawn_rules["displaced_per_conflict_day"])
+            else: 
+                num_spawned = 0
 
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):
-          age = draw_sample(e, loc, 'age')
-          gender = draw_sample(e, loc, 'gender')
-          e.addAgent(location=loc, age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+            age = draw_sample(e, e.locations[i], 'age')
+            gender = draw_sample(e, e.locations[i], 'gender')
+            e.addAgent(location=e.locations[i], age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
 
     else:
 
@@ -164,8 +170,9 @@ def spawn_daily_displaced(e, t, d):
 
       #Insert refugee agents
       for i in range(0, new_refs):
+        loc = e.pick_spawn_location()
         age = draw_sample(e, loc, 'age')
         gender = draw_sample(e, loc, 'gender')
-        e.addAgent(location=e.pick_spawn_location(), age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+        e.addAgent(location=loc, age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
 
     return new_refs, __refugees_raw, __refugee_debt
