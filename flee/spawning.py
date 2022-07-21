@@ -99,6 +99,19 @@ def draw_sample(e, loc, attribute):
   return a.iloc[0][attribute]
 
 
+def draw_samples(e,loc):
+    """
+    Draw samples from all optional attributes, except age and gender (which are always provided).
+    """
+    samples = {}
+    for a in __demographics.keys():
+        if a == "age" or a == "gender":
+            continue
+        else:
+            samples[a] = draw_sample(e, loc, a)
+    return samples
+
+
 def add_initial_refugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
 
@@ -112,7 +125,8 @@ def add_initial_refugees(e, d, loc):
       for i in range(0, num_refugees):
           age = draw_sample(e, loc, 'age')
           gender = draw_sample(e, loc, 'gender')
-          e.addAgent(location=loc, age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+          attributes = draw_samples(e, loc)
+          e.addAgent(location=loc, age=age, gender=gender, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
 
 def spawn_daily_displaced(e, t, d):
@@ -148,7 +162,8 @@ def spawn_daily_displaced(e, t, d):
         for j in range(0, num_spawned):
             age = draw_sample(e, e.locations[i], 'age')
             gender = draw_sample(e, e.locations[i], 'gender')
-            e.addAgent(location=e.locations[i], age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+            attributes = draw_samples(e, loc)
+            e.addAgent(location=e.locations[i], age=age, gender=gender, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
     else:
 
@@ -173,6 +188,7 @@ def spawn_daily_displaced(e, t, d):
         loc = e.pick_spawn_location()
         age = draw_sample(e, loc, 'age')
         gender = draw_sample(e, loc, 'gender')
-        e.addAgent(location=loc, age=age, gender=gender, attributes={}) # Parallelization is incorporated *inside* the addAgent function.
+        attributes = draw_samples(e, loc)
+        e.addAgent(location=loc, age=age, gender=gender, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
     return new_refs, __refugees_raw, __refugee_debt
