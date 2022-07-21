@@ -996,7 +996,7 @@ class Ecosystem:
                     self.locations[i].town = False
 
                 self.locations[i].time_of_conflict = self.time                  
-                spawning.refresh_spawn_weights()
+                spawning.refresh_spawn_weights(self)
 
                 if SimulationSettings.log_levels["init"] > 0:
                     print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
@@ -1027,7 +1027,7 @@ class Ecosystem:
             self.conflict_zones[i].conflict = False
             self.conflict_zones[i].town = True
 
-        spawning.refresh_spawn_weights()
+        spawning.refresh_spawn_weights(self)
 
     @check_args_type
     def pick_spawn_location(self):
