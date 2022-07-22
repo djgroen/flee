@@ -103,9 +103,11 @@ class SimulationSettings:
         SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"] = bool(fetchss(dps, "insert_day0", True))
 
 
+        SimulationSettings.spawn_rules["conflict_zone_spawning_only"] = bool(fetchss(dps, "conflict_zone_spawning_only", True)) # Only spawn agents from conflict zones.
+
         dpsc = fetchss(dps,"conflict_driven_spawning",None)
         if dpsc is not None:
-          SimulationSettings.spawn_rules["conflict_driven_spawning"] = True
+          SimulationSettings.spawn_rules["conflict_driven_spawning"] = True # Conflicts provide a direct push factor.
           
           SimulationSettings.spawn_rules["conflict_spawn_mode"] = fetchss(dpsc,"spawn_mode","constant") # constant, Poisson, pop_ratio
 
@@ -152,16 +154,23 @@ class SimulationSettings:
 
         # Displaced people will not take a break unless they at least travelled
         # for a full day's distance in the last two days.
-        SimulationSettings.move_rules["AvoidShortStints"] = fetchss(dpr,"avoid_short_stints","false").lower() == "true"
+        SimulationSettings.move_rules["AvoidShortStints"] = bool(fetchss(dpr,"avoid_short_stints",False))
       
         # Agents traverse first link on foot.
-        SimulationSettings.move_rules["StartOnFoot"] = fetchss(dpr,"start_on_foot","false").lower() == "true"
+        SimulationSettings.move_rules["StartOnFoot"] = bool(fetchss(dpr,"start_on_foot",False))
 
-        SimulationSettings.UseV1Rules = fetchss(dpr,"use_v1_rules","false").lower() == "true"
+        SimulationSettings.UseV1Rules = bool(fetchss(dpr,"use_v1_rules",False))
         
         # KM added to every link distance to eliminate needless distinction
         # between very short routes.
         SimulationSettings.move_rules["Softening"] = float(fetchss(dpr,"softening",10.0))
+
+
+        # Flee 3.0 Prototyping conditionals (see design focument)
+        # TODO: embed these in a more flexible/powerful framework of conditionals
+        for a in ["ChildrenAvoidHazards", "BoysTakeRisk", "MatchCampEthnicity", "MatchTownEthnicity", "MatchConflictEthnicity"]:
+            SimulationSettings.move_rules[a] = bool(fetchss(dpr,a,False))
+
 
         dpo = fetchss(dp, "optimisations", None)
         SimulationSettings.optimisations["PopulationScaleDownFactor"] = float(fetchss(dpo,"hasten",1.0))

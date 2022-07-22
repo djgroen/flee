@@ -14,18 +14,36 @@ else:
 
 
 @check_args_type
-def getEndPointScore(link) -> float:
+def getEndPointScore(agent, link) -> float:
     """
     Summary
 
     Args:
+        agent (Person): agent making the decision
         link (Link): Description
 
     Returns:
         float: Description
     """
     # print(link.endpoint.name, link.endpoint.scores)
-    return link.endpoint.scores[1]
+    base = link.endpoint.scores[1]
+    # The base score is derived from the perceived level of safety and security.
+    # E.g. Conflict zones have lower scores, camps have higher scores.
+    # Location effects like high/low GDP, food security or weather effects could later also alter this score.
+
+    #["ChildrenAvoidHazards", "BoysTakeRisk", "MatchCampEthnicity", "MatchTownEthnicity", "MatchConflictEthnicity"]
+    if SimulationSettings.move_rules["ChildrenAvoidHazards"] and agent.age <19:
+        # For children the safety of the destination is more important than for adults.
+        base = base*base
+        if SimulationSettings.move_rules["BoysTakeRisk"] and agent.gender=="male" and agent.age>14:
+            # Hypothesis that perceived safety does not affect routing decisions for teenage boys.
+            base = 1 
+
+    if link.endpoint.camp == True:
+        if SimulationSettings.move_rules["MatchCampEthnicity"]:
+            base *= (spawning.getAttributeRatio(link.endpoint, "ethnicity") * 10.0)
+
+    return base
 
 
 @check_args_type
@@ -74,6 +92,7 @@ def getCapMultiplier(location, numOnLink: int) -> float:
 
 @check_args_type
 def calculateLinkWeight(
+  agent,
   link,
   prior_distance: float,
   origin_names: List[str],
@@ -86,7 +105,7 @@ def calculateLinkWeight(
   Loops are avoided.
 
   Args:
-  a: agent (TODO: make obsolete?_
+  a: agent
   link (Link): Description
   prior_distance (float): Description
   origin_names (List[str]): Description
@@ -94,7 +113,10 @@ def calculateLinkWeight(
   time (int): Description
   debug (bool, optional): Description
   """
-  weight = float(getEndPointScore(link=link)
+
+
+
+  weight = float(agent, getEndPointScore(agent=agent, link=link)
           / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
 
 
@@ -107,7 +129,7 @@ def calculateLinkWeight(
       else:
         weight = max(
           weight,
-          calculateLinkWeight(a,
+          calculateLinkWeight(agent=agent,
               link=e,
               prior_distance=prior_distance + link.get_distance(),
               origin_names=origin_names + [link.endpoint.name],
@@ -182,6 +204,7 @@ def selectRoute(a, time: int, debug: bool = False):
 
   for k, e in enumerate(a.location.links):
     weights[k] = calculateLinkWeight(
+         a,
          link=e,
          prior_distance=0.0,
          origin_names=[a.location.name],

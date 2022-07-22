@@ -22,6 +22,9 @@ __refugee_debt = 0
 __demographics = {}
 
 
+def getAttributeRatio(location, attribute):
+    return 1.0
+
 def refresh_spawn_weights(e):
     """
     This function needs to be called when
@@ -30,24 +33,30 @@ def refresh_spawn_weights(e):
     It will update the weights to reflect the new population numbers.
     """
 
-    conflict_spawning_only = True
-    pop_weight = 1.0
-    attribute_weights = {}
+    conflict_pop_weight = 1.0
+    attribute_weights = {} #TODO: Implement (food security stretch goal)
 
 
     for i in range(0, len(e.locations)):
 
-        if conflict_spawning_only and e.locations[i].conflict == False:
-            e.spawn_weights[i] = 0.0
-            continue
+        # First reset weight to 0.0.
+        e.spawn_weights[i] = 0.0
 
-        # Conflict decay multiplier
-        multiplier = 1.0
-        if SimulationSettings.spawn_rules["conflict_spawn_decay"]:
-            multiplier = SimulationSettings.get_location_conflict_decay(e.time, e.locations[i])
+        # Conflict-driven spawning
+        if not SimulationSettings.spawn_rules["conflict_driven_spawning"]: # This branch should be skipped if conflicts spawn fixed numbers of agents.
 
-        # Pop+conflict weight
-        e.spawn_weights[i] = e.locations[i].pop * pop_weight * multiplier
+            if SimulationSettings.spawn_rules["conflict_zone_spawning_only"]: # This option reduces spawning to 0 in non-conflict zones.
+                if e.locations[i].conflict == False:
+                    continue
+
+            if e.locations[i].conflict == True: # Adding conflict-based weighting for spawning.
+                # Conflict decay multiplier
+                multiplier = 1.0
+                if SimulationSettings.spawn_rules["conflict_spawn_decay"]:
+                    multiplier = SimulationSettings.get_location_conflict_decay(e.time, e.locations[i])
+
+                # Pop+conflict weight
+                e.spawn_weights[i] = e.locations[i].pop * conflict_pop_weight * multiplier
 
 
     e.spawn_weight_total = sum(e.spawn_weights)
@@ -69,6 +78,9 @@ def read_demographic_csv(e, csvname):
 
   if SimulationSettings.log_levels["init"] > -1:
     print("INFO: ", attribute, " attributes loaded, with columns:", df.columns, file=sys.stderr)
+    if attribute is "ethnicity":
+        print(df, file=sys.stderr)
+        sys.exit()
   
   __demographics[attribute] = df
 
