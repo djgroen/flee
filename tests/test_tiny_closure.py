@@ -8,6 +8,8 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 def test_tiny_closure():
     print("Testing basic data handling and simulation kernel.")
 
+    flee.SimulationSettings.ReadFromYML("empty.yml")
+
     flee.SimulationSettings.MinMoveSpeed = 10.0
     flee.SimulationSettings.MaxMoveSpeed = 10.0
 
@@ -21,7 +23,7 @@ def test_tiny_closure():
 
     for t in range(0, end_time):
         # Insert refugee agents
-        e.addAgent(location=l1)
+        e.addAgent(location=l1, age=20, gender="", attributes={})
 
         # Propagate the model by one time step.
         e.evolve()

@@ -80,7 +80,7 @@ class Person:
         Returns:
             float: Description
         """
-        return self.endpoint.scores[1]
+        return link.endpoint.scores[1]
 
 
     @check_args_type

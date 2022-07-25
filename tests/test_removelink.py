@@ -8,6 +8,8 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 def test_removelink():
     print("Testing basic data handling and simulation kernel.")
 
+    flee.SimulationSettings.ReadFromYML("empty.yml")
+
     e = flee.Ecosystem()
 
     _ = e.addLocation(name="A", movechance=0.3)
