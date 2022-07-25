@@ -8,9 +8,10 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 def test_path_choice():
     print("Testing basic data handling and simulation kernel.")
 
-    flee.SimulationSettings.MinMoveSpeed = 5000.0
-    flee.SimulationSettings.MaxMoveSpeed = 5000.0
-    flee.SimulationSettings.MaxWalkSpeed = 5000.0
+    flee.SimulationSettings.ReadFromYML("empty.yml")
+
+    flee.SimulationSettings.move_rules["MaxMoveSpeed"] = 5000.0
+    flee.SimulationSettings.move_rules["MaxWalkSpeed"] = 5000.0
 
     e = flee.Ecosystem()
 
@@ -35,7 +36,7 @@ def test_path_choice():
     e.linkUp(endpoint1="D1", endpoint2="D2", distance=10.0)
     e.linkUp(endpoint1="D2", endpoint2="D3", distance=10.0)
 
-    e.addAgent(location=l1)
+    e.addAgent(location=l1, age=20, gender="", attributes={})
 
     print("Test successful!")
 
