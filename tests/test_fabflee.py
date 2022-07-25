@@ -14,14 +14,14 @@ logger = logging.getLogger(__name__)
 
 
 def test_mali(run_py):
-    ret = run_py("mali", "50")
+    ret = run_py("mali2012", "50")
     assert ret == "OK"
 
 
 def test_par_mali(run_par):
     logger.addHandler(logging.StreamHandler(sys.stdout))
     logger.setLevel(logging.DEBUG)
-    ret = run_par("mali", "50", "2")
+    ret = run_par("mali2012", "50", "2")
     assert ret == "OK"
 
 
@@ -72,7 +72,7 @@ def run_py():
             "input_csv",
             "source_data",
             simulation_period,
-            "simsetting.csv",
+            "empty.yml",
             "> out.csv",
         ]
         cmd = " ".join([str(x) for x in cmd])
@@ -133,7 +133,7 @@ def run_par():
             "input_csv",
             "source_data",
             simulation_period,
-            "simsetting.csv",
+            "empty.yml",
             "> out.csv",
         ]
         cmd = " ".join([str(x) for x in cmd])

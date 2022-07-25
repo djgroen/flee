@@ -33,7 +33,7 @@ def test_micro_model():
 
     # Insert refugee agents
     for _ in range(0, new_refs):
-        e.addAgent(location=l1)
+        e.addAgent(location=l1, age=20, gender="", attributes={})
 
     for t in range(0, end_time):
 

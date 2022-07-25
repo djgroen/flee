@@ -237,9 +237,9 @@ class Location(flee.Location):
             time (int): Description
         """
         self.time = time
-        scoring.updateRegionScore(loc)
-        scoring.updateNeighbourhoodScore(loc)
-        scoring.updateLocationScore(time, loc)
+        scoring.updateRegionScore(self)
+        scoring.updateNeighbourhoodScore(self)
+        scoring.updateLocationScore(time, self)
 
 
 class Link(flee.Link):
@@ -415,7 +415,7 @@ class Ecosystem(flee.Ecosystem):
         Args:
             location (Location): Description
         """
-        if SimulationSettings.move_rules["TakeFromPopulation"]:
+        if SimulationSettings.spawn_rules["TakeFromPopulation"]:
             if location.conflict:
                 if location.pop > 1:
                     location.pop -= 1
