@@ -1024,7 +1024,7 @@ class Ecosystem:
         for i in range(0, len(self.locationNames)):
             if self.locationNames[i] == name:
                 if change_movechance:
-                    self.conflict_zones[i].movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+                    self.locations[i].movechance = SimulationSettings.move_rules["DefaultMoveChance"]
                 self.locations[i].conflict = False
                 self.locations[i].town = True
 
