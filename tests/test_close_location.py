@@ -8,6 +8,8 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 def test_close_location():
     print("Testing basic data handling and simulation kernel.")
 
+    flee.SimulationSettings.ReadFromYML("empty.yml")
+
     # end_time = 80
     e = flee.Ecosystem()
 

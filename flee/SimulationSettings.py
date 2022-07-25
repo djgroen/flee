@@ -39,6 +39,9 @@ class SimulationSettings:
     @staticmethod
     def get_conflict_decay(time_since_conflict: int):
 
+        if SimulationSettings.spawn_rules["conflict_spawn_decay"] is None:
+            return 1.0
+
         spawn_len = len(SimulationSettings.spawn_rules["conflict_spawn_decay"])
 
         if spawn_len < 1:

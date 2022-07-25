@@ -3,7 +3,7 @@ import sys
 
 import flee.postprocessing.analysis as a
 import numpy as np
-from flee import InputGeography, flee
+from flee import InputGeography, flee, spawning
 from flee.datamanager import DataTable  # DataTable.subtract_dates()
 from flee.datamanager import handle_refugee_data
 
@@ -14,7 +14,7 @@ def AddInitialRefugees(e, d, loc):
     """
     num_refugees = int(d.get_field(name=loc.name, day=0, FullInterpolation=True))
     for _ in range(0, num_refugees):
-        e.addAgent(location=loc)
+        e.addAgent(location=loc, age=20, gender="", attributes={})
 
 
 def date_to_sim_days(date):
@@ -23,12 +23,14 @@ def date_to_sim_days(date):
 
 def test_csv(end_time=50, last_physical_day=50):
 
+    flee.SimulationSettings.ReadFromYML("empty.yml")
+
     e = flee.Ecosystem()
 
     ig = InputGeography.InputGeography()
 
     flee.SimulationSettings.FlareConflictInputFile = os.path.join(
-        "test_data", "test_input_csv", "flare-out.csv"
+        "..", "test_data", "test_input_csv", "flare-out.csv"
     )
     ig.ReadFlareConflictInputCSV(csv_name=flee.SimulationSettings.FlareConflictInputFile)
 
@@ -40,17 +42,17 @@ def test_csv(end_time=50, last_physical_day=50):
     assert ig.conflicts["A"][0] == 1
     assert ig.conflicts["C2"][94] == 0
 
-    ig.ReadLocationsFromCSV(csv_name=os.path.join("test_data", "test_input_csv/locations.csv"))
+    ig.ReadLocationsFromCSV(csv_name=os.path.join("..", "test_data", "test_input_csv/locations.csv"))
 
-    ig.ReadLinksFromCSV(csv_name=os.path.join("test_data", "test_input_csv/routes.csv"))
+    ig.ReadLinksFromCSV(csv_name=os.path.join("..", "test_data", "test_input_csv/routes.csv"))
 
-    ig.ReadClosuresFromCSV(csv_name=os.path.join("test_data", "test_input_csv/closures.csv"))
+    ig.ReadClosuresFromCSV(csv_name=os.path.join("..", "test_data", "test_input_csv/closures.csv"))
 
     e, lm = ig.StoreInputGeographyInEcosystem(e=e)
 
     d = handle_refugee_data.RefugeeTable(
         csvformat="generic",
-        data_directory=os.path.join("test_data", "test_input_csv", "refugee_data"),
+        data_directory=os.path.join("..", "test_data", "test_input_csv", "refugee_data"),
         start_date="2010-01-01",
         data_layout="data_layout.csv",
     )
@@ -82,20 +84,10 @@ def test_csv(end_time=50, last_physical_day=50):
         # if t>0:
         ig.AddNewConflictZones(e=e, time=t)
 
-        # Determine number of new refugees to insert into the system.
-        new_refs = d.get_daily_difference(day=t, FullInterpolation=True) - refugee_debt
-        refugees_raw += d.get_daily_difference(day=t, FullInterpolation=True)
-
-        if new_refs < 0:
-            refugee_debt = -new_refs
-            new_refs = 0
-        elif refugee_debt > 0:
-            refugee_debt = 0
-
         # Insert refugee agents
-        e.add_agents_to_conflict_zones(number=new_refs)
+        spawning.spawn_daily_displaced(e, t, d, SumFromCamps=True)
 
-        e.refresh_conflict_weights()
+        spawning.refresh_spawn_weights(e)
         # t_data = t
 
         e.enact_border_closures(time=t)

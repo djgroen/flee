@@ -138,7 +138,7 @@ def add_initial_refugees(e, d, loc):
           e.addAgent(location=loc, age=age, gender=gender, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
 
-def spawn_daily_displaced(e, t, d):
+def spawn_daily_displaced(e, t, d, SumFromCamps=False):
     global __refugees_raw, __refugee_debt
     """
     t = time
@@ -177,8 +177,8 @@ def spawn_daily_displaced(e, t, d):
     else:
 
       # Determine number of new refugees to insert into the system.
-      new_refs = d.get_daily_difference(t, FullInterpolation=True, SumFromCamps=False) - __refugee_debt
-      __refugees_raw += d.get_daily_difference(t, FullInterpolation=True, SumFromCamps=False)
+      new_refs = d.get_daily_difference(t, FullInterpolation=True, SumFromCamps=SumFromCamps) - __refugee_debt
+      __refugees_raw += d.get_daily_difference(t, FullInterpolation=True, SumFromCamps=SumFromCamps)
 
       #Refugees are pre-placed in Mali, so set new_refs to 0 on Day 0.
       if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"]:
@@ -201,3 +201,15 @@ def spawn_daily_displaced(e, t, d):
         e.addAgent(location=loc, age=age, gender=gender, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
     return new_refs, __refugees_raw, __refugee_debt
+
+
+    def spawn_agents(e, number):
+
+      #Insert refugee agents
+      for i in range(0, number):
+        loc = e.pick_spawn_location()
+        age = draw_sample(e, loc, 'age')
+        gender = draw_sample(e, loc, 'gender')
+        attributes = draw_samples(e, loc)
+        e.addAgent(location=loc, age=age, gender=gender, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
+
