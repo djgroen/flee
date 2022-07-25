@@ -114,18 +114,19 @@ Record distances between locations in **`routes.csv`** file for simulation using
 
 We identify location or border closure events and document them in **closures.csv** file:
 
-| **closure_type** | **name1** | **name2** | **closure_start = 0** | **closure_end = -1** |
-|:----:|:------:|:-------:|:---:|:---:|
-| location | A  | B |  xxx | xxx |
-| country | ABC  | ZZZ |  xxx | xxx |
-| ...  | ... | ... | ... | ... |
+| **closure_type** | **name1** | **name2** | **closure_start = 0** | **closure_end = -1** | **custom_attributes...**|
+|:----:|:------:|:-------:|:---:|:---:|:---:|
+| location | A  | B |  xxx | xxx | xxx |
+| country | ABC  | ZZZ |  xxx | xxx | xxx |
+| ...  | ... | ... | ... | ... | ... |
 
 **closure_type** has 2 possible values:
 
 * **location** corresponding to camp or town closure and
 * **country** referring to border closure.
+* **closure_start** and **closure_end** are given as integers, counting the number of days after the simulation start. The value of `0` indicates the start, while `-1` indicates the end of the simulation.
+* **custom_attributes** can be a list of optional location-specific (static) attributes that you can assign. For instance, you could assign an attribute named gdp to each location to indicate the average GPD in each place. You can define as many custom attributes as you like. (new as of Flee 3.0)
 
-**closure_start** and **closure_end** are given as integers, counting the number of days after the simulation start. The value of `0` indicates the start, while `-1` indicates the end of the simulation.
 
 ## **Define a conflict period for a conflict situation**
 
@@ -155,11 +156,7 @@ We create a **conflicts.csv** file to record conflict locations indicating the s
 Construct an agent-based network map from locations.csv and routes.csv using [https://carto.com](https://carto.com).
 
 
-
-<p align="center">
-    <img src="../images/network.png" alt="Image" width="200" height="200" />
-</p>
-
+![](../images/network.png)
 
 
 ## **Construct validation data**
@@ -187,3 +184,22 @@ We obtain data for each camp using the format and label them as **country_name-c
 | camp_name1 | country_name-camp_name1.csv |
 | camp_name2 | country_name-camp_name2.csv |
 | ... | ... |
+
+
+
+## **Construct input demographics profiles **
+
+As of Flee 3.0, it is possible to define demographic attributes to newly spawned agents. You can define these attributes by placing files in the input\_csv subdirectory. For a given example attribute AAAyou can define the weighted probability profile as follows:
+
+1. Create a file named `demographics_aaa.csv`
+
+2. Within the file, use the following format to define the default values for all locations, and an override for example locations `loc1` and `loc2`:
+
+| aaa | Default | loc1 | loc2 |
+|:---:|:---:|:---:|:---:|
+| V1 | 90 | 25 | 0 |
+| V2 | 10 | 25 | 1000 |
+| ... | ... | ... | ... |
+
+In this example, agents spawned in loc1 are 50% likely to have the value V1 for attribute AAA, and 50% likely to have the value V2. All agents spawned in loc2 will have the value V2, while agents spawned in all other locations are 90% likely to have V1, and 10% likely to have V2.
+

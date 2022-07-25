@@ -6,7 +6,7 @@ from functools import wraps
 from typing import List, Optional
 
 import numpy as np
-from flee import flee
+from flee import flee,scoring
 from flee.Diagnostics import write_agents_par
 from flee.SimulationSettings import SimulationSettings
 from mpi4py import MPI
@@ -72,11 +72,14 @@ class Person(flee.Person):
         "travelling",
         "distance_travelled_on_link",
         "e",
+        "age",
+        "gender",
+        "attributes",
     ]
 
     @check_args_type
-    def __init__(self, e, location):
-        super().__init__(location)
+    def __init__(self, e, location, age, gender, attributes):
+        super().__init__(location, age, gender, attributes)
         self.e = e
 
     @check_args_type
@@ -101,7 +104,7 @@ class Person(flee.Person):
         super().finish_travel(time=time)
 
     @check_args_type
-    def getLinkWeight(self, link, awareness_level: int) -> float:
+    def getLinkWeightV1(self, link, awareness_level: int) -> float:
         """
         Calculate the weight of an adjacent link. Weight = probability that
         it will be chosen.
@@ -114,20 +117,12 @@ class Person(flee.Person):
             float: Description
         """
 
-        # If turning back is NOT allowed, remove weight from the last location.
-        if not SimulationSettings.TurnBackAllowed:
-            if link.endpoint == self.last_location:
-                # float(0.1 / float(SimulationSettings.Softening +
-                #                   link.get_distance())
-                #       )
-                return 0.0
-
         if awareness_level < 0:
             return 1.0
 
         return float(
             self.e.scores[(link.endpoint.id * 4) + awareness_level]
-            / float(SimulationSettings.Softening + link.get_distance())
+            / float(SimulationSettings.move_rules["Softening"] + link.get_distance())
         )
 
     @check_args_type
@@ -242,9 +237,9 @@ class Location(flee.Location):
             time (int): Description
         """
         self.time = time
-        self.updateRegionScore()
-        self.updateNeighbourhoodScore()
-        self.updateLocationScore()
+        scoring.updateRegionScore(loc)
+        scoring.updateNeighbourhoodScore(loc)
+        scoring.updateLocationScore(time, loc)
 
 
 class Link(flee.Link):
@@ -296,10 +291,7 @@ class Ecosystem(flee.Ecosystem):
         self.scores = np.array([1.0, 1.0, 1.0, 1.0])
 
         # Bring conflict zone management into FLEE.
-        self.conflict_zones = []
-        self.conflict_zone_names = []
-        self.conflict_weights = np.array([])
-        self.conflict_pop = 0
+        self.spawn_weights = np.array([])
 
         # classic for replicated locations or loc-par for distributed
         # locations.
@@ -308,7 +300,7 @@ class Ecosystem(flee.Ecosystem):
         # more MPI calls with less prep.
         self.latency_mode = "high_latency"
 
-        if SimulationSettings.CampLogLevel > 0:
+        if SimulationSettings.log_levels["camp"] > 0:
             self.num_arrivals = []  # one element per time step.
             self.travel_durations = []  # one element per time step.
 
@@ -416,14 +408,14 @@ class Ecosystem(flee.Ecosystem):
     """
 
     @check_args_type
-    def addAgent(self, location) -> None:
+    def addAgent(self, location, age, gender, attributes) -> None:
         """
         Summary
 
         Args:
             location (Location): Description
         """
-        if SimulationSettings.TakeRefugeesFromPopulation:
+        if SimulationSettings.move_rules["TakeFromPopulation"]:
             if location.conflict:
                 if location.pop > 1:
                     location.pop -= 1
@@ -438,7 +430,8 @@ class Ecosystem(flee.Ecosystem):
                     assert location.pop > 1
         self.total_agents += 1
         if self.total_agents % self.mpi.size == self.mpi.rank:
-            self.agents.append(Person(self, location=location))
+            self.agents.append(Person(self, location=location, age=age, gender=gender, attributes=attributes))
+
 
     @check_args_type
     def insertAgent(self, location) -> None:
@@ -574,13 +567,13 @@ class Ecosystem(flee.Ecosystem):
             # Scores remain perfectly updated in classic mode.
             for loc in self.locations:
                 loc.time = self.time
-                loc.updateLocationScore()
+                scoring.updateLocationScore(loc)
 
             for loc in self.locations:
-                loc.updateNeighbourhoodScore()
+                scoring.updateNeighbourhoodScore(loc)
 
             for loc in self.locations:
-                loc.updateRegionScore()
+                scoring.updateRegionScore(loc)
 
         elif self.parallel_mode == "loc-par":
             # update scores in reverse order for efficiency.
@@ -626,13 +619,13 @@ class Ecosystem(flee.Ecosystem):
             a.finish_travel(time=self.time)
             a.timesteps_since_departure += 1
 
-        if SimulationSettings.AgentLogLevel > 0:
+        if SimulationSettings.log_levels["agent"] > 0:
             write_agents_par(rank=self.mpi.rank, agents=self.agents, time=self.time)
 
         for a in self.agents:
             a.recent_travel_distance = (
                 a.recent_travel_distance
-                + (a.distance_moved_this_timestep / SimulationSettings.MaxMoveSpeed)
+                + (a.distance_moved_this_timestep / SimulationSettings.move_rules["MaxMoveSpeed"])
             ) / 2.0
             a.distance_moved_this_timestep = 0
 
@@ -640,7 +633,7 @@ class Ecosystem(flee.Ecosystem):
         self.updateNumAgents(log=False)
 
         # update link properties
-        if SimulationSettings.CampLogLevel > 0:
+        if SimulationSettings.log_levels["camp"] > 0:
             self._aggregate_arrivals()
 
         self.time += 1
@@ -652,7 +645,7 @@ class Ecosystem(flee.Ecosystem):
         x: float = 0.0,
         y: float = 0.0,
         location_type: Optional[str] = None,
-        movechance: float = SimulationSettings.DefaultMoveChance,
+        movechance: float = SimulationSettings.move_rules["DefaultMoveChance"],
         capacity: int = -1,
         pop: int = 0,
         foreign: bool = False,
@@ -699,7 +692,7 @@ class Ecosystem(flee.Ecosystem):
 
         self.cur_loc_id += 1
 
-        if SimulationSettings.InitLogLevel > 0:
+        if SimulationSettings.log_levels["init"] > 0:
             print(
                 "Location: {} {} {} {} {} , pop. {} {}".format(
                     name, x, y, loc.movechance, capacity, pop, foreign
@@ -725,35 +718,6 @@ class Ecosystem(flee.Ecosystem):
         """
         if self.mpi.rank == 0:
             super().printInfo()
-
-    @check_args_type
-    def add_agents_to_conflict_zones(self, number: int) -> None:
-        """
-        Add a group of agents, distributed across conflict zones.
-
-        Args:
-            number (int): Description
-        """
-        number_on_rank = int(number / self.mpi.size)
-        if number % self.mpi.size > self.mpi.rank:
-            number_on_rank += 1
-
-        self.total_agents += number
-        cl = self.pick_conflict_locations(number=number_on_rank)
-        for i in range(0, number_on_rank):
-            if SimulationSettings.TakeRefugeesFromPopulation:
-                if cl[i].pop > 1:
-                    cl[i].pop -= 1
-                    cl[i].numAgentsSpawnedOnRank += 1
-                    cl[i].numAgentsSpawned += 1
-                else:
-                    print(
-                        "ERROR: Number of agents in the simulation is larger than the combined "
-                        "population of the conflict zones. Please amend locations.csv."
-                    )
-                    cl[i].print()
-                    assert cl[i].pop > 1
-            self.agents.append(Person(self, location=cl[i]))
 
 
 if __name__ == "__main__":

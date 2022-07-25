@@ -6,11 +6,7 @@ import numpy as np
 import flee.postprocessing.analysis as a
 import sys
 
-def AddInitialRefugees(e, d, loc):
-  """ Add the initial refugees to a location, using the location name"""
-  num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
-  for i in range(0, num_refugees):
-    e.addAgent(location=loc)
+from datetime import datetime, timedelta
 
 insert_day0_refugees_in_camps = True
 
@@ -19,7 +15,7 @@ if __name__ == "__main__":
   start_date,end_time = read_period.read_conflict_period("{}/conflict_period.csv".format(sys.argv[1]))
 
   if len(sys.argv)<4:
-    print("Please run using: python3 run.py <your_csv_directory> <your_refugee_data_directory> <duration in days> <optional: simulation_settings.csv> > <output_directory>/<output_csv_filename>")
+    print("Please run using: python3 run.py <your_csv_directory> <your_refugee_data_directory> <duration in days> <optional: simsettings.yml> > <output_directory>/<output_csv_filename>")
 
   input_csv_directory = sys.argv[1]
   validation_data_directory = sys.argv[2]
@@ -27,7 +23,10 @@ if __name__ == "__main__":
     end_time = int(sys.argv[3])
 
   if len(sys.argv)==5:
-    flee.SimulationSettings.ReadFromCSV(sys.argv[4])
+    flee.SimulationSettings.ReadFromYML(sys.argv[4])
+  else:
+    flee.SimulationSettings.ReadFromYML("simsettings.yml")
+
   flee.SimulationSettings.FlareConflictInputFile = "%s/conflicts.csv" % input_csv_directory
 
   e = flee.Ecosystem()
@@ -44,22 +43,22 @@ if __name__ == "__main__":
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv", population_scaledown_factor=flee.SimulationSettings.PopulationScaledownFactor)
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv")
 
   d.ReadL1Corrections("%s/registration_corrections.csv" % input_csv_directory)
 
-  output_header_string = "Day,"
+  output_header_string = "Day,Date,"
 
   camp_locations      = e.get_camp_names()
 
   for l in camp_locations:
-      if insert_day0_refugees_in_camps:  
-          AddInitialRefugees(e,d,lm[l])
+      spawning.add_initial_refugees(e,d,lm[l])
       output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
 
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
 
-  print(output_header_string)
+  if e.getRankN(0):
+      print(output_header_string)
 
   # Set up a mechanism to incorporate temporary decreases in refugees
   refugee_debt = 0
@@ -70,29 +69,9 @@ if __name__ == "__main__":
     #if t>0:
     ig.AddNewConflictZones(e,t)
 
-    # Determine number of new refugees to insert into the system.
-    new_refs = d.get_daily_difference(t, FullInterpolation=True, SumFromCamps=True) - refugee_debt
-    refugees_raw += d.get_daily_difference(t, FullInterpolation=True, SumFromCamps=True)
+    new_refs,refugees_raw,refugee_debt = spawning.spawn_daily_displaced(e,t,d)
 
-    #Refugees are pre-placed in Mali, so set new_refs to 0 on Day 0.
-    if insert_day0_refugees_in_camps:  
-        if t == 0:
-            new_refs = 0
-            #refugees_raw = 0
-
-    if new_refs < 0:
-      refugee_debt = -new_refs
-      new_refs = 0
-    elif refugee_debt > 0:
-      refugee_debt = 0
-
-    #Insert refugee agents
-    for i in range(0, new_refs):
-      e.addAgent(e.pick_conflict_location())
-
-    e.refresh_conflict_weights()
-    
-    #print(new_refs)
+    spawning.refresh_spawn_weights(e)
     t_data = t
 
     e.enact_border_closures(t)
@@ -121,7 +100,9 @@ if __name__ == "__main__":
 
       j += 1
 
-    output = "%s" % t
+
+    date = datetime.strptime(start_date, "%Y-%m-%d") + timedelta(days=t)
+    output = "%s,%s" % (t, date.strftime("%Y-%m-%d"))
 
     for i in range(0,len(errors)):
       output += ",%s,%s,%s" % (lm[camp_locations[i]].numAgents, loc_data[i], errors[i])
@@ -131,4 +112,6 @@ if __name__ == "__main__":
     else:
       output += ",0,0,0,0,0,0"
 
-    print(output)
+    if e.getRankN(t):
+        print(output)
+

@@ -1,4 +1,4 @@
-from flee import flee
+from flee import flee, spawning
 from flee.datamanager import handle_refugee_data, read_period
 from flee.datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
@@ -7,8 +7,6 @@ import flee.postprocessing.analysis as a
 import sys
 
 from datetime import datetime, timedelta
-
-insert_day0_refugees_in_camps = True
 
 if __name__ == "__main__":
 
@@ -52,15 +50,12 @@ if __name__ == "__main__":
   camp_locations      = e.get_camp_names()
 
   for l in camp_locations:
-      spawning.add_initial_refugees(e,d,lm[l])
+      spawning.add_initial_refugees(e,d,lm[l]) 
       output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
 
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
 
-  if e.getRankN(0):
-      print(output_header_string)
-
-  # Set up a mechanism to incorporate temporary decreases in refugees
+  print(output_header_string)
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
 
@@ -71,7 +66,7 @@ if __name__ == "__main__":
 
     new_refs,refugees_raw,refugee_debt = spawning.spawn_daily_displaced(e,t,d)
 
-    spawning.refresh_conflict_spawn_weights(e)
+    spawning.refresh_spawn_weights(e)
     t_data = t
 
     e.enact_border_closures(t)
@@ -112,6 +107,4 @@ if __name__ == "__main__":
     else:
       output += ",0,0,0,0,0,0"
 
-    if e.getRankN(t):
-        print(output)
-
+    print(output)
