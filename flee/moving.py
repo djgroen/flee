@@ -42,6 +42,12 @@ def getEndPointScore(agent, link) -> float:
     if link.endpoint.camp == True:
         if SimulationSettings.move_rules["MatchCampEthnicity"]:
             base *= (spawning.getAttributeRatio(link.endpoint, "ethnicity") * 10.0)
+    elif link.endpoint.conflict == True:
+        if SimulationSettings.move_rules["MatchConflictEthnicity"]:
+            base *= (spawning.getAttributeRatio(link.endpoint, "ethnicity") * 10.0)
+    else:
+        if SimulationSettings.move_rules["MatchTownEthnicity"]:
+            base *= (spawning.getAttributeRatio(link.endpoint, "ethnicity") * 10.0)
 
     return base
 
@@ -116,7 +122,7 @@ def calculateLinkWeight(
 
 
 
-  weight = float(agent, getEndPointScore(agent=agent, link=link)
+  weight = float(getEndPointScore(agent=agent, link=link)
           / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
 
 

@@ -155,11 +155,7 @@ We create a **conflicts.csv** file to record conflict locations indicating the s
 Construct an agent-based network map from locations.csv and routes.csv using [https://carto.com](https://carto.com).
 
 
-
-<p align="center">
-    <img src="../images/network.png" alt="Image" width="200" height="200" />
-</p>
-
+![](../images/network.png)
 
 
 ## **Construct validation data**
@@ -187,3 +183,22 @@ We obtain data for each camp using the format and label them as **country_name-c
 | camp_name1 | country_name-camp_name1.csv |
 | camp_name2 | country_name-camp_name2.csv |
 | ... | ... |
+
+
+
+## **Construct input demographics profiles **
+
+As of Flee 3.0, it is possible to define demographic attributes to newly spawned agents. You can define these attributes by placing files in the input\_csv subdirectory. For a given example attribute AAAyou can define the weighted probability profile as follows:
+
+1. Create a file named `demographics_aaa.csv`
+
+2. Within the file, use the following format to define the default values for all locations, and an override for example locations `loc1` and `loc2`:
+
+| aaa | Default | loc1 | loc2 |
+|:---:|:---:|:---:|:---:|
+| V1 | 90 | 25 | 0 |
+| V2 | 10 | 25 | 1000 |
+| ... | ... | ... | ... |
+
+In this example, agents spawned in loc1 are 50% likely to have the value V1 for attribute AAA, and 50% likely to have the value V2. All agents spawned in loc2 will have the value V2, while agents spawned in all other locations are 90% likely to have V1, and 10% likely to have V2.
+

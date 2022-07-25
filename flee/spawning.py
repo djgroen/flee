@@ -78,9 +78,6 @@ def read_demographic_csv(e, csvname):
 
   if SimulationSettings.log_levels["init"] > -1:
     print("INFO: ", attribute, " attributes loaded, with columns:", df.columns, file=sys.stderr)
-    if attribute is "ethnicity":
-        print(df, file=sys.stderr)
-        sys.exit()
   
   __demographics[attribute] = df
 
