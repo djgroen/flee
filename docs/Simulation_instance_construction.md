@@ -114,18 +114,19 @@ Record distances between locations in **`routes.csv`** file for simulation using
 
 We identify location or border closure events and document them in **closures.csv** file:
 
-| **closure_type** | **name1** | **name2** | **closure_start = 0** | **closure_end = -1** |
-|:----:|:------:|:-------:|:---:|:---:|
-| location | A  | B |  xxx | xxx |
-| country | ABC  | ZZZ |  xxx | xxx |
-| ...  | ... | ... | ... | ... |
+| **closure_type** | **name1** | **name2** | **closure_start = 0** | **closure_end = -1** | **custom_attributes...**|
+|:----:|:------:|:-------:|:---:|:---:|:---:|
+| location | A  | B |  xxx | xxx | xxx |
+| country | ABC  | ZZZ |  xxx | xxx | xxx |
+| ...  | ... | ... | ... | ... | ... |
 
 **closure_type** has 2 possible values:
 
 * **location** corresponding to camp or town closure and
 * **country** referring to border closure.
+* **closure_start** and **closure_end** are given as integers, counting the number of days after the simulation start. The value of `0` indicates the start, while `-1` indicates the end of the simulation.
+* **custom_attributes** can be a list of optional location-specific (static) attributes that you can assign. For instance, you could assign an attribute named gdp to each location to indicate the average GPD in each place. You can define as many custom attributes as you like. (new as of Flee 3.0)
 
-**closure_start** and **closure_end** are given as integers, counting the number of days after the simulation start. The value of `0` indicates the start, while `-1` indicates the end of the simulation.
 
 ## **Define a conflict period for a conflict situation**
 
