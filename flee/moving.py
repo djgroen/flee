@@ -26,7 +26,8 @@ def getEndPointScore(agent, link) -> float:
         float: Description
     """
     # print(link.endpoint.name, link.endpoint.scores)
-    base = link.endpoint.scores[1]
+    base = agent.getBaseEndPointScore(link) # called externally because serial and parallel implementations differ.
+
     # The base score is derived from the perceived level of safety and security.
     # E.g. Conflict zones have lower scores, camps have higher scores.
     # Location effects like high/low GDP, food security or weather effects could later also alter this score.

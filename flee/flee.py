@@ -70,6 +70,20 @@ class Person:
 
 
     @check_args_type
+    def getBaseEndPointScore(self, link) -> float:
+        """
+        Serial base endpoint score retrieval.
+
+        Args:
+            link (Link) : Description
+
+        Returns:
+            float: Description
+        """
+        return self.endpoint.scores[1]
+
+
+    @check_args_type
     def handle_travel(self, location, travelling) -> None:
         """
         Summary

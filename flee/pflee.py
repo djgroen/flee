@@ -126,7 +126,7 @@ class Person(flee.Person):
         )
 
     @check_args_type
-    def getEndPointScore(self, link) -> float:
+    def getBaseEndPointScore(self, link) -> float:
         """
         Overwrite serial function because we have a different data structure
         for endpoint scores.
