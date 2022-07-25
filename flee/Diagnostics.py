@@ -6,13 +6,9 @@ from functools import wraps
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
 else:
-
     def check_args_type(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
+        return func
 
-        return wrapper
 
 
 @check_args_type
@@ -46,11 +42,12 @@ def write_agents_par(
         max_written = len(agents)
 
     if time % timestep_interval == 0:
-        for k, a in enumerate(agents[0:max_written]):
+        for k in range(0, max_written):
+            a = agents[k]
             gps_x = 0.0
             gps_y = 0.0
             print(
-                "{},{}-{},{},{},{},{},{},{},{}".format(
+                    "{},{}-{},{},{},{},{},{},{},{}".format(
                     time,
                     rank,
                     k,
@@ -61,7 +58,7 @@ def write_agents_par(
                     a.distance_travelled,
                     a.places_travelled,
                     a.distance_moved_this_timestep,
-                ),
+                    ),
                 file=my_file,
             )
 

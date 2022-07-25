@@ -8,9 +8,11 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 def test_micro_model():
     print("Testing basic data handling and simulation kernel.")
 
-    flee.SimulationSettings.MaxMoveSpeed = 35.0
-    flee.SimulationSettings.MaxWalkSpeed = 3.5
-    flee.SimulationSettings.MaxCrossingSpeed = 2.0
+    flee.SimulationSettings.ReadFromYML("empty.yml")
+
+    flee.SimulationSettings.move_rules["MaxMoveSpeed"] = 35.0
+    flee.SimulationSettings.move_rules["MaxWalkSpeed"] = 3.5
+    flee.SimulationSettings.move_rules["MaxCrossingSpeed"] = 2.0
 
     end_time = 30
     e = flee.Ecosystem()

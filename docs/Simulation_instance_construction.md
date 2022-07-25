@@ -156,7 +156,7 @@ We create a **conflicts.csv** file to record conflict locations indicating the s
 Construct an agent-based network map from locations.csv and routes.csv using [https://carto.com](https://carto.com).
 
 
-![](../images/network.png)
+![](images/network.png)
 
 
 ## **Construct validation data**

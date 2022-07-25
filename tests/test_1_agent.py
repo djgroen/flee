@@ -8,9 +8,11 @@ Generation 1 code. Incorporates only distance, travel always takes one day.
 def test_1_agent():
     print("Testing basic data handling and simulation kernel.")
 
-    flee.SimulationSettings.MinMoveSpeed = 5000.0
-    flee.SimulationSettings.MaxMoveSpeed = 5000.0
-    flee.SimulationSettings.MaxWalkSpeed = 42.0
+    flee.SimulationSettings.ReadFromYML("empty.yml")
+
+    flee.SimulationSettings.move_rules["MaxMoveSpeed"] = 5000.0
+    flee.SimulationSettings.move_rules["MaxWalkSpeed"] = 5000.0
+    flee.SimulationSettings.move_rules["MaxCrossingSpeed"] = 42.0
 
     end_time = 30
     e = flee.Ecosystem()
@@ -28,7 +30,7 @@ def test_1_agent():
 
     # Insert refugee agents
     for _ in range(0, new_refs):
-        e.addAgent(location=l1)
+        e.addAgent(location=l1, age=20, gender="", attributes={})
 
     for t in range(0, end_time):
 
