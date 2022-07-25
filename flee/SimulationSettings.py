@@ -1,11 +1,8 @@
-import csv
 import sys
 import yaml
 import os
 
 # pylint: skip-file
-
-from typing import List, Optional, Tuple
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
@@ -39,7 +36,7 @@ class SimulationSettings:
     sqrt_ten = 3.16227766017  # square root of ten (10^0.5).
 
 
-    @check_args_type
+    @staticmethod
     def get_conflict_decay(time_since_conflict: int):
 
         spawn_len = len(SimulationSettings.spawn_rules["conflict_spawn_decay"])
@@ -54,7 +51,7 @@ class SimulationSettings:
             return float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])
 
 
-    @check_args_type
+    @staticmethod
     def get_location_conflict_decay(time: int, loc):
         """
 
@@ -66,7 +63,7 @@ class SimulationSettings:
         return multiplier
 
 
-    @check_args_type
+    @staticmethod
     def ReadFromYML(ymlfile: str):
 
         print("YAML file:", ymlfile, file=sys.stderr)
