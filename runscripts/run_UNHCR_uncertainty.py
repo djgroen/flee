@@ -1,6 +1,5 @@
 from flee import flee
 from flee.datamanager import handle_refugee_data, read_period
-from flee.datamanager import DataTable  # DataTable.subtract_dates()
 from flee import InputGeography
 import numpy as np
 import flee.postprocessing.analysis as a
