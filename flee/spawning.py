@@ -99,7 +99,7 @@ def draw_sample(e, loc, attribute):
 
   if attribute in __demographics:
     if loc.name in __demographics[attribute].columns:
-      a = __demographics[attribute].sample(n=1,weights=loc)
+      a = __demographics[attribute].sample(n=1,weights=loc.name)
     else:
       a = __demographics[attribute].sample(n=1,weights='Default')
   else:
