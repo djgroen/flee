@@ -656,6 +656,7 @@ class Ecosystem(flee.Ecosystem):
         pop: int = 0,
         foreign: bool = False,
         country: str = "unknown",
+        attributes: dict = {},
     ):
         """
         Add a location to the ABM network graph
