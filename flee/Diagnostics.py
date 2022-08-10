@@ -32,7 +32,7 @@ def write_agents_par(
         my_file = open("agents.out.%s" % rank, "w", encoding="utf-8")
         print(
             "#time,rank-agentid,agent location,gps_x,gps_y,is_travelling,distance_travelled,"
-            "places_travelled,distance_moved_this_timestep",
+            "places_travelled,distance_moved_this_timestep,gender,age,attributes",
             file=my_file,
         )
     else:
@@ -47,7 +47,7 @@ def write_agents_par(
             gps_x = 0.0
             gps_y = 0.0
             print(
-                    "{},{}-{},{},{},{},{},{},{},{}".format(
+                    "{},{}-{},{},{},{},{},{},{},{},{},{},{}".format(
                     time,
                     rank,
                     k,
@@ -58,6 +58,9 @@ def write_agents_par(
                     a.distance_travelled,
                     a.places_travelled,
                     a.distance_moved_this_timestep,
+                    a.gender,
+                    a.age,
+                    a.attributes
                     ),
                 file=my_file,
             )
