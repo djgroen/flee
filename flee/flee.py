@@ -1085,6 +1085,11 @@ class Ecosystem:
         """
         Summary
         """
+
+
+        print("EVOLVING USING FLEE.", file=sys.stderr)
+
+
         spawning.refresh_spawn_weights(self) # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
 
         # update level 1, 2 and 3 location scores

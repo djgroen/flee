@@ -1,4 +1,5 @@
-from flee import flee, spawning
+from flee import pflee as flee
+from flee import spawning
 from flee.datamanager import handle_refugee_data, read_period
 from flee.datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography

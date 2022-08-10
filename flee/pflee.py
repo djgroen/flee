@@ -552,6 +552,11 @@ class Ecosystem(flee.Ecosystem):
         """
         Summary
         """
+
+
+        print("EVOLVING USING PFLEE: ", self.mpi.rank, file=sys.stderr)
+
+
         if self.time == 0:
             # print("rank, num_agents:", self.mpi.rank, len(self.agents))
 
@@ -620,6 +625,7 @@ class Ecosystem(flee.Ecosystem):
             a.timesteps_since_departure += 1
 
         if SimulationSettings.log_levels["agent"] > 0:
+            print("Rank writing:", self.mpi.rank, file=sys.stderr)
             write_agents_par(rank=self.mpi.rank, agents=self.agents, time=self.time)
 
         for a in self.agents:
