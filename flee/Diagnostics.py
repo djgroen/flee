@@ -10,6 +10,20 @@ else:
         return func
 
 
+def print_attribute_keys(a):
+    out = ""
+    for k in a.attributes.keys():
+        out += k
+        out += ","
+    return out
+
+
+def print_attribute_values(a):
+    out = ""
+    for k in a.attributes.values():
+        out += k
+        out += ","
+    return out
 
 @check_args_type
 def write_agents_par(
@@ -32,7 +46,7 @@ def write_agents_par(
         my_file = open("agents.out.%s" % rank, "w", encoding="utf-8")
         print(
             "#time,rank-agentid,agent location,gps_x,gps_y,is_travelling,distance_travelled,"
-            "places_travelled,distance_moved_this_timestep,gender,age,attributes",
+            "places_travelled,distance_moved_this_timestep,gender,age,{}".format(print_attribute_keys(agents[0])),
             file=my_file,
         )
     else:
@@ -60,7 +74,7 @@ def write_agents_par(
                     a.distance_moved_this_timestep,
                     a.gender,
                     a.age,
-                    a.attributes
+                    print_attribute_values(a),
                     ),
                 file=my_file,
             )
