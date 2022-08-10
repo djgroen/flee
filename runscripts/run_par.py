@@ -1,4 +1,4 @@
-from flee import flee
+from flee import flee, spawning
 from flee.datamanager import handle_refugee_data, read_period
 from flee.datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
@@ -7,8 +7,6 @@ import flee.postprocessing.analysis as a
 import sys
 
 from datetime import datetime, timedelta
-
-insert_day0_refugees_in_camps = True
 
 if __name__ == "__main__":
 
