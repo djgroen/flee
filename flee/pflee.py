@@ -710,7 +710,12 @@ class Ecosystem(flee.Ecosystem):
                 file=sys.stderr,
             )
         self.locations.append(loc)
+        self.spawn_weights = np.append(self.spawn_weights, [0.0])
         self.locationNames.append(loc.name)
+
+        spawning.refresh_spawn_weights(self)
+
+
         return loc
 
     @check_args_type
