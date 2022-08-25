@@ -58,16 +58,14 @@ def write_agents_par(
     if time % timestep_interval == 0:
         for k in range(0, max_written):
             a = agents[k]
-            gps_x = 0.0
-            gps_y = 0.0
             print(
                     "{},{}-{},{},{},{},{},{},{},{},{},{},{}".format(
                     time,
                     rank,
                     k,
                     a.location.name,
-                    gps_x,
-                    gps_y,
+                    a.location.x,
+                    a.location.y,
                     a.travelling,
                     a.distance_travelled,
                     a.places_travelled,

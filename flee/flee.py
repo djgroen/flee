@@ -400,6 +400,8 @@ class Link:
         # links for now always connect two endpoints
         self.startpoint = startpoint
         self.endpoint = endpoint
+        self.x = (self.startpoint.x + self.endpoint.x) / 2.0
+        self.y = (self.startpoint.y + self.endpoint.y) / 2.0
 
         # number of agents that are in transit.
         self.numAgents = 0
