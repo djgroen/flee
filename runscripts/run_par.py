@@ -6,6 +6,7 @@ from flee import InputGeography
 import numpy as np
 import flee.postprocessing.analysis as a
 import sys
+from flee.SimulationSettings import SimulationSettings
 
 from datetime import datetime, timedelta
 
@@ -42,7 +43,7 @@ if __name__ == "__main__":
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv")
+  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv", population_scaledown_factor=SimulationSettings.optimisations["PopulationScaleDownFactor"])
 
   d.ReadL1Corrections("%s/registration_corrections.csv" % input_csv_directory)
 
