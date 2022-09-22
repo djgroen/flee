@@ -133,7 +133,7 @@ def run_par():
             "input_csv",
             "source_data",
             simulation_period,
-            "empty.yml",
+            "simsetting.yml",
             "> out.csv",
         ]
         cmd = " ".join([str(x) for x in cmd])
