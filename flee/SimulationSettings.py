@@ -173,7 +173,7 @@ class SimulationSettings:
 
 
         dpo = fetchss(dp, "optimisations", None)
-        SimulationSettings.optimisations["PopulationScaleDownFactor"] = float(fetchss(dpo,"hasten",1.0))
+        SimulationSettings.optimisations["PopulationScaleDownFactor"] = int(fetchss(dpo,"hasten",1))
 
         if SimulationSettings.UseV1Rules is True:
             SimulationSettings.move_rules["MaxMoveSpeed"] = 200
