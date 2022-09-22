@@ -30,7 +30,7 @@ def test_csv(end_time=50, last_physical_day=50):
     ig = InputGeography.InputGeography()
 
     flee.SimulationSettings.FlareConflictInputFile = os.path.join(
-        "..", "test_data", "test_input_csv", "flare-out.csv"
+        "test_data", "test_input_csv", "flare-out.csv"
     )
     ig.ReadFlareConflictInputCSV(csv_name=flee.SimulationSettings.FlareConflictInputFile)
 
@@ -42,17 +42,17 @@ def test_csv(end_time=50, last_physical_day=50):
     assert ig.conflicts["A"][0] == 1
     assert ig.conflicts["C2"][94] == 0
 
-    ig.ReadLocationsFromCSV(csv_name=os.path.join("..", "test_data", "test_input_csv/locations.csv"))
+    ig.ReadLocationsFromCSV(csv_name=os.path.join("test_data", "test_input_csv/locations.csv"))
 
-    ig.ReadLinksFromCSV(csv_name=os.path.join("..", "test_data", "test_input_csv/routes.csv"))
+    ig.ReadLinksFromCSV(csv_name=os.path.join("test_data", "test_input_csv/routes.csv"))
 
-    ig.ReadClosuresFromCSV(csv_name=os.path.join("..", "test_data", "test_input_csv/closures.csv"))
+    ig.ReadClosuresFromCSV(csv_name=os.path.join("test_data", "test_input_csv/closures.csv"))
 
     e, lm = ig.StoreInputGeographyInEcosystem(e=e)
 
     d = handle_refugee_data.RefugeeTable(
         csvformat="generic",
-        data_directory=os.path.join("..", "test_data", "test_input_csv", "refugee_data"),
+        data_directory=os.path.join("test_data", "test_input_csv", "refugee_data"),
         start_date="2010-01-01",
         data_layout="data_layout.csv",
     )
