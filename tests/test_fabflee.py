@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 # GitHub action = 2 cores
 
-
 def test_mali(run_py):
     ret = run_py("mali2012", "50")
     assert ret == "OK"
