@@ -4,7 +4,10 @@
 [![GitHub last-commit](https://img.shields.io/github/last-commit/djgroen/flee.svg)](https://github.com/djgroen/flee/commits/master)
 
 
-Flee is an agent-based modelling toolkit which is purpose-built for simulating the movement of individuals across geographical locations. Flee is currently used primarily for modelling the movements of refugees and internally displaced persons (IDPs).
+Flee is an agent-based modelling toolkit which is purpose-built for simulating
+the movement of individuals across geographical locations. Flee is currently
+used primarily for modelling the movements of forcibly displaced
+persons (FDPs).
 
 Full documentation of Flee is available at https://flee.readthedocs.io.
 
