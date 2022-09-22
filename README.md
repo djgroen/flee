@@ -11,6 +11,8 @@ persons (FDPs).
 
 Full documentation of Flee is available at https://flee.readthedocs.io.
 
+Official releases will be done on https://www.github.com/djgroen/flee. (flee-release is deprecated and will be removed in due course.)
+
 ## Parallel performance testing
 
 Parallel tests can be performed using test_par.py. The interface is as follows:
