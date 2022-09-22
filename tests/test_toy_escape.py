@@ -28,7 +28,7 @@ def test_toy_escape():
 
     d = handle_refugee_data.RefugeeTable(
         csvformat="generic",
-        data_directory="../test_data",
+        data_directory="test_data",
         start_date="2010-01-01",
         data_layout="data_layout.csv",
     )
