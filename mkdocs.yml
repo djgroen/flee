@@ -91,7 +91,7 @@ plugins:
       strict: true  
   - macros
   - mkdocstrings:
-      default_handler: python    
+      default_handler: python
       handlers:
           python:
             setup_commands:
