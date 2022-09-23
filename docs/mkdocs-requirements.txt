@@ -11,5 +11,4 @@ mkdocs-mermaid2-plugin
 mkdocs-minify-plugin
 mkdocs-print-site-plugin
 mkdocstrings
-mkdocstrings-python
 pytkdocs==0.12
