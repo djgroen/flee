@@ -7,7 +7,7 @@ from typing import List, Optional
 
 import numpy as np
 from flee import flee,scoring,spawning
-from flee.Diagnostics import write_agents_par
+from flee.Diagnostics import write_agents_par,write_links_par
 from flee.SimulationSettings import SimulationSettings
 from mpi4py import MPI
 
@@ -623,6 +623,9 @@ class Ecosystem(flee.Ecosystem):
 
         if SimulationSettings.log_levels["agent"] > 0:
             write_agents_par(rank=self.mpi.rank, agents=self.agents, time=self.time)
+
+        if SimulationSettings.log_levels["link"] > 0:
+            write_links_par(rank=self.mpi.rank, locations=self.locations, time=self.time)
 
         for a in self.agents:
             a.recent_travel_distance = (

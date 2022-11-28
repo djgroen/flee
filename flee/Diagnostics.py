@@ -91,3 +91,58 @@ def write_agents(agents, time: int, max_written: int = -1, timestep_interval: in
         timestep_interval (int, optional): Description
     """
     write_agents_par(rank=0, agents=agents, time=time, max_written=-1, timestep_interval=1)
+
+
+@check_args_type
+def write_links_par(
+    rank: int, locations, time: int, timestep_interval: int = 1
+) -> None:
+    """
+    Write agent data to file. Write only up to <max_written> agents each time step,
+    and only write a file every <timestep_interval> time steps.
+
+    Args:
+        rank (int): Description
+        agents (List[Person]): Description
+        time (int): Description
+        max_written (int, optional): Description
+        timestep_interval (int, optional): Description
+    """
+
+    my_file = None
+    if time == 0:
+        my_file = open("links.out.%s" % rank, "w", encoding="utf-8")
+        print(
+            "#time,start_location-end_location,cum_num_agents",
+            file=my_file,
+        )
+    else:
+        my_file = open("links.out.%s" % rank, "a", encoding="utf-8")
+
+    if time % timestep_interval == 0:
+        for i in range(0, len(locations)):
+            for l in locations[i].links:
+                print(
+                    "{},{}-{},{}".format(
+                    time,
+                    l.startpoint.name,
+                    l.endpoint.name,
+                    l.cumNumAgents,
+                    ),
+                file=my_file,
+            )
+
+
+@check_args_type
+def write_links(locations, time: int, timestep_interval: int = 1) -> None:
+    """
+    Summary
+
+    Args:
+        agents (List[Person]): Description
+        time (int): Description
+        max_written (int, optional): Description
+        timestep_interval (int, optional): Description
+    """
+    write_links_par(rank=0, locations=locations, time=time, timestep_interval=1)
+

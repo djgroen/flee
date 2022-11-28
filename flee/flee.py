@@ -7,7 +7,7 @@ import sys
 from typing import List, Optional, Tuple
 
 import numpy as np
-from flee.Diagnostics import write_agents
+from flee.Diagnostics import write_agents, write_links
 from flee.SimulationSettings import SimulationSettings
 import flee.moving as moving
 import flee.spawning as spawning
@@ -405,6 +405,7 @@ class Link:
 
         # number of agents that are in transit.
         self.numAgents = 0
+        self.cumNumAgents = 0 # cumulative # of agents
         # refugee population on current rank (for pflee).
         self.numAgentsOnRank = 0
 
@@ -424,6 +425,7 @@ class Link:
         Summary
         """
         self.numAgents += 1
+        self.cumNumAgents += 1
 
     def get_distance(self) -> float:
         """
@@ -1110,6 +1112,9 @@ class Ecosystem:
 
         if SimulationSettings.log_levels["agent"] > 0:
             write_agents(agents=self.agents, time=self.time)
+
+        if SimulationSettings.log_levels["link"] > 0:
+            write_links(locations=self.locations, time=self.time)
 
         for a in self.agents:
             a.recent_travel_distance = (
