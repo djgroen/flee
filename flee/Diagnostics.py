@@ -113,7 +113,7 @@ def write_links_par(
     if time == 0:
         my_file = open("links.out.%s" % rank, "w", encoding="utf-8")
         print(
-            "#time,start_location-end_location,cum_num_agents",
+            "#time,start_location,end_location,cum_num_agents",
             file=my_file,
         )
     else:
@@ -123,7 +123,7 @@ def write_links_par(
         for i in range(0, len(locations)):
             for l in locations[i].links:
                 print(
-                    "{},{}-{},{}".format(
+                    "{},{},{},{}".format(
                     time,
                     l.startpoint.name,
                     l.endpoint.name,
