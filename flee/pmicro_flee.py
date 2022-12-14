@@ -181,7 +181,7 @@ class Link_weather_coupling(pflee.Link):
         forced_redirection: bool = False,
         link_type: Optional[str] = None,
     ):
-        self.name = "__link__"
+        self.name = "L:{}:{}".format(startpoint.name, endpoint.name)
         self.closed = False
 
         # distance in km.

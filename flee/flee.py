@@ -391,7 +391,7 @@ class Link:
 
     @check_args_type
     def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False):
-        self.name = "__link__"
+        self.name = "L:{}:{}".format(startpoint.name, endpoint.name)
         self.closed = False
 
         # distance in km.
