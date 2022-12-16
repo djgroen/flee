@@ -120,6 +120,13 @@ class InputGeography:
                     self.locations.append(row)
 
     @check_args_type
+    def MakeLocationList(self) -> dict:
+        loc_list = {}
+        for l in self.locations:
+            loc_list[l[0]] = [float(l[3]),float(l[4])]
+        return loc_list
+
+    @check_args_type
     def ReadLinksFromCSV(
         self, csv_name: str, name1_col: int = 0, name2_col: int = 1, dist_col: int = 2
     ) -> None:
