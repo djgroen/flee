@@ -177,3 +177,10 @@ It clears the active conflict directory upon which you can reload the conflict a
 	```
 	Local results are typically locations in the `~/FabSim3/results/` subdirectory.
 
+### *Plotting link graphs for quick visual inspection*
+
+1. To quickly plot a link graph, simply type:
+        ```sh
+        fabsim localhost plot_flee_links:<config_name>
+        ```
+
