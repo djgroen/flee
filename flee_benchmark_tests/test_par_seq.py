@@ -1,6 +1,7 @@
 from flee import flee
+from flee import spawning
 from flee.datamanager import handle_refugee_data
-from flee.datamanager import DataTable  # DataTable.subtract_dates()
+from flee.datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
 import numpy as np
 import flee.postprocessing.analysis as a
@@ -8,7 +9,7 @@ import sys
 import argparse
 import time
 import os
-
+from flee.SimulationSettings import SimulationSettings
 
 def date_to_sim_days(date):
     return DataTable.subtract_dates(date1=date, date2="2010-01-01")
@@ -20,6 +21,8 @@ def test_par_seq(end_time=10, last_physical_day=10,
                  initialagents=100000,
                  newagentsperstep=1000):
     t_exec_start = time.time()
+
+    SimulationSettings.ReadFromYML(os.path.join(inputdir, "../simsettings.yml"))
 
     e = flee.Ecosystem()
 
@@ -51,7 +54,7 @@ def test_par_seq(end_time=10, last_physical_day=10,
 
     ig.AddNewConflictZones(e=e, time=0)
     # All initial refugees start in location A.
-    e.add_agents_to_conflict_zones(number=initialagents)
+    spawning.spawn_agents(e, initialagents)
 
     for l in camp_locations:
         output_header_string += "{} sim,{} data,{} error,".format(
@@ -78,16 +81,16 @@ def test_par_seq(end_time=10, last_physical_day=10,
     for t in range(0, end_time):
 
         if t > 0:
-            ig.AddNewConflictZones(e=e, time=t)
+            ig.AddNewConflictZones(e, t)
 
         # Determine number of new refugees to insert into the system.
         new_refs = newagentsperstep
         refugees_raw += new_refs
 
         # Insert refugee agents
-        e.add_agents_to_conflict_zones(number=new_refs)
+        spawning.spawn_agents(e, new_refs)
 
-        e.refresh_conflict_weights()
+        spawning.refresh_spawn_weights(e)
         t_data = t
 
         e.enact_border_closures(time=t)

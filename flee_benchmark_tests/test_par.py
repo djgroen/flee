@@ -25,7 +25,7 @@ def test_par(end_time=10,
              ):
     t_exec_start = time.time()
 
-    SimulationSettings.ReadFromYML("simsettings.yml")
+    SimulationSettings.ReadFromYML(os.path.join(inputdir, "../simsettings.yml"))
 
     e = pflee.Ecosystem()
 
