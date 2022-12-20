@@ -203,10 +203,10 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
     return new_refs, __refugees_raw, __refugee_debt
 
 
-    def spawn_agents(e, number):
+def spawn_agents(e, number):
 
-      #Insert refugee agents
-      for i in range(0, number):
+    #Insert refugee agents
+    for i in range(0, number):
         loc = e.pick_spawn_location()
         age = draw_sample(e, loc, 'age')
         gender = draw_sample(e, loc, 'gender')

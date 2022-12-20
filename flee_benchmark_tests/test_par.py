@@ -1,6 +1,7 @@
 from flee import pflee
+from flee import spawning
 from flee.datamanager import handle_refugee_data
-from flee.datamanager import DataTable  # DataTable.subtract_dates()
+from flee.datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
 import numpy as np
 import flee.postprocessing.analysis as a
@@ -8,7 +9,7 @@ import sys
 import argparse
 import time
 import os
-
+from flee.SimulationSettings import SimulationSettings
 
 def date_to_sim_days(date):
     return DataTable.subtract_dates(date1=date, date2="2010-01-01")
@@ -23,6 +24,8 @@ def test_par(end_time=10,
              newagentsperstep=1000
              ):
     t_exec_start = time.time()
+
+    SimulationSettings.ReadFromYML("simsettings.yml")
 
     e = pflee.Ecosystem()
 
@@ -54,7 +57,7 @@ def test_par(end_time=10,
 
     ig.AddNewConflictZones(e=e, time=0)
     # All initial refugees start in location A.
-    e.add_agents_to_conflict_zones(number=initialagents)
+    spawning.spawn_agents(e, initialagents)
 
     for l in camp_locations:
         output_header_string += "{} sim,{} data,{} error,".format(
@@ -88,9 +91,9 @@ def test_par(end_time=10,
         refugees_raw += new_refs
 
         # Insert refugee agents
-        e.add_agents_to_conflict_zones(number=new_refs)
+        spawning.spawn_agents(e, new_refs)
 
-        e.refresh_conflict_weights()
+        spawning.refresh_spawn_weights(e)
         t_data = t
 
         e.enact_border_closures(time=t)
