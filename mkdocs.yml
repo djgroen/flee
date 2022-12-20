@@ -99,7 +99,7 @@ plugins:
               - sys.path.append("flee")
             # #   - sys.path.insert(0, ".")            
             #   - sys.path.append('../')
-            rendering:
+            options:
               show_root_toc_entry: false
               show_root_heading: false
               show_root_full_path: true
@@ -109,7 +109,6 @@ plugins:
               show_if_no_docstring: false
               group_by_category: true
               heading_level: 2
-            selection:
               new_path_syntax: True
               filters:
                 - "!^_"  # exlude all members starting with _
