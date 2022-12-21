@@ -38,26 +38,26 @@ def test_par_burundi(run_par):
 
 
 def test_car(run_py):
-    ret = run_py("car", "50")
+    ret = run_py("car", "20")
     assert ret == "OK"
 
 
 def test_par_car(run_par):
     logger.addHandler(logging.StreamHandler(sys.stdout))
     logger.setLevel(logging.DEBUG)
-    ret = run_par("car", "50", "2")
+    ret = run_par("car", "20", "2")
     assert ret == "OK"
 
 
 def test_ssudan(run_py):
-    ret = run_py("ssudan", "50")
+    ret = run_py("ssudan", "20")
     assert ret == "OK"
 
 
 def test_par_ssudan(run_par):
     logger.addHandler(logging.StreamHandler(sys.stdout))
     logger.setLevel(logging.DEBUG)
-    ret = run_par("ssudan", "50", "2")
+    ret = run_par("ssudan", "20", "2")
     assert ret == "OK"
 
 
