@@ -13,4 +13,5 @@ mkdocs-print-site-plugin
 mkdocs-autolinks-plugin
 mkdocstrings
 mkdocstrings-python
+mkdocstrings.handlers.python
 pytkdocs==0.12
