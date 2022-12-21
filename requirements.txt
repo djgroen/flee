@@ -8,3 +8,4 @@ beartype
 seaborn
 muscle3
 pyyaml
+mkdocstrings
