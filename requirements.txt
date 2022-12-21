@@ -9,3 +9,5 @@ seaborn
 muscle3
 pyyaml
 mkdocstrings
+mkdocstrings-python
+mkdocstrings.handlers.python
