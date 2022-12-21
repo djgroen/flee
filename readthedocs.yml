@@ -5,22 +5,25 @@ build:
   apt_packages:
     - openmpi-bin
     - libopenmpi-dev
-
-# Optionally set the version of Python and requirements required to build your docs
-python:
-  version: 3.7
-  install:
-    - requirements: docs/mkdocs-requirements.txt
-    - requirements: requirements.txt
-    # - method: setuptools
-    #   path: .
-  system_packages: true
-
+  tools:
+    python: 3.7
 
 # Build documentation with MkDocs
 mkdocs:
  configuration: mkdocs.yml
  fail_on_warning: false
+ 
+# Optionally set the version of Python and requirements required to build your docs
+python:
+  version: 3.7
+  install:
+    - requirements: docs/mkdocs-requirements.txt
+    # - requirements: requirements.txt
+    # - method: setuptools
+    #   path: .
+  system_packages: true
+
+
 
 
 # Optionally build your docs in additional formats such as PDF and ePub
