@@ -390,7 +390,7 @@ class Link:
     """
 
     @check_args_type
-    def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False):
+    def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False, attributes: dict = {}):
         self.name = "L:{}:{}".format(startpoint.name, endpoint.name)
         self.closed = False
 
@@ -1265,6 +1265,7 @@ class Ecosystem:
         endpoint2: str,
         distance: float = 1.0,
         forced_redirection: bool = False,
+        attributes: dict = {},
     ) -> None:
         """
         Creates a link between two endpoint locations
@@ -1306,6 +1307,7 @@ class Ecosystem:
                 endpoint=self.locations[endpoint2_index],
                 distance=distance,
                 forced_redirection=forced_redirection,
+                attributes=attributes,
             )
         )
         self.locations[endpoint2_index].links.append(
@@ -1313,6 +1315,7 @@ class Ecosystem:
                 startpoint=self.locations[endpoint2_index],
                 endpoint=self.locations[endpoint1_index],
                 distance=distance,
+                attributes=attributes,
             )
         )
 

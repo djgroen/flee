@@ -114,7 +114,6 @@ class InputGeography:
                             columns.append(row[i])
                         self.columns = columns
                     print("header", columns, row, len(row), file=sys.stderr)
-                    pass
                 else:
                     # print(row)
                     self.locations.append(row)
@@ -127,29 +126,32 @@ class InputGeography:
         return loc_list
 
     @check_args_type
-    def ReadLinksFromCSV(
-        self, csv_name: str, name1_col: int = 0, name2_col: int = 1, dist_col: int = 2
-    ) -> None:
+    def ReadLinksFromCSV(self, csv_name: str) -> None:
         """
         Converts a CSV file to a locations information table
 
         Args:
             csv_name (str): Description
-            name1_col (int, optional): Description
-            name2_col (int, optional): Description
-            dist_col (int, optional): Description
         """
         self.links = []
 
         with open(csv_name, newline="", encoding="utf-8") as csvfile:
             values = csv.reader(csvfile)
 
+            link_columns = ["name1","name2","distance","forced_redirection"]
             for row in values:
                 if len(row) == 0 or row[0][0] == "#":
+                    if len(row) > 4:
+                        # First 8 columns have hard-coded names, other columns can be added to include custom (static) attributes
+                        for i in range(4, len(row)):
+                            print("appending", file=sys.stderr)
+                            link_columns.append(row[i])
+                    self.link_columns = link_columns
+                    print("link header", link_columns, row, len(row), file=sys.stderr)
                     pass
                 else:
                     # print(row)
-                    self.links.append([row[name1_col], row[name2_col], row[dist_col]])
+                    self.links.append(row)
 
     @check_args_type
     def ReadClosuresFromCSV(self, csv_name: str) -> None:
@@ -241,6 +243,11 @@ class InputGeography:
                 )
 
         for link in self.links:
+            attributes = {}
+            if len(link) > 4:
+                for i in range(4, len(link)):
+                    attributes[self.link_columns[i]] = link[i]
+
             if len(link) > 3:
                 if int(link[3]) == 1:
                     e.linkUp(
@@ -248,6 +255,7 @@ class InputGeography:
                         endpoint2=link[1],
                         distance=float(link[2]),
                         forced_redirection=True,
+                        attributes=attributes,
                     )
                 if int(link[3]) == 2:
                     e.linkUp(
@@ -255,6 +263,7 @@ class InputGeography:
                         endpoint2=link[0],
                         distance=float(link[2]),
                         forced_redirection=True,
+                        attributes=attributes,
                     )
                 else:
                     e.linkUp(
@@ -262,6 +271,7 @@ class InputGeography:
                         endpoint2=link[1],
                         distance=float(link[2]),
                         forced_redirection=False,
+                        attributes=attributes,
                     )
             else:
                 e.linkUp(
@@ -269,6 +279,7 @@ class InputGeography:
                     endpoint2=link[1],
                     distance=float(link[2]),
                     forced_redirection=False,
+                    attributes = {},
                 )
 
         e.closures = []
