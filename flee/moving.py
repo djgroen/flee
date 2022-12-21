@@ -129,15 +129,15 @@ def calculateLinkWeight(
 
   if SimulationSettings.move_rules["AwarenessLevel"] > step:
     # Traverse the tree one step further.
-    for e in link.endpoint.links:
-      if e.endpoint.name in origin_names:
+    for lel in link.endpoint.links:
+      if lel.endpoint.name in origin_names:
         # Link points back to an origin, so ignore.
         pass
       else:
         weight = max(
           weight,
           calculateLinkWeight(agent=agent,
-              link=e,
+              link=lel,
               prior_distance=prior_distance + link.get_distance(),
               origin_names=origin_names + [link.endpoint.name],
               step=step + 1,
