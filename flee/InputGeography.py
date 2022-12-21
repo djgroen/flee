@@ -249,7 +249,11 @@ class InputGeography:
                     attributes[self.link_columns[i]] = link[i]
 
             if len(link) > 3:
-                if int(link[3]) == 1:
+                l3 = link[3]
+                if len(l3) == 0:
+                    l3 = 0
+
+                if int(l3) == 1:
                     e.linkUp(
                         endpoint1=link[0],
                         endpoint2=link[1],
@@ -257,7 +261,7 @@ class InputGeography:
                         forced_redirection=True,
                         attributes=attributes,
                     )
-                if int(link[3]) == 2:
+                if int(l3) == 2:
                     e.linkUp(
                         endpoint1=link[1],
                         endpoint2=link[0],

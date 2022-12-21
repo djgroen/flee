@@ -7,6 +7,7 @@ import sys
 import pytest
 
 base = os.path.join(os.path.dirname(os.path.dirname(__file__)), "FabFlee/config_files")
+rs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "runscripts")
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ def run_py():
 
         cmd = [
             "python3",
-            "run.py",
+            "{}/run.py".format(rs_path),
             "input_csv",
             "source_data",
             simulation_period,
@@ -128,7 +129,7 @@ def run_par():
             "-n",
             cores,
             "python3",
-            "run_par.py",
+            "{}/run_par.py".format(rs_path),
             "input_csv",
             "source_data",
             simulation_period,
