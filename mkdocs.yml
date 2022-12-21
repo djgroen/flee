@@ -223,7 +223,7 @@ nav:
           - Location: code_reference/flee/location.md
           - Link: code_reference/flee/link.md
           - Ecosystem: code_reference/flee/ecosystem.md
-          - Diagnostics: code_reference/flee/diagnostics.md
+          # - Diagnostics: code_reference/flee/diagnostics.md
           - InputGeography: code_reference/flee/inputGeography.md
        - P-FLEE:
           - Person: code_reference/pflee/person.md
