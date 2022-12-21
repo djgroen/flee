@@ -13,6 +13,8 @@ mkdocs-mermaid2-plugin
 mkdocs-minify-plugin
 mkdocs-print-site-plugin
 mkdocstrings
+mkdocstrings-python
+mkdocstrings.handlers.python
 pytest
 black
 flake8
