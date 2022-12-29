@@ -1,7 +1,7 @@
 mkdocs
 mkdocs-autolinks-plugin
 mkdocs-autorefs
-mkdocs-enumerate-headings-plugin
+#mkdocs-enumerate-headings-plugin
 mkdocs-macros-plugin
 mkdocs-markdownextradata-plugin
 mkdocs-material
@@ -9,8 +9,9 @@ mkdocs-material-extensions
 mkdocs-mermaid2-plugin
 mkdocs-minify-plugin
 mkdocs-awesome-pages-plugin
-mkdocs-print-site-plugin
+#mkdocs-print-site-plugin
 mkdocs-autolinks-plugin
-mkdocstrings
-mkdocstrings-python
-pytkdocs==0.12
+mkdocstrings==0.18.1
+mkdocstrings-python-legacy
+seaborn
+# pytkdocs==0.12

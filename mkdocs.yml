@@ -29,7 +29,7 @@ extra:
     # - icon: fontawesome/brands/docker
     #   link: https://hub.docker.com/u/up42
     - icon: fontawesome/solid/envelope
-      link: mailto:djgroen@gmail.com 
+      link: mailto:djgroen@gmail.com
 
 #####################
 #   Configuration   #
@@ -39,11 +39,11 @@ theme:
   # 404 page
   custom_dir: docs/static/theme/overrides
   static_templates:
-    - 404.html  
+    - 404.html
   include_search_page: false
   search_index_only: true
   # Default values, taken from mkdocs_theme.yml
-  language: en  
+  language: en
   # palette:
   #   # primary: indigo
   #   # accent: indigo
@@ -71,9 +71,9 @@ theme:
 
   features:
     - search.suggest
-    - search.highlight    
+    - search.highlight
     - navigation.tabs
-    - navigation.expand  
+    - navigation.expand
   favicon: images/logo/logo.png # browser tab icon
   logo: images/empty.png
   icon:
@@ -84,19 +84,19 @@ theme:
 ###############
 plugins:
   - search
-  # - enumerate-headings  
+    # - enumerate-headings:
   - autolinks
   - awesome-pages:
       collapse_single_pages: true
-      strict: true  
+      strict: true
   - macros
   - mkdocstrings:
       default_handler: python
       handlers:
           python:
-            setup_commands:
-              - import sys
-              - sys.path.append("flee")
+            #setup_commands:
+            #  - import sys
+            #  - sys.path.append("flee")
             # #   - sys.path.insert(0, ".")            
             #   - sys.path.append('../')
             options:
@@ -109,14 +109,15 @@ plugins:
               show_if_no_docstring: false
               group_by_category: true
               heading_level: 2
-              new_path_syntax: True
+              new_path_syntax: False
               filters:
                 - "!^_"  # exlude all members starting with _
               members: true
-              inherited_members: True                
+              inherited_members: True
               docstring_style: google
               docstring_options:
                 replace_admonitions: false
+
   - mermaid2:
       arguments:
         securityLevel: 'loose'
@@ -162,7 +163,7 @@ markdown_extensions:
       permalink: true
       toc_depth: 4
   - pymdownx.arithmatex: # mathjax
-      generic: true      
+      generic: true
   - pymdownx.betterem:
       smart_enable: all
   - pymdownx.caret
@@ -174,7 +175,7 @@ markdown_extensions:
   - pymdownx.highlight:
       use_pygments: true
   - pymdownx.escapeall:
-      nbsp: true      
+      nbsp: true
   - pymdownx.inlinehilite # inline code highlights
   - pymdownx.keys # show keystroke symbols
   - pymdownx.mark
@@ -189,14 +190,14 @@ markdown_extensions:
   - pymdownx.tabbed # content tabs
   - pymdownx.tasklist:
       custom_checkbox: true
-      clickable_checkbox: true      
+      clickable_checkbox: true
   - pymdownx.tilde
   - pymdownx.tabbed
   - codehilite:
       guess_lang: False
       use_pygments: True
       noclasses: True
-      pygments_style: monokai      
+      pygments_style: monokai
   - toc:
       permalink: true
 #################

@@ -1,3 +1,1 @@
-# Reference
-
-::: flee.flee.Diagnostics
+::: flee.Diagnostics
