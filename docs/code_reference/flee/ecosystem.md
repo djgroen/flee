@@ -1,4 +1,3 @@
-::: flee.flee:Ecosystem
- 	:docstring:
+::: flee.flee.Ecosystem
 
 

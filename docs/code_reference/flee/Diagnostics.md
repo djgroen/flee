@@ -1,4 +1,0 @@
-
-::: flee.Diagnostics
-	:docstring:
-
