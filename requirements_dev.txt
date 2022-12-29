@@ -13,7 +13,7 @@ mkdocs-mermaid2-plugin
 mkdocs-minify-plugin
 mkdocs-print-site-plugin
 mkdocstrings
-mkdocstrings-python
+mkdocstrings-python-legacy
 mkdocstrings.handlers.python
 pytest
 black
