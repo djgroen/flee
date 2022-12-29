@@ -10,5 +10,4 @@ muscle3
 pyyaml
 mkdocstrings
 mkdocstrings-python-legacy
-mkdocstrings.handlers.python
 
