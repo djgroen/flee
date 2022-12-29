@@ -8,6 +8,5 @@ beartype
 seaborn
 muscle3
 pyyaml
-mkdocstrings
 mkdocstrings-python-legacy
 
