@@ -1,4 +1,0 @@
-::: flee.coupling:CouplingInterface
- 	:docstring:
-
-
