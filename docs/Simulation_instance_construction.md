@@ -81,7 +81,7 @@ Input camp names (i.e. destination locations) and their capacity into **`locatio
 Currently, the population figures for each location will need to be collected and written to the *population/capacity* column from <www.citypopulation.de>. After the population data has been collected for each location, input these population numbers in `locations.csv`, which can be then used for simulation execution.
 
 
-## **Construct an input routes.csv file**
+## **Construct location graph CSV files**
 
 Identified conflict zones and camps provide origin and destination locations. We connect these locations to represent how forcibly displaced people flee. We use [https://www.openstreetmap.org](https://www.openstreetmap.org) or [http://www.bing.com/maps](http://www.bing.com/maps) (or other mapping services) to connect conflict zones and camps, and add additional locations (if required) as a location type **town** to **`locations.csv`** as illustrated below:
 
@@ -99,18 +99,19 @@ Here, * **custom_attributes** can be a list of optional location-specific (stati
 
 Record distances between locations in **`routes.csv`** file for simulation using the following format:
 
-| **name1** | **name2** | **distance[km]** | **forced_redirection** |
-|:----:|:------:|:-------:|:---:|
-| A    |   B    |   x1    |     |
-| B    |   C    |   x2    |     |
-| A    |   C    |   x3    |     |
-| B    |   N    |   x4    |     |
-| C    |   N    |   x3    |     |
-| N    |   Z    |   x5    |     |
-| ...  |  ...   |   ...   | ... |
+| **name1** | **name2** | **distance[km]** | **forced_redirection** | **custom_attributes...**|
+|:----:|:------:|:-------:|:---:|:------------:|
+| A    |   B    |   x1    |     |      xxx     |
+| B    |   C    |   x2    |     |      xxx     |
+| A    |   C    |   x3    |     |      xxx     |
+| B    |   N    |   x4    |     |      xxx     |
+| C    |   N    |   x3    |     |      xxx     |
+| N    |   Z    |   x5    |     |      xxx     |
+| ...  |  ...   |   ...   | ... |      xxx     |
 
 **forced_redirection** refers to redirection from source location (can be town or camp) to destination location (mainly camp) and source location indicated as forwarding_hub. The value of `0` indicates no redirection, `1` indicates redirection (from name2) to name1 and 2 corresponds to redirection (from name1) to name2.
 
+**custom_attributes** work in the same way here as for `locations.csv`, providing users the ability to add custom link attributes and set different values for individual links.
 
 ## **Define location and border closures in closures.csv file**
 
@@ -188,7 +189,7 @@ We obtain data for each camp using the format and label them as **country_name-c
 
 
 
-## **Construct input demographics profiles **
+## **Construct input demographics profiles**
 
 As of Flee 3.0, it is possible to define demographic attributes to newly spawned agents. You can define these attributes by placing files in the input\_csv subdirectory. For a given example attribute AAAyou can define the weighted probability profile as follows:
 
