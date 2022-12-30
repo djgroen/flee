@@ -1,12 +1,3 @@
-networkx
-matplotlib
-pandas
-pytest
-numpy
-mpi4py
-beartype
-seaborn
-muscle3
 pyyaml
 mkdocs
 # mkdocs-autolinks-plugin
