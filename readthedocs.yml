@@ -6,7 +6,7 @@ build:
     - openmpi-bin
     - libopenmpi-dev
   tools:
-    python: 3.10
+    python: 3.7
 
 # Build documentation with MkDocs
 mkdocs:
@@ -15,7 +15,7 @@ mkdocs:
  
 # Optionally set the version of Python and requirements required to build your docs
 python:
-  version: 3.10
+  version: 3.7
   install:
     - requirements: docs/mkdocs-requirements.txt
     # - requirements: requirements.txt

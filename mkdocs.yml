@@ -90,6 +90,34 @@ plugins:
       collapse_single_pages: true
       strict: true
   - macros
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+          python:
+            #setup_commands:
+            #  - import sys
+            #  - sys.path.append("flee")
+            # #   - sys.path.insert(0, ".")            
+            #   - sys.path.append('../')
+            options:
+              show_root_toc_entry: false
+              show_root_heading: false
+              show_root_full_path: true
+              show_object_full_path: false
+              show_source: true
+              show_category_heading: true
+              show_if_no_docstring: false
+              group_by_category: true
+              heading_level: 2
+              # new_path_syntax: True
+              filters:
+                - "!^_"  # exlude all members starting with _
+              members: true
+              inherited_members: True
+              docstring_style: google
+              docstring_options:
+                replace_admonitions: false
+
   - mermaid2:
       arguments:
         securityLevel: 'loose'
