@@ -94,9 +94,9 @@ plugins:
       default_handler: python
       handlers:
           python:
-            #setup_commands:
-            #  - import sys
-            #  - sys.path.append("flee")
+            setup_commands:
+              - import sys
+              - sys.path.append("flee")
             # #   - sys.path.insert(0, ".")            
             #   - sys.path.append('../')
             options:
