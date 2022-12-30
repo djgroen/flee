@@ -98,7 +98,7 @@ plugins:
               - import sys
             #  - sys.path.append("flee")
             # #   - sys.path.insert(0, ".")            
-               - sys.path.append('../')
+                - sys.path.append('../')
             options:
               show_root_toc_entry: false
               show_root_heading: false
