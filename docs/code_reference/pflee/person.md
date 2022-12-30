@@ -1,5 +1,0 @@
-
-::: flee.pflee:Person
- 	:docstring:
-
-
