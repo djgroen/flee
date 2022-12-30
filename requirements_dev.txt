@@ -21,3 +21,5 @@ flake8-bugbear
 isort
 pylint
 versioneer
+seaborn
+muscle3
