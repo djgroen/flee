@@ -84,7 +84,7 @@ theme:
 ###############
 plugins:
   - search
-    # - enumerate-headings:
+  # - enumerate-headings:
   - autolinks
   - awesome-pages:
       collapse_single_pages: true
@@ -109,7 +109,7 @@ plugins:
               show_if_no_docstring: false
               group_by_category: true
               heading_level: 2
-              new_path_syntax: False
+              # new_path_syntax: True
               filters:
                 - "!^_"  # exlude all members starting with _
               members: true
@@ -150,11 +150,11 @@ markdown_extensions:
   - markdown.extensions.admonition # alerts  
   # - attr_list
   - markdown.extensions.attr_list # add HTML and CSS to Markdown elements
-  # - def_list  
+  # - def_list
   - markdown.extensions.def_list
   # - footnotes
   - markdown.extensions.footnotes
-  # - meta  
+  # - meta
   - markdown.extensions.meta
   # - toc:
   #     toc_depth: 4  
