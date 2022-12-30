@@ -1,4 +1,12 @@
+networkx
+matplotlib
+pandas
+pytest
 numpy
+beartype
+seaborn
+muscle3
+pyyaml
 mkdocs
 # mkdocs-autolinks-plugin
 mkdocs-autorefs
