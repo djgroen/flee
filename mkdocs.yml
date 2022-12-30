@@ -96,8 +96,8 @@ plugins:
           python:
             setup_commands:
               - import sys
-              # - sys.path.append("flee")
-              - sys.path.insert(0, "flee")            
+              - sys.path.append("flee")
+              #- sys.path.insert(0, "flee")            
               # - sys.path.append('../')
             options:
               show_root_toc_entry: false
