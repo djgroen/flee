@@ -218,28 +218,28 @@ nav:
     #     - Add Tasks: pages/examples/add_tasks.md
     #     - Static Min-Min: pages/examples/min_min_scheduling_static.md
 
-    - Code Reference:
-       - FLEE:
-          - Person: code_reference/flee/person.md
-          - Location: code_reference/flee/location.md
-          - Link: code_reference/flee/link.md
-          - Ecosystem: code_reference/flee/ecosystem.md
-          - Diagnostics: code_reference/flee/diagnostics.md
-          - InputGeography: code_reference/flee/inputGeography.md
-       - P-FLEE:
-          - Person: code_reference/pflee/person.md
-          - Location: code_reference/pflee/location.md
-          - Link: code_reference/pflee/link.md
-          - Ecosystem: code_reference/pflee/ecosystem.md
-       - multiscale-FLEE:
-          - CouplingInterface: code_reference/multiscale/coupling.md
-          - pmicro-FLEE:
-            - Person: code_reference/multiscale/pmicro_flee/person.md
-            - Location: code_reference/multiscale/pmicro_flee/location.md
-            - Link: code_reference/multiscale/pmicro_flee/link.md
-            - Link Weather Coupling : code_reference/multiscale/pmicro_flee/link_weather_coupling.md
-            - Ecosystem: code_reference/multiscale/pmicro_flee/ecosystem.md
-            - InputGeography: code_reference/multiscale/pmicro_flee/inputGeography.md
+    # - Code Reference:
+    #   - FLEE:
+    #      - Person: code_reference/flee/person.md
+    #      - Location: code_reference/flee/location.md
+    #      - Link: code_reference/flee/link.md
+    #      - Ecosystem: code_reference/flee/ecosystem.md
+    #      - Diagnostics: code_reference/flee/diagnostics.md
+    #      - InputGeography: code_reference/flee/inputGeography.md
+    #   - P-FLEE:
+    #      - Person: code_reference/pflee/person.md
+    #      - Location: code_reference/pflee/location.md
+    #      - Link: code_reference/pflee/link.md
+    #      - Ecosystem: code_reference/pflee/ecosystem.md
+    #   - multiscale-FLEE:
+    #      - CouplingInterface: code_reference/multiscale/coupling.md
+    #      - pmicro-FLEE:
+    #        - Person: code_reference/multiscale/pmicro_flee/person.md
+    #        - Location: code_reference/multiscale/pmicro_flee/location.md
+    #        - Link: code_reference/multiscale/pmicro_flee/link.md
+    #        - Link Weather Coupling : code_reference/multiscale/pmicro_flee/link_weather_coupling.md
+    #        - Ecosystem: code_reference/multiscale/pmicro_flee/ecosystem.md
+    #        - InputGeography: code_reference/multiscale/pmicro_flee/inputGeography.md
 
 
     - Contributing: contributing.md
