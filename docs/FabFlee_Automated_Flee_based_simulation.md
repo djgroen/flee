@@ -184,3 +184,25 @@ It clears the active conflict directory upon which you can reload the conflict a
         fabsim localhost plot_flee_links:<config_name>
         ```
 
+When running this script for config `mali2012`, you can expect the following type of visualisation to appear in the browser:
+<p align="center">
+    <img src="../images/location_graph.png" alt="Image" width="800" />
+</p>
+
+### *Plotting movements for individual agents during simulation*
+
+1. To plot the movements of individual agents within a single simulation from agent.out files, simply type:
+        ```sh
+        fabsim localhost plot_flee_agents:<results_dir_name>,agentid=<id number of agent>,proc=<process number>
+        ```
+        To use this, please make sure that you are running Flee with AgentLog set to higher than 0. By default, Flee will process agent 0-0, that is the agent on process 0 that resides first in the local agent list. As a concrete example, one might use:
+        ```sh
+        fabsim localhost plot_flee_agents:mali2012_localhost_1,agentid=11000
+        ```
+
+When running this script, you can expect the following type of visualisation to appear in the browser:
+<p align="center">
+    <img src="../images/plot_flee_agents.png" alt="Image" width="800" />
+</p>
+
+ 
