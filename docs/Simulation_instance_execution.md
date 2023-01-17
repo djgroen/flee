@@ -1,9 +1,9 @@
 
 ### **Execute test instance**
-To run simulation instance using Flee with test, simply type:
+Use the following command to run a Flee simulation with the test data set:
 
 ```sh
-python3 run_csv_vanilla.py test_data/test_input_csv test_data/test_input_csv/refugee_data 5 2010-01-01 2>/dev/null
+python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refugee_data 0 test_data/test_input_csv/simsettings.yml 
 ```
 
 !!! note
