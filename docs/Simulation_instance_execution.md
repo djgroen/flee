@@ -11,33 +11,37 @@ python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refu
 
 ### **Execute a conflict scenario**
 
-1. Create an output directory **`out<country_name>`**, where `<country_name>` refers to a conflict instance name. For instance, create an output directory `outcar` for the Central African Republic (CAR) situation.
+1. Create an output directory:
 	```sh
 	mkdir outcar
 	```
 
 2. Execute a conflict scenario by following the execution template demonstrated below:
 	```sh
-	python3 conflicts/<country_name>.py <simulation_period> > out<country_name>/out.csv
+	python3 runscripts/run.py <input csv file directory> <validation data directory> <simulation_period> <location of your simsetting.yml> > <the name of the output directory you just created>/out.csv
 	```
-	where `conflicts/<country_name>.py` is a conflict instance script, `<simulation_period>` represents the simulation duration and `out<country_name>/out.csv` stores the simulation output.
 
-	For example, execute `car-csv.py` in the conflicts directory for the simulation duration of 50 days and store the simulation output in `outcar/out.csv`:
-	```sh
-	python3 conflicts/car-csv.py 50 > outcar/out.csv
-	```
+        The easiest example of this script to check is the test example above.
+
 
 3. To plot the simulation output, simply follow the command template below:
 	```sh
-	python3 plot-flee-output.py out<country_name>
+	python3 flee/postprocessing/plot_flee_output.py <input directory> <output directory>
 	```
 
-	where `out<country_name>` represents the simulation output directory (Step 1). To illustrate, plot the simulation output for CAR, simply execute:
+	where `<output directory>` represents the simulation output directory (Step 1). As an example, you can run and plot the test set by navigating to your root flee directory and using the following commands:
 	```sh
-	python3 plot-flee-output.py outcar
+        mkdir -p out
+	python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refugee_data 0 test_data/test_input_csv/simsettings.yml > out/out.csv
+        python3 flee/postprocessing/plot_flee_output.py out/ out/
 	```	
 
-4. To analyse and interpret simulation output, open `out<country_name>` , which will contain simulation output and UNHCR data comparison graphs for each camp, as well as average relative difference graph for the simulated conflict situation. To illustrate, analyse and interpret simulation output graphs in the `outcar` directory.
+4. To analyse and interpret simulation output, open your output directory , which will contain simulation output and UNHCR data comparison graphs for each camp, as well as average relative difference graph for the simulated conflict situation.
+
+5. Flee can be used in parallel, using
+        ```sh
+        mpirun -np [number of cores] python3 runscripts/run_par.py [options]
+        ```
 
 
 ### **Parallel Performance Testing**
