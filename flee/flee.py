@@ -137,13 +137,18 @@ class Person:
         """
         if self.travelling:
 
+            todays_travel_speed = SimulationSettings.move_rules["MaxMoveSpeed"]
+
             if self.places_travelled == 1 and SimulationSettings.move_rules["StartOnFoot"]:
-                # First journey
-                self.distance_travelled_on_link += SimulationSettings.move_rules["MaxWalkSpeed"]
-                self.distance_moved_this_timestep += SimulationSettings.move_rules["MaxWalkSpeed"]
-            else:
-                self.distance_travelled_on_link += SimulationSettings.move_rules["MaxMoveSpeed"]
-                self.distance_moved_this_timestep += SimulationSettings.move_rules["MaxMoveSpeed"]
+                todays_travel_speed = SimulationSettings.move_rules["MaxWalkSpeed"]
+
+            # Flee 3.0: support for walk_probability attribute on links.
+            walk_probability = float(self.location.attributes.get("walk_probability","0.0"))
+            if random.random() < walk_probability:
+                todays_travel_speed = SimulationSettings.move_rules["MaxWalkSpeed"]
+
+            self.distance_travelled_on_link += todays_travel_speed
+            self.distance_moved_this_timestep += todays_travel_speed
 
             # If destination has been reached.
             if self.distance_travelled_on_link > self.location.get_distance():
@@ -169,7 +174,7 @@ class Person:
                     # should go through another evolve() step in the new
                     # location.
                     evolveMore = False
-                    if self.distance_moved_this_timestep < SimulationSettings.move_rules["MaxMoveSpeed"]:
+                    if self.distance_moved_this_timestep < todays_travel_speed:
                         evolveMore = True
 
                     # update location (which is on a link) to link endpoint
@@ -184,6 +189,7 @@ class Person:
                     # Perform another evolve step if needed. And if it results
                     # in travel, then the current traveled distance needs
                     # to be taken into account.
+                    # Note MaxMoveSpeed is used here, not todays_travel_speed.
                     if evolveMore is True:
                         ForceTownMove = False
                         if SimulationSettings.move_rules["AvoidShortStints"]:
@@ -411,6 +417,8 @@ class Link:
 
         # if True, then all Persons will go down this link.
         self.forced_redirection = forced_redirection
+
+        self.attributes = attributes
 
     @check_args_type
     def DecrementNumAgents(self) -> None:
