@@ -270,7 +270,8 @@ class Location:
             else:
                 print(
                     "Error in creating Location() object: cannot parse location_type value of"
-                    " {} for location object with name {}".format(location_type, name)
+                    " {} for location object with name {}".format(location_type, name),
+                    file=sys.stderr
                 )
 
         # Automatically tags a location as a Camp if refugees are less than 2%
@@ -590,7 +591,7 @@ class Ecosystem:
         #         x = i
 
         if x < 0:
-            print("#Warning: location not found in remove_link")
+            print("#Warning: location not found in remove_link", file=sys.stderr)
             return False
 
         return x
@@ -1025,8 +1026,8 @@ class Ecosystem:
                 spawning.refresh_spawn_weights(self)
 
                 if SimulationSettings.log_levels["init"] > 0:
-                    print("Added conflict zone:", name, ", pop. ", self.locations[i].pop)
-                    print("New total spawn weight: ", sum(self.spawn_weights))
+                    print("Added conflict zone:", name, ", pop. ", self.locations[i].pop, file=sys.stderr)
+                    print("New total spawn weight: ", sum(self.spawn_weights), file=sys.stderr)
                 return
 
         print("Diagnostic: self.locationNames: ", self.locationNames, file=sys.stderr)
@@ -1183,7 +1184,7 @@ class Ecosystem:
             attributes=attributes,
         )
         if SimulationSettings.log_levels["init"] > 0 and self.print_location_output:
-            print("Location:", name, x, y, loc.movechance, capacity, ", pop. ", pop, foreign, ", attrib. ",attributes)
+            print("Location:", name, x, y, loc.movechance, capacity, ", pop. ", pop, foreign, ", attrib. ", attributes, file=sys.stderr)
 
         self.locations.append(loc)
         self.spawn_weights = np.append(self.spawn_weights, [0.0])
@@ -1293,18 +1294,18 @@ class Ecosystem:
                 endpoint2_index = i
 
         if endpoint1_index < 0:
-            print("Diagnostic: Ecosystem.locationNames: ", self.locationNames)
+            print("Diagnostic: Ecosystem.locationNames: ", self.locationNames, file=sys.stderr)
             print(
                 "Error: link created to non-existent source: {}  with dest {}".format(
-                    endpoint1, endpoint2
+                    endpoint1, endpoint2, file=sys.stderr
                 )
             )
             sys.exit()
         if endpoint2_index < 0:
-            print("Diagnostic: Ecosystem.locationNames: ", self.locationNames)
+            print("Diagnostic: Ecosystem.locationNames: ", self.locationNames, file=sys.stderr)
             print(
                 "Error: link created to non-existent destination: {} with source {}".format(
-                    endpoint2, endpoint1
+                    endpoint2, endpoint1, file=sys.stderr
                 )
             )
             sys.exit()
