@@ -181,7 +181,7 @@ class Person:
                     self.handle_travel(self.location.endpoint, travelling=False)
 
                     if SimulationSettings.log_levels["camp"] > 0:
-                        if self.location.Camp is True:
+                        if self.location.camp is True:
                             self.location.incoming_journey_lengths += [
                                 self.timesteps_since_departure
                             ]
@@ -513,7 +513,7 @@ class Ecosystem:
             tmp_num_arrivals = 0
 
             for loc in self.locations:
-                if loc.Camp is True:
+                if loc.camp is True:
                     arrival_total += np.sum(loc.incoming_journey_lengths)
                     tmp_num_arrivals += len(loc.incoming_journey_lengths)
                     loc.incoming_journey_lengths = []
