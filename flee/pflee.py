@@ -89,7 +89,7 @@ class Person(flee.Person):
 
         Args:
             time (int): Description
-            ForceTownMove (bool, optional): Description
+            ForceTownMove (bool, optional): towns have a move chance of 1.0.
         """
         super().evolve(time=time, ForceTownMove=ForceTownMove)
 

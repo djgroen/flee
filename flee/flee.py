@@ -113,12 +113,11 @@ class Person:
             time (int): Description
             ForceTownMove (bool, optional): Description
         """
+
         if self.travelling is False:
             if self.location.town and ForceTownMove: # called through evolveMore
                 movechance = 1.0
             else: # called first time in loop
-                if SimulationSettings.log_levels["agent"] > 1:
-                    self.locations_visited = []
                 movechance = self.location.movechance
 
             outcome = random.random()
@@ -1122,6 +1121,8 @@ class Ecosystem:
 
         # update agent locations
         for a in self.agents:
+            if SimulationSettings.log_levels["agent"] > 1:
+                a.locations_visited = []
             a.evolve(time=self.time)
 
         for a in self.agents:
