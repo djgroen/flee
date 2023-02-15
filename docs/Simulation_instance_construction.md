@@ -46,8 +46,10 @@ The ACLED conflict data provides conflict locations to construct **`locations.cs
 | ...  |  ...   |   ...   | ... |  ... |       ...     |      ...      |         ...         |
 
 
+
 !!! note
-        The default value for population/capacity is 0. Therefore, if you wish to have camps with infinite capacity you must set them to a very high value instead.
+	The default value for population/capacity is 0. Therefore, if you wish to have camps with infinite capacity you must set them to a very high value instead.
+
 
 ### **UNHCR forced migrant counts and camp locations extraction**
 
@@ -98,7 +100,7 @@ Identified conflict zones and camps provide origin and destination locations. We
 |   N  |   NN   |   ABC   | xxx |  xxx |      town     |               |                     |      xxx     |
 | ...  |  ...   |   ...   | ... |  ... |       ...     |      ...      |         ...         |      xxx     |
 
-Here, * **custom_attributes** can be a list of optional location-specific (static) attributes that you can assign manually. For instance, you could assign an attribute named gdp to each location to indicate the average GPD in each place. You can define as many custom attributes as you like. (new as of Flee 3.0)
+Here, **custom_attributes** can be a list of optional location-specific (static) attributes that you can assign manually. For instance, you could assign an attribute named gdp to each location to indicate the average GPD in each place. You can define as many custom attributes as you like. (new as of Flee 3.0)
 
 Record distances between locations in **`routes.csv`** file for simulation using the following format:
 
