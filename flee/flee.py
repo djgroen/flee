@@ -38,6 +38,7 @@ class Person:
         "age",
         "gender",
         "attributes",
+        "locations_visited",
     ]
 
     @check_args_type
