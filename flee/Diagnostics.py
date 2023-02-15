@@ -80,7 +80,7 @@ def write_agents_par(
             )
 
             if SimulationSettings.log_levels["agent"] > 1:
-                for l in a.locations:
+                for l in a.locations_visited:
                     print(
                             "{},{}-{},{},{},{},{},{},{},{},{},{},{}".format(
                             time,
