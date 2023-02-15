@@ -82,6 +82,7 @@ class SimulationSettings:
 
         SimulationSettings.log_levels["agent"] = int(fetchss(dpll,"agent",0))
         # set to 1 to obtain average times for agents to reach camps at any time
+        # set to 2 to obtain duplicate entries when agents do multiple hops in one timestep.
         # step (aggregate info).
         SimulationSettings.log_levels["link"] = int(fetchss(dpll,"link",0))
         # set to 1 to obtain cumulative agent counts on links at any time

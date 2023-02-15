@@ -66,7 +66,11 @@ class Person:
         self.attributes=attributes
 
         if SimulationSettings.log_levels["agent"] > 0:
-            self.distance_travelled = 0
+            self.distance_travelled = 0 
+            # track total distance travelled.
+        if SimulationSettings.log_levels["agent"] > 1:
+            self.locations_visited = [] 
+            # track and write locations visited before final one in timestep.
 
 
     @check_args_type
@@ -109,9 +113,11 @@ class Person:
             ForceTownMove (bool, optional): Description
         """
         if self.travelling is False:
-            if self.location.town and ForceTownMove:
+            if self.location.town and ForceTownMove: # called through evolveMore
                 movechance = 1.0
-            else:
+            else: # called first time in loop
+                if SimulationSettings.log_levels["agent"] > 1:
+                    self.locations_visited = []
                 movechance = self.location.movechance
 
             outcome = random.random()
@@ -175,6 +181,8 @@ class Person:
                     # location.
                     evolveMore = False
                     if self.distance_moved_this_timestep < todays_travel_speed:
+                        if SimulationSettings.log_levels["agent"] > 1:
+                            self.locations_visited.append(self.location)
                         evolveMore = True
 
                     # update location (which is on a link) to link endpoint

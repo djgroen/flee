@@ -2,6 +2,7 @@ from __future__ import annotations, print_function
 
 import os
 from functools import wraps
+from flee.SimulationSettings import SimulationSettings
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
@@ -77,6 +78,30 @@ def write_agents_par(
                     ),
                 file=my_file,
             )
+
+            if SimulationSettings.log_levels["agent"] > 1:
+                for l in a.locations:
+                    print(
+                            "{},{}-{},{},{},{},{},{},{},{},{},{},{}".format(
+                            time,
+                            rank,
+                            k,
+                            a.home_location.name,
+                            l.name,
+                            l.x,
+                            l.y,
+                            a.travelling,
+                            a.distance_travelled,
+                            a.places_travelled,
+                            a.distance_moved_this_timestep,
+                            a.gender,
+                            a.age,
+                            print_attribute_values(a),
+                        ),
+                        file=my_file,
+                    )
+
+
 
 
 @check_args_type
