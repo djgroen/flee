@@ -46,6 +46,9 @@ The ACLED conflict data provides conflict locations to construct **`locations.cs
 | ...  |  ...   |   ...   | ... |  ... |       ...     |      ...      |         ...         |
 
 
+!!! note
+        The default value for population/capacity is 0. Therefore, if you wish to have camps with infinite capacity you must set them to a very high value instead.
+
 ### **UNHCR forced migrant counts and camp locations extraction**
 
 The UNHCR situations provides an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
