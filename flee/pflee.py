@@ -189,7 +189,7 @@ class Location(flee.Location):
         self.numAgentsOnRank -= 1
 
     @check_args_type
-    def IncrementNumAgents(self) -> None:
+    def IncrementNumAgents(self, agent) -> None:
         """
         Summary
         """

@@ -45,7 +45,6 @@ class Person:
     def __init__(self, location, age, gender, attributes):
         self.location = location
         self.home_location = location
-        self.location.IncrementNumAgents()
         self.timesteps_since_departure = 0
         self.places_travelled = 1
 
@@ -73,6 +72,7 @@ class Person:
             self.locations_visited = [] 
             # track and write locations visited before final one in timestep.
 
+        self.location.IncrementNumAgents(self)
 
     @check_args_type
     def getBaseEndPointScore(self, link) -> float:
@@ -99,7 +99,7 @@ class Person:
         """
         self.location.DecrementNumAgents()
         self.location = location
-        self.location.IncrementNumAgents()
+        self.location.IncrementNumAgents(self)
         self.travelling = travelling
         self.distance_travelled_on_link = 0
 
@@ -421,6 +421,8 @@ class Link:
         # number of agents that are in transit.
         self.numAgents = 0
         self.cumNumAgents = 0 # cumulative # of agents
+        if SimulationSettings.log_levels["link"] > 1:
+            self.cumNumAgentsByAttribute = {}
         # refugee population on current rank (for pflee).
         self.numAgentsOnRank = 0
 
@@ -437,12 +439,20 @@ class Link:
         self.numAgents -= 1
 
     @check_args_type
-    def IncrementNumAgents(self) -> None:
+    def IncrementNumAgents(self, agent) -> None:
         """
         Summary
         """
         self.numAgents += 1
         self.cumNumAgents += 1
+
+        if SimulationSettings.log_levels["link"] > 1:
+            for a in agent.attributes:
+                category = self.cumNumAgentsByAttribute.get(a, {})
+                category[agent.attributes[a]] = category.get(agent.attributes[a], 0) + 1
+                self.cumNumAgentsByAttribute[a] = category
+            #print(category, file=sys.stderr)
+
 
     def get_distance(self) -> float:
         """
