@@ -257,7 +257,7 @@ class Link(flee.Link):
         Summary
         """
         self.numAgentsOnRank -= 1
-        super().DecrementNumAgents(self)
+        super().DecrementNumAgents()
 
     @check_args_type
     def IncrementNumAgents(self, agent) -> None:
@@ -265,7 +265,7 @@ class Link(flee.Link):
         Summary
         """
         self.numAgentsOnRank += 1
-        super().IncrementNumAgents(self,agent)
+        super().IncrementNumAgents(agent)
 
 
 class Ecosystem(flee.Ecosystem):
