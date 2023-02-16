@@ -256,14 +256,16 @@ class Link(flee.Link):
         """
         Summary
         """
-        self.numAgents -= 1
+        self.numAgentsOnRank -= 1
+        super().DecrementNumAgents(self)
 
     @check_args_type
-    def IncrementNumAgents(self) -> None:
+    def IncrementNumAgents(self, agent) -> None:
         """
         Summary
         """
-        self.numAgents += 1
+        self.numAgentsOnRank += 1
+        super().IncrementNumAgents(self,agent)
 
 
 class Ecosystem(flee.Ecosystem):
