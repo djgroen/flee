@@ -157,19 +157,21 @@ def write_links_par(
                 file=my_file,
                 )
 
-                for a in l.cumNumAgentsByAttribute:
-                    for v in l.cumNumAgentsByAttribute[a]:
-                        print(
-                            "{},{},{},{},{}:{}".format(
-                            time,
-                            l.startpoint.name,
-                            l.endpoint.name,
-                            l.cumNumAgentsByAttribute[a][v],
-                            a,
-                            v,
-                            ),
-                        file=my_file,
-                        )
+                if SimulationSettings.log_levels["link"] > 1:
+
+                    for a in l.cumNumAgentsByAttribute:
+                        for v in l.cumNumAgentsByAttribute[a]:
+                            print(
+                                "{},{},{},{},{}:{}".format(
+                                time,
+                                l.startpoint.name,
+                                l.endpoint.name,
+                                l.cumNumAgentsByAttribute[a][v],
+                                a,
+                                v,
+                                ),
+                            file=my_file,
+                            )
 
 
 
