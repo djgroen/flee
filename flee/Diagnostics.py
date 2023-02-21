@@ -158,7 +158,6 @@ def write_links_par(
                 )
 
                 if SimulationSettings.log_levels["link"] > 1:
-
                     for a in l.cumNumAgentsByAttribute:
                         for v in l.cumNumAgentsByAttribute[a]:
                             print(

@@ -69,7 +69,7 @@ def read_demographic_csv(e, csvname):
   Value,Default,LocA,LocB,...
   ValueA,weight for that value by Default, ...
   """
-  attribute = (csvname.split('/')[1].split('.')[0]).split('_')[1]
+  attribute = (csvname.split(os.sep)[1].split('.')[0]).split('_')[1]
 
   if not os.path.exists(csvname):
       return
@@ -86,7 +86,7 @@ def read_demographics(e):
   if not os.path.exists("input_csv"):
       return
 
-  csv_list = glob.glob("input_csv/demographics_*.csv")
+  csv_list = glob.glob(os.path.join("input_csv","demographics_*.csv"))
 
   for csvname in csv_list:
       read_demographic_csv(e, csvname)
