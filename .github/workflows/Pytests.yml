@@ -17,14 +17,14 @@ jobs:
       fail-fast: false
       matrix:        
         # os: [ "ubuntu-18.04", "macos-11" ]
-        os: [ "ubuntu-18.04"]
-        python-version: ["3.7", "3.8", "3.9" ]
+        os: [ "ubuntu-22.04"]
+        python-version: ["3.9", "3.10" ]
         mpi: [mpich, openmpi]
         include:
-        - os: ubuntu-18.04
+        - os: ubuntu-22.04
           mpi: mpich
           install-mpi: sudo apt install -y mpich libmpich-dev tree
-        - os: ubuntu-18.04
+        - os: ubuntu-22.04
           mpi: openmpi
           install-mpi: sudo apt install -y openmpi-bin libopenmpi-dev tree
         # - os: macos-11
