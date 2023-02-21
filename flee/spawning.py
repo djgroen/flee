@@ -114,10 +114,10 @@ def draw_samples(e,loc):
     """
     samples = {}
     for a in __demographics.keys():
-        if a == "age" or a == "gender":
-            continue
-        else:
-            samples[a] = draw_sample(e, loc, a)
+        #if a == "age" or a == "gender":
+        #    continue
+        #else:
+        samples[a] = draw_sample(e, loc, a)
     return samples
 
 

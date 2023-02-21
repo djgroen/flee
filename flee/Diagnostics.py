@@ -14,7 +14,7 @@ else:
 def print_attribute_keys(a):
     out = ""
     for k in a.attributes.keys():
-        out += k
+        out += str(k)
         out += ","
     return out
 
@@ -22,7 +22,7 @@ def print_attribute_keys(a):
 def print_attribute_values(a):
     out = ""
     for k in a.attributes.values():
-        out += k
+        out += str(k)
         out += ","
     return out
 
