@@ -24,7 +24,7 @@ if __name__ == "__main__":
   if len(sys.argv)==5:
     flee.SimulationSettings.ReadFromYML(sys.argv[4])
   else:
-    flee.SimulationSettings.ReadFromYML("simsettings.yml")
+    flee.SimulationSettings.ReadFromYML("simsetting.yml")
 
   flee.SimulationSettings.FlareConflictInputFile = "%s/conflicts.csv" % input_csv_directory
 
