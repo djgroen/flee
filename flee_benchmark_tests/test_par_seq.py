@@ -22,7 +22,7 @@ def test_par_seq(end_time=10, last_physical_day=10,
                  newagentsperstep=1000):
     t_exec_start = time.time()
 
-    SimulationSettings.ReadFromYML(os.path.join(inputdir, "../simsettings.yml"))
+    SimulationSettings.ReadFromYML(os.path.join(inputdir, "../simsetting.yml"))
 
     e = flee.Ecosystem()
 
