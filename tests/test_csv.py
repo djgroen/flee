@@ -14,7 +14,7 @@ def AddInitialRefugees(e, d, loc):
     """
     num_refugees = int(d.get_field(name=loc.name, day=0, FullInterpolation=True))
     for _ in range(0, num_refugees):
-        e.addAgent(location=loc, age=20, gender="", attributes={})
+        e.addAgent(location=loc, attributes={})
 
 
 def date_to_sim_days(date):

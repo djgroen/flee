@@ -38,7 +38,7 @@ def test_toy_escape():
 
         # Insert refugee agents
         for _ in range(0, new_refs):
-            e.addAgent(location=l1, age=20, gender="", attributes={})
+            e.addAgent(location=l1, attributes={})
 
         # Propagate the model by one time step.
         e.evolve()

@@ -155,7 +155,7 @@ def run_par():
         if proc.returncode not in acceptable_err_subprocesse_ret_codes:
             raise RuntimeError(
                 "\njob execution encountered an error (return code {})"
-                "while executing \ncmd = {}\nstdout = {}".format(proc.returncode, cmd, stdout)
+                "while executing \ncmd = {}\ncwd = {},\nstdout = {}".format(proc.returncode, cmd, config_path, stdout)
             )
 
         # checking out.csv

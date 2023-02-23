@@ -39,7 +39,7 @@ def test_awareness():
     e.linkUp(endpoint1="D2", endpoint2="D3", distance=834.0)
     e.linkUp(endpoint1="C2", endpoint2="D3", distance=834.0)
 
-    e.addAgent(location=l1, age=20, gender="", attributes={})
+    e.addAgent(location=l1, attributes={})
 
     moving.selectRoute(e.agents[0], time=0, debug=True)
 

@@ -36,7 +36,7 @@ def test_path_choice():
     e.linkUp(endpoint1="D1", endpoint2="D2", distance=10.0)
     e.linkUp(endpoint1="D2", endpoint2="D3", distance=10.0)
 
-    e.addAgent(location=l1, age=20, gender="", attributes={})
+    e.addAgent(location=l1, attributes={})
 
     print("Test successful!")
 

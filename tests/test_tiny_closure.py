@@ -23,7 +23,7 @@ def test_tiny_closure():
 
     for t in range(0, end_time):
         # Insert refugee agents
-        e.addAgent(location=l1, age=20, gender="", attributes={})
+        e.addAgent(location=l1, attributes={})
 
         # Propagate the model by one time step.
         e.evolve()
