@@ -35,14 +35,12 @@ class Person:
         "distance_moved_this_timestep",
         "travelling",
         "distance_travelled_on_link",
-        "age",
-        "gender",
         "attributes",
         "locations_visited",
     ]
 
     @check_args_type
-    def __init__(self, location, age, gender, attributes):
+    def __init__(self, location, attributes):
         self.location = location
         self.home_location = location
         self.timesteps_since_departure = 0
@@ -61,8 +59,6 @@ class Person:
         # current link.
         self.distance_travelled_on_link = 0
 
-        self.age=age
-        self.gender=gender
         self.attributes=attributes
 
         if SimulationSettings.log_levels["agent"] > 0:
@@ -1214,7 +1210,7 @@ class Ecosystem:
         return loc
 
     @check_args_type
-    def addAgent(self, location, age, gender, attributes) -> None:
+    def addAgent(self, location, attributes) -> None:
         """
         Summary
 
@@ -1234,7 +1230,7 @@ class Ecosystem:
                     location.print()
                     assert location.pop > 1
 
-        self.agents.append(Person(location=location, age=age, gender=gender, attributes=attributes))
+        self.agents.append(Person(location=location, attributes=attributes))
 
     @check_args_type
     def insertAgent(self, location) -> None:

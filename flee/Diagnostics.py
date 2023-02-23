@@ -47,7 +47,7 @@ def write_agents_par(
         my_file = open("agents.out.%s" % rank, "w", encoding="utf-8")
         print(
             "#time,rank-agentid,original_location,current_location,gps_x,gps_y,is_travelling,distance_travelled,"
-            "places_travelled,distance_moved_this_timestep,gender,age,{}".format(print_attribute_keys(agents[0])),
+            "places_travelled,distance_moved_this_timestep,{}".format(print_attribute_keys(agents[0])),
             file=my_file,
         )
     else:
@@ -60,7 +60,7 @@ def write_agents_par(
         for k in range(0, max_written):
             a = agents[k]
             print(
-                    "{},{}-{},{},{},{},{},{},{},{},{},{},{}".format(
+                    "{},{}-{},{},{},{},{},{},{},{},{}".format(
                     time,
                     rank,
                     k,
@@ -72,8 +72,6 @@ def write_agents_par(
                     a.distance_travelled,
                     a.places_travelled,
                     a.distance_moved_this_timestep,
-                    a.gender,
-                    a.age,
                     print_attribute_values(a),
                     ),
                 file=my_file,
@@ -82,7 +80,7 @@ def write_agents_par(
             if SimulationSettings.log_levels["agent"] > 1:
                 for l in a.locations_visited:
                     print(
-                            "{},{}-{},{},{},{},{},{},{},{},{},{},{}".format(
+                            "{},{}-{},{},{},{},{},{},{},{},{}".format(
                             time,
                             rank,
                             k,
@@ -94,8 +92,6 @@ def write_agents_par(
                             a.distance_travelled,
                             a.places_travelled,
                             a.distance_moved_this_timestep,
-                            a.gender,
-                            a.age,
                             print_attribute_values(a),
                         ),
                         file=my_file,

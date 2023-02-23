@@ -72,14 +72,12 @@ class Person(flee.Person):
         "travelling",
         "distance_travelled_on_link",
         "e",
-        "age",
-        "gender",
         "attributes",
     ]
 
     @check_args_type
-    def __init__(self, e, location, age, gender, attributes):
-        super().__init__(location, age, gender, attributes)
+    def __init__(self, e, location, attributes):
+        super().__init__(location, attributes)
         self.e = e
 
     @check_args_type
@@ -410,7 +408,7 @@ class Ecosystem(flee.Ecosystem):
     """
 
     @check_args_type
-    def addAgent(self, location, age, gender, attributes) -> None:
+    def addAgent(self, location, attributes) -> None:
         """
         Summary
 
@@ -432,7 +430,7 @@ class Ecosystem(flee.Ecosystem):
                     assert location.pop > 1
         self.total_agents += 1
         if self.total_agents % self.mpi.size == self.mpi.rank:
-            self.agents.append(Person(self, location=location, age=age, gender=gender, attributes=attributes))
+            self.agents.append(Person(self, location=location, attributes=attributes))
 
 
     @check_args_type

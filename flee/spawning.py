@@ -110,13 +110,10 @@ def draw_sample(e, loc, attribute):
 
 def draw_samples(e,loc):
     """
-    Draw samples from all optional attributes, except age and gender (which are always provided).
+    Draw samples from all optional attributes.
     """
     samples = {}
     for a in __demographics.keys():
-        #if a == "age" or a == "gender":
-        #    continue
-        #else:
         samples[a] = draw_sample(e, loc, a)
     return samples
 
@@ -132,10 +129,8 @@ def add_initial_refugees(e, d, loc):
   if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"]:
       num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
       for i in range(0, num_refugees):
-          age = draw_sample(e, loc, 'age')
-          gender = draw_sample(e, loc, 'gender')
           attributes = draw_samples(e, loc)
-          e.addAgent(location=loc, age=age, gender=gender, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
+          e.addAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
 
 def spawn_daily_displaced(e, t, d, SumFromCamps=False):
@@ -169,10 +164,8 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
 
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):
-            age = draw_sample(e, e.locations[i], 'age')
-            gender = draw_sample(e, e.locations[i], 'gender')
             attributes = draw_samples(e, loc)
-            e.addAgent(location=e.locations[i], age=age, gender=gender, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
+            e.addAgent(location=e.locations[i], attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
     else:
 
@@ -195,10 +188,8 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
       #Insert refugee agents
       for i in range(0, new_refs):
         loc = e.pick_spawn_location()
-        age = draw_sample(e, loc, 'age')
-        gender = draw_sample(e, loc, 'gender')
         attributes = draw_samples(e, loc)
-        e.addAgent(location=loc, age=age, gender=gender, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
+        e.addAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
     return new_refs, __refugees_raw, __refugee_debt
 
@@ -208,8 +199,6 @@ def spawn_agents(e, number):
     #Insert refugee agents
     for i in range(0, number):
         loc = e.pick_spawn_location()
-        age = draw_sample(e, loc, 'age')
-        gender = draw_sample(e, loc, 'gender')
         attributes = draw_samples(e, loc)
-        e.addAgent(location=loc, age=age, gender=gender, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
+        e.addAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
