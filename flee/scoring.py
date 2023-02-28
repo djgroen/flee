@@ -27,7 +27,7 @@ def updateLocationScore(time: int, loc) -> None:
     if loc.camp:
         if loc.foreign:
             score *= SimulationSettings.move_rules["CampWeight"] * SimulationSettings.move_rules["ForeignWeight"]
-        elif:
+        else:
             score *= SimulationSettings.move_rules["CampWeight"]
     elif loc.foreign:
         score *= SimulationSettings.move_rules["ForeignWeight"]
