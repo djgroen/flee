@@ -1,6 +1,7 @@
 from __future__ import annotations, print_function
 
 import os
+import sys
 from functools import wraps
 from flee.SimulationSettings import SimulationSettings
 
@@ -25,6 +26,7 @@ def print_attribute_values(a):
         out += str(k)
         out += ","
     return out
+
 
 @check_args_type
 def write_agents_par(
@@ -60,7 +62,7 @@ def write_agents_par(
         for k in range(0, max_written):
             a = agents[k]
             print(
-                    "{},{}-{},{},{},{},{},{},{},{},{}".format(
+                    "{},{}-{},{},{},{},{},{},{},{},{},{}".format(
                     time,
                     rank,
                     k,
@@ -80,7 +82,7 @@ def write_agents_par(
             if SimulationSettings.log_levels["agent"] > 1:
                 for l in a.locations_visited:
                     print(
-                            "{},{}-{},{},{},{},{},{},{},{},{}".format(
+                            "{},{}-{},{},{},{},{},{},{},{},{},{}".format(
                             time,
                             rank,
                             k,
