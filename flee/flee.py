@@ -258,7 +258,6 @@ class Location:
             if "camp" in location_type.lower():
                 self.movechance = SimulationSettings.move_rules["CampMoveChance"]
                 self.camp = True
-                self.foreign = True
             elif "conflict" in location_type.lower():
                 self.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
                 self.conflict = True
@@ -309,7 +308,6 @@ class Location:
         """
         self.movechance = SimulationSettings.CampMoveChance
         self.camp = True
-        self.foreign = True
         self.conflict = False
         self.town = False
 

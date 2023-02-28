@@ -191,6 +191,12 @@ class InputGeography:
 
         lm = {}
         num_conflict_zones = 0
+
+        # Home country is assumed to be the country of the first location.
+        home_country = self.locations[0][2]
+        if len(home_country) < 1:
+            home_country = "unknown"
+
         for loc in self.locations:
 
             name = loc[0]
@@ -208,6 +214,10 @@ class InputGeography:
                 country = "unknown"
             else:
                 country = loc[2]
+
+            foreign = False
+            if country == home_country:
+                foreign = True
 
             # print(loc, file=sys.stderr)
             location_type = loc[5]
@@ -228,6 +238,7 @@ class InputGeography:
                     capacity=population,
                     x=x,
                     y=y,
+                    foreign=foreign
                     country=country,
                     attributes=attributes
                 )
@@ -238,6 +249,7 @@ class InputGeography:
                     pop=population,
                     x=x,
                     y=y,
+                    foreign=foreign
                     country=country,
                     attributes=attributes
                 )

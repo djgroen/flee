@@ -24,8 +24,13 @@ def updateLocationScore(time: int, loc) -> None:
 
     score = 1.0
 
-    if loc.foreign or loc.camp:
-        score *= SimulationSettings.move_rules["CampWeight"]
+    if loc.camp:
+        if loc.foreign:
+            score *= SimulationSettings.move_rules["CampWeight"] * SimulationSettings.move_rules["ForeignWeight"]
+        elif:
+            score *= SimulationSettings.move_rules["CampWeight"]
+    elif loc.foreign:
+        score *= SimulationSettings.move_rules["ForeignWeight"]
     elif loc.conflict:
         score *= SimulationSettings.move_rules["ConflictWeight"]**SimulationSettings.get_location_conflict_decay(time, loc)
 
