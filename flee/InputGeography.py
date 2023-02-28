@@ -238,7 +238,7 @@ class InputGeography:
                     capacity=population,
                     x=x,
                     y=y,
-                    foreign=foreign
+                    foreign=foreign,
                     country=country,
                     attributes=attributes
                 )
@@ -249,7 +249,7 @@ class InputGeography:
                     pop=population,
                     x=x,
                     y=y,
-                    foreign=foreign
+                    foreign=foreign,
                     country=country,
                     attributes=attributes
                 )
