@@ -37,6 +37,7 @@ class Person:
         "distance_travelled_on_link",
         "attributes",
         "locations_visited",
+        "route",
     ]
 
     @check_args_type
@@ -60,6 +61,7 @@ class Person:
         self.distance_travelled_on_link = 0
 
         self.attributes=attributes
+        self.route = []
 
         if SimulationSettings.log_levels["agent"] > 0:
             self.distance_travelled = 0 
@@ -100,6 +102,16 @@ class Person:
         self.distance_travelled_on_link = 0
 
 
+    def take_next_step(self):
+        for l in self.location.links:
+            if l.endpoint.name == self.route[0]:
+                self.route = self.route[1:]
+                return l
+
+        # Link has vanished, remove route.
+        self.route = []
+        return None
+
     @check_args_type
     def evolve(self, time: int, ForceTownMove: bool = False) -> None:
         """
@@ -120,13 +132,18 @@ class Person:
             # print(movechance)
 
             if outcome < movechance:
-                # determine here which route to take?
-                chosenRoute = moving.selectRoute(self, time=time)
+                #only plan a route if the agent has no existing route.
+                if len(self.route) == 0:
+                    # determine here which route to take
+                    self.route = moving.selectRoute(self, time=time)
+
+                # attempt to follow route. Return None if fail.    
+                chosenDest = self.take_next_step()
 
                 # if there is a viable route to a different location.
-                if chosenRoute:
+                if chosenDest:
                     # update location to link endpoint
-                    self.handle_travel(chosenRoute, travelling=True)
+                    self.handle_travel(chosenDest, travelling=True)
 
 
     @check_args_type

@@ -151,7 +151,7 @@ class SimulationSettings:
         SimulationSettings.move_rules["DefaultMoveChance"] = float(fetchss(dpr,"default_movechance", 0.3)) # chance of persons leaving a regular location per day.
         
 
-        SimulationSettings.move_rules["AwarenessLevel"] = float(fetchss(dpr,"awareness_level", 1)) # awareness of locations X link steps away by agents.
+        SimulationSettings.move_rules["AwarenessLevel"] = int(fetchss(dpr,"awareness_level", 1)) # awareness of locations X link steps away by agents.
         # -1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
        
         # A location or camp is considered full if the number of agents there exceeds (capacity OR pop) * CapacityBuffer.
