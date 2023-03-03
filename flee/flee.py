@@ -349,7 +349,7 @@ class Location:
         """
         print(
             "Location name: {}, X: {}, Y: {}, movechance: {}, cap: {}, "
-            "pop: {}, country: {}, conflict? {}, camp? {}".format(
+            "pop: {}, country: {}, conflict? {}, camp? {}, foreign? {}, attributes: {}".format(
                 self.name,
                 self.x,
                 self.y,
@@ -359,6 +359,8 @@ class Location:
                 self.country,
                 self.conflict,
                 self.camp,
+                self.foreign,
+                self.attributes,
             ),
             file=sys.stderr,
         )
