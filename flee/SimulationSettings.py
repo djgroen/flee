@@ -190,5 +190,7 @@ class SimulationSettings:
             # reduction factor for refugees entering conflict zones.
             SimulationSettings.move_rules["ConflictWeight"] = 0.25
 
+        print("Move rules set to:", SimulationSettings.move_rules, file=sys.stderr)
+
         return number_of_steps
 

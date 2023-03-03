@@ -2,7 +2,7 @@ import os
 import sys
 import numpy as np
 import random
-from typing import List, Optional, Tuple
+from beartype.typing import List, Optional, Tuple
 from flee.SimulationSettings import SimulationSettings
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
@@ -108,7 +108,7 @@ def calculateLinkWeight(
   step: int,
   time: int,
   debug: bool = False,
-) -> float:
+) -> Tuple[List[float],List[List[str]]]:
   """
   Calculates Link Weights recursively based on awareness level.
   Loops are avoided.
@@ -128,6 +128,8 @@ def calculateLinkWeight(
   weight = float(getEndPointScore(agent=agent, link=link)
           / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
 
+  weights = [weight]
+  routes = [origin_names + [link.endpoint.name]]
 
   if SimulationSettings.move_rules["AwarenessLevel"] > step:
     # Traverse the tree one step further.
@@ -136,25 +138,24 @@ def calculateLinkWeight(
         # Link points back to an origin, so ignore.
         pass
       else:
-        weight = max(
-          weight,
-          calculateLinkWeight(agent=agent,
+        wgt, rts = calculateLinkWeight(agent=agent,
               link=lel,
               prior_distance=prior_distance + link.get_distance(),
               origin_names=origin_names + [link.endpoint.name],
               step=step + 1,
               time=time,
               debug=debug,
-              ),
-          )
+              )
+        weights = weights + wgt
+        routes = routes + rts
 
   if debug:
-    print("step {}, total weight returned {}".format(step, weight))
-  return weight
+    print("step {}, total weight returned {}, routes {}".format(step, weights, routes), file=sys.stderr)
+  return weights, routes
 
 
 @check_args_type
-def normalizeWeights(weights) -> list:
+def normalizeWeights(weights: List[float]) -> List[float]:
   """
   Summary
 
@@ -164,22 +165,26 @@ def normalizeWeights(weights) -> list:
   Returns:
     list: Description
   """
+
   if np.sum(weights) > 0.0:
-    weights /= np.sum(weights)
-  else:  # if all have zero weight, then we do equal weighting.
-    weights += 1.0 / float(len(weights))
-  return weights.tolist()
+    weights = [x/float(sum(weights)) for x in weights]
+    #weights = weights.tolist()
+  else:  # if all have zero weight, then we do equal weighting
+    weights = [(x+1)/float(len(weights)) for x in weights]
+    
+
+  return weights
 
 
 
 @check_args_type
-def chooseFromWeights(weights, linklist):
+def chooseFromWeights(weights, routes):
   """
   Summary
 
   Args:
-    weights (List[float]): Description
-    linklist (List[Link]): Description
+    weights (List[float]): Weights for each route
+    routes (List[List[str]]]): List of possible routes
 
   Returns:
     float: Description
@@ -188,7 +193,7 @@ def chooseFromWeights(weights, linklist):
     return None
 
   weights = normalizeWeights(weights=weights)
-  result = random.choices(linklist, weights=weights)
+  result = random.choices(routes, weights=weights)
   return result[0]
 
 
@@ -205,22 +210,31 @@ def selectRoute(a, time: int, debug: bool = False):
   Returns:
   int: Description
   """
-  linklen = len(a.location.links)
-  weights = np.zeros(linklen)
+  weights = []
+  routes = []
 
   if SimulationSettings.move_rules["AwarenessLevel"] == 0:
+    linklen = len(a.location.links)
     return np.random.randint(0, linklen)
 
   for k, e in enumerate(a.location.links):
-    weights[k] = calculateLinkWeight(
+    wgt, rts = calculateLinkWeight(
          a,
          link=e,
          prior_distance=0.0,
-         origin_names=[a.location.name],
+         origin_names=[],
          step=1,
          time=time,
          debug=debug,
     )
 
-  return chooseFromWeights(weights=weights, linklist=a.location.links)
+    weights = weights + wgt
+    routes = routes + rts
+
+  if debug:
+    print("selectRoute: ",routes, weights, file=sys.stderr)
+  route = chooseFromWeights(weights=weights, routes=routes)
+
+
+  return route
 
