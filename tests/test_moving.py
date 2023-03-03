@@ -63,4 +63,4 @@ def test_scoring_foreign_weight():
 
 
 if __name__ == "__main__":
-    test_toy_escape()
+    test_scoring_foreign_weight()
