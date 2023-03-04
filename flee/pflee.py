@@ -81,7 +81,7 @@ class Person(flee.Person):
         self.e = e
 
     @check_args_type
-    def evolve(self, time: int, ForceTownMove: bool = False) -> None:
+    def evolve(self, e, time: int, ForceTownMove: bool = False) -> None:
         """
         Summary
 
@@ -89,17 +89,17 @@ class Person(flee.Person):
             time (int): Description
             ForceTownMove (bool, optional): towns have a move chance of 1.0.
         """
-        super().evolve(time=time, ForceTownMove=ForceTownMove)
+        super().evolve(e, time=time, ForceTownMove=ForceTownMove)
 
     @check_args_type
-    def finish_travel(self, time: int) -> None:
+    def finish_travel(self, e, time: int) -> None:
         """
         Summary
 
         Args:
             time (int): Description
         """
-        super().finish_travel(time=time)
+        super().finish_travel(e, time=time)
 
     @check_args_type
     def getLinkWeightV1(self, link, awareness_level: int) -> float:
@@ -612,13 +612,13 @@ class Ecosystem(flee.Ecosystem):
 
         # update agent locations
         for a in self.agents:
-            a.evolve(time=self.time)
+            a.evolve(e, time=self.time)
 
         # print("NumAgents after evolve:", file=sys.stderr)
         self.updateNumAgents(CountClosed=True, log=False)
 
         for a in self.agents:
-            a.finish_travel(time=self.time)
+            a.finish_travel(e, time=self.time)
             a.timesteps_since_departure += 1
 
         if SimulationSettings.log_levels["agent"] > 0:

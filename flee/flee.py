@@ -102,9 +102,21 @@ class Person:
         self.distance_travelled_on_link = 0
 
 
-    def take_next_step(self):
+    def check_dest_is_full_camp(self,e):
+        for i in range(0, len(e.locationNames)):
+            if e.locationNames[i] == self.route[-1]:
+                if e.locations[i].camp and moving.getCapMultiplier(e.locations[i],1) < 0.5:
+                    return True
+                else: 
+                    return False
+
+
+    def take_next_step(self,e):
         for l in self.location.links:
             if l.endpoint.name == self.route[0]:
+                if self.check_dest_is_full_camp(e):
+                    self.route = []
+                    return None
                 self.route = self.route[1:]
                 return l
 
@@ -113,7 +125,7 @@ class Person:
         return None
 
     @check_args_type
-    def evolve(self, time: int, ForceTownMove: bool = False) -> None:
+    def evolve(self, e, time: int, ForceTownMove: bool = False) -> None:
         """
         Summary
 
@@ -138,7 +150,7 @@ class Person:
                     self.route = moving.selectRoute(self, time=time)
 
                 # attempt to follow route. Return None if fail.    
-                chosenDest = self.take_next_step()
+                chosenDest = self.take_next_step(e)
 
                 # if there is a viable route to a different location.
                 if chosenDest:
@@ -147,7 +159,7 @@ class Person:
 
 
     @check_args_type
-    def finish_travel(self, time: int) -> None:
+    def finish_travel(self, e, time: int) -> None:
         """
         Summary
 
@@ -223,8 +235,8 @@ class Person:
                                 )
                             ) / 2.0 < 0.5:
                                 ForceTownMove = True
-                        self.evolve(time=time, ForceTownMove=ForceTownMove)
-                        self.finish_travel(time=time)
+                        self.evolve(e, time=time, ForceTownMove=ForceTownMove)
+                        self.finish_travel(e, time=time)
 
 
 class Location:
@@ -1146,10 +1158,10 @@ class Ecosystem:
         for a in self.agents:
             if SimulationSettings.log_levels["agent"] > 1:
                 a.locations_visited = []
-            a.evolve(time=self.time)
+            a.evolve(self, time=self.time)
 
         for a in self.agents:
-            a.finish_travel(time=self.time)
+            a.finish_travel(self, time=self.time)
             a.timesteps_since_departure += 1
 
         if SimulationSettings.log_levels["agent"] > 0:
