@@ -154,8 +154,8 @@ class SimulationSettings:
         SimulationSettings.move_rules["AwarenessLevel"] = int(fetchss(dpr,"awareness_level", 1)) # awareness of locations X link steps away by agents.
         # -1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
        
-        # A location or camp is considered full if the number of agents there exceeds (capacity OR pop) * CapacityBuffer.
-        SimulationSettings.move_rules["CapacityBuffer"] = float(fetchss(dpr,"capacity_buffer", 1.0)) # awareness of locations X link steps away by agents.
+        # A location or camp is beginning to be considered full if the number of agents there exceeds (capacity OR pop) * CapacityBuffer.
+        SimulationSettings.move_rules["CapacityBuffer"] = float(fetchss(dpr,"capacity_buffer", 0.9)) # awareness of locations X link steps away by agents.
 
         # Displaced people will not take a break unless they at least travelled
         # for a full day's distance in the last two days.

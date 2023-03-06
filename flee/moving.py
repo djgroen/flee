@@ -72,25 +72,24 @@ def getCapMultiplier(location, numOnLink: int) -> float:
         - a value in between for intermediate values
     """
 
-    nearly_full_occ = 0.9  # occupancy rate to be considered nearly full.
+    nearly_full_occ = SimulationSettings.move_rules["CapacityBuffer"]  # occupancy rate to be considered nearly full.
     # full occupancy limit (should be equal to self.capacity).
-    cap_limit = location.capacity * SimulationSettings.move_rules["CapacityBuffer"]
 
-    if location.capacity < 0:
+    if location.capacity < 1:
         return 1.0
 
-    if location.numAgents <= nearly_full_occ * cap_limit:
+    if location.numAgents <= nearly_full_occ * location.capacity:
         return 1.0
 
-    if location.numAgents >= 1.0 * cap_limit:
+    if location.numAgents >= 1.0 * location.capacity:
         return 0.0
 
     # should be a number equal in range [0 to 0.1*self.numAgents].
-    residual = location.numAgents - (nearly_full_occ * cap_limit)
+    residual = location.numAgents - (nearly_full_occ * location.capacity)
 
     # Calculate the residual weighting factor, when pop is between 0.9 and
     # 1.0 of capacity (with default settings).
-    weight = 1.0 - (residual / (cap_limit * (1.0 - nearly_full_occ)))
+    weight = 1.0 - (residual / (location.capacity * (1.0 - nearly_full_occ)))
 
     assert weight >= 0.0
     assert weight <= 1.0

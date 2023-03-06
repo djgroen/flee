@@ -106,6 +106,7 @@ class Person:
         for i in range(0, len(e.locationNames)):
             if e.locationNames[i] == self.route[-1]:
                 if e.locations[i].camp and moving.getCapMultiplier(e.locations[i],1) < 0.5:
+                    #print(e.time, e.locationNames[i], self.route[-1], file=sys.stderr)
                     return True
                 else: 
                     return False

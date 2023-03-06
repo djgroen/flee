@@ -194,6 +194,7 @@ class InputGeography:
 
         # Home country is assumed to be the country of the first location.
         home_country = self.locations[0][2]
+        print("Home country set to: ", home_country, file=sys.stderr)
         if len(home_country) < 1:
             home_country = "unknown"
 
@@ -215,9 +216,9 @@ class InputGeography:
             else:
                 country = loc[2]
 
-            foreign = False
+            foreign = True
             if country == home_country:
-                foreign = True
+                foreign = False
 
             # print(loc, file=sys.stderr)
             location_type = loc[5]
