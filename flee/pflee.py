@@ -612,13 +612,13 @@ class Ecosystem(flee.Ecosystem):
 
         # update agent locations
         for a in self.agents:
-            a.evolve(e, time=self.time)
+            a.evolve(self, time=self.time)
 
         # print("NumAgents after evolve:", file=sys.stderr)
         self.updateNumAgents(CountClosed=True, log=False)
 
         for a in self.agents:
-            a.finish_travel(e, time=self.time)
+            a.finish_travel(self, time=self.time)
             a.timesteps_since_departure += 1
 
         if SimulationSettings.log_levels["agent"] > 0:
