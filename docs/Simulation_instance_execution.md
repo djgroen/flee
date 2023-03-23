@@ -3,7 +3,7 @@
 Use the following command to run a Flee simulation with the test data set:
 
 ```sh
-python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refugee_data 0 test_data/test_input_csv/simsettings.yml 
+python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refugee_data 0 test_data/test_input_csv/simsetting.yml 
 ```
 
 !!! note
@@ -21,7 +21,7 @@ python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refu
 	python3 runscripts/run.py <input csv file directory> <validation data directory> <simulation_period> <location of your simsetting.yml> > <the name of the output directory you just created>/out.csv
 	```
 
-        The easiest example of this script to check is the test example above.
+	The easiest example of this script to check is the test example above.
 
 
 3. To plot the simulation output, simply follow the command template below:
@@ -31,9 +31,9 @@ python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refu
 
 	where `<output directory>` represents the simulation output directory (Step 1). As an example, you can run and plot the test set by navigating to your root flee directory and using the following commands:
 	```sh
-        mkdir -p out
+    mkdir -p out
 	python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refugee_data 0 test_data/test_input_csv/simsettings.yml > out/out.csv
-        python3 flee/postprocessing/plot_flee_output.py out/ out/
+    python3 flee/postprocessing/plot_flee_output.py out/ out/
 	```	
 
 4. To analyse and interpret simulation output, open your output directory , which will contain simulation output and UNHCR data comparison graphs for each camp, as well as average relative difference graph for the simulated conflict situation.
