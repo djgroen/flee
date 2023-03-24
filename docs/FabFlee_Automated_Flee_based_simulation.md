@@ -43,7 +43,7 @@ which will automatically generate required input and validation files, as well a
 -   Rename downloaded file as acled.csv and place it in `~/FabSim3/plugins/FabFlee/config_files/<conflcit_name>`
 -   In your terminal, go to your `~/FabSim3/plugins/FabFlee` directory and execute the following command with your conflict instance details:
 	```sh
-	fabsim localhost process_acled:country=<conflict_name>,start_date=<DD-MM-YYYY>,filter=earliest/fatalities,admin_level=admin1/admin2/admin3/location
+	fabsim localhost process_acled:country=<conflict_name>,start_date=<DD-MM-YYYY>,filter_opt=earliest/fatalities,admin_level=admin1/admin2/admin3/location
 	```
 
 	!!! note
