@@ -13,12 +13,27 @@ To use the Flee code, one requires:
 
 ## **Installing Flee**
 
-To install Flee on your local workstation, you need to clone the Flee repository:
-```sh
-git clone https://github.com/djgroen/flee.git
-```
-Once cloning completes, Flee will appear in your working directory as `<current dir>/flee`.
+To install Flee on your local workstation, you need to 
 
+1. Clone the Flee repository:
+	```sh
+	git clone https://github.com/djgroen/flee.git
+	```
+	Once cloning completes, Flee will appear in your working directory as `<current dir>/flee`.
+
+2. Open `.bashrc` file:
+	```sh
+	vim ~/.bashrc
+	```
+
+3. Add the following line to the end of the file:
+	```sh
+	export PYTHONPATH=<path to flee>:$PYTHONPATH
+	```
+4. Save and close the `.bashrc` file and reload the `.bashrc` file by:
+	```sh
+	source ~/.bashrc
+	```
 
 ## **Updating Flee**
 
