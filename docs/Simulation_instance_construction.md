@@ -23,7 +23,7 @@ To create input and validation data files, the following forced displacement dat
 The ACLED database provides conflict location data for forced displacement simulations. To obtain data on chosen conflict situation, complete the ACLED data export tool fields ([https://acleddata.com/acleddatanew/data-export-tool/](https://acleddata.com/acleddatanew/data-export-tool/)) as follows:
 
 
-* Provide dates of interest for conflict situation (i.e. From and To).
+* Provide dates of interest for conflict situations (i.e. From and To).
 * Select `Event Type: Battle`.
 * Select `Sub Event Type`
 	* Armed clash,
@@ -53,7 +53,7 @@ The ACLED conflict data provides conflict locations to construct **`locations.cs
 
 ### **UNHCR forced migrant counts and camp locations extraction**
 
-The UNHCR situations provides an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
+The UNHCR situations provide an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
 
 
 
@@ -68,7 +68,7 @@ The UNHCR situations provides an overview of active situations worldwide that ar
 * Collect and save data for each camp (e.g. `<country_name-camp_name>.csv`).
 
 
-Input camp names (i.e. destination locations) and their capacity into **`locations.csv`** file. Camp capacity is the highest number of forced migrants for each camp and obtained from individual camp CSV files that are set in **`locations.csv`**. For instance, `CampZ.csv` has the highest number of forcibly displaced people (18129) on 2015-09-30, which is the camp capacity for CampZ.
+Input camp names (i.e. destination locations) and their capacity into **`locations.csv`** file. Camp capacity is the highest number of forced migrants for each camp and is obtained from individual camp CSV files that are set in **`locations.csv`**. For instance, `CampZ.csv` has the highest number of forcibly displaced people (18129) on 2015-09-30, which is the camp capacity for CampZ.
 
 
 |     ...      |   ...   |
@@ -116,7 +116,7 @@ Record distances between locations in **`routes.csv`** file for simulation using
 
 **forced_redirection** refers to redirection from source location (can be town or camp) to destination location (mainly camp) and source location indicated as forwarding_hub. The value of `0` indicates no redirection, `1` indicates redirection (from name2) to name1 and 2 corresponds to redirection (from name1) to name2.
 
-**custom_attributes** work in the same way here as for `locations.csv`, providing users the ability to add custom link attributes and set different values for individual links.
+**custom_attributes** work in the same way here as for `locations.csv`, providing users with the ability to add custom link attributes and set different values for individual links.
 
 ## **Define location and border closures in closures.csv file**
 
@@ -184,7 +184,7 @@ We obtain data for each camp using the format and label them as **country_name-c
 | YYYY-MM-DD | xxx |
 | ... | ... |
 
-**data_layout.csv** contains camp names for each camp/destination locations:
+**data_layout.csv** contains camp names for each camp/destination location:
 
 | total | refugees.csv |
 |:---:|:---:|

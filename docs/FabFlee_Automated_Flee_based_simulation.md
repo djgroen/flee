@@ -43,13 +43,13 @@ which will automatically generate required input and validation files, as well a
 -   Rename downloaded file as acled.csv and place it in `~/FabSim3/plugins/FabFlee/config_files/<conflcit_name>`
 -   In your terminal, go to your `~/FabSim3/plugins/FabFlee` directory and execute the following command with your conflict instance details:
 	```sh
-	fabsim localhost process_acled:country=<conflict_name>,start_date=<DD-MM-YYYY>,filter_opt=earliest/fatalities,admin_level=admin1/admin2/admin3/location
+	fabsim localhost process_acled:country=<conflict_name>,start_date=<DD-MM-YYYY>,filter=earliest/fatalities,admin_level=admin1/admin2/admin3/location
 	```
 
 	!!! note
 		-   **country** is the name of the country directory the acled.csv is stored in.
 		-   **start_date** uses DD-MM-YYYY format and is the date which conflict_date will be calculated from.
-		-   **filter** takes earliest or fatalities. Earliest will keep the first occurring (using date) location and remove all occurrences that location after that date. Fatalities will keep the highest fatalities of each location and remove all other occurrences of that location.
+		-   **filter** takes earliest or fatalities. Earliest will keep the first occurring (using date) location and remove all occurrences in that location after that date. Fatalities will keep the highest fatalities of each location and remove all other occurrences of that location.
 		-   **admin_level** has 4 divisions of conflict locations for you to choose and process, where *ADMIN1* is the largest sub-national administrative region, *ADMIN2* is the second largest sub-national administrative region, *ADMIN3* is the third largest sub-national administrative region or *LOCATION* is the location in which the event took place.
 
 This will produce the locations.csv into the `input_csv` directory in `~/FabSim3/plugins/FabFlee/config_files/<conflict_name>/input_csv`for the given country.
@@ -63,7 +63,7 @@ which creates the locations.csv file in `~/FabSim3/plugins/FabFlee/config_files/
 ### *Step 3: Extract population data for your conflict instance using OpenRouteService API*
 
 1.  Obtain OpenRouteService API key
-	-   Go to <https://openrouteservice.org/dev/#/signup> and sign up using your Github account or by filling the registration form to obtain OpenRouteService API key
+	-   Go to <https://openrouteservice.org/dev/#/signup> and sign up using your Github account or by filling out the registration form to obtain OpenRouteService API key
 	-   After registration, click Tokens window (next to Profile in Dev Dashboard) and request a Token by specifying a name (e.g. API key) and clicking Create Token, which will provide an API Key (e.g. `5b3ce3597851110...`)
 
 2.  Install Java JRE or openJDK version 8 or later
@@ -149,7 +149,7 @@ It clears the active conflict directory upon which you can reload the conflict a
 	This does the following: - Copy your job input, which is in `~/FabSim3/plugins/FabFlee/config_files/<conflict_name>`, to the remote location specified in the variable **remote_path_template** in `~/FabSim3/deploy/machines.yml`. - Copy the input to the remote results directory. - Start the remote job.
 
 2.  Simply wait for it to finish or to cancel the job press Ctrl+C.
-3.  After the job has finished, the terminal becomes available again, and a message is printing indicating where the output data resides remotely.
+3.  After the job has finished, the terminal becomes available again, and a message is printed indicating where the output data resides remotely.
 4.  You can fetch the remote data using:
 	```sh
 	fabsim localhost fetch_results

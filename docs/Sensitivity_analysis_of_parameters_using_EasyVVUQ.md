@@ -95,7 +95,7 @@ my_sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=1)
 ## **Run EasyVVUQ analysis**
 
 ### *Execution on a localhost*
-1. To execute sensitivy analysis on a localhost, simply run:
+1. To execute sensitivity analysis on a localhost, simply run:
 	```sh
 	fabsim localhost flee_init_SC:<conflict_name>,simulation_period=<number>
 	```
@@ -104,7 +104,7 @@ my_sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=1)
 	fabsim localhost flee_init_PCE:<conflict_name>,simulation_period=<number>
 	```
 
-2. After the job has finished, the terminal becomes available again, and a message is printing indicating where the output data resides. Run the following command to copy back results from the remote machine and perform analysis. The results will then be in a directory inside `(FabSim Home)/results` and the obtained results can be analysed using 
+2. After the job has finished, the terminal becomes available again, and a message is printed indicating where the output data resides. Run the following command to copy back results from the remote machine and perform analysis. The results will then be in a directory inside `(FabSim Home)/results` and the obtained results can be analysed using 
 	```sh
 	fabsim localhost flee_analyse_SC:<conflict_name>
 	```
@@ -114,7 +114,7 @@ my_sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=1)
 	```
 
 ### *Execution on a remote machine*
-1. To execute sensitivy analysis on a remote machine, simply run:
+1. To execute sensitivity analysis on a remote machine, simply run:
 	```sh
 	fabsim <remote_machine_name> flee_init_SC:<conflict_name>,simulation_period=<number>
 	```
@@ -139,7 +139,7 @@ my_sampler = uq.sampling.SCSampler(vary=vary, polynomial_order=1)
 For QCG-PilotJob installation, see <https://github.com/vecma-project/QCG-PilotJob/blob/master/INSTALL.txt>
 
 !!! note
-	if QCG-PilotJob is installed in the target remote machine, by using PJ=True, the native QCG-PilotJob will be lunched for execution. Otherwise you require to install the QCG-PilotJob service in a virtual environment (venv) in the target machine, and then PJ=True option will load QCG-PilotJob services from venv.
+	if QCG-PilotJob is installed in the target remote machine, by using PJ=True, the native QCG-PilotJob will be launched for execution. Otherwise, you require to install the QCG-PilotJob service in a virtual environment (venv) in the target machine, and then PJ=True option will load QCG-PilotJob services from venv.
 
 To install virtual environment on the remote machine alongside with QCG-PilotJob, just run: 
 ```sh
