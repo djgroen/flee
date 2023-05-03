@@ -126,7 +126,7 @@ if __name__ == '__main__':
     endpoint = 'https://maps.googleapis.com/maps/api/directions/json'
 
     # Specify your Google Maps API key here
-    api_key = 'AIzaSyBacZLomHdE4s0la12sG0HBRkTJsYdwLQE'
+    api_key = 'API_KEY'
 
     routes_creator(df)
 
