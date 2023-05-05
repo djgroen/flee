@@ -208,8 +208,9 @@ nav:
       - Introduction: index.md
       - Installation and Testing: Installation_and_Testing.md
       - Simulation instance construction: Simulation_instance_construction.md
+      - Simulation settings configuration: Simulation_settings.md
       - Simulation instance execution : Simulation_instance_execution.md
-      - "FabFlee : Automated Flee-based simulation": FabFlee_Automated_Flee_based_simulation.md
+      - "FabFlee: Automated Flee-based simulation": FabFlee_Automated_Flee_based_simulation.md
       - Remote execution on a supercomputer : Remote_execution_on_a_supercomputer.md
       - Multiscale Simulation instance construction : Multiscale_Simulation_instance_construction.md
       - Sensitivity analysis of parameters using EasyVVUQ : Sensitivity_analysis_of_parameters_using_EasyVVUQ.md

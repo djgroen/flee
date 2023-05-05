@@ -281,7 +281,7 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
     )
 
     (labeldiff_rescaled,) = plt.plot(
-        np.arange(len(diffdata_rescaled)), diffdata_rescaled, linewidth=5, label="Error"
+        np.arange(len(diffdata_rescaled)), diffdata_rescaled, linewidth=5, label="Error (rescaled)"
     )
 
     plt.legend(handles=[labeldiff_rescaled], loc=7, prop={"size": 14})
@@ -295,7 +295,7 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
     ###############################################
 
     (labeldiff,) = plt.plot(
-        np.arange(len(diffdata)), diffdata, linewidth=5, label="error (not rescaled)"
+        np.arange(len(diffdata)), diffdata, linewidth=5, label="Error (non-rescaled)"
     )
 
     plt.legend(handles=[labeldiff, labeldiff_rescaled], loc=1, prop={"size": 14})
