@@ -48,7 +48,7 @@ _NOTE_ : The **simsetting.yml** file includes default values for each simulation
 
 ### Log levels (log_levels)
 
-There are five log level variables, namely **agent**, **link**, **camp**, **conflict** and **init**. If the value is set to `0` for these log levels, then no information is obtained from simulation runs. To obtain information, the values should be set to `1` (or `2` for agent log level). You can refer to the table below to gain an understanding of the type of information that is obtained from each log level (when set to 1 or 2).
+There are five log level variables, namely **agent**, **link**, **camp**, **conflict** and **init**. If the value is set to `0` for these log levels, then no information is obtained from simulation runs. To obtain information, the values should be set to `1` (or `2` for agent log level). You can refer to the table below to gain an understanding of the type of information that is obtained from each log level (when set to `1` or `2`).
 
  Variable | Values | Obtained information                                                |
 ----------|--------|---------------------------------------------------------------------|
@@ -75,9 +75,9 @@ We can modify the movement rules of agents based on the movement speed, location
 #### 1. Movement speeds
 There are three movement types in the Flee code, which can :
 
-- **max_move_speed** refers to the most number of kilometers (km) expected to traverse by agents per time step. The default value is 360 km per time step (30 km/hour * 12 hours). 
-- **max_walk_speed** is the most number of kilometers (km) expected to traverse per time step on foot. The default value is 3.5 km/hour * 10 hours equal to 35 km per time step (day).
-- **max_crossing_speed** is the most number of kilometers (km) expected to traverse on boar or walk to cross river. The default value is 2 km/hour * 10 hours equal to 20 km per time step (day).
+- **max_move_speed** refers to the most number of kilometers (km) expected to traverse by agents per time step. The default value is `360 km` per time step (`30 km/hour * 12 hours`). 
+- **max_walk_speed** is the most number of kilometers (km) expected to traverse per time step on foot. The default value is `3.5 km/hour * 10 hours` equal to `35 k`m per time step (day).
+- **max_crossing_speed** is the most number of kilometers (km) expected to traverse on boar or walk to cross river. The default value is `2 km/hour * 10 hours` equal to `20 km` per time step (day).
 
 #### 2. Location weights
 
@@ -112,7 +112,7 @@ Set the following parameter to `True` or `False`:
 
 To set the following parameters, please use values:
 
-- **capacity_buffer** refers to a location or camp is beginning to be considered full if the number of agents there exceeds (capacity OR pop) * CapacityBuffer.
+- **capacity_buffer** refers to a location or camp is beginning to be considered full if the number of agents there exceeds (capacity OR pop) * `CapacityBuffer`.
 - **softening** adds kilometers to every link distance to eliminate needless distinction between very short routes.
 
 ### Optimisations
