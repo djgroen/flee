@@ -288,6 +288,8 @@ class Location:
             if "camp" in location_type.lower():
                 self.movechance = SimulationSettings.move_rules["CampMoveChance"]
                 self.camp = True
+                if "idp" in location_type.lower():
+                    self.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
             elif "conflict" in location_type.lower():
                 self.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
                 self.conflict = True
