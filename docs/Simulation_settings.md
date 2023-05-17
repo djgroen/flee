@@ -62,6 +62,7 @@ There are five log level variables, namely **agent**, **link**, **camp**, **conf
 ### Spawn rules (spawn_rules)
 
 Spawn rules focus on spawning agents within simulation runs based on several settings. The first set of parameters require `True` and `False` values:
+
 - **take_from_population** allows to subtract spawned agents from populations if the value is set to `True`. This can lead to crashes if the number of spawned agents exceeds the total population in conflict zones. Alternatively, you can remove the subtraction from populations by setting the value to `False`.
 - **insert_day0** accounts for a zero insertion of agents in camps at the start of simulations by setting the value to `True`. Please set to `False` if it is not required for your conflict instance. 
 - **conflict_zone_spawning_only** spawns agents only from conflict zones when set to `True`. Otherwise, it is set to `False` to spawn agents from other locations that are present in your model. 
