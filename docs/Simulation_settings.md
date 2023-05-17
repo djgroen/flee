@@ -34,6 +34,7 @@ move_rules:
   conflict_movechance: 2.0
   camp_movechance: 0.001
   default_movechance: 0.3
+  idpcamp_movechance: 0.1
   awareness_level: 1
   capacity_buffer: 1
   avoid_short_stints: False
@@ -43,7 +44,7 @@ optimisations:
   hasten: 1
 ```
 
-* _NOTE_ : The **simsetting.yml** file includes default values for each simulation setting parameters.
+_NOTE_ : The **simsetting.yml** file includes default values for each simulation setting parameters.
 
 ### Log levels (log_levels)
 
@@ -72,11 +73,13 @@ We can modify the movement rules of agents based on the movement speed, location
 
 #### 1. Movement speeds
 There are three movement types in the Flee code, which can :
+
 - **max_move_speed** refers to the most number of kilometers (km) expected to traverse by agents per time step. The default value is 360 km per time step (30 km/hour * 12 hours). 
 - **max_walk_speed** is the most number of kilometers (km) expected to traverse per time step on foot. The default value is 3.5 km/hour * 10 hours equal to 35 km per time step (day).
 - **max_crossing_speed** is the most number of kilometers (km) expected to traverse on boar or walk to cross river. The default value is 2 km/hour * 10 hours equal to 20 km per time step (day).
 
 #### 2. Location weights
+
 - **conflict_weight** is the attraction multiplier for conflict locations (conflict zones).
 - **camp_weight** is the attraction multiplier for camp locations (camps).
 - **foreign_weight** is the attraction multiplier for foreign locations that stacks with camp multiplier. 
@@ -86,11 +89,12 @@ There are three movement types in the Flee code, which can :
 - **conflict_movechance** is the chance (probability) of agents (persons) leaving a conflict location (conflict zone) per day.
 - **camp_movechance** refers to the chance (probability) of agents (persons) leaving a camp location per day. 
 - **default_movechance** is the chance (probability) of agents (persons) leaving a regular location (i.e., town/intermediate location) per day. 
+- **idpcamp_movechance** is the chance (probability) of agents (persons) leaving an internally discplaced camps per day.
 
 #### 4. Awareness level
 We are able to adjuct the agents awareness of locations by incorporating a more wide or narrow awareness level (**awareness_level**). Agents can be aware of the presence of links steps by setting the following values:
 
-Value | Description 
+Value | Description                                                        |
 ------|--------------------------------------------------------------------|
  -1   | No weighting at all (no awareness)                                 |
   0   | The length of the path to the nearest settlement (road only)       |
@@ -101,10 +105,12 @@ Value | Description
 #### 5. Other parameters
 
 Set the following parameter to `True` or `False`:
+
 - **avoid_short_stints** allows to restrict displaced people that will take a break unless they at least travelled for a full day's distance in the last two days.
 - **start_on_foot** is a parameters allowing agents to traverse first link on foot.
 
 To set the following parameters, please use values:
+
 - **capacity_buffer** refers to a location or camp is beginning to be considered full if the number of agents there exceeds (capacity OR pop) * CapacityBuffer.
 - **softening** adds kilometers to every link distance to eliminate needless distinction between very short routes.
 
