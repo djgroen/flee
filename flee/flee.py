@@ -169,7 +169,7 @@ class Person:
         """
         if self.travelling:
 
-            todays_travel_speed = SimulationSettings.move_rules["MaxMoveSpeed"]
+            todays_travel_speed = float(self.location.attributes.get("max_move_speed", SimulationSettings.move_rules["MaxMoveSpeed"]))
 
             if self.places_travelled == 1 and SimulationSettings.move_rules["StartOnFoot"]:
                 todays_travel_speed = SimulationSettings.move_rules["MaxWalkSpeed"]
