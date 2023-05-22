@@ -124,7 +124,9 @@ Record distances between locations in **`routes.csv`** file for simulation using
 
 **forced_redirection** refers to redirection from source location (can be town or camp) to destination location (mainly camp) and source location indicated as forwarding_hub. The value of `0` indicates no redirection, `1` indicates redirection (from name2) to name1 and 2 corresponds to redirection (from name1) to name2.
 
-**custom_attributes** work in the same way here as for `locations.csv`, providing users with the ability to add custom link attributes and set different values for individual links.
+**custom_attributes** work in the same way here as for `locations.csv`, providing users with the ability to add custom link attributes and set different values for individual links. Some attributes automatically trigger behaviors in Flee 3.0, including:
+
+* `max\_move\_speed`: when explicitly defined, this will override the MaxMoveSpeed set in `simsetting.yml` for individual links. Note that it is only possible to override this for all links or for none of the links at the moment.
 
 ## **Define location and border closures in closures.csv file**
 
