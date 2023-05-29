@@ -157,7 +157,7 @@ We define the simulation period of a conflict situation using **conflict_period.
 
 ## **Record conflict locations in conflicts.csv file**
 
-We create a **conflicts.csv** file to record conflict locations indicating the start of conflicts in the simulation execution (represented as `1`):
+We create a **conflicts.csv** file to record conflict locations indicating the start of conflicts in the simulation execution (represented as `1` or `1.0`). It is possible to use custom conflict intensities by defining values between `0.0` and `1.0` in the file:
 
 | **#Day** | **name** | **A** | **B** | **C** | **Z** |
 |:--:|:--:|:--:|:--:|:--:|:--:|
