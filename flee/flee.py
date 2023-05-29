@@ -1149,12 +1149,6 @@ class Ecosystem:
         for loc in self.locations:
             scoring.updateLocationScore(self.time, loc)
 
-        for loc in self.locations:
-            scoring.updateNeighbourhoodScore(loc)
-
-        for loc in self.locations:
-            scoring.updateRegionScore(loc)
-
         # update agent locations
         for a in self.agents:
             if SimulationSettings.log_levels["agent"] > 1:

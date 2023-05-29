@@ -235,8 +235,6 @@ class Location(flee.Location):
             time (int): Description
         """
         self.time = time
-        scoring.updateRegionScore(self)
-        scoring.updateNeighbourhoodScore(self)
         scoring.updateLocationScore(time, self)
 
 
