@@ -54,7 +54,7 @@ class InputGeography:
                 else:
                     for i in range(1, len(row)):  # field 0 is day.
                         # print(row[0])
-                        self.conflicts[headers[i]].append(int(row[i].strip()))
+                        self.conflicts[headers[i]].append(float(row[i].strip()))
                 row_count += 1
 
         # print(self.conflicts)
@@ -327,37 +327,40 @@ class InputGeography:
         if len(SimulationSettings.FlareConflictInputFile) == 0:
             for loc in self.locations:
                 if "conflict" in loc[4].lower() and int(loc[5]) == time:
+                    conflict_intensity = 1.0
                     if e.print_location_output:
                         print(
-                            "Time = {}. Adding a new conflict zone [{}] with pop. {}".format(
-                                time, loc[0], int(loc[1])
+                            "Time = {}. Adding a new conflict zone [{}] with pop. {} and intensity {}".format(
+                                time, loc[0], int(loc[1]), conflict_intensity
                             ),
                             file=sys.stderr,
                         )
-                    e.add_conflict_zone(name=loc[0])
+                    e.add_conflict_zone(name=loc[0], conflict_intensity=conflict_intensity)
         else:
             conflict_names = self.getConflictLocationNames()
             # print(confl_names)
             for conflict_name in conflict_names:
                 if Debug:
                     print("L:", conflict_name, self.conflicts[conflict_name], time, file=sys.stderr)
-                if self.conflicts[conflict_name][time] == 1:
+                if self.conflicts[conflict_name][time] > 0.000001:
                     if time > 0:
-                        if self.conflicts[conflict_name][time - 1] == 0:
+                        if self.conflicts[conflict_name][time - 1] < 0.000001:
                             print(
-                                "Time = {}. Adding a new conflict zone [{}]".format(
-                                    time, conflict_name
+                                "Time = {}. Adding a new conflict zone [{}] with intensity {}".format(
+                                    time, conflict_name, self.conflicts[conflict_name][time]
                                 ),
                                 file=sys.stderr,
                             )
-                            e.add_conflict_zone(name=conflict_name)
+                            e.add_conflict_zone(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
                     else:
                         print(
-                            "Time = {}. Adding a new conflict zone [{}]".format(time, conflict_name),
+                            "Time = {}. Adding a new conflict zone [{}] with intensity {}".format(
+                                time, conflict_name, self.conflicts[conflict_name][time]
+                            ),
                             file=sys.stderr,
                         )
-                        e.add_conflict_zone(name=conflict_name)
-                if self.conflicts[conflict_name][time] == 0 and time > 0:
+                        e.add_conflict_zone(name=conflict_name,conflict_intensity=self.conflicts[conflict_name][time])
+                if self.conflicts[conflict_name][time] =< 0.000001 and time > 0:
                     if self.conflicts[conflict_name][time - 1] == 1:
                         print(
                             "Time = {}. Removing conflict zone [{}]".format(time, conflict_name),
