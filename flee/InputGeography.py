@@ -360,7 +360,7 @@ class InputGeography:
                             file=sys.stderr,
                         )
                         e.add_conflict_zone(name=conflict_name,conflict_intensity=self.conflicts[conflict_name][time])
-                if self.conflicts[conflict_name][time] =< 0.000001 and time > 0:
+                if self.conflicts[conflict_name][time] < 0.000001 and time > 0:
                     if self.conflicts[conflict_name][time - 1] == 1:
                         print(
                             "Time = {}. Removing conflict zone [{}]".format(time, conflict_name),
