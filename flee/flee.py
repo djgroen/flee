@@ -1130,12 +1130,12 @@ class Ecosystem:
         Returns:
             list: Description
         """
-        swtotal = sum(self.spawn_weights)
+        spawn_weight_total = sum(self.spawn_weights)
 
-        assert swtotal > 0
+        assert spawn_weight_total > 0
 
         return np.random.choice(
-            self.locations, number, p=self.spawn_weights / swtotal
+            self.locations, number, p=self.spawn_weights / spawn_weight_total
         ).tolist()
 
 
