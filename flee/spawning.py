@@ -46,7 +46,7 @@ def refresh_spawn_weights(e):
         if not SimulationSettings.spawn_rules["conflict_driven_spawning"]: # This branch should be skipped if conflicts spawn fixed numbers of agents.
 
             if SimulationSettings.spawn_rules["conflict_zone_spawning_only"]: # This option reduces spawning to 0 in non-conflict zones.
-                if e.locations[i].conflict == False:
+                if e.locations[i].conflict <= 0.0:
                     continue
 
             if e.locations[i].conflict == True: # Adding conflict-based weighting for spawning.
@@ -151,13 +151,13 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
             num_spawned = SimulationSettings.spawn_rules["displaced_per_conflict_day"]
 
         elif SimulationSettings.spawn_rules["conflict_spawn_mode"] == "pop_ratio":
-            if e.locations[i].conflict:  
+            if e.locations[i].conflict > 0.0:  
                 num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].pop)
             else: 
                 num_spawned = 0
 
         elif SimulationSettings.spawn_rules["conflict_spawn_mode"].lower() == "Poisson":
-            if e.locations[i].conflict:  
+            if e.locations[i].conflict > 0.0:  
                 num_spawned = np.random.poisson(SimulationSettings.spawn_rules["displaced_per_conflict_day"])
             else: 
                 num_spawned = 0

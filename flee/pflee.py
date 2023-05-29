@@ -416,7 +416,7 @@ class Ecosystem(flee.Ecosystem):
             location (Location): Description
         """
         if SimulationSettings.spawn_rules["TakeFromPopulation"]:
-            if location.conflict:
+            if location.conflict > 0.0:
                 if location.pop > 1:
                     location.pop -= 1
                     location.numAgentsSpawnedOnRank += 1

@@ -127,6 +127,7 @@ Record distances between locations in **`routes.csv`** file for simulation using
 **custom_attributes** work in the same way here as for `locations.csv`, providing users with the ability to add custom link attributes and set different values for individual links. Some attributes automatically trigger behaviors in Flee 3.0, including:
 
 * `max\_move\_speed`: when explicitly defined, this will override the MaxMoveSpeed set in `simsetting.yml` for individual links. Note that it is only possible to override this for all links or for none of the links at the moment.
+* `conflict\_intensity`: when explicitly defined for a location of type conflict, this will override the default value (1.0) to a custom-defined intensity level.
 
 ## **Define location and border closures in closures.csv file**
 

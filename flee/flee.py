@@ -273,7 +273,7 @@ class Location:
         self.pop = pop  # non-refugee population
         self.foreign = foreign
         self.country = country
-        self.conflict = False
+        self.conflict = -1.0
         self.conflict_date = -1 # date that last conflict erupted.
         self.camp = False
         self.town = False
@@ -292,7 +292,7 @@ class Location:
                     self.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
             elif "conflict" in location_type.lower():
                 self.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
-                self.conflict = True
+                self.conflict = float(self.attributes.get("conflict_intensity",1.0))
             elif "forward" in location_type.lower():
                 self.movechance = 1.0
                 self.forward = True
@@ -340,7 +340,7 @@ class Location:
         """
         self.movechance = SimulationSettings.CampMoveChance
         self.camp = True
-        self.conflict = False
+        self.conflict = -1.0
         self.town = False
 
     @check_args_type
@@ -1049,7 +1049,7 @@ class Ecosystem:
         return self._change_location_1way(location_name, mode="reopen", direction="in", Debug=Debug)
 
     @check_args_type
-    def add_conflict_zone(self, name: str, change_movechance: bool = True) -> None:
+    def add_conflict_zone(self, name: str, conflict_intensity: float = 1.0, change_movechance: bool = True) -> None:
         """
         Adds a conflict zone. Default weight is equal to
         population of the location.
@@ -1065,14 +1065,14 @@ class Ecosystem:
             if self.locationNames[i] == name:
                 if change_movechance:
                     self.locations[i].movechance = SimulationSettings.move_rules["ConflictMoveChance"]
-                    self.locations[i].conflict = True
+                    self.locations[i].conflict = conflict_intensity
                     self.locations[i].town = False
 
                 self.locations[i].time_of_conflict = self.time                  
                 spawning.refresh_spawn_weights(self)
 
                 if SimulationSettings.log_levels["init"] > 0:
-                    print("Added conflict zone:", name, ", pop. ", self.locations[i].pop, file=sys.stderr)
+                    print("Added conflict zone: {}, pop. {}, intensity: {}".format(name, self.locations[i].pop, conflict_intensity), file=sys.stderr)
                     print("New total spawn weight: ", sum(self.spawn_weights), file=sys.stderr)
                 return
 
@@ -1098,7 +1098,7 @@ class Ecosystem:
             if self.locationNames[i] == name:
                 if change_movechance:
                     self.locations[i].movechance = SimulationSettings.move_rules["DefaultMoveChance"]
-                self.locations[i].conflict = False
+                self.locations[i].conflict = -1.0
                 self.locations[i].town = True
 
         spawning.refresh_spawn_weights(self)
@@ -1250,7 +1250,7 @@ class Ecosystem:
             location (Location): Description
         """
         if SimulationSettings.spawn_rules["TakeFromPopulation"]:
-            if location.conflict:
+            if location.conflict > 0.0:
                 if location.pop > 0:
                     location.pop -= 1
                     location.numAgentsSpawned += 1

@@ -336,31 +336,31 @@ class InputGeography:
                         )
                     e.add_conflict_zone(name=loc[0])
         else:
-            conflic_names = self.getConflictLocationNames()
+            conflict_names = self.getConflictLocationNames()
             # print(confl_names)
-            for conflic_name in conflic_names:
+            for conflict_name in conflict_names:
                 if Debug:
-                    print("L:", conflic_name, self.conflicts[conflic_name], time, file=sys.stderr)
-                if self.conflicts[conflic_name][time] == 1:
+                    print("L:", conflict_name, self.conflicts[conflict_name], time, file=sys.stderr)
+                if self.conflicts[conflict_name][time] == 1:
                     if time > 0:
-                        if self.conflicts[conflic_name][time - 1] == 0:
+                        if self.conflicts[conflict_name][time - 1] == 0:
                             print(
                                 "Time = {}. Adding a new conflict zone [{}]".format(
-                                    time, conflic_name
+                                    time, conflict_name
                                 ),
                                 file=sys.stderr,
                             )
-                            e.add_conflict_zone(name=conflic_name)
+                            e.add_conflict_zone(name=conflict_name)
                     else:
                         print(
-                            "Time = {}. Adding a new conflict zone [{}]".format(time, conflic_name),
+                            "Time = {}. Adding a new conflict zone [{}]".format(time, conflict_name),
                             file=sys.stderr,
                         )
-                        e.add_conflict_zone(name=conflic_name)
-                if self.conflicts[conflic_name][time] == 0 and time > 0:
-                    if self.conflicts[conflic_name][time - 1] == 1:
+                        e.add_conflict_zone(name=conflict_name)
+                if self.conflicts[conflict_name][time] == 0 and time > 0:
+                    if self.conflicts[conflict_name][time - 1] == 1:
                         print(
-                            "Time = {}. Removing conflict zone [{}]".format(time, conflic_name),
+                            "Time = {}. Removing conflict zone [{}]".format(time, conflict_name),
                             file=sys.stderr,
                         )
-                        e.remove_conflict_zone(name=conflic_name)
+                        e.remove_conflict_zone(name=conflict_name)
