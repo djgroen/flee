@@ -323,8 +323,6 @@ class Location:
         self.scores = np.array([1.0, 1.0, 1.0, 1.0])
 
         scoring.updateLocationScore(0,self)
-        scoring.updateNeighbourhoodScore(self)
-        scoring.updateRegionScore(self)
 
         if SimulationSettings.log_levels["camp"] > 0:
             # reinitializes every time step. Contains individual journey

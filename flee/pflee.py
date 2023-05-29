@@ -565,17 +565,11 @@ class Ecosystem(flee.Ecosystem):
                         loc.updateAllScores(time=self.time)
 
         if self.parallel_mode == "classic":
-            # update level 1, 2 and 3 location scores.
+            # update level 1 location scores (2 and 3 are obsolete).
             # Scores remain perfectly updated in classic mode.
             for loc in self.locations:
                 loc.time = self.time
                 scoring.updateLocationScore(loc)
-
-            for loc in self.locations:
-                scoring.updateNeighbourhoodScore(loc)
-
-            for loc in self.locations:
-                scoring.updateRegionScore(loc)
 
         elif self.parallel_mode == "loc-par":
             # update scores in reverse order for efficiency.

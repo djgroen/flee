@@ -45,7 +45,7 @@ def getEndPointScore(agent, link) -> float:
     if link.endpoint.camp == True:
         if SimulationSettings.move_rules["MatchCampEthnicity"]:
             base *= (spawning.getAttributeRatio(link.endpoint, "ethnicity") * 10.0)
-    elif link.endpoint.conflict == True:
+    elif link.endpoint.conflict > 0.0:
         if SimulationSettings.move_rules["MatchConflictEthnicity"]:
             base *= (spawning.getAttributeRatio(link.endpoint, "ethnicity") * 10.0)
     else:
