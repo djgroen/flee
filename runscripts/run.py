@@ -56,6 +56,9 @@ if __name__ == "__main__":
 
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
 
+  if SimulationSettings.log_levels["idp_totals"] > 0:
+    output_header_string += ",total IDPs"
+
   print(output_header_string)
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
@@ -107,5 +110,8 @@ if __name__ == "__main__":
       output += ",%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt)
     else:
       output += ",0,0,0,0,0,0"
+
+    if SimulationSettings.log_levels["idp_totals"] > 0:
+      output += ",{}".format(e.numIDPs())
 
     print(output)

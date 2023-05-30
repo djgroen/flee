@@ -93,6 +93,7 @@ class SimulationSettings:
         SimulationSettings.log_levels["init"] = int(fetchss(dpll,"init",0))
         # set to 1 for information on conflict zone spawning
         SimulationSettings.log_levels["conflict"] = int(fetchss(dpll,"conflict",0))
+        SimulationSettings.log_levels["idp_totals"] = int(fetchss(dpll,"idp_totals",0))
 
 
 
