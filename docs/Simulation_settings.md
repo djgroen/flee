@@ -64,7 +64,7 @@ obtained from each log level (when set to `1` or `2`).
  camp     |    1   | Locations added and conflict zones assigned per timestep            |
  conflict |    1   | Conflict zone spawning     			                 |
  init     |    1   | Initialisation                                                      |
- idp\_total |    1   | Add a "total IDPs" column at the end of out.csv.                  |
+ idp\_totals |    1   | Add a "total IDPs" column at the end of out.csv.                  |
 
 ### Spawn rules (spawn_rules)
 
