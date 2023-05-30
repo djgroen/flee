@@ -80,25 +80,47 @@ def write_agents_par(
             )
 
             if SimulationSettings.log_levels["agent"] > 1:
-                for l in a.locations_visited:
-                    print(
+                if SimulationSettings.log_levels["agent"] > 2:
+                    hop_number = 1 # hop counter starts at 1 to indicate second hop in time step.
+                    for l in a.locations_visited:
+                        print(
+                            "{}-{},{}-{},{},{},{},{},{},{},{},{},{}".format(
+                                time,
+                                hop_number,
+                                rank,
+                                k,
+                                a.home_location.name,
+                                l.name,
+                                l.x,
+                                l.y,
+                                a.travelling,
+                                a.distance_travelled,
+                                a.places_travelled,
+                                a.distance_moved_this_timestep,
+                                print_attribute_values(a),
+                            ),
+                            file=my_file,
+                        )
+                        hop_number += 1
+                else:
+                    for l in a.locations_visited:
+                        print(
                             "{},{}-{},{},{},{},{},{},{},{},{},{}".format(
-                            time,
-                            rank,
-                            k,
-                            a.home_location.name,
-                            l.name,
-                            l.x,
-                            l.y,
-                            a.travelling,
-                            a.distance_travelled,
-                            a.places_travelled,
-                            a.distance_moved_this_timestep,
-                            print_attribute_values(a),
-                        ),
-                        file=my_file,
-                    )
-
+                                time,
+                                rank,
+                                k,
+                                a.home_location.name,
+                                l.name,
+                                l.x,
+                                l.y,
+                                a.travelling,
+                                a.distance_travelled,
+                                a.places_travelled,
+                                a.distance_moved_this_timestep,
+                                print_attribute_values(a),
+                            ),
+                            file=my_file,
+                        )
 
 
 
