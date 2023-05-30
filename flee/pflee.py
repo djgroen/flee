@@ -326,6 +326,24 @@ class Ecosystem(flee.Ecosystem):
         return False
 
     @check_args_type
+    def numIDPs(self) -> int:
+        """
+        Aggregates number of IDPs across locations
+
+        Returns:
+            int: total # of IDPs.
+        """
+        num_idps = 0
+
+        for loc in self.locations:
+            if loc.idpcamp:
+                num_idps += loc.numAgents
+
+        num_idps_all = self.mpi.CalcCommWorldTotalSingle(num_idps)
+        return num_idps_all
+
+
+    @check_args_type
     def updateNumAgents(self, CountClosed: bool = False, log: bool = True) -> None:
         """
         Summary

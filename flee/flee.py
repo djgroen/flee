@@ -276,6 +276,7 @@ class Location:
         self.conflict = -1.0
         self.conflict_date = -1 # date that last conflict erupted.
         self.camp = False
+        self.idpcamp = False
         self.town = False
         self.forward = False
         self.marker = False
@@ -289,6 +290,7 @@ class Location:
                 self.movechance = SimulationSettings.move_rules["CampMoveChance"]
                 self.camp = True
                 if "idp" in location_type.lower():
+                    self.idpcamp = True
                     self.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
             elif "conflict" in location_type.lower():
                 self.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
@@ -1297,6 +1299,7 @@ class Ecosystem:
                 self.agents[i].location.DecrementNumAgents()
         self.agents = new_agents
 
+
     @check_args_type
     def numAgents(self) -> int:
         """
@@ -1306,6 +1309,24 @@ class Ecosystem:
             int: Description
         """
         return len(self.agents)
+
+
+    @check_args_type
+    def numIDPs(self) -> int:
+        """
+        Aggregates number of IDPs across locations
+
+        Returns:
+            int: total # of IDPs.
+        """
+        num_idps = 0
+
+        for l in self.locations:
+            if l.idpcamp:
+                num_idps += l.numAgents
+
+        return num_idps
+
 
     @check_args_type
     def linkUp(
