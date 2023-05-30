@@ -48,12 +48,18 @@ _NOTE_ : The **simsetting.yml** file includes default values for each simulation
 
 ### Log levels (log_levels)
 
-There are five log level variables, namely **agent**, **link**, **camp**, **conflict** and **init**. If the value is set to `0` for these log levels, then no information is obtained from simulation runs. To obtain information, the values should be set to `1` (or `2` for agent log level). You can refer to the table below to gain an understanding of the type of information that is obtained from each log level (when set to `1` or `2`).
+There are five log level variables, namely **agent**, **link**, **camp**,
+**conflict** and **init**. If the value is set to `0` for these log levels,
+then no information is obtained from simulation runs. To obtain information,
+the values should be set to `1` (or `2` or `3` for agent log level). You can refer to
+the table below to gain an understanding of the type of information that is
+obtained from each log level (when set to `1` or `2`).
 
  Variable | Values | Obtained information                                                |
 ----------|--------|---------------------------------------------------------------------|
  agent    |    1   | Average times for agents to reach camps at any timestep (aggregated)|
  agent    |    2   | Duplicate entries when agents do multiple hops in one timestep      |
+ agent    |    3   | Duplicated entries have the hop number as part of the time step.    |
  link     |    1   | Cumulative agent counts on links at any timestep (aggregated)       |
  camp     |    1   | Locations added and conflict zones assigned per timestep            |
  conflict |    1   | Conflict zone spawning     			                 |
