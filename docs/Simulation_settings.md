@@ -31,7 +31,7 @@ move_rules:
   foreign_weight: 1.0
   camp_weight: 1.0
   conflict_weight: 0.25
-  conflict_movechance: 2.0
+  conflict_movechance: 1.0
   camp_movechance: 0.001
   default_movechance: 0.3
   idpcamp_movechance: 0.1
