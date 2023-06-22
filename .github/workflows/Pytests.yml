@@ -92,4 +92,5 @@ jobs:
           cd ../../..
 
           python3 -m pytest --log-cli-level=DEBUG tests/
+          python3 -m pytest --log-cli-level=DEBUG tests_mpi/
 
