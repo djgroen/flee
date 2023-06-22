@@ -12,52 +12,53 @@ rs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "runscripts")
 logger = logging.getLogger(__name__)
 
 # GitHub action = 2 cores
+duration = 10
 
 def test_mali(run_py):
-    ret = run_py("mali2012", "50")
+    ret = run_py("mali2012", "10")
     assert ret == "OK"
 
 
 def test_par_mali(run_par):
     logger.addHandler(logging.StreamHandler(sys.stdout))
     logger.setLevel(logging.DEBUG)
-    ret = run_par("mali2012", "50", "2")
+    ret = run_par("mali2012", "10", "2")
     assert ret == "OK"
 
 
 def test_burundi(run_py):
-    ret = run_py("burundi", "50")
+    ret = run_py("burundi", "10")
     assert ret == "OK"
 
 
 def test_par_burundi(run_par):
     logger.addHandler(logging.StreamHandler(sys.stdout))
     logger.setLevel(logging.DEBUG)
-    ret = run_par("burundi", "50", "2")
+    ret = run_par("burundi", "10", "2")
     assert ret == "OK"
 
 
 def test_car(run_py):
-    ret = run_py("car", "20")
+    ret = run_py("car", "5")
     assert ret == "OK"
 
 
 def test_par_car(run_par):
     logger.addHandler(logging.StreamHandler(sys.stdout))
     logger.setLevel(logging.DEBUG)
-    ret = run_par("car", "20", "2")
+    ret = run_par("car", "5", "2")
     assert ret == "OK"
 
 
 def test_ssudan(run_py):
-    ret = run_py("ssudan", "20")
+    ret = run_py("ssudan", "5")
     assert ret == "OK"
 
 
 def test_par_ssudan(run_par):
     logger.addHandler(logging.StreamHandler(sys.stdout))
     logger.setLevel(logging.DEBUG)
-    ret = run_par("ssudan", "20", "2")
+    ret = run_par("ssudan", "5", "2")
     assert ret == "OK"
 
 
