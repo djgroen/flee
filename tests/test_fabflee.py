@@ -126,7 +126,7 @@ def run_par():
 
         cmd = [
             "/usr/bin/mpirun",
-            "-n",
+            "-np",
             cores,
             "python3",
             "{}/run_par.py".format(rs_path),
