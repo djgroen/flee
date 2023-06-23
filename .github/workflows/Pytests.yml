@@ -78,9 +78,11 @@ jobs:
       - name: Test with pytest 🚀
         run: |
           python3 setup.py install      
-          git clone https://github.com/djgroen/FabFlee.git         
+          git clone https://github.com/djgroen/FabFlee.git
+          
+          # The two lines here are needed to run Action with OpenMPI. I don't know why (!!) 
           python3 -m pip install --upgrade pip wheel
-          python3 -m pip install --upgrade -r requirements.txt
+          python3 -m pip install --upgrade -r requirements.txt         
           
           export TMPDIR=/tmp
           export OMPI_MCA_btl=self,tcp
@@ -96,6 +98,5 @@ jobs:
           echo "PYTHONPATH = $PYTHONPATH"
 
           python3 -m pytest --log-cli-level=DEBUG tests/
-
           python3 -m pytest --log-cli-level=DEBUG tests_mpi/
 
