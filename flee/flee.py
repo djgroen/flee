@@ -334,9 +334,9 @@ class Location:
         self.print()
 
     @check_args_type
-    def open_camp(self) -> None:
+    def open_camp(self, IDP=False) -> None:
         """
-        Summary: change location type to camp.
+        Summary: change location type to camp or IDP camp.
         """
         self.movechance = SimulationSettings.move_rules["CampMoveChance"]
         self.camp = True
@@ -344,15 +344,20 @@ class Location:
         self.town = False
         self.forward = False
         self.marker = False
+        if IDP:
+            self.idpcamp = True
+            self.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
+
 
 
     @check_args_type
-    def close_camp(self) -> None:
+    def close_camp(self, IDP=False) -> None:
         """
         Summary: change location type to town.
         """
         self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
         self.camp = False
+        self.idpcamp = False
         self.conflict = -1.0
         self.town = True
         self.forward = False
@@ -618,8 +623,11 @@ class Ecosystem:
                     elif c[0] == "link":
                         self.close_link(startpoint=c[1], endpoint=c[2], twoway=twoway)
                     elif c[0] == "camp":
-                        self.locations[self._convert_location_name_to_index(c[1])].close_camp()
+                        self.locations[self._convert_location_name_to_index(c[1])].close_camp(IDP=False)
                         print("Time = {}. Close camp {}.".format(time, c[1]), file=sys.stderr)
+                    elif c[0] == "idpcamp":
+                        self.locations[self._convert_location_name_to_index(c[1])].close_camp(IDP=True)
+                        print("Time = {}. Close IDP camp {}.".format(time, c[1]), file=sys.stderr)
                     elif c[0] == "remove_forced_redirection":
                         loc1 = self.locations[self._convert_location_name_to_index(c[1])]
                         for l in loc1.links:
@@ -642,7 +650,10 @@ class Ecosystem:
                         self.reopen_link(startpoint=c[1], endpoint=c[2], twoway=twoway)
                     elif c[0] == "camp":
                         print("Time = {}. Open camp {}.".format(time, c[1]), file=sys.stderr)
-                        self.locations[self._convert_location_name_to_index(c[1])].open_camp()
+                        self.locations[self._convert_location_name_to_index(c[1])].open_camp(IDP=False)
+                    elif c[0] == "idpcamp":
+                        print("Time = {}. Open camp {}.".format(time, c[1]), file=sys.stderr)
+                        self.locations[self._convert_location_name_to_index(c[1])].open_camp(IDP=True)
                     elif c[0] == "remove_forced_redirection":
                         loc1 = self.locations[self._convert_location_name_to_index(c[1])]
                         for l in loc1.links:
