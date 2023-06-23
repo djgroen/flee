@@ -32,7 +32,7 @@ cmdclass = versioneer.get_cmdclass()
 setup(
     author="Derek Groen",
     author_email="Derek.Groen@brunel.ac.uk",
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     classifiers=[
         # list of classifiers -> https://pypi.org/classifiers/
         "Development Status :: 5 - Production/Stable",
@@ -40,9 +40,9 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     description="Flee is an agent-based modelling toolkit which is "
     "purpose-built for simulating the movement of individuals "
@@ -61,4 +61,4 @@ setup(
     version=versioneer.get_version(),
     cmdclass=cmdclass,
     zip_safe=False,
-)
+    )
