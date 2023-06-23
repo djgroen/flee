@@ -334,14 +334,30 @@ class Location:
         self.print()
 
     @check_args_type
-    def SetCamp(self) -> None:
+    def open_camp(self) -> None:
         """
-        Summary
+        Summary: change location type to camp.
         """
-        self.movechance = SimulationSettings.CampMoveChance
+        self.movechance = SimulationSettings.move_rules["CampMoveChance"]
         self.camp = True
         self.conflict = -1.0
         self.town = False
+        self.forward = False
+        self.marker = False
+
+
+    @check_args_type
+    def close_camp(self) -> None:
+        """
+        Summary: change location type to town.
+        """
+        self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+        self.camp = False
+        self.conflict = -1.0
+        self.town = True
+        self.forward = False
+        self.marker = False
+
 
     @check_args_type
     def DecrementNumAgents(self) -> None:
@@ -601,6 +617,9 @@ class Ecosystem:
                         self.close_location(location_name=c[1], twoway=twoway)
                     if c[0] == "link":
                         self.close_link(startpoint=c[1], endpoint=c[2], twoway=twoway)
+                    if c[0] == "camp":
+                        self.locations[self._convert_location_name_to_index(c[1])].close_camp()
+                        print("Time = {}. Close camp {}.".format(time, c[1]), file=sys.stderr)
                 if time == c[4]:
                     if c[0] == "country":
                         if Debug:
@@ -614,6 +633,9 @@ class Ecosystem:
                         self.reopen_location(location_name=c[1], twoway=twoway)
                     if c[0] == "link":
                         self.reopen_link(startpoint=c[1], endpoint=c[2], twoway=twoway)
+                    if c[0] == "camp":
+                        print("Time = {}. Open camp {}.".format(time, c[1]), file=sys.stderr)
+                        self.locations[self._convert_location_name_to_index(c[1])].open_camp()
 
     @check_args_type
     def _convert_location_name_to_index(self, name: str) -> int:
