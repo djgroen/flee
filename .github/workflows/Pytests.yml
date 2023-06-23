@@ -84,7 +84,7 @@ jobs:
           export OMPI_MCA_btl=self,tcp
           export OMPI_MCA_btl_vader_backing_directory=/tmp
           export FLEE_TYPE_CHECK=true
-          export PYTHONPATH=$CWD:$PYTHONPATH
+          export PYTHONPATH=/home/runner/work/flee/flee:$PYTHONPATH
 
           cd FabFlee/config_files/mali2012
           mpiexec -n 2 python3 run_par.py input_csv source_data 50 simsetting.yml
