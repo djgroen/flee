@@ -126,7 +126,7 @@ def run_par():
         config_path = os.path.join(base, config)
 
         cmd = [
-            "/usr/bin/mpirun",
+            "mpirun",
             "-np",
             cores,
             "python3",
