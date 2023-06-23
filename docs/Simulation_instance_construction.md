@@ -143,7 +143,9 @@ We identify location or border closure events and document them in **closures.cs
 
 * **location** corresponding to camp or town closure and
 * **country** referring to border closure.
-* **camp** refers to camp closures (these are converted to normal towns when closed).
+* **camp** refers to camp closuresi for camp `name1` (these are converted to normal towns when closed).
+* **idpcamp** can be used in the same way as camp, but for IDP camps.
+* **remove_forced_redirection** can be used to remove any forced redirection mechanism on a particular one-way link from `name1` to `name2`.
 * **closure_start** and **closure_end** are given as integers, counting the number of days after the simulation start. The value of `0` indicates the start, while `-1` indicates the end of the simulation.
 
 
