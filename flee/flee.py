@@ -613,13 +613,20 @@ class Ecosystem:
                                 file=sys.stderr,
                             )
                         self.close_border(source_country=c[1], dest_country=c[2], twoway=twoway)
-                    if c[0] == "location":
+                    elif c[0] == "location":
                         self.close_location(location_name=c[1], twoway=twoway)
-                    if c[0] == "link":
+                    elif c[0] == "link":
                         self.close_link(startpoint=c[1], endpoint=c[2], twoway=twoway)
-                    if c[0] == "camp":
+                    elif c[0] == "camp":
                         self.locations[self._convert_location_name_to_index(c[1])].close_camp()
                         print("Time = {}. Close camp {}.".format(time, c[1]), file=sys.stderr)
+                    elif c[0] == "remove_forced_redirection":
+                        loc1 = self.locations[self._convert_location_name_to_index(c[1])]
+                        for l in loc1.links:
+                            if l.endpoint.name == c[2]:
+                                l.forced_redirection = False
+                                print("Time = {}. Remove redirection {}-{}.".format(time, c[1], c[2]), file=sys.stderr)
+
                 if time == c[4]:
                     if c[0] == "country":
                         if Debug:
@@ -629,13 +636,19 @@ class Ecosystem:
                                 file=sys.stderr,
                             )
                         self.reopen_border(source_country=c[1], dest_country=c[2], twoway=twoway)
-                    if c[0] == "location":
+                    elif c[0] == "location":
                         self.reopen_location(location_name=c[1], twoway=twoway)
-                    if c[0] == "link":
+                    elif c[0] == "link":
                         self.reopen_link(startpoint=c[1], endpoint=c[2], twoway=twoway)
-                    if c[0] == "camp":
+                    elif c[0] == "camp":
                         print("Time = {}. Open camp {}.".format(time, c[1]), file=sys.stderr)
                         self.locations[self._convert_location_name_to_index(c[1])].open_camp()
+                    elif c[0] == "remove_forced_redirection":
+                        loc1 = self.locations[self._convert_location_name_to_index(c[1])]
+                        for l in loc1.links:
+                            if l.endpoint.name == c[2]:
+                                l.forced_redirection = True
+                                print("Time = {}. Add redirection {}-{}.".format(time, c[1], c[2]), file=sys.stderr)
 
     @check_args_type
     def _convert_location_name_to_index(self, name: str) -> int:
