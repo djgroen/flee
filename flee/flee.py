@@ -623,17 +623,11 @@ class Ecosystem:
                     elif c[0] == "link":
                         self.close_link(startpoint=c[1], endpoint=c[2], twoway=twoway)
                     elif c[0] == "camp":
-                        self.locations[self._convert_location_name_to_index(c[1])].close_camp(IDP=False)
-                        print("Time = {}. Close camp {}.".format(time, c[1]), file=sys.stderr)
+                        self.close_camp(c[1], IDP=False)
                     elif c[0] == "idpcamp":
-                        self.locations[self._convert_location_name_to_index(c[1])].close_camp(IDP=True)
-                        print("Time = {}. Close IDP camp {}.".format(time, c[1]), file=sys.stderr)
+                        self.close_camp(c[1], IDP=True)
                     elif c[0] == "remove_forced_redirection":
-                        loc1 = self.locations[self._convert_location_name_to_index(c[1])]
-                        for l in loc1.links:
-                            if l.endpoint.name == c[2]:
-                                l.forced_redirection = False
-                                print("Time = {}. Remove redirection {}-{}.".format(time, c[1], c[2]), file=sys.stderr)
+                        self.set_forced_redirection(c[1], c[2], False)
 
                 if time == c[4]:
                     if c[0] == "country":
@@ -649,17 +643,12 @@ class Ecosystem:
                     elif c[0] == "link":
                         self.reopen_link(startpoint=c[1], endpoint=c[2], twoway=twoway)
                     elif c[0] == "camp":
-                        print("Time = {}. Open camp {}.".format(time, c[1]), file=sys.stderr)
-                        self.locations[self._convert_location_name_to_index(c[1])].open_camp(IDP=False)
+                        self.open_camp(c[1], IDP=False)
                     elif c[0] == "idpcamp":
-                        print("Time = {}. Open camp {}.".format(time, c[1]), file=sys.stderr)
-                        self.locations[self._convert_location_name_to_index(c[1])].open_camp(IDP=True)
+                        self.open_camp(c[1], IDP=True)
                     elif c[0] == "remove_forced_redirection":
-                        loc1 = self.locations[self._convert_location_name_to_index(c[1])]
-                        for l in loc1.links:
-                            if l.endpoint.name == c[2]:
-                                l.forced_redirection = True
-                                print("Time = {}. Add redirection {}-{}.".format(time, c[1], c[2]), file=sys.stderr)
+                        self.set_forced_redirection(c[1], c[2], True)
+
 
     @check_args_type
     def _convert_location_name_to_index(self, name: str) -> int:
@@ -1054,6 +1043,32 @@ class Ecosystem:
             self._change_border_1way(
                 source_country=dest_country, dest_country=source_country, mode="reopen", Debug=Debug
             )
+
+
+    @check_args_type
+    def close_camp(self, location_name: str, IDP: bool):
+        self.locations[self._convert_location_name_to_index(location_name)].close_camp(IDP)
+        print("Time = {}. Close camp {}, IDP: {}.".format(self.time, location_name, IDP), file=sys.stderr)
+
+
+    @check_args_type
+    def open_camp(self, location_name: str, IDP: bool):
+        self.locations[self._convert_location_name_to_index(location_name)].open_camp(IDP)
+        print("Time = {}. Open camp {}, IDP: {}.".format(self.time, location_name, IDP), file=sys.stderr)
+
+
+    @check_args_type
+    def set_forced_redirection(self, loc1_name: str, loc2_name: str, value: bool):
+        id1 = self._convert_location_name_to_index(loc1_name)
+        for i in range(0, len(self.locations[id1].links)):
+            if self.locations[id1].links[i].endpoint.name == loc2_name:
+                old_val = self.locations[id1].links[i].forced_redirection
+                self.locations[id1].links[i].forced_redirection = value
+                print("Time = {}. Redirection {}-{} changed from {} to {}.".format(self.time, loc1_name, loc2_name, old_val, value), file=sys.stderr)
+
+
+ 
+
 
     @check_args_type
     def close_location(self, location_name: str, twoway: bool = True, Debug: bool = False) -> bool:

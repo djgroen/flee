@@ -17,9 +17,13 @@ def test_tiny_closure():
     e = flee.Ecosystem()
 
     l1 = e.addLocation(name="A", movechance=1.0)
-    l2 = e.addLocation(name="B", movechance=0.0)
+    l2 = e.addLocation(name="B", movechance=0.0) # link closed on day 2
+    l3 = e.addLocation(name="C", movechance=0.0) # camp converted to town on day 0, not connected.
 
     e.linkUp(endpoint1="A", endpoint2="B", distance=5.0)
+
+    e.close_camp("C", IDP=False)
+    assert l3.movechance > 0.01
 
     for t in range(0, end_time):
         # Insert refugee agents
