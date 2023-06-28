@@ -1216,11 +1216,13 @@ class Ecosystem:
         for a in self.agents:
             if SimulationSettings.log_levels["agent"] > 1:
                 a.locations_visited = []
-            a.evolve(self, time=self.time)
+            if a.location is not None:
+                a.evolve(self, time=self.time)
 
         for a in self.agents:
-            a.finish_travel(self, time=self.time)
-            a.timesteps_since_departure += 1
+            if a.location is not None:
+                a.finish_travel(self, time=self.time)
+                a.timesteps_since_departure += 1
 
         if SimulationSettings.log_levels["agent"] > 0:
             write_agents(agents=self.agents, time=self.time)
