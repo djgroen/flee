@@ -1246,10 +1246,11 @@ class Ecosystem:
         if SimulationSettings.spawn_rules["camps_are_sinks"] == True:
             for a in self.agents:
                 if a.travelling == False:
-                    if a.location.camp == True:
-                        outcome = random.random()
-                        if outcome < a.location.attributes.get("deactivation_probability", 0.0):
-                            a.location = None
+                    if a.location is not None:
+                        if a.location.camp == True:
+                            outcome = random.random()
+                            if outcome < a.location.attributes.get("deactivation_probability", 0.0):
+                                a.location = None
 
         self.time += 1
 
