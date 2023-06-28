@@ -1248,7 +1248,7 @@ class Ecosystem:
                 if a.travelling == False:
                     if a.location.camp == True:
                         outcome = random.random()
-                        if outcome < a.location.attributes.get("deactivation_probability", 0.0)
+                        if outcome < a.location.attributes.get("deactivation_probability", 0.0):
                             a.location = None
 
         self.time += 1
