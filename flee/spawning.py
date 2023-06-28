@@ -49,11 +49,11 @@ def refresh_spawn_weights(e):
                 if e.locations[i].conflict <= 0.0:
                     continue
 
-            if e.locations[i].conflict == True: # Adding conflict-based weighting for spawning.
+            if e.locations[i].conflict > 0.0: # Adding conflict-based weighting for spawning.
                 # Conflict decay multiplier
-                multiplier = 1.0
+                multiplier = e.locations[i].conflict
                 if SimulationSettings.spawn_rules["conflict_spawn_decay"]:
-                    multiplier = SimulationSettings.get_location_conflict_decay(e.time, e.locations[i])
+                    multiplier = e.locations[i].conflict * SimulationSettings.get_location_conflict_decay(e.time, e.locations[i])
 
                 # Pop+conflict weight
                 e.spawn_weights[i] = e.locations[i].pop * conflict_pop_weight * multiplier
@@ -148,17 +148,17 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
  
         ## BASE RATES  
         if SimulationSettings.spawn_rules["conflict_spawn_mode"] == "constant":
-            num_spawned = SimulationSettings.spawn_rules["displaced_per_conflict_day"]
+            num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].conflict)
 
         elif SimulationSettings.spawn_rules["conflict_spawn_mode"] == "pop_ratio":
             if e.locations[i].conflict > 0.0:  
-                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].pop)
+                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].pop * e.locations[i].conflict)
             else: 
                 num_spawned = 0
 
         elif SimulationSettings.spawn_rules["conflict_spawn_mode"].lower() == "Poisson":
             if e.locations[i].conflict > 0.0:  
-                num_spawned = np.random.poisson(SimulationSettings.spawn_rules["displaced_per_conflict_day"])
+                num_spawned = np.random.poisson(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].conflict)
             else: 
                 num_spawned = 0
 
