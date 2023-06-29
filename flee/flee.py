@@ -349,6 +349,10 @@ class Location:
             self.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
 
 
+    @check_args_type
+    def setAttribute(self, name: str, value) -> None:
+        self.attributes[name] = value
+
 
     @check_args_type
     def close_camp(self, IDP=False) -> None:
@@ -501,6 +505,11 @@ class Link:
                 category[agent.attributes[a]] = category.get(agent.attributes[a], 0) + 1
                 self.cumNumAgentsByAttribute[a] = category
             #print(category, file=sys.stderr)
+
+
+    @check_args_type
+    def setAttribute(self, name: str, value) -> None:
+        self.attributes[name] = value
 
 
     def get_distance(self) -> float:
@@ -1375,7 +1384,7 @@ class Ecosystem:
 
 
     @check_args_type
-    def setAttribute(name: str, value) -> None:
+    def setAttribute(self, name: str, value) -> None:
         self.attributes[name] = value
 
 
