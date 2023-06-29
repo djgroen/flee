@@ -651,6 +651,15 @@ class Ecosystem(flee.Ecosystem):
         if SimulationSettings.log_levels["camp"] > 0:
             self._aggregate_arrivals()
 
+        # Deactivate agents in camps with a certain probability.
+        if SimulationSettings.spawn_rules["camps_are_sinks"] == True:
+            for a in self.agents:
+                if a.travelling == False:
+                    if a.location.camp == True:
+                        outcome = random.random()
+                        if outcome < a.location.attributes.get("deactivation_probability", 0.0):
+                            a.location = None
+
         self.time += 1
 
     @check_args_type

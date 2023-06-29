@@ -349,6 +349,10 @@ class Location:
             self.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
 
 
+    @check_args_type
+    def setAttribute(self, name: str, value) -> None:
+        self.attributes[name] = value
+
 
     @check_args_type
     def close_camp(self, IDP=False) -> None:
@@ -501,6 +505,11 @@ class Link:
                 category[agent.attributes[a]] = category.get(agent.attributes[a], 0) + 1
                 self.cumNumAgentsByAttribute[a] = category
             #print(category, file=sys.stderr)
+
+
+    @check_args_type
+    def setAttribute(self, name: str, value) -> None:
+        self.attributes[name] = value
 
 
     def get_distance(self) -> float:
@@ -1216,11 +1225,14 @@ class Ecosystem:
         for a in self.agents:
             if SimulationSettings.log_levels["agent"] > 1:
                 a.locations_visited = []
-            a.evolve(self, time=self.time)
+            if a.location is not None:
+                a.evolve(self, time=self.time)
 
         for a in self.agents:
-            a.finish_travel(self, time=self.time)
-            a.timesteps_since_departure += 1
+            if a.location is not None:
+                a.finish_travel(self, time=self.time)
+                a.timesteps_since_departure += 1
+        
 
         if SimulationSettings.log_levels["agent"] > 0:
             write_agents(agents=self.agents, time=self.time)
@@ -1238,6 +1250,16 @@ class Ecosystem:
         # update link properties
         if SimulationSettings.log_levels["camp"] > 0:
             self._aggregate_arrivals()
+
+        # Deactivate agents in camps with a certain probability.
+        if SimulationSettings.spawn_rules["camps_are_sinks"] == True:
+            for a in self.agents:
+                if a.travelling == False:
+                    if a.location is not None:
+                        if a.location.camp == True:
+                            outcome = random.random()
+                            if outcome < a.location.attributes.get("deactivation_probability", 0.0):
+                                a.location = None
 
         self.time += 1
 
@@ -1359,6 +1381,11 @@ class Ecosystem:
                 # drops by one.
                 self.agents[i].location.DecrementNumAgents()
         self.agents = new_agents
+
+
+    @check_args_type
+    def setAttribute(self, name: str, value) -> None:
+        self.attributes[name] = value
 
 
     @check_args_type

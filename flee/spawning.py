@@ -141,6 +141,7 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
     d = DataTable object
     refugees_raw = raw refugee count
     """
+    new_refs = 0
 
     if SimulationSettings.spawn_rules["conflict_driven_spawning"]:
 
@@ -148,7 +149,10 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
  
         ## BASE RATES  
         if SimulationSettings.spawn_rules["conflict_spawn_mode"] == "constant":
-            num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].conflict)
+            if e.locations[i].conflict > 0.0:
+                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].conflict)
+            else:
+                num_spawned = 0
 
         elif SimulationSettings.spawn_rules["conflict_spawn_mode"] == "pop_ratio":
             if e.locations[i].conflict > 0.0:  
@@ -164,8 +168,10 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
 
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):
-            attributes = draw_samples(e, loc)
+            attributes = draw_samples(e, e.locations[i])
             e.addAgent(location=e.locations[i], attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
+
+        new_refs = num_spawned
 
     else:
 

@@ -61,6 +61,10 @@ def write_agents_par(
     if time % timestep_interval == 0:
         for k in range(0, max_written):
             a = agents[k]
+
+            if a.location is None: #Do not write agent logs for agents that are removed from the simulation.
+                continue
+
             print(
                     "{},{}-{},{},{},{},{},{},{},{},{},{}".format(
                     time,
