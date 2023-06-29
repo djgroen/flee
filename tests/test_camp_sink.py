@@ -1,5 +1,4 @@
 from flee import flee
-from flee.datamanager import handle_refugee_data
 
 """
 Generation 1 code. Incorporates only distance, travel always takes one day.
@@ -21,7 +20,7 @@ def test_camp_sink():
 
     l1 = e.addLocation(name="A", movechance=1.0, foreign=False)
     l2 = e.addLocation(name="B", movechance=0.0, foreign=True)
-    l2.attributes["deactivation_probability"] = 1.0
+    l2.setAttribute("deactivation_probability", 1.0)
 
     e.linkUp(endpoint1="A", endpoint2="B", distance=100.0)
     # Insert refugee agents
@@ -38,7 +37,7 @@ def test_camp_sink():
 
     # All agents should have reached l2, and be deactivated.
     for a in e.agents:
-        assert a.location == None
+        assert a.location is None
 
     print("Test successful!")
 

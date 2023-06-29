@@ -1375,6 +1375,11 @@ class Ecosystem:
 
 
     @check_args_type
+    def setAttribute(name: str, value) -> None:
+        self.attributes[name] = value
+
+
+    @check_args_type
     def numAgents(self) -> int:
         """
         Summary
