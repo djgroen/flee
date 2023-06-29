@@ -77,6 +77,30 @@ Spawn rules focus on spawning agents within simulation runs based on several set
 
 The second set includes one variable, namely **conflict_spawn_decay**. It manages the number of agents spawned from conflicts that can decay overtime.
 
+#### Conflict-driven spawning
+
+A new feature in Flee 3.0 is to spawn agents based solely on the presence of conflicts, rather than obtaining numbers from `refugees.csv`. To enable this, you need to add a subsection to the Spawn rules named `conflict_driven_spawning:`.
+
+Within this subsection several spawn modes are possible, and as an illustration we provide two examples here.
+
+1. 1% of a location's population is displaced per conflict day, for a conflict intensity of 1.0.
+```
+spawn_rules:
+  conflict_driven_spawning:
+    spawn_mode: "pop_ratio"
+    displaced_per_conflict_day: 0.01
+```
+
+2. 500 persons are displaced per conflict day per location, for a conflict intensity of 1.0.
+```
+spawn_rules:
+  conflict_driven_spawning:
+    spawn_mode: "constant"
+    displaced_per_conflict_day: 500
+```
+
+Instead of the `constant` mode, it's possible to use a `poisson` mode, which randomly generates numbers using a Poisson distribution with an average of 500 in this case.
+
 ### Movement rules (move_rules)
 We can modify the movement rules of agents based on the movement speed, location weights, movechance (probability) of locations, agents' awareness levels and other parameters. 
 
