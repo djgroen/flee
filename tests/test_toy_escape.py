@@ -56,7 +56,6 @@ def test_toy_escape():
     assert t == 9
     # This includes refugee counts from Fassala as well
     assert l1.numAgents + l2.numAgents + l3.numAgents + l4.numAgents == 635
-    # 79 746 24601 14784 38188
 
     print("Test successful!")
 

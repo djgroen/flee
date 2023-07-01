@@ -214,7 +214,7 @@ def selectRoute(a, time: int, debug: bool = False):
 
   if SimulationSettings.move_rules["AwarenessLevel"] == 0:
     linklen = len(a.location.links)
-    return np.random.randint(0, linklen)
+    return [np.random.randint(0, linklen)]
 
   for k, e in enumerate(a.location.links):
     wgt, rts = calculateLinkWeight(
