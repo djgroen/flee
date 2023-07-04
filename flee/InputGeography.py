@@ -174,6 +174,45 @@ class InputGeography:
                     # print(row)
                     self.closures.append(row)
 
+
+    def ReadAgentsFromCSV(self, e, csv_name: str) -> None:
+        """
+        Read the agents.csv file. Format is:
+        location,attributes
+
+        Args:
+            csv_name (str): Description
+        """
+
+        self.agents = []
+
+        with open(csv_name, newline="", encoding="utf-8") as csvfile:
+            values = csv.reader(csvfile)
+
+            i = 0
+            for row in values:
+                if len(row) == 0 or row[0][0] == "#":
+                    pass
+                elif i == 0:
+                    headers = row[1:]
+                    print(headers)
+                else:
+                    print(row)
+                    attr = {}
+                    for i in range (1, len(row)):
+                        attr[headers[i-1]] = row[i]
+
+                    loc_found = False
+                    for i in range(0, len(e.locationNames)):
+                        if e.locationNames[i] == row[0]:
+                            e.addAgent(e.locations[i], attributes=attr)
+                            loc_found= True
+
+                    if not loc_found:
+                        print("could not map location to CSV-loaded agent on line. (not count commented lines or empty lines)", sys.stderr)
+                i += 1
+
+
     def StoreInputGeographyInEcosystem(self, e):
         """
         Store the geographic information in this class in a FLEE simulation,
