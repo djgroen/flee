@@ -101,6 +101,23 @@ spawn_rules:
 
 Instead of the `constant` mode, it's possible to use a `poisson` mode, which randomly generates numbers using a Poisson distribution with an average of 500 in this case.
 
+#### Spawning agents from file.
+
+Flee has the option to read in agents from a CSV file (named `agents.csv`) and place these directly into the simulation at startup. This mode can be activated by toggling the following setting:
+```
+spawn_rules:
+  read_from_agents_csv_file: True
+```
+
+When this is enabled, agents will be read in from `agents.csv` and added to the simulation. _This mechanism complements any other spawning mechanism, so if you only wish to spawn agents from the CSV file, then you must disable all other spawning mechanisms._
+
+The formatting of `agents.csv` should be as follows:
+
+- 1st line should contain "location name", followed by the name of all agent attribute types in a comma separated list.
+- All other lines contain information for the agents, one agent per line, with its location name followed with all the attribute values, all separated by commas.
+
+An example `agents.csv` file is provided as part of the Flee installation. It can be found in `$FLEE/test_data/test_input_csv/agents.csv`.  
+
 ### Movement rules (move_rules)
 We can modify the movement rules of agents based on the movement speed, location weights, movechance (probability) of locations, agents' awareness levels and other parameters. 
 
