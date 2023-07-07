@@ -24,7 +24,7 @@ There are a few small configuration steps to follow:
 2.  Open `machines_FabFlee_user.yml`.
 3.  Under the section **localhost:**, please add the following lines:
 	```yaml
-	flee_location: (FLEE Home)
+	flee_location: <base directory path to your Flee installation>
 	```
 
 ## **Automated construction of a new conflict scenario using FabFlee**
