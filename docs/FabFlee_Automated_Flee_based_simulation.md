@@ -21,8 +21,9 @@ The FabFlee plugin will appear in `~/FabSim3/plugins/FabFlee`.
 There are a few small configuration steps to follow:
 
 1.  Go to `~/FabSim3/plugins/FabFlee`.
-2.  Open `machines_FabFlee_user.yml`.
-3.  Under the section **localhost:**, please add the following lines:
+2.  Duplicate `machines_FabFlee_user_example.yml` and name the copy `machines_FabFlee_user.yml`, if you have not done so already.
+3.  Open `machines_FabFlee_user.yml`.
+4.  Under the section **localhost:**, please add the following lines:
 	```yaml
 	flee_location: <base directory path to your Flee installation>
 	```
