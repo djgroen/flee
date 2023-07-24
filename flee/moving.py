@@ -129,49 +129,41 @@ def calculateLinkWeight(
   weight = float(getEndPointScore(agent=agent, link=link)
           / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
 
-  if location_is_marker is True: #marker locations should not create a branch.
-    weights = []
-    routes = []
-  else:
+  #if location_is_marker is True: #marker locations should not create a branch.
+  weights = []
+  routes = []
+  step -= 1
+  if location_is_marker is False:
     weights = [weight]
     routes = [origin_names + [link.endpoint.name]]
 
+  print("Endpoint:", link.endpoint.name, weights, routes, origin_names, step)
 
   if SimulationSettings.move_rules["AwarenessLevel"] > step:
     # Traverse the tree one step further.
     for lel in link.endpoint.links:
+
       if lel.endpoint.name in origin_names:
+        print("Looped endpoint:", link.endpoint.name, lel.endpoint.name, origin_names)
         # Link points back to an origin, so ignore.
         pass
-      elif lel.endpoint.marker is True:
-        # Markers are ignored in the pathfinding, 
-        # so the step variable doesn't increment.
-        # Branch above will prevent (infinite) loops from occurring.
-        # I duplicated some code because this is a complicated recursive function, and
-        # it is a bit more readable for others this way.
-        wgt, rts = calculateLinkWeight(agent=agent,
-              link=lel,
-              prior_distance=prior_distance + link.get_distance(),
-              origin_names=origin_names + [link.endpoint.name],
-              step=step,
-              time=time,
-              debug=debug,
-              location_is_marker=True,
-              )
-        weights = weights + wgt
-        routes = routes + rts  
+        
+      # Markers are ignored in the pathfinding, 
+      # so the step variable doesn't increment.
+      # Branch above will prevent (infinite) loops from occurring.
       else:
         wgt, rts = calculateLinkWeight(agent=agent,
               link=lel,
               prior_distance=prior_distance + link.get_distance(),
-              origin_names=origin_names + [link.endpoint.name],
+              origin_names=routes[0],
               step=step + 1,
               time=time,
               debug=debug,
-              location_is_marker=False,
+              location_is_marker=lel.endpoint.marker,
               )
         weights = weights + wgt
         routes = routes + rts
+        print("Endpoint:", link.endpoint.name, lel.endpoint.name, lel.endpoint.marker, weights, routes)
 
   if debug:
     print("step {}, total weight returned {}, routes {}".format(step, weights, routes), file=sys.stderr)
@@ -246,7 +238,8 @@ def selectRoute(a, time: int, debug: bool = False):
          a,
          link=e,
          prior_distance=0.0,
-         origin_names=[],
+         #origin_names=[],
+         origin_names=[a.location.name],
          step=1,
          time=time,
          debug=debug,
