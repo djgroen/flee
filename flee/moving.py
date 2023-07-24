@@ -121,6 +121,7 @@ def calculateLinkWeight(
   step (int): Description
   time (int): Description
   debug (bool, optional): Description
+  location_is_marker (bool, optional): whether current loc is a marker.
   """
 
 

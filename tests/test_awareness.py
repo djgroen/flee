@@ -47,5 +47,38 @@ def test_awareness():
       print("Test successful!")
 
 
+def test_marker_location():
+
+    print("Testing basic data handling and simulation kernel.")
+    flee.SimulationSettings.ReadFromYML("empty.yml")
+
+    flee.SimulationSettings.move_rules["MaxMoveSpeed"] = 5000.0
+    flee.SimulationSettings.move_rules["MaxWalkSpeed"] = 5000.0
+
+    flee.SimulationSettings.move_rules["AwarenessLevel"] = 5
+
+    e = flee.Ecosystem()
+
+    l1 = e.addLocation(name="A", movechance=0.3)
+    _ = e.addLocation(name="B", movechance=0.3)
+    _ = e.addLocation(name="C", location_type="marker")
+    _ = e.addLocation(name="D", movechance=0.3, location_type="camp")
+
+    e.linkUp(endpoint1="A", endpoint2="B", distance=834.0)
+    e.linkUp(endpoint1="A", endpoint2="C", distance=834.0)
+    e.linkUp(endpoint1="B", endpoint2="D", distance=834.0)
+    e.linkUp(endpoint1="C", endpoint2="D", distance=834.0)
+
+    e.addAgent(location=l1, attributes={})
+
+    rts, wts = moving.calculateLinkWeight(e.agents[0], l1.links[0], 0.0, ['A'], 0, 0, True, False)
+
+    assert len(rts) == 3
+    assert len(wts) == 3
+
+    print("Test successful!")
+
+
+
 if __name__ == "__main__":
     test_awareness()
