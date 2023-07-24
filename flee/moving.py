@@ -132,10 +132,12 @@ def calculateLinkWeight(
   #if location_is_marker is True: #marker locations should not create a branch.
   weights = []
   routes = []
-  step -= 1
   if location_is_marker is False:
     weights = [weight]
     routes = [origin_names + [link.endpoint.name]]
+  else:
+    step -= 1
+
 
   print("Endpoint:", link.endpoint.name, weights, routes, origin_names, step)
 
