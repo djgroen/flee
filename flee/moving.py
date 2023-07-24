@@ -107,6 +107,7 @@ def calculateLinkWeight(
   step: int,
   time: int,
   debug: bool = False,
+  location_is_marker: bool = False
 ) -> Tuple[List[float],List[List[str]]]:
   """
   Calculates Link Weights recursively based on awareness level.
@@ -127,8 +128,13 @@ def calculateLinkWeight(
   weight = float(getEndPointScore(agent=agent, link=link)
           / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
 
-  weights = [weight]
-  routes = [origin_names + [link.endpoint.name]]
+  if location_is_marker is True: #marker locations should not create a branch.
+    weights = []
+    routes = []
+  else:
+    weights = [weight]
+    routes = [origin_names + [link.endpoint.name]]
+
 
   if SimulationSettings.move_rules["AwarenessLevel"] > step:
     # Traverse the tree one step further.
@@ -136,6 +142,23 @@ def calculateLinkWeight(
       if lel.endpoint.name in origin_names:
         # Link points back to an origin, so ignore.
         pass
+      elif lel.endpoint.marker is True:
+        # Markers are ignored in the pathfinding, 
+        # so the step variable doesn't increment.
+        # Branch above will prevent (infinite) loops from occurring.
+        # I duplicated some code because this is a complicated recursive function, and
+        # it is a bit more readable for others this way.
+        wgt, rts = calculateLinkWeight(agent=agent,
+              link=lel,
+              prior_distance=prior_distance + link.get_distance(),
+              origin_names=origin_names + [link.endpoint.name],
+              step=step,
+              time=time,
+              debug=debug,
+              location_is_marker=True,
+              )
+        weights = weights + wgt
+        routes = routes + rts  
       else:
         wgt, rts = calculateLinkWeight(agent=agent,
               link=lel,
@@ -144,6 +167,7 @@ def calculateLinkWeight(
               step=step + 1,
               time=time,
               debug=debug,
+              location_is_marker=False,
               )
         weights = weights + wgt
         routes = routes + rts
