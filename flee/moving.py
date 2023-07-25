@@ -128,7 +128,7 @@ def calculateLinkWeight(
   if link.endpoint.marker is False:
 
     # Core formula for calculating link weight  
-    weight = float(getEndPointScore(agent=agent, link=link)) / ((float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)**SimulationSettings.move_rules["DistancePower"]) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents)))
+    weight = (float(getEndPointScore(agent=agent, link=link)) / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)**SimulationSettings.move_rules["DistancePower"]) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
 
     #print(weight, float(getEndPointScore(agent=agent, link=link)))
 
