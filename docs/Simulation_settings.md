@@ -158,6 +158,7 @@ Set the following parameter to `True` or `False`:
 
 - **avoid_short_stints** allows to restrict displaced people that will take a break unless they at least travelled for a full day's distance in the last two days.
 - **start_on_foot** is a parameters allowing agents to traverse first link on foot.
+- **distance_power** is a factor that indicates the importance of distance in weight calculations. Default is (inverse) linear (1.0). Change to 2.0 for a quadratic relation, 0.5 for a weaker square-root relation, or 0.0 if the distance to a destination should not be a factor in decision-making at all. Not that this only affects the link weighting calculation; agent perception can still be limited by the awareness level even when `distance_power` is set to 0.0.
 
 To set the following parameters, please use values:
 

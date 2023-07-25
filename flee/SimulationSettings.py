@@ -174,6 +174,9 @@ class SimulationSettings:
         # KM added to every link distance to eliminate needless distinction
         # between very short routes.
         SimulationSettings.move_rules["Softening"] = float(fetchss(dpr,"softening",10.0))
+        
+        # Factor to increase or decrease importance of distance in weight calculations. Default is (inverse) linear)
+        SimulationSettings.move_rules["DistancePower"] = float(fetchss(dpr,"distance_power",1.0))
 
 
         # Flee 3.0 Prototyping conditionals (see design focument)
