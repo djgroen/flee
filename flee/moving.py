@@ -131,7 +131,7 @@ def calculateLinkWeight(
     weight = float(getEndPointScore(agent=agent, link=link)
           / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
 
-    print(weight, float(getEndPointScore(agent=agent, link=link)))
+    #print(weight, float(getEndPointScore(agent=agent, link=link)))
 
     weights = [weight]
     routes = [origin_names + [link.endpoint.name]]
