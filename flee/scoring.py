@@ -32,5 +32,5 @@ def updateLocationScore(time: int, loc) -> None:
     loc.setScore(1, score)
 
     loc.setScore(0, 1.0)
-    # print(loc.name,loc.camp,loc.foreign,loc.LocationScore)
+    #print(loc.name,loc.camp,loc.foreign,loc.scores)
 

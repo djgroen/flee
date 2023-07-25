@@ -25,7 +25,7 @@ def getEndPointScore(agent, link) -> float:
     Returns:
         float: Description
     """
-    # print(link.endpoint.name, link.endpoint.scores)
+    #print(link.endpoint.name, link.endpoint.scores)
     base = agent.getBaseEndPointScore(link) # called externally because serial and parallel implementations differ.
 
     # The base score is derived from the perceived level of safety and security.
@@ -130,6 +130,8 @@ def calculateLinkWeight(
     # Core formula for calculating link weight  
     weight = float(getEndPointScore(agent=agent, link=link)
           / float(SimulationSettings.move_rules["Softening"] + link.get_distance() + prior_distance)) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
+
+    print(weight, float(getEndPointScore(agent=agent, link=link)))
 
     weights = [weight]
     routes = [origin_names + [link.endpoint.name]]
@@ -255,8 +257,13 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
     return weights, routes
   if debug is True:
     print("selectRoute: ",routes, weights, file=sys.stderr)
-  route = chooseFromWeights(weights=weights, routes=routes)
 
+  #Last step: delete origin from suggested routes.
+  for i in range(0, len(routes)):
+    routes[i] = routes[i][1:]
+
+  route = chooseFromWeights(weights=weights, routes=routes)
+  #print("route chosen:", route)
 
   return route
 

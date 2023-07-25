@@ -12,10 +12,10 @@ def test_camp_sink():
 
     flee.SimulationSettings.move_rules["MaxMoveSpeed"] = 5000.0
     flee.SimulationSettings.move_rules["MaxWalkSpeed"] = 5000.0
-    flee.SimulationSettings.move_rules["ForeignWeight"] = 0.0
+    flee.SimulationSettings.move_rules["ForeignWeight"] = 1.0
     flee.SimulationSettings.spawn_rules["camps_are_sinks"] = True
 
-    end_time = 10
+    end_time = 3
     e = flee.Ecosystem()
 
     l1 = e.addLocation(name="A", movechance=1.0, foreign=False)
@@ -33,7 +33,7 @@ def test_camp_sink():
         # Propagate the model by one time step.
         e.evolve()
 
-    assert t == 9
+    assert t == 2
 
     # All agents should have reached l2, and be deactivated.
     for a in e.agents:
