@@ -71,10 +71,22 @@ def test_marker_location():
 
     e.addAgent(location=l1, attributes={})
 
-    rts, wts = moving.calculateLinkWeight(e.agents[0], l1.links[0], 0.0, ['A'], 0, 0, True, False)
+    w, r = moving.selectRoute(e.agents[0], time=0, debug=True, return_all_routes=True)
 
-    assert len(rts) == 3
-    assert len(wts) == 3
+    assert len(r) == 4
+    # should return four routes, although order may vary.
+
+    wts, rts = moving.calculateLinkWeight(e.agents[0], l1.links[0], 0.0, ['A'], 0, 0, True)
+    #should return rts = [['A', 'B'], ['A', 'B', 'D']]
+
+    for i in rts:
+        assert i[-1] in ['B','D']
+
+    wts2, rts2 = moving.calculateLinkWeight(e.agents[0], l1.links[1], 0.0, ['A'], 0, 0, True)
+    #should return rts = [['A', 'C', 'D'], ['A', 'C', 'D', 'B']] 
+
+    for i in rts2:
+        assert i[-1] in ['B','D']
 
     print("Test successful!")
 
