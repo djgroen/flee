@@ -262,6 +262,7 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
   for i in range(0, len(routes)):
     routes[i] = routes[i][1:]
 
+  #print(weights, routes)
   route = chooseFromWeights(weights=weights, routes=routes)
   #print("route chosen:", route)
 

@@ -73,7 +73,7 @@ def test_marker_location():
 
     w, r = moving.selectRoute(e.agents[0], time=0, debug=True, return_all_routes=True)
 
-    assert len(r) == 5
+    assert len(r) == 4
     # should return four routes, although order may vary.
 
     wts, rts = moving.calculateLinkWeight(e.agents[0], l1.links[0], 0.0, ['A'], 0, 0, True)
