@@ -133,6 +133,10 @@ There are three movement types in the Flee code, which can :
 - **conflict_weight** is the attraction multiplier for conflict locations (conflict zones).
 - **camp_weight** is the attraction multiplier for camp locations (camps).
 - **foreign_weight** is the attraction multiplier for foreign locations that stacks with camp multiplier. 
+- **use_pop_for_loc_weight** is a parameter that, if set to `True` includes location population as a weighting factor for non-camp locations.
+  - **pop_power_for_loc_weight** is a power factor that adjusts how heavily population is accounted for, when `use_pop_for_loc_weight` is enabled. By default it is set to 0.1, which weights a location with 1M population twice as heavily as a location with 1000 population. The scaling equation is `multiplier = <location_population>^pop_power_for_loc_weight`.
+
+_Tip: if you use `use_pop_for_loc_weight`, the weight of non-camp locations will be increased relative to camp locations. It is therefore highly recommended to then also scale up the `camp_weight` parameter (e.g. by a factor 3 if `pop_power_for_loc_weight` is set to 0.1)._
 
 #### 3. Location movechances
 
@@ -158,12 +162,12 @@ Set the following parameter to `True` or `False`:
 
 - **avoid_short_stints** allows to restrict displaced people that will take a break unless they at least travelled for a full day's distance in the last two days.
 - **start_on_foot** is a parameters allowing agents to traverse first link on foot.
-- **distance_power** is a factor that indicates the importance of distance in weight calculations. Default is (inverse) linear (1.0). Change to 2.0 for a quadratic relation, 0.5 for a weaker square-root relation, or 0.0 if the distance to a destination should not be a factor in decision-making at all. Not that this only affects the link weighting calculation; agent perception can still be limited by the awareness level even when `distance_power` is set to 0.0.
 
 To set the following parameters, please use values:
 
 - **capacity_buffer** refers to a location or camp is beginning to be considered full if the number of agents there exceeds (capacity OR pop) * `CapacityBuffer`.
 - **softening** adds kilometers to every link distance to eliminate needless distinction between very short routes.
+- **distance_power** is a factor that indicates the importance of distance in weight calculations. Default is (inverse) linear (1.0). Change to 2.0 for a quadratic relation, 0.5 for a weaker square-root relation, or 0.0 if the distance to a destination should not be a factor in decision-making at all. Not that this only affects the link weighting calculation; agent perception can still be limited by the awareness level even when `distance_power` is set to 0.0. The scaling equation is `multiplier = 1 / <distance>^distance_power`.
 
 ### Optimisations
 **hasten** takes value to improve runtime performance by decreasing the number of agents. 
