@@ -178,6 +178,12 @@ class SimulationSettings:
         # Factor to increase or decrease importance of distance in weight calculations. Default is (inverse) linear)
         SimulationSettings.move_rules["DistancePower"] = float(fetchss(dpr,"distance_power",1.0))
 
+        # Enable/disable location attractiveness weighting by population.
+        SimulationSettings.move_rules["UsePopForLocWeight"] = bool(fetchss(dpr,"use_pop_for_loc_weight",False))
+        # Factor to increase or decrease importance of population in location attractiveness. 
+        # Default = 0.05, which doubles the weight of a town with 1M pop, compared to 1 pop.
+        SimulationSettings.move_rules["PopPowerForLocWeight"] = float(fetchss(dpr,"pop_power_for_loc_weight",0.05))
+
 
         # Flee 3.0 Prototyping conditionals (see design focument)
         # TODO: embed these in a more flexible/powerful framework of conditionals
