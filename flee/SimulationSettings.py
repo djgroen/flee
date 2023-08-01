@@ -178,6 +178,13 @@ class SimulationSettings:
         # Factor to increase or decrease importance of distance in weight calculations. Default is (inverse) linear)
         SimulationSettings.move_rules["DistancePower"] = float(fetchss(dpr,"distance_power",1.0))
 
+        # A switch to enable weighting of distance to home location for different locations.
+        # As well as a power factor to adjust the weight of it. Default is sqrt scaling of distance.
+        SimulationSettings.move_rules["StayCloseToHome"] = bool(fetchss(dpr,"stay_close_to_home",False))
+        SimulationSettings.move_rules["HomeDistancePower"] = float(fetchss(dpr,"home_distance_power",0.5))
+
+
+
         # Enable/disable location attractiveness weighting by population.
         SimulationSettings.move_rules["UsePopForLocWeight"] = bool(fetchss(dpr,"use_pop_for_loc_weight",False))
         # Factor to increase or decrease importance of population in location attractiveness. 

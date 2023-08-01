@@ -162,12 +162,14 @@ Set the following parameter to `True` or `False`:
 
 - **avoid_short_stints** allows to restrict displaced people that will take a break unless they at least travelled for a full day's distance in the last two days.
 - **start_on_foot** is a parameters allowing agents to traverse first link on foot.
+- **stay_close_to_home** is a parameter adding a weight that favours locations closer to the persons home location.
 
 To set the following parameters, please use values:
 
 - **capacity_buffer** refers to a location or camp is beginning to be considered full if the number of agents there exceeds (capacity OR pop) * `CapacityBuffer`.
 - **softening** adds kilometers to every link distance to eliminate needless distinction between very short routes.
 - **distance_power** is a factor that indicates the importance of distance in weight calculations. Default is (inverse) linear (1.0). Change to 2.0 for a quadratic relation, 0.5 for a weaker square-root relation, or 0.0 if the distance to a destination should not be a factor in decision-making at all. Not that this only affects the link weighting calculation; agent perception can still be limited by the awareness level even when `distance_power` is set to 0.0. The scaling equation is `multiplier = 1 / <distance>^distance_power`.
+- **home_distance_power** is a factor that indicates the importance of hone distance in weight calculations. Works the same as `distance_power` except that it is only triggered when `stay_close_to_home` is enabled. Default value is 0.5 (inverse sqrt relation).
 
 ### Optimisations
 **hasten** takes value to improve runtime performance by decreasing the number of agents. 

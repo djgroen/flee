@@ -43,6 +43,11 @@ def getEndPointScore(agent, link) -> float:
                 base = 1 
 
 
+    if SimulationSettings.move_rules["StayCloseToHome"]:
+        power_factor = SimulationSettings.move_rules["HomeDistancePower"]
+        base *= 1.0/(min(1.0,link.endpoint.getDistance(agent.location))**power_factor)
+
+
     if link.endpoint.camp is True:
         if SimulationSettings.move_rules["MatchCampEthnicity"]:
             base *= (spawning.getAttributeRatio(link.endpoint, "ethnicity") * 10.0)

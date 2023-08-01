@@ -3,6 +3,7 @@ from __future__ import annotations, print_function
 import copy
 import os
 import random
+import math
 import sys
 from typing import List, Optional, Tuple
 
@@ -332,6 +333,31 @@ class Location:
             self.incoming_journey_lengths = []
 
         self.print()
+
+
+    @check_args_type
+    def calculateDistance(self, other_location) -> float:
+        """
+        Summary: Calculate distance between this location and another one.
+        This concerns distance as the bird flies.
+        """
+        # Approximate radius of earth in km
+        R = 6373.0
+
+        lat1 = math.radians(self.y)
+        lon1 = math.radians(self.x)
+        lat2 = math.radians(other_location.y)
+        lon2 = math.radians(other_location.x)
+
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+
+        a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+        return R * c
+
+
 
     @check_args_type
     def open_camp(self, IDP=False) -> None:
