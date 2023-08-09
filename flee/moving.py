@@ -45,7 +45,7 @@ def getEndPointScore(agent, link) -> float:
 
     if SimulationSettings.move_rules["StayCloseToHome"]:
         power_factor = SimulationSettings.move_rules["HomeDistancePower"]
-        base *= 1.0/(min(1.0,link.endpoint.getDistance(agent.location))**power_factor)
+        base *= 1.0/(max(1.0,link.endpoint.getDistance(agent.location))**power_factor)
 
 
     if link.endpoint.camp is True:
