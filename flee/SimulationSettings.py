@@ -191,6 +191,11 @@ class SimulationSettings:
         # Default = 0.05, which doubles the weight of a town with 1M pop, compared to 1 pop.
         SimulationSettings.move_rules["PopPowerForLocWeight"] = float(fetchss(dpr,"pop_power_for_loc_weight",0.1))
 
+       
+        # Adjust to introduce population weighting in all move chances.
+        SimulationSettings.move_rules["MovechancePopBase"] = float(fetchss(dpr,"move_chance_pop_base",10000.0)) 
+        SimulationSettings.move_rules["MovechancePopScaleFactor"] = float(fetchss(dpr,"move_chance_pop_scale_factor",0.0))
+
 
         # Flee 3.0 Prototyping conditionals (see design focument)
         # TODO: embed these in a more flexible/powerful framework of conditionals
