@@ -150,7 +150,7 @@ _Advanced_: It is also possible to adjust move chances based on population size 
 - **movechance_pop_base** is the population level in which all original movechances are kept constant. Default: `10000`.
 - **movechance_pop_scale_factor** is the power factor with which movechances are scaled by population. A positive value will result in higher chances for more populous locations, and a negative value will result in a lower chance.  
 
-The exact equation is: `(float(max(location.pop, location.capacity)) / movechance_pop_base)**movechance_pop_scale_factor`.
+The exact multiplier equation is: `movechance *= (float(max(location.pop, location.capacity)) / movechance_pop_base)**movechance_pop_scale_factor`.
 Any movechance set to higher than 1.0 will simply indicate a 100% probability of moving.
 
 
