@@ -145,6 +145,15 @@ _Tip: if you use `use_pop_for_loc_weight`, the weight of non-camp locations will
 - **default_movechance** is the chance (probability) of agents (persons) leaving a regular location (i.e., town/intermediate location) per day. 
 - **idpcamp_movechance** is the chance (probability) of agents (persons) leaving an internally discplaced camps per day.
 
+_Advanced_: It is also possible to adjust move chances based on population size of each location. This can be done using the following parameters:
+
+- **movechance_pop_base** is the population level in which all original movechances are kept constant. Default: `10000`.
+- **movechance_pop_scale_factor** is the power factor with which movechances are scaled by population. A positive value will result in higher chances for more populous locations, and a negative value will result in a lower chance.  
+
+The exact equation is: `(float(max(location.pop, location.capacity)) / movechance_pop_base)**movechance_pop_scale_factor`.
+Any movechance set to higher than 1.0 will simply indicate a 100% probability of moving.
+
+
 #### 4. Awareness level
 We are able to adjuct the agents awareness of locations by incorporating a more wide or narrow awareness level (**awareness_level**). Agents can be aware of the presence of links steps by setting the following values:
 

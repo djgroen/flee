@@ -141,7 +141,7 @@ class Person:
                 movechance = 1.0
             else: # called first time in loop
                 movechance = self.location.movechance
-                movechance *= SimulationSettings.move_rules["MovechancePopBase"]**SimulationSettings.move_rules["MovechancePopScaleFactor"]
+                movechance *= (float(max(self.location.pop, self.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
 
             outcome = random.random()
             # print(movechance)

@@ -193,8 +193,8 @@ class SimulationSettings:
 
        
         # Adjust to introduce population weighting in all move chances.
-        SimulationSettings.move_rules["MovechancePopBase"] = float(fetchss(dpr,"move_chance_pop_base",10000.0)) 
-        SimulationSettings.move_rules["MovechancePopScaleFactor"] = float(fetchss(dpr,"move_chance_pop_scale_factor",0.0))
+        SimulationSettings.move_rules["MovechancePopBase"] = float(fetchss(dpr,"movechance_pop_base",10000.0)) 
+        SimulationSettings.move_rules["MovechancePopScaleFactor"] = float(fetchss(dpr,"movechance_pop_scale_factor",0.0))
 
 
         # Flee 3.0 Prototyping conditionals (see design focument)
