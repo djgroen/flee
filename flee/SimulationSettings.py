@@ -173,7 +173,9 @@ class SimulationSettings:
         
         # KM added to every link distance to eliminate needless distinction
         # between very short routes.
-        SimulationSettings.move_rules["Softening"] = float(fetchss(dpr,"softening",10.0))
+        SimulationSettings.move_rules["DistanceSoftening"] = float(fetchss(dpr,"softening",10.0))
+        # Constant added to ALL weights irrespective of distance, to increase randomness in route selection.
+        SimulationSettings.move_rules["WeightSoftening"] = float(fetchss(dpr,"weight_softening",0.0))
         
         # Factor to increase or decrease importance of distance in weight calculations. Default is (inverse) linear)
         SimulationSettings.move_rules["DistancePower"] = float(fetchss(dpr,"distance_power",1.0))
