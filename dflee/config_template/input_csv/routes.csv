@@ -1,0 +1,6 @@
+#name1,name2,distance,forced_redirection
+A,B,12,
+B,C,47,
+C,A,122,
+A,Y,55,
+Y,Z,36,
