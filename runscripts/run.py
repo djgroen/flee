@@ -1,17 +1,23 @@
-from flee import flee, spawning
-from flee.datamanager import handle_refugee_data, read_period
-from flee.datamanager import DataTable #DataTable.subtract_dates()
-from flee import InputGeography
+from dflee import dflee, spawning
+from dflee.datamanager import handle_refugee_data, read_period
+from dflee.datamanager import DataTable #DataTable.subtract_times()
+from dflee import dInputGeography
 import numpy as np
-import flee.postprocessing.analysis as a
+import dflee.postprocessing.analysis as a
 import sys
-from flee.SimulationSettings import SimulationSettings
+import time
+from dflee.SimulationSettings import SimulationSettings
+
+
 
 from datetime import datetime, timedelta
 
 if __name__ == "__main__":
 
-  start_date,end_time = read_period.read_conflict_period("{}/conflict_period.csv".format(sys.argv[1]))
+  start_date,end_time = read_period.read_flood_period("{}/flood_period.csv".format(sys.argv[1]))
+
+  start = time.time()
+  original_stdout = sys.stdout # Save a reference to the original standard output
 
   if len(sys.argv)<4:
     print("Please run using: python3 run.py <your_csv_directory> <your_refugee_data_directory> <duration in days> <optional: simsettings.yml> > <output_directory>/<output_csv_filename>")
@@ -22,17 +28,17 @@ if __name__ == "__main__":
     end_time = int(sys.argv[3])
 
   if len(sys.argv)==5:
-    flee.SimulationSettings.ReadFromYML(sys.argv[4])
+    dflee.SimulationSettings.ReadFromYML(sys.argv[4])
   else:
-    flee.SimulationSettings.ReadFromYML("simsetting.yml")
+    dflee.SimulationSettings.ReadFromYML("simsettings.yml")
 
-  flee.SimulationSettings.FlareConflictInputFile = "%s/conflicts.csv" % input_csv_directory
+  dflee.SimulationSettings.FloodInputFile = "%s/floods.csv" % input_csv_directory
 
-  e = flee.Ecosystem()
+  e = dflee.Ecosystem()
 
-  ig = InputGeography.InputGeography()
+  ig = dInputGeography.InputGeography()
 
-  ig.ReadFlareConflictInputCSV(flee.SimulationSettings.FlareConflictInputFile)
+  ig.ReadFloodInputCSV(dflee.SimulationSettings.FloodInputFile)
 
   ig.ReadLocationsFromCSV("%s/locations.csv" % input_csv_directory)
 
@@ -43,7 +49,8 @@ if __name__ == "__main__":
   e,lm = ig.StoreInputGeographyInEcosystem(e)
 
   if SimulationSettings.spawn_rules["read_from_agents_csv_file"] == True:
-      ig.ReadAgentsFromCSV(e, "%s/agents.csv" % input_csv_directory)
+    ig.ReadAgentsFromCSV(e, "%s/agents.csv" % input_csv_directory)
+
 
   d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv", population_scaledown_factor=SimulationSettings.optimisations["PopulationScaleDownFactor"])
 
@@ -59,9 +66,6 @@ if __name__ == "__main__":
 
   output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
 
-  if SimulationSettings.log_levels["idp_totals"] > 0:
-    output_header_string += ",total IDPs"
-
   print(output_header_string)
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
@@ -69,7 +73,7 @@ if __name__ == "__main__":
   for t in range(0,end_time):
 
     #if t>0:
-    ig.AddNewConflictZones(e,t)
+    ig.AddNewFloodZones(e,t)
 
     new_refs,refugees_raw,refugee_debt = spawning.spawn_daily_displaced(e,t,d)
 
@@ -101,7 +105,7 @@ if __name__ == "__main__":
       abs_errors += [a.abs_error(lm[i].numAgents, loc_data[j])]
 
       j += 1
-
+    
 
     date = datetime.strptime(start_date, "%Y-%m-%d") + timedelta(days=t)
     output = "%s,%s" % (t, date.strftime("%Y-%m-%d"))
@@ -118,3 +122,8 @@ if __name__ == "__main__":
       output += ",{}".format(e.numIDPs())
 
     print(output)
+
+  with open('execution_time.txt', 'w') as f:
+        sys.stdout = f # Change the standard output to the file we created.
+        print('The execution time is:--- %s seconds ---' % (time.time() - start))
+        sys.stdout = original_stdout # Reset the standard output to its original value
