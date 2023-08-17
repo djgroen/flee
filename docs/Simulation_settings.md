@@ -75,7 +75,8 @@ Spawn rules focus on spawning agents within simulation runs based on several set
 - **conflict_zone_spawning_only** spawns agents only from conflict zones when set to `True`. Otherwise, it is set to `False` to spawn agents from other locations that are present in your model. 
 - **camps_are_sinks** activates an attribute that you can add to locations.csv. If you set a location attribute named **deactivation_probability** to a value higher than 0.0, then there is a probability every time step that an agent in a **camp** location will be deactivated. Deactivated agents are no longer moved or changed, and are no longer logged individually although they do still count towards the totals. To have camps act as perfect sinks, simply set the **deactivation_probability** for each camp location to 1.0.
 
-The second set includes one variable, namely **conflict_spawn_decay**. It manages the number of agents spawned from conflicts that can decay overtime.
+The second set includes one variable, namely **conflict_spawn_decay**. It manages the number of agents spawned from conflicts that can decay overtime. Importantly, `conflict_spawn_decay` is disabled by default. If you wish to enable it, we recommend setting it to the value `[1.0,1.0,1.0,0.5,0.1]`, which was empirically derived (see (ITFLOWS deliverable 3.4)[https://www.itflows.eu/wp-content/uploads/2022/06/25.-D3.4-ITFLOWS.pdf].
+ 
 
 #### Conflict-driven spawning
 
@@ -133,7 +134,7 @@ There are three movement types in the Flee code, which can :
 - **conflict_weight** is the attraction multiplier for conflict locations (conflict zones).
 - **camp_weight** is the attraction multiplier for camp locations (camps).
 - **foreign_weight** is the attraction multiplier for foreign locations that stacks with camp multiplier. 
-- **use_pop_for_loc_weight** is a parameter that, if set to `True` includes location population as a weighting factor for non-camp locations.
+- **use_pop_for_loc_weight** is an *advanced* parameter that, if set to `True` includes location population as a weighting factor for non-camp locations.
   - **pop_power_for_loc_weight** is a power factor that adjusts how heavily population is accounted for, when `use_pop_for_loc_weight` is enabled. By default it is set to 0.1, which weights a location with 1M population twice as heavily as a location with 1000 population. The scaling equation is `multiplier = <location_population>^pop_power_for_loc_weight`.
 
 _Tip: if you use `use_pop_for_loc_weight`, the weight of non-camp locations will be increased relative to camp locations. It is therefore highly recommended to then also scale up the `camp_weight` parameter (e.g. by a factor 3 if `pop_power_for_loc_weight` is set to 0.1)._
@@ -147,7 +148,7 @@ _Tip: if you use `use_pop_for_loc_weight`, the weight of non-camp locations will
 
 _Advanced_: It is also possible to adjust move chances based on population size of each location. This can be done using the following parameters:
 
-- **movechance_pop_base** is the population level in which all original movechances are kept constant. Default: `10000`.
+- **movechance_pop_base** is an *advanced* parameter. It indicates the population level in which all original movechances are kept constant. Default: `10000`.
 - **movechance_pop_scale_factor** is the power factor with which movechances are scaled by population. A positive value will result in higher chances for more populous locations, and a negative value will result in a lower chance.  
 
 The exact multiplier equation is: `movechance *= (float(max(location.pop, location.capacity)) / movechance_pop_base)**movechance_pop_scale_factor`.
@@ -165,7 +166,7 @@ Value | Description                                                        |
   2   | The type of settlements adjacent to neighbouring settlements       |
   3   | The type of settlements neighbouring those neighbours of neighbours|
 
-#### 5. Other parameters
+#### 5. Movement Rule Parameters for Advanced Users
 
 Set the following parameter to `True` or `False`:
 
