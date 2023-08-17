@@ -109,11 +109,22 @@ class SimulationSettings:
 
 
         SimulationSettings.spawn_rules["conflict_zone_spawning_only"] = bool(fetchss(dps, "conflict_zone_spawning_only", True)) # Only spawn agents from conflict zones.
+        SimulationSettings.spawn_rules["flood_zone_spawning_only"] = bool(fetchss(dps, "flood_zone_spawning_only", False)) # Only spawn agents from flood zones.
+
+        if (SimulationSettings.spawn_rules["conflict_zone_spawning_only"] is True and SimulationSettings.spawn_rules["flood_zone_spawning_only"] is True):
+            print("ERROR in simulationsetting.yml: both conflict_zone_spawning_only and flood_zone_spawning_only are enabled in the Flee configuration.", file=sys.stderr)
+            print("Both parameters are defined in the spawn_rules section of simulationsetting.yml.", file=sys.stderr)
+            print("NOTE: conflict_zone_spawning_only is enabled by default, and needs to be disabled when you define flood_zone_spawning_only to be true.", file=sys.stderr)
+            sys.exit()
 
         SimulationSettings.spawn_rules["camps_are_sinks"] = bool(fetchss(dps, "camps_are_sicks", False)) # Camps can deactivate agents.
         SimulationSettings.spawn_rules["read_from_agents_csv_file"] = bool(fetchss(dps, "read_from_agents_csv_file", False)) # Load agents from agents.csv file.
 
-        dpsc = fetchss(dps,"conflict_driven_spawning",None)
+        spawn_type = "conflict"
+        if SimulationSettings.spawn_rules["flood_zone_spawning_only"] is True:
+            spawn_type = "flood"
+
+        dpsc = fetchss(dps,f"{spawn_type}_driven_spawning",None)
         if dpsc is not None:
           SimulationSettings.spawn_rules["conflict_driven_spawning"] = True # Conflicts provide a direct push factor.
           
