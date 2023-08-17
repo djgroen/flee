@@ -1,5 +1,5 @@
 log_levels:
-  agent: 1
+  agent: 0
   camp: 0
   init: 0
   Flood: 0
