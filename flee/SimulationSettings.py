@@ -124,18 +124,34 @@ class SimulationSettings:
         if SimulationSettings.spawn_rules["flood_zone_spawning_only"] is True:
             spawn_type = "flood"
 
-        dpsc = fetchss(dps,f"{spawn_type}_driven_spawning",None)
-        if dpsc is not None:
-          SimulationSettings.spawn_rules["conflict_driven_spawning"] = True # Conflicts provide a direct push factor.
+        if spawn_type == "conflict":
+          dpsc = fetchss(dps,"conflict_driven_spawning",None)
+          if dpsc is not None:
+            SimulationSettings.spawn_rules["conflict_driven_spawning"] = True # Conflicts provide a direct push factor.
           
-          SimulationSettings.spawn_rules["conflict_spawn_mode"] = fetchss(dpsc,"spawn_mode","constant") # constant, Poisson, pop_ratio
+            SimulationSettings.spawn_rules["conflict_spawn_mode"] = fetchss(dpsc,"spawn_mode","constant") # constant, Poisson, pop_ratio
 
-          if SimulationSettings.spawn_rules["conflict_spawn_mode"] == "pop_ratio":
-            SimulationSettings.spawn_rules["displaced_per_conflict_day"] = float(fetchss(dpsc,"displaced_per_conflict_day", 0.01))
+            if SimulationSettings.spawn_rules["conflict_spawn_mode"] == "pop_ratio":
+              SimulationSettings.spawn_rules["displaced_per_conflict_day"] = float(fetchss(dpsc,"displaced_per_conflict_day", 0.01))
+            else:
+              SimulationSettings.spawn_rules["displaced_per_conflict_day"] = int(fetchss(dpsc,"displaced_per_conflict_day", 500))
           else:
-            SimulationSettings.spawn_rules["displaced_per_conflict_day"] = int(fetchss(dpsc,"displaced_per_conflict_day", 500))
-        else:
-          SimulationSettings.spawn_rules["conflict_driven_spawning"] = False
+            SimulationSettings.spawn_rules["conflict_driven_spawning"] = False
+
+        elif spawn_type == "flood":
+          dpsc = fetchss(dps,"flood_driven_spawning",None)
+          if dpsc is not None:
+            SimulationSettings.spawn_rules["flood_driven_spawning"] = True # Conflicts provide a direct push factor.
+
+            SimulationSettings.spawn_rules["flood_spawn_mode"] = fetchss(dpsc,"spawn_mode","constant") # constant, Poisson, pop_ratio
+
+            if SimulationSettings.spawn_rules["flood_spawn_mode"] == "pop_ratio":
+              SimulationSettings.spawn_rules["displaced_per_flood_day"] = float(fetchss(dpsc,"displaced_per_conflict_day", 0.01))
+            else:
+              SimulationSettings.spawn_rules["displaced_per_flood_day"] = int(fetchss(dpsc,"displaced_per_conflict_day", 500))
+          else:
+            SimulationSettings.spawn_rules["flood_driven_spawning"] = False
+
 
         SimulationSettings.spawn_rules["conflict_spawn_decay"] = fetchss(dps,"conflict_spawn_decay", None) # Expect an array or dict
         print("Spawn decay set to:", SimulationSettings.spawn_rules["conflict_spawn_decay"], file=sys.stderr)
