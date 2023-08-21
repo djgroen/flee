@@ -231,6 +231,23 @@ class SimulationSettings:
         for a in ["ChildrenAvoidHazards", "BoysTakeRisk", "MatchCampEthnicity", "MatchTownEthnicity", "MatchConflictEthnicity"]:
             SimulationSettings.move_rules[a] = bool(fetchss(dpr,a,False))
 
+        dpf = fetchss(dp, "flood_rules", None)
+        if dpf is not None:
+          SimulationSettings.move_rules["FloodRulesEnabled"] = True
+          SimulationSettings.spawn_rules["MaxFloodLevel"] = int(fetchss(dpf,"max_flood_level", -1))
+
+          # Move rules
+          SimulationSettings.move_rules["FloodMovechances"] = fetchss(dps,"flood_movechances", None) # Expect an array or dict
+          print("Flood Movechances set to:", SimulationSettings.spawn_rules["FloodMovechances"], file=sys.stderr)
+          SimulationSettings.move_rules["FloodLocWeights"] = fetchss(dps,"flood_loc_weights", None) # Expect an array or dict
+          print("Flood Location Weights set to:", SimulationSettings.spawn_rules["FloodLocWeights"], file=sys.stderr)
+          SimulationSettings.move_rules["FloodLinkWeights"] = fetchss(dps,"flood_link_weights", None) # Expect an array or dict
+          print("Flood Link Weights set to:", SimulationSettings.spawn_rules["FloodLinkWeights"], file=sys.stderr)
+
+          # Add verification code.
+
+        else:
+          SimulationSettings.move_rules["FloodRulesEnabled"] = False
 
         dpo = fetchss(dp, "optimisations", None)
         SimulationSettings.optimisations["PopulationScaleDownFactor"] = int(fetchss(dpo,"hasten",1))
