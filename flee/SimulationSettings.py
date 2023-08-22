@@ -203,6 +203,8 @@ class SimulationSettings:
         SimulationSettings.move_rules["DistanceSoftening"] = float(fetchss(dpr,"softening",10.0))
         # Constant added to ALL weights irrespective of distance, to increase randomness in route selection.
         SimulationSettings.move_rules["WeightSoftening"] = float(fetchss(dpr,"weight_softening",0.0))
+        # Power factor that amplifies or diminishes the weight difference. 0.0 means uniform weighting everywhere and 1.0 is the default.
+        SimulationSettings.move_rules["WeightPower"] = float(fetchss(dpr,"weight_power",1.0))
         
         # Factor to increase or decrease importance of distance in weight calculations. Default is (inverse) linear)
         SimulationSettings.move_rules["DistancePower"] = float(fetchss(dpr,"distance_power",1.0))

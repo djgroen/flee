@@ -40,6 +40,8 @@ move_rules:
   avoid_short_stints: False
   start_on_foot: False
   softening: 10.0
+  weight_softening: 0.0
+  weight_power: 1.0
 optimisations:
   hasten: 1
 ```
@@ -179,6 +181,7 @@ To set the following parameters, please use values:
 - **capacity_buffer** refers to a location or camp is beginning to be considered full if the number of agents there exceeds (capacity OR pop) * `CapacityBuffer`.
 - **softening** adds kilometers to every link distance to reduce the preference strength when choosing between very short routes. Default is 10.0.
 - **weight_softening** adds a constant to *all* link weight values, increasing randomness of the algorithm. Default is 0.0.
+- **weight_power** puts a power factor on the *total calculated weight*. A value of 0.0 indicates that the algorithm becomes a random walk, while a weight of 1.0 preserves the default behavior. If set to larger values then agents will be more aggressive in dismissing suboptimal routes.
 - **distance_power** is a factor that indicates the importance of distance in weight calculations. Default is (inverse) linear (1.0). Change to 2.0 for a quadratic relation, 0.5 for a weaker square-root relation, or 0.0 if the distance to a destination should not be a factor in decision-making at all. Not that this only affects the link weighting calculation; agent perception can still be limited by the awareness level even when `distance_power` is set to 0.0. The scaling equation is `multiplier = 1 / <distance>^distance_power`.
 - **home_distance_power** is a factor that indicates the importance of hone distance in weight calculations. Works the same as `distance_power` except that it is only triggered when `stay_close_to_home` is enabled. Default value is 0.5 (inverse sqrt relation).
 
