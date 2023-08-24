@@ -21,6 +21,25 @@ def date_to_sim_days(date):
     return DataTable.subtract_dates(date1=date, date2="2010-01-01")
 
 
+
+def test_attribute_csv():
+
+    flee.SimulationSettings.ReadFromYML("empty.yml")
+
+    e = flee.Ecosystem()
+
+    ig = InputGeography.InputGeography()
+
+    ig.ReadAttributeInputCSV("flood_level","int",os.path.join("test_data", "test_input_csv", "flood_level.csv"))
+
+    print(ig.attributes)
+
+    assert ig.attributes["flood_level"]["B"][3] == 3
+    assert ig.attributes["flood_level"]["B"][0] == 1
+    assert ig.attributes["flood_level"]["A"][0] == 0
+
+
+
 def test_csv(end_time=50, last_physical_day=50):
 
     flee.SimulationSettings.ReadFromYML("empty.yml")
