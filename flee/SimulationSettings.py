@@ -74,7 +74,7 @@ class SimulationSettings:
             dp = yaml.safe_load(f)
 
         number_of_steps = float(fetchss(dp,"number_of_steps",-1))
-        SimulationSettings.FlareConflictInputFile = fetchss(dp,"conflict_input_file","")
+        SimulationSettings.ConflictInputFile = fetchss(dp,"conflict_input_file","")
 
         print("YAML:", dp, file=sys.stderr)
 

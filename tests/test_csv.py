@@ -29,10 +29,10 @@ def test_csv(end_time=50, last_physical_day=50):
 
     ig = InputGeography.InputGeography()
 
-    flee.SimulationSettings.FlareConflictInputFile = os.path.join(
+    flee.SimulationSettings.ConflictInputFile = os.path.join(
         "test_data", "test_input_csv", "flare-out.csv"
     )
-    ig.ReadFlareConflictInputCSV(csv_name=flee.SimulationSettings.FlareConflictInputFile)
+    ig.ReadConflictInputCSV(csv_name=flee.SimulationSettings.ConflictInputFile)
 
     print(ig.conflicts)
 

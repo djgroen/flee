@@ -26,13 +26,13 @@ if __name__ == "__main__":
   else:
     flee.SimulationSettings.ReadFromYML("simsetting.yml")
 
-  flee.SimulationSettings.FlareConflictInputFile = "%s/conflicts.csv" % input_csv_directory
+  flee.SimulationSettings.ConflictInputFile = "%s/conflicts.csv" % input_csv_directory
 
   e = flee.Ecosystem()
 
   ig = InputGeography.InputGeography()
 
-  ig.ReadFlareConflictInputCSV(flee.SimulationSettings.FlareConflictInputFile)
+  ig.ReadConflictInputCSV(flee.SimulationSettings.ConflictInputFile)
 
   ig.ReadLocationsFromCSV("%s/locations.csv" % input_csv_directory)
 

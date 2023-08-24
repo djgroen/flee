@@ -28,9 +28,9 @@ class InputGeography:
         self.conflicts = {}
 
     @check_args_type
-    def ReadFlareConflictInputCSV(self, csv_name: str) -> None:
+    def ReadConflictInputCSV(self, csv_name: str) -> None:
         """
-        Reads a Flare input file, to set conflict information.
+        Reads a Conflict input file, to set conflict information.
 
         Args:
             csv_name (str): Description
@@ -68,7 +68,7 @@ class InputGeography:
         Returns:
             List[str]: Description
         """
-        if len(SimulationSettings.FlareConflictInputFile) == 0:
+        if len(SimulationSettings.ConflictInputFile) == 0:
             conflict_names = []
             for loc in self.locations:
                 if "conflict" in loc[4].lower():
@@ -354,8 +354,8 @@ class InputGeography:
     def AddNewConflictZones(self, e, time: int, Debug: bool = False) -> None:
         """
         Adds new conflict zones according to information about the current time step.
-        If there is no Flare input file, then the values from locations.csv are used.
-        If there is one, then the data from Flare is used instead.
+        If there is no conflict input file, then the values from locations.csv are used.
+        If there is one, then the data from it is used instead.
         Note: there is no support for *removing* conflict zones at this stage.
 
         Args:
@@ -363,7 +363,7 @@ class InputGeography:
             time (int): Description
             Debug (bool, optional): Description
         """
-        if len(SimulationSettings.FlareConflictInputFile) == 0:
+        if len(SimulationSettings.ConflictInputFile) == 0:
             for loc in self.locations:
                 if "conflict" in loc[4].lower() and int(loc[5]) == time:
                     conflict_intensity = 1.0
