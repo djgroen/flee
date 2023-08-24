@@ -28,6 +28,14 @@ There are a few small configuration steps to follow:
 	flee_location: <base directory path to your Flee installation>
 	```
 
+## **Upgrading the FabFlee plugin**
+Any older version of FabFlee can be upgraded as follows:
+
+1. Go to `~/FabSim3/plugins/FabFlee`.
+2. Type `git pull`.
+3. Make sure you wipe the contents of any `config_files` directory on _remote_ machines that you have been using, to avoid issues with leftover files from previous versions.
+
+
 ## **Automated construction of a new conflict scenario using FabFlee**
 
 ### *Step 1: Create a new conflict instance*
