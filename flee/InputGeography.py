@@ -26,6 +26,7 @@ class InputGeography:
         self.locations = []
         self.links = []
         self.conflicts = {}
+        self.attributes = {}
 
     @check_args_type
     def ReadConflictInputCSV(self, csv_name: str) -> None:
@@ -59,6 +60,43 @@ class InputGeography:
 
         # print(self.conflicts)
         # TODO: make test verifying this in test_csv.py
+
+
+    @check_args_type
+    def ReadAttributeInputCSV(self, attribute_name: str, attribute_type: str, csv_name: str) -> None:
+        """
+        Reads an attribute input file, to set attribute-specific information.
+
+        Args:
+            csv_name (str): Description
+        """
+        self.attributes[attribute_name] = {}
+
+        row_count = 0
+        headers = []
+
+        with open(csv_name, newline="", encoding="utf-8") as csvfile:
+            values = csv.reader(csvfile)
+
+            for row in values:
+                # print(row)
+                if row_count == 0:
+                    headers = row
+                    for i in range(1, len(headers)):  # field 0 is day.
+                        headers[i] = headers[i].strip()
+                        if len(headers[i]) > 0:
+                            self.attributes[attribute_name][headers[i]] = []
+                else:
+                    for i in range(1, len(row)):  # field 0 is day.
+                        # print(row[0])
+                        if attribute_type == "int":
+                            self.attributes[attribute_name][headers[i]].append(int(row[i].strip()))
+                        elif attribute_type == "float":
+                            self.attributes[attribute_name][headers[i]].append(float(row[i].strip()))
+                row_count += 1
+
+        # print(self.attributes[attribute_name])
+
 
     @check_args_type
     def getConflictLocationNames(self) -> List[str]:
