@@ -91,8 +91,8 @@ jobs:
           export PYTHONPATH=/home/runner/work/flee/flee:$PYTHONPATH
 
           cd FabFlee/config_files/mali2012
-          mpiexec -n 2 python3 /home/runner/work/flee/runscripts/run_par.py input_csv source_data 50 simsetting.yml
-          mpirun -n 2 python3 /home/runner/work/flee/runscripts/run_par.py input_csv source_data 50 simsetting.yml
+          mpiexec -n 2 python3 /home/runner/work/flee/flee/runscripts/run_par.py input_csv source_data 50 simsetting.yml
+          mpirun -n 2 python3 /home/runner/work/flee/flee/runscripts/run_par.py input_csv source_data 50 simsetting.yml
           cd ../../..
 
           echo "PYTHONPATH = $PYTHONPATH"
