@@ -48,7 +48,6 @@ def test_csv(end_time=50, last_physical_day=50):
 
     ig = InputGeography.InputGeography()
 
-    flee.SimulationSettings.optimisations["PopulationScaleDownFactor"] = 5
     flee.SimulationSettings.ConflictInputFile = os.path.join(
         "test_data", "test_input_csv", "flare-out.csv"
     )
