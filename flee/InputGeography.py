@@ -391,7 +391,12 @@ class InputGeography:
 
     @check_args_type
     def UpdateAttributeZones(self, e, attribute_name: str, time: int, Debug: bool = False) -> None:
-        return True
+        attrlist = self.attributes[attribute_name]
+        for i in range(0, e.locations):
+            loc_name = e.locations[i].name
+            if loc_name in attrlist:
+                e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
+
 
     @check_args_type
     def AddNewConflictZones(self, e, time: int, Debug: bool = False) -> None:
