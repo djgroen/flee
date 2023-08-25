@@ -67,9 +67,11 @@ def run_py():
     def _run_py(config, simulation_period):
         config_path = os.path.join(base, config)
 
+        cwd = os.getcwd()
+
         cmd = [
             "python3",
-            "{}/run.py".format(rs_path),
+            f"{cwd}/runscripts/run.py",
             "input_csv",
             "source_data",
             simulation_period,
@@ -125,12 +127,14 @@ def run_par():
     def _run_par(config, simulation_period, cores):
         config_path = os.path.join(base, config)
 
+        cwd = os.getcwd()
+
         cmd = [
             "mpirun",
             "-np",
             cores,
             "python3",
-            "{}/run_par.py".format(rs_path),
+            f"{cwd}/runscripts/run_par.py",
             "input_csv",
             "source_data",
             simulation_period,
