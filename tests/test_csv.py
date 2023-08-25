@@ -48,6 +48,7 @@ def test_csv(end_time=50, last_physical_day=50):
 
     ig = InputGeography.InputGeography()
 
+    flee.SimulationSettings.optimisations["PopulationScaleDownFactor"] = 5
     flee.SimulationSettings.ConflictInputFile = os.path.join(
         "test_data", "test_input_csv", "flare-out.csv"
     )
@@ -122,7 +123,6 @@ def test_csv(end_time=50, last_physical_day=50):
             camps += [lm[camp_name]]
             loc_data += [d.get_field(name=camp_name, day=t)]
 
-        # calculate retrofitted time.
         refugees_in_camps_sim = 0
         for c in camps:
             refugees_in_camps_sim += c.numAgents
