@@ -388,6 +388,11 @@ class InputGeography:
 
         return e, lm
 
+
+    @check_args_type
+    def UpdateAttributeZones(self, e, attribute_name: str, time: int, Debug: bool = False) -> None:
+        return True
+
     @check_args_type
     def AddNewConflictZones(self, e, time: int, Debug: bool = False) -> None:
         """
