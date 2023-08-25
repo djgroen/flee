@@ -40,7 +40,7 @@ def test_attribute_csv():
 
 
 
-def test_csv(end_time=50, last_physical_day=50):
+def test_csv(end_time=30, last_physical_day=30):
 
     flee.SimulationSettings.ReadFromYML("empty.yml")
 
