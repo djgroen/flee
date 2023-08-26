@@ -120,6 +120,11 @@ class SimulationSettings:
         SimulationSettings.spawn_rules["camps_are_sinks"] = bool(fetchss(dps, "camps_are_sicks", False)) # Camps can deactivate agents.
         SimulationSettings.spawn_rules["read_from_agents_csv_file"] = bool(fetchss(dps, "read_from_agents_csv_file", False)) # Load agents from agents.csv file.
 
+
+        # Setting defaults, to be overwritten right below when needed.
+        SimulationSettings.spawn_rules["conflict_driven_spawning"] = False # Conflicts provide a direct push factor.
+        SimulationSettings.spawn_rules["flood_driven_spawning"] = False # Flood provide a direct push factor.
+
         spawn_type = "conflict"
         if SimulationSettings.spawn_rules["flood_zone_spawning_only"] is True:
             spawn_type = "flood"
@@ -135,10 +140,8 @@ class SimulationSettings:
               SimulationSettings.spawn_rules["displaced_per_conflict_day"] = float(fetchss(dpsc,"displaced_per_conflict_day", 0.01))
             else:
               SimulationSettings.spawn_rules["displaced_per_conflict_day"] = int(fetchss(dpsc,"displaced_per_conflict_day", 500))
-          else:
-            SimulationSettings.spawn_rules["conflict_driven_spawning"] = False
 
-        elif spawn_type == "flood":
+        if spawn_type == "flood":
           dpsc = fetchss(dps,"flood_driven_spawning",None)
           if dpsc is not None:
             SimulationSettings.spawn_rules["flood_driven_spawning"] = True # Conflicts provide a direct push factor.
@@ -149,8 +152,6 @@ class SimulationSettings:
               SimulationSettings.spawn_rules["displaced_per_flood_day"] = float(fetchss(dpsc,"displaced_per_conflict_day", 0.01))
             else:
               SimulationSettings.spawn_rules["displaced_per_flood_day"] = int(fetchss(dpsc,"displaced_per_conflict_day", 500))
-          else:
-            SimulationSettings.spawn_rules["flood_driven_spawning"] = False
 
 
         SimulationSettings.spawn_rules["conflict_spawn_decay"] = fetchss(dps,"conflict_spawn_decay", None) # Expect an array or dict

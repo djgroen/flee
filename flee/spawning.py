@@ -143,28 +143,22 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
     """
     new_refs = 0
 
-    if SimulationSettings.spawn_rules["conflict_driven_spawning"]:
+    if SimulationSettings.spawn_rules["conflict_driven_spawning"] is True:
 
       for i in range(0, len(e.locations)):
+
+        num_spawned = 0
+        if e.locations[i].conflict > 0.0:
  
-        ## BASE RATES  
-        if SimulationSettings.spawn_rules["conflict_spawn_mode"] == "constant":
-            if e.locations[i].conflict > 0.0:
+            ## BASE RATES  
+            if SimulationSettings.spawn_rules["conflict_spawn_mode"] == "constant":
                 num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].conflict)
-            else:
-                num_spawned = 0
 
-        elif SimulationSettings.spawn_rules["conflict_spawn_mode"] == "pop_ratio":
-            if e.locations[i].conflict > 0.0:  
+            elif SimulationSettings.spawn_rules["conflict_spawn_mode"] == "pop_ratio":
                 num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].pop * e.locations[i].conflict)
-            else: 
-                num_spawned = 0
 
-        elif SimulationSettings.spawn_rules["conflict_spawn_mode"].lower() == "Poisson":
-            if e.locations[i].conflict > 0.0:  
+            elif SimulationSettings.spawn_rules["conflict_spawn_mode"].lower() == "poisson":
                 num_spawned = np.random.poisson(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].conflict)
-            else: 
-                num_spawned = 0
 
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):
@@ -172,6 +166,32 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
             e.addAgent(location=e.locations[i], attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
         new_refs = num_spawned
+
+
+    elif SimulationSettings.spawn_rules["flood_driven_spawning"] is True:
+
+      for i in range(0, len(e.locations)):
+
+        num_spawned = 0
+    
+        if e.locations[i].attributes["flood_level"] > 0:
+            ## BASE RATES  
+            if SimulationSettings.spawn_rules["flood_spawn_mode"] == "constant":
+                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].conflict)
+
+            elif SimulationSettings.spawn_rules["flood_spawn_mode"] == "pop_ratio":
+                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].pop * e.locations[i].conflict)
+    
+            elif SimulationSettings.spawn_rules["flood_spawn_mode"].lower() == "poisson":
+                num_spawned = np.random.poisson(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].conflict)
+
+        ## Doing the actual spawning here.
+        for j in range(0, num_spawned):
+            attributes = draw_samples(e, e.locations[i])
+            e.addAgent(location=e.locations[i], attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
+
+        new_refs = num_spawned
+
 
     else:
 
