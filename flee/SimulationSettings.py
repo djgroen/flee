@@ -141,17 +141,28 @@ class SimulationSettings:
             else:
               SimulationSettings.spawn_rules["displaced_per_conflict_day"] = int(fetchss(dpsc,"displaced_per_conflict_day", 500))
 
+
+        # Setting False by default.
+        SimulationSettings.move_rules["FloodRulesEnabled"] = False
+
         if spawn_type == "flood":
           dpsc = fetchss(dps,"flood_driven_spawning",None)
           if dpsc is not None:
+            SimulationSettings.move_rules["FloodRulesEnabled"] = True
+
+            if SimulationSettings.spawn_rules["TakeFromPopulation"] is False:
+                print("ERROR in simulationsetting.yml: Flood rules are enabled but take_from_population in spawn_rules is set to False.", file=sys.stderr)
+                print("This is likely to lead to excessive production of agents in the simulation, so Flee does not support this at this stage.", file=sys.stderr)
+                sys.exit()
+
             SimulationSettings.spawn_rules["flood_driven_spawning"] = True # Conflicts provide a direct push factor.
 
-            SimulationSettings.spawn_rules["flood_spawn_mode"] = fetchss(dpsc,"spawn_mode","constant") # constant, Poisson, pop_ratio
+            SimulationSettings.spawn_rules["flood_spawn_mode"] = fetchss(dpsc,"spawn_mode","pop_ratio") # constant, Poisson, pop_ratio
 
             if SimulationSettings.spawn_rules["flood_spawn_mode"] == "pop_ratio":
-              SimulationSettings.spawn_rules["displaced_per_flood_day"] = float(fetchss(dpsc,"displaced_per_conflict_day", 0.01))
+              SimulationSettings.spawn_rules["displaced_per_flood_day"] = fetchss(dpsc,"displaced_per_flood_day", [0.0,0.1,0.2,0.5,0.9]) #expect an array.
             else:
-              SimulationSettings.spawn_rules["displaced_per_flood_day"] = int(fetchss(dpsc,"displaced_per_conflict_day", 500))
+              SimulationSettings.spawn_rules["displaced_per_flood_day"] = fetchss(dpsc,"displaced_per_flood_day", [0,100,200,300,500])
 
 
         SimulationSettings.spawn_rules["conflict_spawn_decay"] = fetchss(dps,"conflict_spawn_decay", None) # Expect an array or dict
@@ -247,10 +258,8 @@ class SimulationSettings:
           SimulationSettings.move_rules["FloodLinkWeights"] = fetchss(dps,"flood_link_weights", None) # Expect an array or dict
           print("Flood Link Weights set to:", SimulationSettings.spawn_rules["FloodLinkWeights"], file=sys.stderr)
 
-          # Add verification code.
+          #TODO: Add verification code.
 
-        else:
-          SimulationSettings.move_rules["FloodRulesEnabled"] = False
 
         dpo = fetchss(dp, "optimisations", None)
         SimulationSettings.optimisations["PopulationScaleDownFactor"] = int(fetchss(dpo,"hasten",1))

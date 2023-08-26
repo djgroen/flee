@@ -174,16 +174,18 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
 
         num_spawned = 0
     
-        if e.locations[i].attributes["flood_level"] > 0:
+        print(e.locations[i].attributes)
+        flood_level = e.locations[i].attributes["flood_level"]
+        if flood_level > 0:
             ## BASE RATES  
             if SimulationSettings.spawn_rules["flood_spawn_mode"] == "constant":
-                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].conflict)
+                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"][flood_level]) 
 
             elif SimulationSettings.spawn_rules["flood_spawn_mode"] == "pop_ratio":
-                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].pop * e.locations[i].conflict)
+                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_conflict_day"][flood_level] * e.locations[i].pop)
     
             elif SimulationSettings.spawn_rules["flood_spawn_mode"].lower() == "poisson":
-                num_spawned = np.random.poisson(SimulationSettings.spawn_rules["displaced_per_conflict_day"] * e.locations[i].conflict)
+                num_spawned = np.random.poisson(int(SimulationSettings.spawn_rules["displaced_per_conflict_day"][flood_level]))
 
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):
