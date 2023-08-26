@@ -28,6 +28,7 @@ class InputGeography:
         self.conflicts = {}
         self.attributes = {}
 
+
     @check_args_type
     def ReadConflictInputCSV(self, csv_name: str) -> None:
         """
@@ -390,9 +391,9 @@ class InputGeography:
 
 
     @check_args_type
-    def UpdateAttributeZones(self, e, attribute_name: str, time: int, Debug: bool = False) -> None:
+    def UpdateLocationAttributes(self, e, attribute_name: str, time: int, Debug: bool = False) -> None:
         attrlist = self.attributes[attribute_name]
-        for i in range(0, e.locations):
+        for i in range(0, len(e.locations)):
             loc_name = e.locations[i].name
             if loc_name in attrlist:
                 e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
@@ -411,6 +412,10 @@ class InputGeography:
             time (int): Description
             Debug (bool, optional): Description
         """
+
+        if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
+            self.UpdateLocationAttributes(e, "flood_level", time)
+
         if len(SimulationSettings.ConflictInputFile) == 0:
             for loc in self.locations:
                 if "conflict" in loc[4].lower() and int(loc[5]) == time:
