@@ -252,7 +252,14 @@ def calculateMoveChance(a, ForceTownMove: bool) -> float:
         return 1.0
     else: # called first time in loop
         movechance = a.location.movechance
+        # Population-based scaling
         movechance *= (float(max(a.location.pop, a.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
+
+    # DFlee Flood Location Movechance implementation
+    if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
+        flood_level = a.location.attributes.get("flood_level",0)
+        if flood_level > 0:
+            return float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
 
     return movechance
 

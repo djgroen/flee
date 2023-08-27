@@ -43,7 +43,7 @@ def test_flood_level_location_attribute():
     flee.SimulationSettings.ReadFromYML("empty.yml")
     flee.SimulationSettings.move_rules["FloodRulesEnabled"] = True
     flee.SimulationSettings.move_rules["FloodLocWeights"] = [0.0,1.0,1.0,1.0,1.0]
-    flee.SimulationSettings.move_rules["FloodMoveChances"] = [0.0,1.0,1.0,1.0,1.0]
+    flee.SimulationSettings.move_rules["FloodMovechances"] = [0.0,1.0,1.0,1.0,1.0]
 
     e = flee.Ecosystem()
 
