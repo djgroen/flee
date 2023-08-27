@@ -48,6 +48,13 @@ def getEndPointScore(agent, link) -> float:
         base *= 1.0/(max(1.0,link.endpoint.calculateDistance(agent.location))**power_factor)
 
 
+    # DFlee Flood Location Weight implementation
+    if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
+        flood_level = link.endpoint.attributes.get("flood_level",0)
+        if flood_level > 0:
+            base *= float(SimulationSettings.move_rules["FloodLocWeights"][flood_level])
+
+
     if link.endpoint.camp is True:
         if SimulationSettings.move_rules["MatchCampEthnicity"]:
             base *= (spawning.getAttributeRatio(link.endpoint, "ethnicity") * 10.0)
