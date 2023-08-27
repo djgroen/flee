@@ -137,11 +137,12 @@ class Person:
         """
 
         if self.travelling is False:
-            if self.location.town and ForceTownMove: # called through evolveMore
-                movechance = 1.0
-            else: # called first time in loop
-                movechance = self.location.movechance
-                movechance *= (float(max(self.location.pop, self.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
+            movechance = moving.calculateMoveChance(self, ForceTownMove)
+            #if self.location.town and ForceTownMove: # called through evolveMore
+            #    movechance = 1.0
+            #else: # called first time in loop
+            #    movechance = self.location.movechance
+            #    movechance *= (float(max(self.location.pop, self.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
 
             outcome = random.random()
             # print(movechance)

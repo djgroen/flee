@@ -237,6 +237,27 @@ def chooseFromWeights(weights, routes):
 
 
 @check_args_type
+def calculateMoveChance(a, ForceTownMove: bool) -> float:
+    """
+    Summary
+
+    Args:
+    a: Agent
+    ForceTownMove: Whether to force agents to move through regular town.
+
+    Returns:
+    movechance (int): Probability that agent will move this step. 
+    """
+    if a.location.town and ForceTownMove: # called through evolveMore
+        return 1.0
+    else: # called first time in loop
+        movechance = a.location.movechance
+        movechance *= (float(max(a.location.pop, a.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
+
+    return movechance
+
+
+@check_args_type
 def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = False):
   """
   Summary
