@@ -46,7 +46,8 @@ optimisations:
   hasten: 1
 ```
 
-_NOTE_ : The **simsetting.yml** file includes default values for each simulation setting parameters.
+!!! note
+        The **simsetting.yml** file includes default values for each simulation setting parameters.
 
 ### Log levels (log_levels)
 
