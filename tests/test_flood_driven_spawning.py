@@ -16,7 +16,7 @@ def test_flood_driven_spawning():
     #These values are normally specified in simsetting.yml
     flee.SimulationSettings.spawn_rules["flood_driven_spawning"] = True
     flee.SimulationSettings.spawn_rules["flood_spawn_mode"] = "constant"
-    flee.SimulationSettings.spawn_rules["displaced_per_conflict_day"] = [0,100,200,300,400]
+    flee.SimulationSettings.spawn_rules["displaced_per_flood_day"] = [0,100,200,300,400]
 
 
     end_time = 10

@@ -247,22 +247,23 @@ class SimulationSettings:
 
 
         # DFlee Flood Location Move rules
-        dpf = fetchss(dp, "flood_rules", None)
+        dpf = fetchss(dpr, "flood_rules", None)
+
         if dpf is not None:
           SimulationSettings.move_rules["FloodRulesEnabled"] = True
           SimulationSettings.spawn_rules["MaxFloodLevel"] = int(fetchss(dpf,"max_flood_level", -1))
 
           # FloodMovechances *override* move chances when flood level is higher than 0.
-          SimulationSettings.move_rules["FloodMovechances"] = fetchss(dps,"flood_movechances", None) # Expect an array or dict
-          print("Flood Movechances set to:", SimulationSettings.spawn_rules["FloodMovechances"], file=sys.stderr)
+          SimulationSettings.move_rules["FloodMovechances"] = fetchss(dpf,"flood_movechances", None) # Expect an array or dict
+          print("Flood Movechances set to:", SimulationSettings.move_rules["FloodMovechances"], file=sys.stderr)
 
           # FloodLocWeights *multiply* existing location weights when flood level is higher than 0.
-          SimulationSettings.move_rules["FloodLocWeights"] = fetchss(dps,"flood_loc_weights", None) # Expect an array or dict
-          print("Flood Location Weights set to:", SimulationSettings.spawn_rules["FloodLocWeights"], file=sys.stderr)
+          SimulationSettings.move_rules["FloodLocWeights"] = fetchss(dpf,"flood_loc_weights", None) # Expect an array or dict
+          print("Flood Location Weights set to:", SimulationSettings.move_rules["FloodLocWeights"], file=sys.stderr)
           
           # FloodLinkWeights *multiply* existing link weights when flood level is higher than 0.
-          SimulationSettings.move_rules["FloodLinkWeights"] = fetchss(dps,"flood_link_weights", None) # Expect an array or dict
-          print("Flood Link Weights set to:", SimulationSettings.spawn_rules["FloodLinkWeights"], file=sys.stderr)
+          SimulationSettings.move_rules["FloodLinkWeights"] = fetchss(dpf,"flood_link_weights", None) # Expect an array or dict
+          print("Flood Link Weights set to:", SimulationSettings.move_rules["FloodLinkWeights"], file=sys.stderr)
           print("Note: Flood Link Weights are not supported yet in this version of DFlee.")
 
           #TODO: Add verification code.
