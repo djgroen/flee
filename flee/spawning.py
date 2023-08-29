@@ -174,7 +174,7 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=False):
 
         num_spawned = 0
     
-        print(e.locations[i].attributes)
+        #print(e.locations[i].attributes)
         flood_level = e.locations[i].attributes["flood_level"]
         if flood_level > 0:
             ## BASE RATES  
