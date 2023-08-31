@@ -112,7 +112,7 @@ if __name__ == "__main__":
     if refugees_raw>0:
       output += ",%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt)
     else:
-      output += ",0,0,0,0,0,0"
+      output += ",0.0,0,{},0,{},0".format(e.numAgents, refugees_incamps_sim)
 
     if SimulationSettings.log_levels["idp_totals"] > 0:
       output += ",{}".format(e.numIDPs())
