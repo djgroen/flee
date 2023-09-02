@@ -36,7 +36,8 @@ move_rules:
   default_movechance: 0.3
   idpcamp_movechance: 0.1
   awareness_level: 1
-  capacity_buffer: 1
+  capacity_buffer: 0.9
+  capacity_scaling: 1.0
   avoid_short_stints: False
   start_on_foot: False
   softening: 10.0
@@ -179,7 +180,8 @@ Set the following parameter to `True` or `False`:
 
 To set the following parameters, please use values:
 
-- **capacity_buffer** refers to a location or camp is beginning to be considered full if the number of agents there exceeds (capacity OR pop) * `CapacityBuffer`.
+- **capacity_scaling** is a multiplier on the capacity values in `locations.csv`, which can be used to loosen or remove the assumptions about camp capacities.
+- **capacity_buffer** refers to when a location or camp is beginning to be considered full, and will become less attractive.  Attractiveness will be 0 when the occupancy is more than `location.capacity * capacity_scaling`. The attractiveness will begin to be scaled down when the occupancy is higher than `capacity_buffer * location.capacity * capacity_scaling`. Values should range between 0.0 and 1.0.
 - **softening** adds kilometers to every link distance to reduce the preference strength when choosing between very short routes. Default is 10.0.
 - **weight_softening** adds a constant to *all* link weight values, increasing randomness of the algorithm. Default is 0.0.
 - **weight_power** puts a power factor on the *total calculated weight*. A value of 0.0 indicates that the algorithm becomes a random walk, while a weight of 1.0 preserves the default behavior. If set to larger values then agents will be more aggressive in dismissing suboptimal routes.

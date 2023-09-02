@@ -199,7 +199,8 @@ class SimulationSettings:
         # -1, no weighting at all, 0 = road only, 1 = location, 2 = neighbours, 3 = region.
        
         # A location or camp is beginning to be considered full if the number of agents there exceeds (capacity OR pop) * CapacityBuffer.
-        SimulationSettings.move_rules["CapacityBuffer"] = float(fetchss(dpr,"capacity_buffer", 0.9)) # awareness of locations X link steps away by agents.
+        SimulationSettings.move_rules["CapacityBuffer"] = float(fetchss(dpr,"capacity_buffer", 0.9)) # % of location capacity where attractiveness begins to be throttled down.
+        SimulationSettings.move_rules["CapacityScaling"] = float(fetchss(dpr,"capacity_scaling", 1.0)) # multiplier value to be put on capacities put in locations.csv.
 
         # Displaced people will not take a break unless they at least travelled
         # for a full day's distance in the last two days.
