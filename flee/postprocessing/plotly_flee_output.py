@@ -133,8 +133,9 @@ def plot_camps(data: pd.DataFrame, config: str, output: str) -> None:
                       labels={"x": "Days elapsed", "y": "Number of asylum seekers / unrecognised refugees"},
                       title=f"{name[0]} camp")
 
-        fig.update_layout(showlegend=True, legend_title_text="Legend", legend=dict(x=0, y=1))
-
+        fig.update_layout(showlegend=True, legend_title_text='', legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+        fig.update_xaxes(title_text="Days elapsed")
+        fig.update_yaxes(title_text="Refugees")
         fig.write_html("{}/{}.html".format(output, name[0]))
 
 @check_args_type
@@ -146,14 +147,16 @@ def plot_numagents(data: pd.DataFrame, config: str, output: str) -> None:
         fig = px.line(data, x=data.index,
                       y=["total refugees (simulation)", "refugees in camps (simulation)", "raw UNHCR refugee count"],
                       labels={"x": "Days elapsed", "y": "Number of asylum seekers / unrecognised refugees"},
-                      title="{} number of agents".format(config))
+                      title="{}".format(config))
     else:
         fig = px.line(data, x=data.index,
                       y=["total refugees (simulation)", "refugees in camps (UNHCR)", "raw UNHCR refugee count"],
                       labels={"x": "Days elapsed", "y": "Number of asylum seekers / unrecognised refugees"},
-                      title="{} number of agents".format(config))
+                      title="{}".format(config))
 
-    fig.update_layout(showlegend=True, legend_title_text="Legend", legend=dict(x=0, y=1))
+    fig.update_layout(showlegend=True, legend_title_text='', legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+    fig.update_xaxes(title_text="Days elapsed")
+    fig.update_yaxes(title_text="Refugees")
     fig.write_html("{}/numagents.html".format(output))
 
 @check_args_type
@@ -186,16 +189,16 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
 
     fig = px.line(data, x=np.arange(len(diffdata_rescaled)), y=diffdata_rescaled,
                   labels={"x": "Days elapsed", "y": "Averaged relative difference"},
-                  title="{} Error (rescaled)".format(config))
+                  title="{}".format(config))
 
-    fig.update_layout(showlegend=True, legend_title_text="Legend", legend=dict(x=0, y=1))
+    fig.update_layout(showlegend=True, legend_title_text='', legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     fig.write_html("{}/error.html".format(output))
 
     fig = px.line(data, x=np.arange(len(diffdata)), y=diffdata,
                   labels={"x": "Days elapsed", "y": "Averaged relative difference"},
-                  title="{} Error (non-rescaled)".format(config))
+                  title="{}".format(config))
 
-    fig.update_layout(showlegend=True, legend_title_text="Legend", legend=dict(x=1, y=1))
+    fig.update_layout(showlegend=True, legend_title_text='', legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     fig.write_html("{}/error_comparison.html".format(output))
 
 def error_quantification(config, data, name, naieve_model=True):
