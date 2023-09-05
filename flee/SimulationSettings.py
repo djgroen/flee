@@ -39,6 +39,8 @@ class SimulationSettings:
     @staticmethod
     def get_conflict_decay(time_since_conflict: int):
 
+        interval = SimulationSettings.spawn_rules["conflict_spawn_decay_interval"]
+
         if SimulationSettings.spawn_rules["conflict_spawn_decay"] is None:
             return 1.0
 
@@ -48,7 +50,7 @@ class SimulationSettings:
             print("Warning: no conflict spawn decay set. Defaulting to no decay", file=sys.stderr)
             return 1.0
         else:
-            i = min(int(time_since_conflict / 30), spawn_len-1)
+            i = min(int(time_since_conflict / interval), spawn_len-1)
             if SimulationSettings.log_levels["conflict"] > 0:
               print("Conflict zone spawn status: time elapsed {}, decay factor {}".format(time_since_conflict, float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])), file=sys.stderr)
             return float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])
@@ -166,7 +168,9 @@ class SimulationSettings:
 
 
         SimulationSettings.spawn_rules["conflict_spawn_decay"] = fetchss(dps,"conflict_spawn_decay", None) # Expect an array or dict
-        print("Spawn decay set to:", SimulationSettings.spawn_rules["conflict_spawn_decay"], file=sys.stderr)
+        # Interval in days in which to progress to the next element in the conflict_spawn_decaly list.
+        SimulationSettings.spawn_rules["conflict_spawn_decay_interval"] = int(fetchss(dps,"conflict_spawn_decay_interval", 30)) 
+        print("Spawn decay set to: {}, with interval {}".format(SimulationSettings.spawn_rules["conflict_spawn_decay"], SimulationSettings.spawn_rules["conflict_spawn_decay_interval"]), file=sys.stderr)
 
 
         dpr = fetchss(dp,"move_rules",None)

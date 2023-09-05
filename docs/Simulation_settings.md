@@ -24,6 +24,7 @@ spawn_rules:
   insert_day0: True
   conflict_zone_spawning_only: True
   conflict_spawn_decay: [1.0,1.0,1.0,0.5,0.1]
+  conflict_spawn_decay_interval: 30
 move_rules:
   max_move_speed: 360.0
   max_walk_speed: 35.0
@@ -72,14 +73,17 @@ obtained from each log level (when set to `1` or `2`).
 
 ### Spawn rules (spawn_rules)
 
-Spawn rules focus on spawning agents within simulation runs based on several settings. The first set of parameters require `True` and `False` values:
+Spawn rules focus on spawning agents within simulation runs based on several settings. There are several settings that can be set to `True` or `False`:
 
 - **take_from_population** allows to subtract spawned agents from populations if the value is set to `True`. This can lead to crashes if the number of spawned agents exceeds the total population in conflict zones. Alternatively, you can remove the subtraction from populations by setting the value to `False`.
 - **insert_day0** accounts for a zero insertion of agents in camps at the start of simulations by setting the value to `True`. Please set to `False` if it is not required for your conflict instance. 
 - **conflict_zone_spawning_only** spawns agents only from conflict zones when set to `True`. Otherwise, it is set to `False` to spawn agents from other locations that are present in your model. 
 - **camps_are_sinks** activates an attribute that you can add to locations.csv. If you set a location attribute named **deactivation_probability** to a value higher than 0.0, then there is a probability every time step that an agent in a **camp** location will be deactivated. Deactivated agents are no longer moved or changed, and are no longer logged individually although they do still count towards the totals. To have camps act as perfect sinks, simply set the **deactivation_probability** for each camp location to 1.0.
 
-The second set includes one variable, namely **conflict_spawn_decay**. It manages the number of agents spawned from conflicts that can decay overtime. Importantly, `conflict_spawn_decay` is disabled by default. If you wish to enable it, we recommend setting it to the value `[1.0,1.0,1.0,0.5,0.1]`, which was empirically derived (see (ITFLOWS deliverable 3.4)[https://www.itflows.eu/wp-content/uploads/2022/06/25.-D3.4-ITFLOWS.pdf].
+In addition, there are more advanced parameters that can be set:
+
+- If `conflict_driven_spawning` is disabled, then one can set `conflict_spawn_decay`. This variable manages the number of agents spawned from conflicts that can decay overtime. Importantly, `conflict_spawn_decay` is disabled by default. If you wish to enable it, we recommend setting it to the value `[1.0,1.0,1.0,0.5,0.1]`, which was empirically derived (see (ITFLOWS deliverable 3.4)[https://www.itflows.eu/wp-content/uploads/2022/06/25.-D3.4-ITFLOWS.pdf]. 
+  - If `conflict_spawn_decay` is set, then `conflict_spawn_decay_interval` is parameter that stores the number of days after which the spawning weight multiplier will progress to the next element of the `conflict_spawn_decay` list. The default is 30 days, which (with the decay list above) indicates that the spawning weight is halved after 90 days.
  
 
 #### Conflict-driven spawning
