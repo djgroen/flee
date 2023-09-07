@@ -1,4 +1,4 @@
-Simulation Settings (simsettings.yml)
+Simulation Settings (simsetting.yml)
 =====
 
 ## Introduction
