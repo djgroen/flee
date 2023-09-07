@@ -1,7 +1,7 @@
 Simulation Settings (simsetting.yml)
 =====
 
-This file summarizes the basic settings in simsetting.yml
+This file summarizes the basic settings in `simsetting.yml`. 
 
 ## Introduction
 
