@@ -134,7 +134,6 @@ To set the following parameters, please use values:
 - **capacity_scaling** is a multiplier on the capacity values in `locations.csv`, which can be used to loosen or remove the assumptions about camp capacities.
 - **softening** adds kilometers to every link distance to reduce the preference strength when choosing between very short routes. Default is 10.0.
 - **weight_power** puts a power factor on the *total calculated weight*. A value of 0.0 indicates that the algorithm becomes a random walk, while a weight of 1.0 preserves the default behavior. If set to larger values then agents will be more aggressive in dismissing suboptimal routes.
-- **home_distance_power** is a factor that indicates the importance of hone distance in weight calculations. Works the same as `distance_power` except that it is only triggered when `stay_close_to_home` is enabled. Default value is 0.5 (inverse sqrt relation).
 
 ### Optimisations
 **hasten** takes value to improve runtime performance by decreasing the number of agents. 
