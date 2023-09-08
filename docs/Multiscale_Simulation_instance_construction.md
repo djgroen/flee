@@ -126,7 +126,7 @@ We create a **conflicts-0.csv** file for Macro Model and a **conflicts-1.csv** f
 
 ### *7. Define a conflict period for a conflict situation*
 
-We define the simulation period of a conflict situation using conflict_period.csv file, which has the following format:
+We define the simulation period of a conflict situation using sim_period.csv file, which has the following format:
 
 | **StartDate** |  **YYYY-MM-DD**    |
 |:-------------:|:------------------:|

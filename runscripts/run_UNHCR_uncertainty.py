@@ -17,8 +17,8 @@ def AddInitialRefugees(e, d, loc):
 
 if __name__ == "__main__":
 
-    start_date, end_time = read_period.read_conflict_period(
-        "{}/conflict_period.csv".format(sys.argv[1]))
+    start_date, end_time = read_period.read_sim_period(
+        "{}/sim_period.csv".format(sys.argv[1]))
 
     if len(sys.argv) < 4:
         print("Please run using: python3 run.py <your_csv_directory> "
