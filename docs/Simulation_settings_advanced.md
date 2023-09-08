@@ -1,5 +1,7 @@
-Simulation Settings (simsettings.yml)
+Advanced Simulation Settings (simsetting.yml)
 =====
+
+This page describes the full range of options that can be configured in `simsetting.yml`.
 
 ## Introduction
 
@@ -44,6 +46,8 @@ move_rules:
   softening: 10.0
   weight_softening: 0.0
   weight_power: 1.0
+  distance_power: 1.0
+  home_distance_power: 0.0
 optimisations:
   hasten: 1
 ```
