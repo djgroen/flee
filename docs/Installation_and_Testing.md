@@ -45,9 +45,20 @@ git pull
 
 ## **Testing Flee**
 
-To run the test example, simply type
+To run the basic tests, simply type
 
 ```sh
 cd flee
-python3 tests/test_csv.py
+pytest tests/
 ```
+
+If you have FabFlee installed, then you can also run the FabFlee tests. To prepare for this, go to your main Flee directory and create a symbolic link using:
+
+```sh
+ln -s <main FabFlee directory> FabFlee
+```
+
+After that, you can then perform the tests using `pytest tests_mpi`.
+
+
+Lastly, to do a simple single test run, use `python3 tests/test_csv.py`.
