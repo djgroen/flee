@@ -133,7 +133,7 @@ def add_initial_refugees(e, d, loc):
           e.addAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
 
-def spawn_daily_displaced(e, t, d, SumFromCamps=False):
+def spawn_daily_displaced(e, t, d, SumFromCamps=True):
     global __refugees_raw, __refugee_debt
     """
     t = time

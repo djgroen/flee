@@ -269,7 +269,11 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
     #plt.title("{}".format(config))
 
     diffdata = sim_errors.abs_diff(rescaled=False) / np.maximum(un_refs, np.ones(len(un_refs)))
-    diffdata_rescaled = sim_errors.abs_diff() / np.maximum(un_refs, np.ones(len(un_refs)))
+    diffdata_rescaled = sim_errors.abs_diff(rescaled=True) / np.maximum(un_refs, np.ones(len(un_refs)))
+
+    print(sim_errors.location_errors)
+    #print(diffdata)
+    #print(diffdata_rescaled)
 
     print(
         "%s - %s model: Averaged error normal: " % (config, model),
@@ -320,7 +324,7 @@ def error_quantification(config, data, name, naieve_model=True):
 
     untot = data["refugees in camps (UNHCR)"].to_numpy().flatten()
 
-    y1_rescaled = np.zeros(len(y1))
+    y1_rescaled = np.zeros(len(y1), dtype=np.int64)
 
     for i in range(0, len(y1_rescaled)):
         # Only rescale if simtot > 0
