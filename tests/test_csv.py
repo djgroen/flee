@@ -104,7 +104,7 @@ def test_csv(end_time=30, last_physical_day=30):
         ig.AddNewConflictZones(e=e, time=t)
 
         # Insert refugee agents
-        spawning.spawn_daily_displaced(e, t, d, SumFromCamps=True)
+        spawning.spawn_daily_displaced(e, t, d)
 
         spawning.refresh_spawn_weights(e)
         # t_data = t

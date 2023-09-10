@@ -122,6 +122,8 @@ class SimulationSettings:
         SimulationSettings.spawn_rules["camps_are_sinks"] = bool(fetchss(dps, "camps_are_sicks", False)) # Camps can deactivate agents.
         SimulationSettings.spawn_rules["read_from_agents_csv_file"] = bool(fetchss(dps, "read_from_agents_csv_file", False)) # Load agents from agents.csv file.
 
+        SimulationSettings.spawn_rules["sum_from_camps"] = bool(fetchss(dps, "sum_from_camps", False)) #Sum total migrant numbers from camp data numbers, instead of from refugees.csv.
+
 
         # Setting defaults, to be overwritten right below when needed.
         SimulationSettings.spawn_rules["conflict_driven_spawning"] = False # Conflicts provide a direct push factor.

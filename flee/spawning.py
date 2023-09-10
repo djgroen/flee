@@ -133,7 +133,7 @@ def add_initial_refugees(e, d, loc):
           e.addAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
 
-def spawn_daily_displaced(e, t, d, SumFromCamps=True):
+def spawn_daily_displaced(e, t, d):
     global __refugees_raw, __refugee_debt
     """
     t = time
@@ -142,6 +142,8 @@ def spawn_daily_displaced(e, t, d, SumFromCamps=True):
     refugees_raw = raw refugee count
     """
     new_refs = 0
+
+    SumFromCamps = SimulationSettings.spawn_rules["sum_from_camps"]
 
     if SimulationSettings.spawn_rules["conflict_driven_spawning"] is True:
 
