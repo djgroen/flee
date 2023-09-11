@@ -336,7 +336,7 @@ class DataTable:
             # ref_table = self.data_table[0]
 
             new_refugees = 0
-            if SumFromCamps:
+            if SumFromCamps is True:
                 for i in self.header[1:]:
                     new_refugees += self.get_field(
                         name=i, day=0, FullInterpolation=FullInterpolation
@@ -352,7 +352,7 @@ class DataTable:
         else:
 
             new_refugees = 0
-            if SumFromCamps:
+            if SumFromCamps is True:
                 for i in self.header[1:]:
                     new_refugees += self.get_field(
                         name=i, day=day, FullInterpolation=FullInterpolation
