@@ -83,7 +83,7 @@ Spawn rules focus on spawning agents within simulation runs based on several set
 - **insert_day0** accounts for a zero insertion of agents in camps at the start of simulations by setting the value to `True`. Please set to `False` if it is not required for your conflict instance. 
 - **conflict_zone_spawning_only** spawns agents only from conflict zones when set to `True`. Otherwise, it is set to `False` to spawn agents from other locations that are present in your model. 
 - **camps_are_sinks** activates an attribute that you can add to locations.csv. If you set a location attribute named **deactivation_probability** to a value higher than 0.0, then there is a probability every time step that an agent in a **camp** location will be deactivated. Deactivated agents are no longer moved or changed, and are no longer logged individually although they do still count towards the totals. To have camps act as perfect sinks, simply set the **deactivation_probability** for each camp location to 1.0.
-- **sum_from_camps** will, if set to True, sum total migrant numbers from camp CSV data numbers, instead of from refugees.csv.
+- **sum_from_camps** will, if set to True, sum total migrant numbers from camp CSV data numbers, instead of from refugees.csv. The list of camp data that it will use to sum up is defined in `data_layout.csv`.
 
 In addition, there are more advanced parameters that can be set:
 
