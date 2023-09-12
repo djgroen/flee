@@ -24,7 +24,7 @@ def test_flood_driven_spawning():
 
     l1 = e.addLocation(name="A", movechance=0.0, foreign=False, attributes={"flood_level": 1})
     l2 = e.addLocation(name="B", movechance=0.0, foreign=True, attributes={"flood_level": 0})
-    l1.conflict = True
+    l1.conflict = 1.0
 
     e.linkUp(endpoint1="A", endpoint2="B", distance=100.0)
 

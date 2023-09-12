@@ -22,7 +22,7 @@ def test_conflict_driven_spawning():
 
     l1 = e.addLocation(name="A", movechance=1.0, foreign=False)
     l2 = e.addLocation(name="B", movechance=0.0, foreign=True)
-    l1.conflict = True
+    l1.conflict = 1.0
 
     e.linkUp(endpoint1="A", endpoint2="B", distance=100.0)
 
