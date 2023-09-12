@@ -111,6 +111,8 @@ class Person:
                     return True
                 else: 
                     return False
+        print(f"Error: camp {self.route[-1]} not found in check_dest_is_full_camp", file=sys.stderr)
+        sys.exit()
 
 
     def take_next_step(self,e):

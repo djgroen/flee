@@ -1,5 +1,3 @@
-from flee.datamanager import handle_refugee_data, read_period
-from flee.datamanager import DataTable
 from flee.SimulationSettings import SimulationSettings
 import numpy as np
 import sys

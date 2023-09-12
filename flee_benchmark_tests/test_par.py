@@ -1,10 +1,7 @@
 from flee import pflee
 from flee import spawning
-from flee.datamanager import handle_refugee_data
 from flee.datamanager import DataTable #DataTable.subtract_dates()
 from flee import InputGeography
-import numpy as np
-import flee.postprocessing.analysis as a
 import sys
 import argparse
 import time
@@ -94,14 +91,9 @@ def test_par(end_time=10,
         spawning.spawn_agents(e, new_refs)
 
         spawning.refresh_spawn_weights(e)
-        t_data = t
 
         e.enact_border_closures(time=t)
         e.evolve()
-
-        # Calculation of error terms
-        errors = []
-        abs_errors = []
 
         camps = []
         for i in camp_locations:
