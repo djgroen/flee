@@ -2,7 +2,6 @@ import os
 import sys
 
 import flee.postprocessing.analysis as a
-import numpy as np
 from flee import InputGeography, flee, spawning
 from flee.datamanager import DataTable  # DataTable.subtract_dates()
 from flee.datamanager import handle_refugee_data
@@ -92,9 +91,6 @@ def test_csv(end_time=30, last_physical_day=30):
     "refugees in camps (simulation),refugee_debt"
 
     print(output_header_string)
-
-    # Set up a mechanism to incorporate temporary decreases in refugees
-    refugee_debt = 0
 
     for t in range(0, end_time):
 
