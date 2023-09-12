@@ -165,8 +165,7 @@ def calculateLinkWeight(
     # Traverse the tree one step further.
     for lel in link.endpoint.links:
 
-      proposed_route = origin_names + [link.endpoint.name, lel.endpoint.name]
-      #print("Proposed route:", proposed_route, routes)
+      #proposed route is defined as: origin_names + [link.endpoint.name, lel.endpoint.name]
 
       if lel.endpoint.name in origin_names:
         #print("Looped endpoint:", link.endpoint.name, lel.endpoint.name, origin_names)

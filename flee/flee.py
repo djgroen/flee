@@ -1474,17 +1474,13 @@ class Ecosystem:
             print("Diagnostic: Ecosystem.locationNames: ", self.locationNames, file=sys.stderr)
             print(
                 "Error: link created to non-existent source: {}  with dest {}".format(
-                    endpoint1, endpoint2, file=sys.stderr
-                )
-            )
+                    endpoint1, endpoint2), file=sys.stderr)
             sys.exit()
         if endpoint2_index < 0:
             print("Diagnostic: Ecosystem.locationNames: ", self.locationNames, file=sys.stderr)
             print(
                 "Error: link created to non-existent destination: {} with source {}".format(
-                    endpoint2, endpoint1, file=sys.stderr
-                )
-            )
+                    endpoint2, endpoint1), file=sys.stderr)
             sys.exit()
 
         self.locations[endpoint1_index].links.append(

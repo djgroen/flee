@@ -1,7 +1,7 @@
-from flee import flee, datamanager
+from flee import flee
 
 """
-Testing flood drive spawning for DFlee.
+Testing flood driven spawning for DFlee.
 """
 
 
