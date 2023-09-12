@@ -76,7 +76,8 @@ def month_convert(month_name):
         month_num = months[month_name]
         #print(f"The month number for {month_name} is {month_num}.")
     else:
-        print("Invalid month name entered.")
+        print("Error: Invalid month name entered.")
+        sys.exit()
 
     return month_num
 
@@ -169,6 +170,7 @@ def acled2locations(fab_flee_loc, country, start_date,
         tempdf = pd.read_csv(input_file)
     except:
         print("Runtime Error: File Cannot be found")
+        sys.exit()
 
     df = tempdf[["event_date", "country", "admin1", "latitude", "longitude", "fatalities"]]
     # event_date is given in incorrect format, so formatting to dd-mm-yyyy
@@ -198,6 +200,7 @@ def acled2locations(fab_flee_loc, country, start_date,
         df = filter_table(df, filter_opt, admin_level)
     except:
         print("Runtime error: filter_opt value must be earliest or fatalities")
+        sys.exit()
 
     # Exporting CSV to locations.csv
     output_df = df[['admin1', 'admin1', 'country',
