@@ -1377,7 +1377,7 @@ class Ecosystem:
         Args:
             location (Location): Description
         """
-        self.agents.append(Person(location=location))
+        self.agents.append(Person(location=location, attributes={}))
 
     @check_args_type
     def insertAgents(self, location, number: int) -> None:

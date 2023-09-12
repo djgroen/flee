@@ -12,7 +12,7 @@ def AddInitialRefugees(e, d, loc):
     """ Add the initial refugees to a location, using the location name"""
     num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
     for i in range(0, num_refugees):
-        e.addAgent(location=loc)
+        e.addAgent(location=loc, attributes={})
 
 
 if __name__ == "__main__":
