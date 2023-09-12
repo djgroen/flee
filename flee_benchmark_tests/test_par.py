@@ -132,8 +132,6 @@ def test_par(end_time=10,
 
 
 if __name__ == "__main__":
-    end_time = 10
-    last_physical_day = 10
 
     parser = argparse.ArgumentParser(
         description='Run a parallel Flee benchmark.')

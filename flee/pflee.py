@@ -382,7 +382,6 @@ class Ecosystem(flee.Ecosystem):
                     buf_len += len(loc.closed_links)
 
             numAgent_buffer = np.empty(buf_len, dtype="i")
-            new_buffer = np.empty(buf_len, dtype="i")
 
             index = 0
             for loc in self.locations:

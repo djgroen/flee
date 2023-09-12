@@ -192,7 +192,6 @@ class InputGeography:
                             link_columns.append(row[i])
                     self.link_columns = link_columns
                     print("link header", link_columns, row, len(row), file=sys.stderr)
-                    pass
                 else:
                     # print(row)
                     self.links.append(row)

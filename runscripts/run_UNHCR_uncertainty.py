@@ -76,8 +76,6 @@ if __name__ == "__main__":
 
     # Set up a mechanism to incorporate temporary decreases in refugees
     refugee_debt = 0
-    # raw (interpolated) data from TOTAL UNHCR refugee count only.
-    refugees_raw = 0
 
     for t in range(0, end_time):
 
@@ -110,13 +108,6 @@ if __name__ == "__main__":
             output += ",%s,%s,%s" % (lm[camp_locations[i]
                                         ].numAgents, loc_data[i], errors[i])
 
-        if refugees_raw > 0:
-            output += ",%s,%s,%s,%s,%s,%s" % (
-                float(np.sum(abs_errors)) / float(refugees_raw),
-                int(sum(loc_data)), e.numAgents(), refugees_raw,
-                refugees_in_camps_sim, refugee_debt
-            )
-        else:
-            output += ",0,0,0,0,0,0"
+        output += ",0,0,0,0,0,0"
 
         print(output)
