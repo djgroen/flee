@@ -138,7 +138,7 @@ def plot_camps(data: pd.DataFrame, config: str, output: str) -> None:
 
         plt.xlabel("Days elapsed", fontsize=14)
         plt.ylabel("Number of asylum seekers / unrecognised refugees", fontsize=14)
-        plt.title("{} camp".format(name[0]), fontsize=18)
+        plt.title("{}".format(name[0]), fontsize=18)
 
         (label1,) = plt.plot(data_filtered.index, y1, "r", linewidth=5, label="{} simulation".format(name[0]))
         
