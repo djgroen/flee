@@ -109,3 +109,7 @@ ENV/
 .linter_reports/
 
 /multiscale/out/*
+
+#Mac files 
+
+.DS_Store

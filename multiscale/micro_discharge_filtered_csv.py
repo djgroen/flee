@@ -28,8 +28,8 @@ data_dir = os.path.join(input_dir, "weather_data")
 
 locations = pd.read_csv(os.path.join(input_dir, "locations-1.csv"))
 
-start_date, end_time = read_period.read_conflict_period(
-    fname=os.path.join(input_dir, "conflict_period.csv")
+start_date, end_time = read_period.read_sim_period(
+    fname=os.path.join(input_dir, "sim_period.csv")
 )
 
 
@@ -37,8 +37,8 @@ def return_date(day):
 
     # This function returns the date of given day!
 
-    start_date, end_time = read_period.read_conflict_period(
-        fname=os.path.join(input_dir, "conflict_period.csv")
+    start_date, end_time = read_period.read_sim_period(
+        fname=os.path.join(input_dir, "sim_period.csv")
     )
 
     date_1 = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()

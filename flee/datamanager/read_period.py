@@ -16,9 +16,9 @@ else:
 
 
 @check_args_type
-def read_conflict_period(fname: str) -> Tuple[str, int]:
+def read_sim_period(fname: str) -> Tuple[str, int]:
     """
-    Reads in a conflict_period.csv file.
+    Reads in a sim_period.csv file.
 
     Args:
         fname (str): Description
