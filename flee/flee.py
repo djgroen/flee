@@ -1203,6 +1203,15 @@ class Ecosystem:
 
         spawning.refresh_spawn_weights(self)
 
+
+    @check_args_type
+    def set_conflict_intensity(self, name: str, conflict_intensity: float, change_movechance: bool = True) -> None:
+        if conflict_intensity < 0.000001:
+            self.remove_conflict_zone(name, change_movechance)
+        else:
+            self.add_conflict_zone(name, conflict_intensity, change_movechance)
+            
+
     @check_args_type
     def pick_spawn_location(self):
         """

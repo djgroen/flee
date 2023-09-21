@@ -449,7 +449,7 @@ class InputGeography:
                                 ),
                                 file=sys.stderr,
                             )
-                            e.add_conflict_zone(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
+                            e.set_conflict_intensity(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
                     else:
                         print(
                             "Time = {}. Adding a new conflict zone [{}] with intensity {}".format(
@@ -457,11 +457,11 @@ class InputGeography:
                             ),
                             file=sys.stderr,
                         )
-                        e.add_conflict_zone(name=conflict_name,conflict_intensity=self.conflicts[conflict_name][time])
+                        e.add_conflict_zone(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
                 if self.conflicts[conflict_name][time] < 0.000001 and time > 0:
-                    if self.conflicts[conflict_name][time - 1] == 1:
+                    if self.conflicts[conflict_name][time - 1] >= 0.000001:
                         print(
                             "Time = {}. Removing conflict zone [{}]".format(time, conflict_name),
                             file=sys.stderr,
                         )
-                        e.remove_conflict_zone(name=conflict_name)
+                        e.set_conflict_intensity(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
