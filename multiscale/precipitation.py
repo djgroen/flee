@@ -136,8 +136,8 @@ def return_date(day):
     # This function returns the date of given link based on routes_tp.csv
     # which has created manually and needs to be created automatically!
 
-    start_date, end_time = read_period.read_conflict_period(
-        fname=os.path.join(input_dir, "conflict_period.csv")
+    start_date, end_time = read_period.read_sim_period(
+        fname=os.path.join(input_dir, "sim_period.csv")
     )
 
     date_1 = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
@@ -220,8 +220,8 @@ if __name__ == "__main__":
 
     output_header_string = "Day"
 
-    start_date, end_time = read_period.read_conflict_period(
-        fname=os.path.join(input_dir, "conflict_period.csv")
+    start_date, end_time = read_period.read_sim_period(
+        fname=os.path.join(input_dir, "sim_period.csv")
     )
 
     out_csv_file = os.path.join(data_dir, "precipitation.csv")
