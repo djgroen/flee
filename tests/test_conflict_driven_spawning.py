@@ -57,9 +57,12 @@ def test_conflict_driven_spawning_post_conflict():
 
     l1 = e.addLocation(name="A", movechance=1.0, foreign=False)
     _ = e.addLocation(name="B", movechance=0.0, foreign=True)
+    l3 = e.addLocation(name="C", movechance=1.0, foreign=False)
     l1.conflict = 1.0
+    l3.conflict = 1.0
 
     e.linkUp(endpoint1="A", endpoint2="B", distance=100.0)
+    e.linkUp(endpoint1="C", endpoint2="B", distance=100.0)
 
     for t in range(0, end_time):
 
@@ -75,7 +78,7 @@ def test_conflict_driven_spawning_post_conflict():
 
     assert t == 3
 
-    assert len(e.agents) == 200
+    assert len(e.agents) == 600
 
 
 
@@ -86,3 +89,4 @@ def test_conflict_driven_spawning_post_conflict():
 
 if __name__ == "__main__":
     test_conflict_driven_spawning()
+    test_conflict_driven_spawning_post_conflict()
