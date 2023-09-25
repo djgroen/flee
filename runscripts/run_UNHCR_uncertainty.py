@@ -40,9 +40,6 @@ if __name__ == "__main__":
 
     ig = InputGeography.InputGeography()
 
-    ig.ReadConflictInputCSV(
-        flee.SimulationSettings.ConflictInputFile)
-
     ig.ReadLocationsFromCSV("%s/locations.csv" % input_csv_directory)
 
     ig.ReadLinksFromCSV("%s/routes.csv" % input_csv_directory)

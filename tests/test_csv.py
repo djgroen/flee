@@ -50,8 +50,7 @@ def test_csv(end_time=30, last_physical_day=30):
     flee.SimulationSettings.ConflictInputFile = os.path.join(
         "test_data", "test_input_csv", "flare-out.csv"
     )
-    ig.ReadConflictInputCSV(csv_name=flee.SimulationSettings.ConflictInputFile)
-
+    ig.ReadLocationsFromCSV(csv_name=os.path.join("test_data", "test_input_csv/locations.csv"))
     print(ig.conflicts)
 
     assert ig.conflicts["C"][49] == 0
@@ -60,7 +59,6 @@ def test_csv(end_time=30, last_physical_day=30):
     assert ig.conflicts["A"][0] == 1
     assert ig.conflicts["C2"][94] == 0
 
-    ig.ReadLocationsFromCSV(csv_name=os.path.join("test_data", "test_input_csv/locations.csv"))
 
     ig.ReadLinksFromCSV(csv_name=os.path.join("test_data", "test_input_csv/routes.csv"))
 
