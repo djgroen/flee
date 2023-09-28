@@ -27,13 +27,12 @@ if __name__ == "__main__":
   else:
     flee.SimulationSettings.ReadFromYML("simsetting.yml")
 
+  # Conflict file will be read if modelling conflict-driven displacement. Ignored otherwise.
   flee.SimulationSettings.ConflictInputFile = "%s/conflicts.csv" % input_csv_directory
 
   e = flee.Ecosystem()
 
   ig = InputGeography.InputGeography()
-
-  ig.ReadConflictInputCSV(flee.SimulationSettings.ConflictInputFile)
 
   ig.ReadLocationsFromCSV("%s/locations.csv" % input_csv_directory)
 

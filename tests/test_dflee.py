@@ -15,6 +15,8 @@ def test_read_flood_csv():
 
     ig = InputGeography.InputGeography()
 
+    flee.SimulationSettings.move_rules["FloodRulesEnabled"] = True
+
     ig.ReadLocationsFromCSV(csv_name=os.path.join("test_data", "test_input_csv/locations.csv"))
 
     ig.ReadLinksFromCSV(csv_name=os.path.join("test_data", "test_input_csv/routes.csv"))

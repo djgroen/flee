@@ -125,10 +125,13 @@ class InputGeography:
         Args:
             csv_name (str): Description
         """
-        
+
+
         # Read flood location attributes.
         if SimulationSettings.spawn_rules["flood_driven_spawning"] is True:
             self.ReadAttributeInputCSV("flood_level","int","input_csv/flood_level.csv")
+        elif SimulationSettings.move_rules["FloodRulesEnabled"] is False:
+            self.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
 
         self.locations = []
 
