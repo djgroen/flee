@@ -223,7 +223,7 @@ We obtain data for each camp using the format and label them as **country_name-c
 
 ## **Construct input demographics profiles**
 
-As of Flee 3.0, it is possible to define demographic attributes to newly spawned agents. You can define these attributes by placing files in the input\_csv subdirectory. For a given example attribute AAAyou can define the weighted probability profile as follows:
+As of Flee 3.0, it is possible to define demographic attributes to newly spawned agents. Examples could include age, gender, ethnicity, religion or main language. You can define these attributes by placing files in the input\_csv subdirectory. For a given example attribute AAAyou can define the weighted probability profile as follows:
 
 1. Create a file named `demographics_aaa.csv`
 
