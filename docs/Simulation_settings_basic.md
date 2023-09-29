@@ -1,7 +1,7 @@
 Simulation Settings (simsetting.yml)
 =====
 
-This file summarizes the basic settings in `simsetting.yml`. 
+This file summarizes the basic settings in `simsetting.yml`. An example simsetting.yml can for example be found here: https://github.com/djgroen/FabFlee/blob/master/config_files/mali2012/simsetting.yml
 
 ## Introduction
 
@@ -136,4 +136,7 @@ To set the following parameters, please use values:
 - **weight_power** puts a power factor on the *total calculated weight*. A value of 0.0 indicates that the algorithm becomes a random walk, while a weight of 1.0 preserves the default behavior. If set to larger values then agents will be more aggressive in dismissing suboptimal routes.
 
 ### Optimisations
-**hasten** takes value to improve runtime performance by decreasing the number of agents. 
+**hasten** is a parameter that can be used to speed up the simulation. The default is 1.0. By setting it to a larger value, the simulation will proportionally reduce its number of agents, speeding up execution. When using a value for `hasten` larger than 1.0, the simulation becomes gradually less accurate and will exhibit more variability in its results between individual runs.
+
+!!! note
+        Flee is not a deterministic code, and even without hasten, results can fluctuate by as much as 1% between identically configured simulation runs.
