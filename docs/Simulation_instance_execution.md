@@ -3,7 +3,7 @@
 Use the following command to run a Flee simulation with the test data set:
 
 ```sh
-python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refugee_data 0 test_data/test_input_csv/simsettings.yml 
+python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refugee_data 0 test_data/simsetting.yml
 ```
 
 !!! note
@@ -32,7 +32,7 @@ python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refu
 	where `<output directory>` represents the simulation output directory (Step 1). As an example, you can run and plot the test set by navigating to your root flee directory and using the following commands:
 	```sh
         mkdir -p out
-	python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refugee_data 0 test_data/test_input_csv/simsettings.yml > out/out.csv
+	python3 runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refugee_data 0 test_data/simsetting.yml > out/out.csv
         python3 flee/postprocessing/plot_flee_output.py out/ out/
 	```	
 
