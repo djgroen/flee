@@ -53,9 +53,12 @@ The ACLED conflict data provides conflict locations to construct **`locations.cs
 
 ### **UNHCR forced migrant counts and camp locations extraction**
 
+<p align="center">
+    <img src="../images/unhcr_screenshot.png" alt="Image" width="70%" />
+</p>
+
+
 The UNHCR situations provide an overview of active situations worldwide that are facing forced displacement distress. To construct a new conflict situation:
-
-
 
 * Select an active (conflict) situation of interest from an interactive map and click to access data and documentation relevant to a chosen conflict situation from [https://data2.unhcr.org/en/situations](https://data2.unhcr.org/en/situations).
 
@@ -67,6 +70,8 @@ The UNHCR situations provide an overview of active situations worldwide that are
 
 * Collect and save data for each camp (e.g. `<country_name-camp_name>.csv`).
 
+!!! note
+        The UNHCR Data Portal tends to have a different interface for different conflict situations. Therefore, data on the location level may need to be retrieved differently for some situations, or may be unavailable altogether.
 
 Input camp names (i.e. destination locations) and their capacity into **`locations.csv`** file. Camp capacity is the highest number of forced migrants for each camp and is obtained from individual camp CSV files that are set in **`locations.csv`**. For instance, `CampZ.csv` has the highest number of forcibly displaced people (18129) on 2015-09-30, which is the camp capacity for CampZ.
 
@@ -90,7 +95,7 @@ Currently, the population figures for each location will need to be collected an
 
 The `locations.csv` file contain information about all the locations in the location graph. Flee 3.0 supports four location types:
 
-* `conflict`: places where conflicts are taking place during the conflict.
+* `conflict`: places where conflicts are taking place during the conflict. This type is not needed if you are loading in a `conflicts.csv` file or if you are using Flee for disaster displacement.
 * `town`: places that are neither conflict zones nor camps. **NOTE: if you use a conflicts.csv input file, then town type locations can change into conflict type locations at runtime**.
 * `camp`: places where asylum seekers / unrecognized refugees are received and looked after.
 * `idpcamp`: places where internally displaced persons are received and looked after. **NOTE: this type is supported as of Flee 3.0**
@@ -129,6 +134,13 @@ Record distances between locations in **`routes.csv`** file for simulation using
 
 * `max\_move\_speed`: when explicitly defined, this will override the MaxMoveSpeed set in `simsetting.yml` for individual links. Note that it is only possible to override this for all links or for none of the links at the moment.
 * `conflict\_intensity`: when explicitly defined for a location of type conflict, this will override the default value (1.0) to a custom-defined intensity level.
+
+!!! note 
+	Group-specific instrucitons for locations.csv. For those working with our group, here are some more specific instructions:
+	1. Populations for the largest cities tend to be listed on citypopulation.de, then include additional cities/towns in the regions you are interested in. Alternatively, the web tables on citypopulation.de can be converted to csv by downloading the webpage.
+	2. Q: Have you studied how location selection affects the accuracy of your models? For example, does including many smaller settlements/towns improve the model or does this level of granular detail make little difference, as it is other parameters such as the total distance/time travelled in a day the agents are allowed to make that mainly affect the results?
+	3. Q: If citypopulation.de does not contain the city, or does not have recent data. look for other websites that already list location name/latitude/longitude/populations e.g. simple maps.
+	4. Find Latitudes and longitudes by identifying the places on OpenStreetMap. We tend to use OpenStreetMap because of its openness, but have used Bing and Google maps in the past.
 
 ## **Define location and border closures in closures.csv file**
 
@@ -211,7 +223,7 @@ We obtain data for each camp using the format and label them as **country_name-c
 
 ## **Construct input demographics profiles**
 
-As of Flee 3.0, it is possible to define demographic attributes to newly spawned agents. You can define these attributes by placing files in the input\_csv subdirectory. For a given example attribute AAAyou can define the weighted probability profile as follows:
+As of Flee 3.0, it is possible to define demographic attributes to newly spawned agents. Examples could include age, gender, ethnicity, religion or main language. You can define these attributes by placing files in the input\_csv subdirectory. For a given example attribute AAAyou can define the weighted probability profile as follows:
 
 1. Create a file named `demographics_aaa.csv`
 
