@@ -93,7 +93,7 @@ The `locations.csv` file contain information about all the locations in the loca
 * `conflict`: places where conflicts are taking place during the conflict.
 * `town`: places that are neither conflict zones nor camps. **NOTE: if you use a conflicts.csv input file, then town type locations can change into conflict type locations at runtime**.
 * `camp`: places where asylum seekers / unrecognized refugees are received and looked after.
-* `idpcamps`: places where internally displaced persons are received and looked after. **NOTE: this type is supported as of Flee 3.0**
+* `idpcamp`: places where internally displaced persons are received and looked after. **NOTE: this type is supported as of Flee 3.0**
 * `marker`: these places are entirely ignored in decision-making, but are represented for output/viz purposes. Useful for embedding crossroads, where people are extremely unlikely to pause.
 
 
