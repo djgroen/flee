@@ -441,30 +441,33 @@ class InputGeography:
             conflict_names = self.getConflictLocationNames()
             # print(confl_names)
             for conflict_name in conflict_names:
-                if Debug:
+                if Debug and e.getRankN(e.time) is True:
                     print("L:", conflict_name, self.conflicts[conflict_name], time, file=sys.stderr)
                 if self.conflicts[conflict_name][time] > 0.000001:
                     if time > 0:
                         if self.conflicts[conflict_name][time - 1] < 0.000001:
+                            if e.getRankN(e.time) is True:
+                                print(
+                                    "Time = {}. Adding a new conflict zone [{}] with intensity {}".format(
+                                        time, conflict_name, self.conflicts[conflict_name][time]
+                                    ),
+                                    file=sys.stderr,
+                                )
+                            e.set_conflict_intensity(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
+                    else:
+                        if e.getRankN(e.time) is True:
                             print(
                                 "Time = {}. Adding a new conflict zone [{}] with intensity {}".format(
                                     time, conflict_name, self.conflicts[conflict_name][time]
                                 ),
                                 file=sys.stderr,
                             )
-                            e.set_conflict_intensity(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
-                    else:
-                        print(
-                            "Time = {}. Adding a new conflict zone [{}] with intensity {}".format(
-                                time, conflict_name, self.conflicts[conflict_name][time]
-                            ),
-                            file=sys.stderr,
-                        )
                         e.add_conflict_zone(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
                 if self.conflicts[conflict_name][time] < 0.000001 and time > 0:
                     if self.conflicts[conflict_name][time - 1] >= 0.000001:
-                        print(
-                            "Time = {}. Removing conflict zone [{}]".format(time, conflict_name),
-                            file=sys.stderr,
-                        )
+                        if e.getRankN(e.time) is True:
+                            print(
+                                "Time = {}. Removing conflict zone [{}]".format(time, conflict_name),
+                                file=sys.stderr,
+                            )
                         e.set_conflict_intensity(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
