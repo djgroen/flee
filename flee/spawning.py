@@ -216,10 +216,10 @@ def spawn_daily_displaced(e, t, d):
         __refugee_debt = 0
 
       #Insert refugee agents
+      locs = e.pick_spawn_locations(new_refs)
       for i in range(0, new_refs):
-        loc = e.pick_spawn_location()
-        attributes = draw_samples(e, loc)
-        e.addAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
+        attributes = draw_samples(e, locs[i])
+        e.addAgent(location=locs[i], attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
     return new_refs, __refugees_raw, __refugee_debt
 

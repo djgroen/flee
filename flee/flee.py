@@ -1213,20 +1213,6 @@ class Ecosystem:
             
 
     @check_args_type
-    def pick_spawn_location(self):
-        """
-        Summary
-
-        !!! warning
-            this function is now deprecated as of ruleset 2.0.
-            Please use `pick_spawn_locations()` instead in your scripts
-
-        Returns:
-            Location: Description
-        """
-        return self.pick_spawn_locations(1)[0]
-
-    @check_args_type
     def pick_spawn_locations(self, number: int = 1) -> list:
         """
         Returns a weighted random element from the list of conflict locations.
@@ -1243,8 +1229,10 @@ class Ecosystem:
 
         assert spawn_weight_total > 0
 
+        wgt = self.spawn_weights / spawn_weight_total
+
         return np.random.choice(
-            self.locations, number, p=self.spawn_weights / spawn_weight_total
+            self.locations, number, p=wgt
         ).tolist()
 
 
