@@ -214,4 +214,10 @@ When running this script, you can expect the following type of visualisation to 
     <img src="../images/plot_flee_agents.png" alt="Image" width="800" />
 </p>
 
- 
+### *Advanced: Profiling Parallel Flee Simulations*
+
+1. To run a `pflee` simulation and generate profile traces, you can add the argument `profile=True` to the end of your FabSim3 command.
+
+2. After you have fetched the results using `fabsim localhost fetch_results`, you can then visualize the profile trace using the command: `fabsim localhost plot_flee_profile:<results_dir>`
+
+This latter command requires the `graphviz` and `gprof2dot` Python3 modules, as well as the `eog` module for automated image display.
