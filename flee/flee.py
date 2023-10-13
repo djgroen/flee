@@ -1357,14 +1357,13 @@ class Ecosystem:
             if location.conflict > 0.0:
                 if location.pop > 0:
                     location.pop -= 1
-                    location.numAgentsSpawned += 1
                 else:
                     print(
-                        "ERROR: Number of agents in the simulation is larger than the combined "
-                        "population of the conflict zones. Please amend locations.csv."
+                        "WARNING: Number of agents in the simulation is larger than the"
+                        "population of the conflict zone."
                     )
                     location.print()
-                    assert location.pop > 1
+                location.numAgentsSpawned += 1
 
         self.agents.append(Person(location=location, attributes=attributes))
 
