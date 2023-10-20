@@ -148,6 +148,7 @@ class SimulationSettings:
 
         # Setting False by default.
         SimulationSettings.move_rules["FloodRulesEnabled"] = False
+        SimulationSettings.spawn_rules["flood_driven_spawning"] = False # Conflicts provide a direct push factor.
 
         if spawn_type == "flood":
           dpsc = fetchss(dps,"flood_driven_spawning",None)
