@@ -184,7 +184,7 @@ Value | Description                                                        |
 Set the following parameter to `True` or `False`:
 
 - **avoid_short_stints** allows to restrict displaced people that will take a break unless they at least travelled for a full day's distance in the last two days.
-- **start_on_foot** is a parameters allowing agents to traverse first link on foot.
+- **start_on_foot** is a parameter allowing agents to traverse first link on foot.
 - **stay_close_to_home** is a parameter adding a weight that favours locations closer to the persons home location.
 
 To set the following parameters, please use values:
