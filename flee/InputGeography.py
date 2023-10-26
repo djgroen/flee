@@ -291,7 +291,11 @@ class InputGeography:
             if len(loc[7]) < 1:
                 population = 0
             else:
-                population = int(int(loc[7]) // SimulationSettings.optimisations["PopulationScaleDownFactor"])
+                try:
+                    population = int(int(loc[7]) // SimulationSettings.optimisations["PopulationScaleDownFactor"])
+                except ValueError:
+                    print(f"ERROR: location {loc[0]} has population value of {loc[7]}, which is not an int.", file=sys.stderr)
+                    sys.exit()
 
             x = float(loc[3]) if len(loc[3]) > 0 else 0.0
             y = float(loc[4]) if len(loc[4]) > 0 else 0.0
