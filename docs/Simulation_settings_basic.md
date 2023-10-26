@@ -1,7 +1,7 @@
 Simulation Settings (simsetting.yml)
 =====
 
-This file summarizes the basic settings in `simsetting.yml`. An example simsetting.yml can for example be found here: https://github.com/djgroen/FabFlee/blob/master/config_files/mali2012/simsetting.yml
+This file summarizes the basic settings in `simsetting.yml`. An example simsetting.yml can for example be found here: <https://github.com/djgroen/FabFlee/blob/master/config_files/mali2012/simsetting.yml>
 
 ## Introduction
 
