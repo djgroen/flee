@@ -63,15 +63,24 @@ def write_agents_par(
             if a.location is None: #Do not write agent logs for agents that are removed from the simulation.
                 continue
 
+            loc_name = a.location.name
+            x = a.location.x
+            y = a.location.y
+
+            if SimulationSettings.log_levels["granularity"] == "region":
+                loc_name = location.region
+                x = 0.0
+                y = 0.0
+
             print(
                     "{},{}-{},{},{},{},{},{},{},{},{},{}".format(
                     time,
                     rank,
                     k,
                     a.home_location.name,
-                    a.location.name,
-                    a.location.x,
-                    a.location.y,
+                    loc_name,
+                    x,
+                    y,
                     a.travelling,
                     a.distance_travelled,
                     a.places_travelled,
