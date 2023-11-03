@@ -149,6 +149,7 @@ class Location(flee.Location):
         e,
         cur_id: int,
         name: str,
+        region: str = "unknown",
         x: float = 0.0,
         y: float = 0.0,
         location_type: Optional[str] = None,
@@ -166,6 +167,7 @@ class Location(flee.Location):
         # If it is referred to in Flee in any way, the code should crash.
         super().__init__(
             name=name,
+            region=region,
             x=x,
             y=y,
             location_type=location_type,
@@ -665,6 +667,7 @@ class Ecosystem(flee.Ecosystem):
     def addLocation(
         self,
         name: str,
+        region: str = "unknown",
         x: float = 0.0,
         y: float = 0.0,
         location_type: Optional[str] = None,
@@ -707,6 +710,7 @@ class Ecosystem(flee.Ecosystem):
             self,
             cur_id=self.cur_loc_id,
             name=name,
+            region=region,
             x=x,
             y=y,
             location_type=location_type,
