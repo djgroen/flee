@@ -300,6 +300,13 @@ class InputGeography:
             x = float(loc[3]) if len(loc[3]) > 0 else 0.0
             y = float(loc[4]) if len(loc[4]) > 0 else 0.0
 
+            # if region field is empty, just set it to unknown.
+            if len(loc[1]) < 1:
+                region = "unknown"
+            else:
+                region = loc[1]
+
+            foreign = True
             # if country field is empty, just set it to unknown.
             if len(loc[2]) < 1:
                 country = "unknown"
@@ -325,6 +332,7 @@ class InputGeography:
             if "camp" in location_type.lower():
                 lm[name] = e.addLocation(
                     name=name,
+                    region=region,
                     location_type=location_type,
                     capacity=population,
                     x=x,
@@ -336,6 +344,7 @@ class InputGeography:
             else:
                 lm[name] = e.addLocation(
                     name=name,
+                    region=region,
                     location_type=location_type,
                     pop=population,
                     x=x,

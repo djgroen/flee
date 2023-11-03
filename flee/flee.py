@@ -254,6 +254,7 @@ class Location:
     def __init__(
         self,
         name: str,
+        region: str = "unknown",
         x: float = 0.0,
         y: float = 0.0,
         location_type: Optional[str] = None,
@@ -265,6 +266,7 @@ class Location:
         attributes: dict = {},
     ) -> None:
         self.name = name
+        self.region = region
         self.x = x
         self.y = y
         self.movechance = movechance
@@ -1294,6 +1296,7 @@ class Ecosystem:
     def addLocation(
         self,
         name: str,
+        region: str = "unknown",
         x: float = 0.0,
         y: float = 0.0,
         location_type: Optional[str] = None,
@@ -1309,6 +1312,7 @@ class Ecosystem:
 
         Args:
             name (str): Description
+            region (str): Description
             x (float, optional): Description
             y (float, optional): Description
             location_type (str, optional): Description
@@ -1325,6 +1329,7 @@ class Ecosystem:
 
         loc = Location(
             name=name,
+            region=region,
             x=x,
             y=y,
             location_type=location_type,

@@ -97,6 +97,8 @@ class SimulationSettings:
         SimulationSettings.log_levels["conflict"] = int(fetchss(dpll,"conflict",0))
         SimulationSettings.log_levels["idp_totals"] = int(fetchss(dpll,"idp_totals",0))
 
+        SimulationSettings.log_levels["spatial_granularity"] = fetchss(dpll,"spatial_granularity","location")
+        # location, admin3 or admin2
 
 
         dps = fetchss(dp,"spawn_rules",None)
@@ -108,6 +110,7 @@ class SimulationSettings:
         SimulationSettings.spawn_rules["TakeFromPopulation"] = bool(fetchss(dps, "take_from_population", False))
         # Advanced settings
         SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"] = bool(fetchss(dps, "insert_day0", True))
+        SimulationSettings.spawn_rules["EmptyCampsOnDay0"] = bool(fetchss(dps, "empty_camps_on_day0", True))
 
 
         SimulationSettings.spawn_rules["conflict_zone_spawning_only"] = bool(fetchss(dps, "conflict_zone_spawning_only", True)) # Only spawn agents from conflict zones.

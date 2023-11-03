@@ -207,7 +207,7 @@ def spawn_daily_displaced(e, t, d):
       if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"]:
         if t == 0:
           new_refs = 0
-          #refugees_raw = 0
+          #__refugees_raw = 0
 
       if new_refs < 0:
         __refugee_debt = -new_refs
