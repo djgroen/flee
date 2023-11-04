@@ -348,7 +348,7 @@ class DataTable:
                 camp_pop = self.get_field(
                     name=i, day=0, FullInterpolation=FullInterpolation
                 )
-                if self.offsets[i] == 0:
+                if self.offsets.get(i,0) == 0:
                     self.offsets[i] = camp_pop
 
                 if SumFromCamps is True:
