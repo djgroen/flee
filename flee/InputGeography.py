@@ -454,7 +454,12 @@ class InputGeography:
         else:
             conflict_names = self.getConflictLocationNames()
             # print(confl_names)
+
+
             for conflict_name in conflict_names:
+                if len(self.conflicts[conflict_name]) < (time - 1):
+                    print(f"Error: conflict value at time {time} requested, but the conflicts table for {conflict_name} only has values up to t = {len(conflicts[conflict_name])}.", file=sys.stderr)
+
                 if Debug and e.getRankN(e.time) is True:
                     print("L:", conflict_name, self.conflicts[conflict_name], time, file=sys.stderr)
                 if self.conflicts[conflict_name][time] > 0.000001:

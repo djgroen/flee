@@ -170,7 +170,7 @@ def ConvertCsvFileToNumPyTable(
     population_scaledown_factor: int = 1,
 ) -> np.ndarray:
     """
-    Converts a CSV file to a table with date offsets from 29 feb 2012.
+    Converts a CSV file to a table with date offsets from start_date.
     CSV format for each line is:
     yyyy-mm-dd,number
 
@@ -228,7 +228,6 @@ class DataTable:
         """
         read in CSV data files containing refugee data.
         """
-        self.csvformat = csvformat
         self.total_refugee_column = 1
         self.days_column = 0
         self.header = []
@@ -239,36 +238,42 @@ class DataTable:
         self.override_refugee_input_file = ""
         self.data_directory = data_directory
         self.population_scaledown_factor = population_scaledown_factor
+        self.offsets = {}
+        # if set to 1, then all files are corrected such that existing refugees
+        # on Day 0 are left out of the simulation and the validation data.
+        self.start_empty = 1
 
-        if self.csvformat == "generic":
-            with open(
-                os.path.join(data_directory, data_layout), newline="", encoding="utf-8"
-            ) as csvfile:
-                values = csv.reader(csvfile)
-                for row in values:
-                    if len(row) > 1:
-                        if row[0][0] == "#":
-                            continue
-                        self.header.append(row[0])
+        with open(
+            os.path.join(data_directory, data_layout), newline="", encoding="utf-8"
+        ) as csvfile:
+            values = csv.reader(csvfile)
+            for row in values:
+                if len(row) > 1:
+                    if row[0][0] == "#":
+                        continue
+                    self.header.append(row[0])
 
-                        # print("%s/%s" % (data_directory, row[1]))
-                        csv_total = ConvertCsvFileToNumPyTable(
-                            csv_name=os.path.join(data_directory, row[1]),
-                            start_date=start_date,
-                            population_scaledown_factor=population_scaledown_factor,
+                    # print("%s/%s" % (data_directory, row[1]))
+                    csv_total = ConvertCsvFileToNumPyTable(
+                        csv_name=os.path.join(data_directory, row[1]),
+                        start_date=start_date,
+                        population_scaledown_factor=population_scaledown_factor,
+                    )
+
+                    # The loop below is for rare cases where multiple CSV files need
+                    # to be aggregated for the same camp. In the test cases this only
+                    # apply to CAR at time of writing.
+                    for added_csv in row[2:]:
+                        csv_total = AddCSVTables(
+                            table1=csv_total,
+                            table2=ConvertCsvFileToNumPyTable(
+                                csv_name=os.path.join(data_directory, added_csv),
+                                start_date=start_date,
+                                population_scaledown_factor=population_scaledown_factor,
+                            ),
                         )
 
-                        for added_csv in row[2:]:
-                            csv_total = AddCSVTables(
-                                table1=csv_total,
-                                table2=ConvertCsvFileToNumPyTable(
-                                    csv_name=os.path.join(data_directory, added_csv),
-                                    start_date=start_date,
-                                    population_scaledown_factor=population_scaledown_factor,
-                                ),
-                            )
-
-                        self.data_table.append(csv_total)
+                    self.data_table.append(csv_total)
 
         # print(self.header, self.data_table)
 
@@ -329,23 +334,33 @@ class DataTable:
 
         # ref_table = self.data_table[0]
         # if self.override_refugee_input is True:
-        #     ref_table = self.data_table[self._find_headerindex("total (modified input)")]
+        #   ref_table = self.data_table[self._find_headerindex("total (modified input)")]
+
 
         # Refugees only come in *after* day 0.
         if int(day) == 0:
             # ref_table = self.data_table[0]
 
             new_refugees = 0
-            if SumFromCamps is True:
-                for i in self.header[1:]:
-                    new_refugees += self.get_field(
-                        name=i, day=0, FullInterpolation=FullInterpolation
-                    )
-                    # print("Day 0 data:",i,self.get_field(i, 0, FullInterpolation))
-            else:
-                new_refugees += self.get_field(
+            self.offsets["total"] = 0
+
+            for i in self.header[1:]:
+                camp_pop = self.get_field(
+                    name=i, day=0, FullInterpolation=FullInterpolation
+                )
+                self.offsets[i] = camp_pop
+                if SumFromCamps is True:
+                    new_refugees += camp_pop
+                    self.offsets["total"] += camp_pop
+
+            if SumFromCamps is False:
+                new_refugees = self.get_field(
                     name="total", day=0, FullInterpolation=FullInterpolation
                 )
+                self.offsets["total"] = new_refugees
+
+            # Don't have new refugees on Day 0 if we start empty
+            new_refugees *= (1 - self.start_empty)
 
             # return int(new_refugees)
 
@@ -484,9 +499,9 @@ class DataTable:
 
         if FullInterpolation:
             # print(name, i, day, self.get_interpolated_data(column=i, day))
-            return self.get_interpolated_data(column=i, day=day)
+            return self.get_interpolated_data(column=i, day=day) - (self.offsets.get(name,0) * self.start_empty)
 
-        return self.get_raw_data(column=i, day=day)
+        return self.get_raw_data(column=i, day=day) - (self.offsets.get(name,0) * self.start_empty)
 
     @check_args_type
     def print_data_values_for_location(self, name: str, last_day: int) -> None:
