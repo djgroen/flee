@@ -348,7 +348,9 @@ class DataTable:
                 camp_pop = self.get_field(
                     name=i, day=0, FullInterpolation=FullInterpolation
                 )
-                self.offsets[i] = camp_pop
+                if self.offsets[i] == 0:
+                    self.offsets[i] = camp_pop
+
                 if SumFromCamps is True:
                     new_refugees += camp_pop
                     self.offsets["total"] += camp_pop
@@ -499,6 +501,7 @@ class DataTable:
 
         if FullInterpolation:
             # print(name, i, day, self.get_interpolated_data(column=i, day))
+            print(name, day, self.offsets.get(name,0), self.start_empty, file=sys.stderr)
             return self.get_interpolated_data(column=i, day=day) - (self.offsets.get(name,0) * self.start_empty)
 
         return self.get_raw_data(column=i, day=day) - (self.offsets.get(name,0) * self.start_empty)

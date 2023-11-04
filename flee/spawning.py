@@ -123,6 +123,8 @@ def add_initial_refugees(e, d, loc):
   if len(__demographics) == 0:
       read_demographics(e)
 
+  if SimulationSettings.spawn_rules["EmptyCampsOnDay0"]:
+      return
 
   if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"]:
       num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
