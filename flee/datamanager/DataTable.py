@@ -344,10 +344,13 @@ class DataTable:
             new_refugees = 0
             self.offsets["total"] = 0
 
-            for i in self.header[1:]:
+            for i in self.header:
                 camp_pop = self.get_field(
                     name=i, day=0, FullInterpolation=FullInterpolation
                 )
+                # This function is called multiple times, sometimes with 0 camp pop.
+                # So we make sure that the offset is indeed equal to the initial camp
+                # popi only once, and not set to 0 again.
                 if self.offsets.get(i,0) == 0:
                     self.offsets[i] = camp_pop
 
@@ -500,8 +503,7 @@ class DataTable:
         i = self._find_headerindex(name=name)
 
         if FullInterpolation:
-            # print(name, i, day, self.get_interpolated_data(column=i, day))
-            print(name, day, self.offsets.get(name,0), self.start_empty, file=sys.stderr)
+            # print(name, day, self.offsets.get(name,0), self.start_empty, file=sys.stderr)
             return self.get_interpolated_data(column=i, day=day) - (self.offsets.get(name,0) * self.start_empty)
 
         return self.get_raw_data(column=i, day=day) - (self.offsets.get(name,0) * self.start_empty)
