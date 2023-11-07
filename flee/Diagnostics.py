@@ -94,6 +94,14 @@ def write_agents_par(
                 if SimulationSettings.log_levels["agent"] > 2:
                     hop_number = 1 # hop counter starts at 1 to indicate second hop in time step.
                     for l in a.locations_visited:
+                        loc_name = l.name
+                        x = l.x
+                        y = l.y
+                        if SimulationSettings.log_levels["granularity"] == "region":
+                            loc_name = l.region
+                            x = 0.0
+                            y = 0.0
+
                         print(
                             "{}-{},{}-{},{},{},{},{},{},{},{},{},{}".format(
                                 time,
@@ -101,9 +109,9 @@ def write_agents_par(
                                 rank,
                                 k,
                                 a.home_location.name,
-                                l.name,
-                                l.x,
-                                l.y,
+                                loc_name,
+                                x,
+                                y,
                                 a.travelling,
                                 a.distance_travelled,
                                 a.places_travelled,
@@ -115,15 +123,23 @@ def write_agents_par(
                         hop_number += 1
                 else:
                     for l in a.locations_visited:
+                        loc_name = l.name
+                        x = l.x
+                        y = l.y
+                        if SimulationSettings.log_levels["granularity"] == "region":
+                            loc_name = l.region
+                            x = 0.0
+                            y = 0.0
+
                         print(
                             "{},{}-{},{},{},{},{},{},{},{},{},{}".format(
                                 time,
                                 rank,
                                 k,
                                 a.home_location.name,
-                                l.name,
-                                l.x,
-                                l.y,
+                                loc_name,
+                                x,
+                                y,
                                 a.travelling,
                                 a.distance_travelled,
                                 a.places_travelled,
