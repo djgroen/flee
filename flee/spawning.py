@@ -118,15 +118,16 @@ def draw_samples(e,loc):
 
 def add_initial_refugees(e, d, loc):
   """ Add the initial refugees to a location, using the location name"""
+  global __demographics
 
   # Only initialize demographics when first called.
   if len(__demographics) == 0:
       read_demographics(e)
 
-  if SimulationSettings.spawn_rules["EmptyCampsOnDay0"]:
+  if SimulationSettings.spawn_rules["EmptyCampsOnDay0"] is True:
       return
 
-  if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"]:
+  if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"] is True:
       num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
       for i in range(0, num_refugees):
           attributes = draw_samples(e, loc)

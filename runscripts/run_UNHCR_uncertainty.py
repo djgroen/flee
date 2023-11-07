@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     d = handle_refugee_data.RefugeeTable(
         csvformat="generic", data_directory=validation_data_directory,
-        start_date=start_date, data_layout="data_layout.csv")
+        start_date=start_date, data_layout="data_layout.csv", start_empty=SimulationSettings.spawn_rules["EmptyCampsOnDay0"])
 
     d.ReadL1Corrections("%s/registration_corrections.csv" %
                         input_csv_directory)

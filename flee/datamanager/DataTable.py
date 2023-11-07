@@ -224,6 +224,7 @@ class DataTable:
         start_date: str = "2012-02-29",
         csvformat: str = "generic",
         population_scaledown_factor: int = 1,
+        start_empty: bool = False
     ):
         """
         read in CSV data files containing refugee data.
@@ -241,7 +242,10 @@ class DataTable:
         self.offsets = {}
         # if set to 1, then all files are corrected such that existing refugees
         # on Day 0 are left out of the simulation and the validation data.
-        self.start_empty = 1
+        if start_empty is False:
+            self.start_empty = 0
+        else:
+            self.start_empty = 1
 
         with open(
             os.path.join(data_directory, data_layout), newline="", encoding="utf-8"

@@ -55,7 +55,7 @@ def test_toy_escape():
 
     assert t == 9
     
-    assert l1.numAgents + l2.numAgents + l3.numAgents + l4.numAgents == 147
+    assert l1.numAgents + l2.numAgents + l3.numAgents + l4.numAgents == 647
 
     print("Test successful!")
 

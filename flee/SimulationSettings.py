@@ -110,7 +110,7 @@ class SimulationSettings:
         SimulationSettings.spawn_rules["TakeFromPopulation"] = bool(fetchss(dps, "take_from_population", False))
         # Advanced settings
         SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"] = bool(fetchss(dps, "insert_day0", True))
-        SimulationSettings.spawn_rules["EmptyCampsOnDay0"] = bool(fetchss(dps, "empty_camps_on_day0", True))
+        SimulationSettings.spawn_rules["EmptyCampsOnDay0"] = bool(fetchss(dps, "empty_camps_on_day0", False))
 
 
         SimulationSettings.spawn_rules["conflict_zone_spawning_only"] = bool(fetchss(dps, "conflict_zone_spawning_only", True)) # Only spawn agents from conflict zones.
