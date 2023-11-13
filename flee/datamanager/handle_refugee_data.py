@@ -71,8 +71,8 @@ class RefugeeTable(DataTable.DataTable):
             if int(ref_table[i][0]) == int(days):
                 # then scale all previous entries by ref_table[i][1]/ref_table[i-1][1]
                 if i > 0:
-                    first_level_2_value = ref_table[i, 1]
-                    last_level_1_value = ref_table[i - 1, 1]
+                    first_level_2_value = ref_table[i, 1] + self.offsets.get(name, 0)
+                    last_level_1_value = ref_table[i - 1, 1] + self.offsets.get(name, 0)
                     # print(days, i, ref_table[0:i,1])
                     ref_table[0:i, 1] *= first_level_2_value / last_level_1_value
                     # print(first_level_2_value, last_level_1_value, ref_table[0:i,1])
