@@ -213,10 +213,10 @@ def spawn_daily_displaced(e, t, d):
           #__refugees_raw = 0
 
           for l in e.locations:
-              #print(l.name, l.capacity, d.offsets.get(l.name,0),  file=sys.stderr)
-              l.capacity -= d.offsets.get(l.name,0)
+              #print(l.name, l.capacity, d.day0pops.get(l.name,0),  file=sys.stderr)
+              l.capacity -= int(float(d.day0pops.get(l.name,0)) * SimulationSettings.move_rules["CapacityScaling"])
               #print(l.name, l.capacity, file=sys.stderr)
-          #print(d.offsets, file=sys.stderr)
+          #print(d.day0pops, file=sys.stderr)
 
       if new_refs < 0:
         __refugee_debt = -new_refs

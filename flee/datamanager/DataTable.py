@@ -239,7 +239,7 @@ class DataTable:
         self.override_refugee_input_file = ""
         self.data_directory = data_directory
         self.population_scaledown_factor = population_scaledown_factor
-        self.offsets = {}
+        self.day0pops = {}
         # if set to 1, then all files are corrected such that existing refugees
         # on Day 0 are left out of the simulation and the validation data.
         if start_empty is False:
@@ -346,7 +346,7 @@ class DataTable:
             # ref_table = self.data_table[0]
 
             new_refugees = 0
-            self.offsets["total"] = 0
+            self.day0pops["total"] = 0
 
             for i in self.header:
                 camp_pop = self.get_field(
@@ -355,18 +355,18 @@ class DataTable:
                 # This function is called multiple times, sometimes with 0 camp pop.
                 # So we make sure that the offset is indeed equal to the initial camp
                 # popi only once, and not set to 0 again.
-                if self.offsets.get(i,0) == 0:
-                    self.offsets[i] = camp_pop
+                if self.day0pops.get(i,0) == 0:
+                    self.day0pops[i] = camp_pop
 
                 if SumFromCamps is True:
                     new_refugees += camp_pop
-                    self.offsets["total"] += camp_pop
+                    self.day0pops["total"] += camp_pop
 
             if SumFromCamps is False:
                 new_refugees = self.get_field(
                     name="total", day=0, FullInterpolation=FullInterpolation
                 )
-                self.offsets["total"] = new_refugees
+                self.day0pops["total"] = new_refugees
 
             # Don't have new refugees on Day 0 if we start empty
             new_refugees *= (1 - self.start_empty)
@@ -507,10 +507,10 @@ class DataTable:
         i = self._find_headerindex(name=name)
 
         if FullInterpolation:
-            # print(name, day, self.offsets.get(name,0), self.start_empty, file=sys.stderr)
-            return self.get_interpolated_data(column=i, day=day) - (self.offsets.get(name,0) * self.start_empty)
+            # print(name, day, self.day0pops.get(name,0), self.start_empty, file=sys.stderr)
+            return self.get_interpolated_data(column=i, day=day) - (self.day0pops.get(name,0) * self.start_empty)
 
-        return self.get_raw_data(column=i, day=day) - (self.offsets.get(name,0) * self.start_empty)
+        return self.get_raw_data(column=i, day=day) - (self.day0pops.get(name,0) * self.start_empty)
 
     @check_args_type
     def print_data_values_for_location(self, name: str, last_day: int) -> None:
