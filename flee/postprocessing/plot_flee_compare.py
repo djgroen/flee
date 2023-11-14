@@ -121,7 +121,7 @@ def compare_camps(data_dir,output_dir,list_of_directories_names):
 
         columns_list = list(df.columns.values)
 
-        columns_list = columns_list[1:-7]
+        columns_list = columns_list[2:-6]
 
         camps_list =[]
 
@@ -231,7 +231,7 @@ def plot_flee_compare(*models,data_dir,output_dir):
 
     compare_camps(data_dir,output_dir,models)
 
-    compare_numagents(data_dir,output_dir,config_name,models)
+    #compare_numagents(data_dir,output_dir,config_name,models)
 
 
 if __name__ == "__main__":
