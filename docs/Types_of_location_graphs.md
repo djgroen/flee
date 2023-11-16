@@ -32,6 +32,9 @@ the centre of the largest settlement in each region, and then calculating the pa
 
 Typically all relevant regions are included in the graph, irrespective of their population.
 
+![Map of Nigeria at the admin 1 level.](images/nigeria_adm1.png)
+*Map of Nigeria at the admin 1 level, featuring main settlements as well. This is a good example of how Nigeria could be represented as a region-based location graph, although the routes between the cities are not shown here.*
+
 ### Obtaining conflict events
 In this approach, we first filter ACLED data based on the desired admin level. ACLED data usually has four columns for locations levels: 
 * admin1    
