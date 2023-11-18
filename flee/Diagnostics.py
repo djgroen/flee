@@ -191,33 +191,66 @@ def write_links_par(
     else:
         my_file = open("links.out.%s" % rank, "a", encoding="utf-8")
 
-    if time % timestep_interval == 0:
-        for i in range(0, len(locations)):
-            for l in locations[i].links:
-                print(
-                    "{},{},{},{},total".format(
-                    time,
-                    l.startpoint.name,
-                    l.endpoint.name,
-                    l.cumNumAgents,
-                    ),
-                file=my_file,
-                )
 
-                if SimulationSettings.log_levels["link"] > 1:
-                    for a in l.cumNumAgentsByAttribute:
-                        for v in l.cumNumAgentsByAttribute[a]:
-                            print(
-                                "{},{},{},{},{}:{}".format(
-                                time,
-                                l.startpoint.name,
-                                l.endpoint.name,
-                                l.cumNumAgentsByAttribute[a][v],
-                                a,
-                                v,
-                                ),
-                            file=my_file,
-                            )
+
+    if SimulationSettings.log_levels["granularity"] == "region":
+        if time % timestep_interval == 0:
+            for i in range(0, len(locations)):
+                for l in locations[i].links:
+                    print(
+                        "{},{},{},{},total".format(
+                        time,
+                        l.startpoint.region,
+                        l.endpoint.region,
+                        l.cumNumAgents,
+                        ),
+                    file=my_file,
+                    )
+
+                    if SimulationSettings.log_levels["link"] > 1:
+                        for a in l.cumNumAgentsByAttribute:
+                            for v in l.cumNumAgentsByAttribute[a]:
+                                print(
+                                    "{},{},{},{},{}:{}".format(
+                                    time,
+                                    l.startpoint.region,
+                                    l.endpoint.region,
+                                    l.cumNumAgentsByAttribute[a][v],
+                                    a,
+                                    v,
+                                    ),
+                                file=my_file,
+                                )
+
+
+    else:
+        if time % timestep_interval == 0:
+            for i in range(0, len(locations)):
+                for l in locations[i].links:
+                    print(
+                        "{},{},{},{},total".format(
+                        time,
+                        l.startpoint.name,
+                        l.endpoint.name,
+                        l.cumNumAgents,
+                        ),
+                    file=my_file,
+                    )
+
+                    if SimulationSettings.log_levels["link"] > 1:
+                        for a in l.cumNumAgentsByAttribute:
+                            for v in l.cumNumAgentsByAttribute[a]:
+                                print(
+                                    "{},{},{},{},{}:{}".format(
+                                    time,
+                                    l.startpoint.name,
+                                    l.endpoint.name,
+                                    l.cumNumAgentsByAttribute[a][v],
+                                    a,
+                                    v,
+                                    ),
+                                file=my_file,
+                                )
 
 
 
