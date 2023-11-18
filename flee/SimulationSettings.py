@@ -98,7 +98,7 @@ class SimulationSettings:
         SimulationSettings.log_levels["idp_totals"] = int(fetchss(dpll,"idp_totals",0))
 
         SimulationSettings.log_levels["granularity"] = fetchss(dpll,"granularity","location")
-        # location, admin3 or admin2
+        # location, region
 
 
         dps = fetchss(dp,"spawn_rules",None)
