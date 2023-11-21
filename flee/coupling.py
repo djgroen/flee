@@ -50,13 +50,28 @@ class CouplingInterface:
         log_exchange_data: bool = True,
     ) -> None:
         """
-        e = FLEE ecosystem
-        Coupling types to support eventually:
+        Summary:
+            Initialize the Coupling Interface class.
+
+            Coupling types to support eventually:
             - file
             - MPWide
             - one-sided store
             - repository coupling.
             - muscle
+
+        Args:
+            e: Flee ecosystem
+            submodel (str): micro / macro / manager
+            instance_index (int, optional): index of the instance
+            num_instances (int, optional): number of instances
+            coupling_type (str, optional): type of coupling
+            weather_coupling (bool, optional): weather coupling. Default is False.
+            outputdir (str, optional): output directory
+            log_exchange_data (bool, optional): log exchanged data. Default is True.
+        
+        Returns:
+            None.
         """
         self.coupling_type = coupling_type
 
@@ -88,6 +103,16 @@ class CouplingInterface:
 
     # pylint: disable=missing-function-docstring
     def reuse_coupling(self):
+        """
+        Summary:
+            Reuse coupling. 
+
+        Args:
+            None.
+
+        Returns:
+            bool: True if coupling is reused, False otherwise.
+        """
         if self.coupling_type == "file":
             return True
 
@@ -99,8 +124,8 @@ class CouplingInterface:
         self, location, name: str, direction: str = "inout", interval: int = 1
     ) -> None:
         """
-
-        Adds a locations to the so-called *Coupled Region*.
+        Summary:
+            Adds a locations to the so-called *Coupled Region*.
 
         Args:
             location (Location): is the (p)Flee location object.
@@ -115,6 +140,9 @@ class CouplingInterface:
                     coupling link. No agents are added or removed.
             interval (int, optional): is the timestep interval of the coupling, ensuring that the
                 coupling activity is performed every <interval> time steps.
+        
+        Returns:
+            None.
         """
         if location.name not in self.location_names:
 
@@ -142,12 +170,17 @@ class CouplingInterface:
                 file=sys.stderr,
             )
 
+
     def addGhostLocations(self, ig) -> None:
         """
-        Summary
+        Summary:
+            Adds ghost locations to the coupled region.
 
         Args:
-            ig (Type[InputGeography]): Description
+            ig (Type[InputGeography]): is the InputGeography object.
+
+        Returns:
+            None.
         """
         conflict_name_list = ig.getConflictLocationNames()
         print("Adding Ghosts", file=sys.stderr)
@@ -164,12 +197,17 @@ class CouplingInterface:
                                 location=loc, name=loc.name, direction="out", interval=1
                             )
 
+
     def addMicroConflictLocations(self, ig) -> None:
         """
-        Summary
+        Summary:
+            Adds micro conflict locations to the coupled region.
 
         Args:
-            ig (Type[InputGeography]): Description
+            ig (Type[InputGeography]): is the InputGeography object.
+
+        Returns:
+            None.
         """
         conflict_name_list = ig.getConflictLocationNames()
         print("Adding micro conflict coupling", file=sys.stderr)
@@ -186,15 +224,20 @@ class CouplingInterface:
 
                     self.addCoupledLocation(location=loc, name=loc.name, direction="in", interval=1)
 
+
     @check_args_type
     def Couple(self, time: int) -> None:
         """
-        Summary
+        Summary:
+            This function is called every time step and performs the coupling
+            activity.
 
         Args:
-            time (int): Description
-        """
+            time (int): is the current time step.
 
+        Returns:
+            None.
+        """
         newAgents = None
 
         # for the time being all intervals will have to be the same...
@@ -321,28 +364,38 @@ class CouplingInterface:
                     if hasattr(self.e, "mpi"):
                         self.e.updateNumAgents(log=False)
 
+
     @check_args_type
     def setCouplingChannel(self, outputchannel: str, inputchannel: str) -> None:
         """
-        Sets the coupling output file name (for file coupling).
-        Name should be WITHOUT .csv extension.
+        Summary:
+            Sets the coupling output file name (for file coupling).
+            Name should be WITHOUT .csv extension.
 
         Args:
             outputchannel (str): Description
             inputchannel (str): Description
+        
+        Returns:
+            None.
         """
         if self.coupling_type == "file":
 
             self.outputfilename = outputchannel
             self.inputfilename = inputchannel
 
+
     @check_args_type
     def generateOutputCSVString(self) -> str:
         """
-        Summary
+        Summary:
+            Generates a CSV string with coupling information.
+
+        Args:
+            None.
 
         Returns:
-            str: Description
+            str: CSV string with coupling information.
         """
         out_csv_string = ""
         for i, location_id in enumerate(self.location_ids):
@@ -359,17 +412,19 @@ class CouplingInterface:
 
         return out_csv_string
 
+
     @check_args_type
     def extractNewAgentsFromCSVString(self, csv_string: List[str]) -> dict:
         """
-        Reads in a CSV string with coupling information, and extracts a list
-        of New Agents.
+        Summary:
+            Reads in a CSV string with coupling information, 
+            and extracts a list of New Agents.
 
         Args:
-            csv_string (List[str]): Description
+            csv_string (List[str]): CSV string with coupling information.
 
         Returns:
-            dict: Description
+            dict: Dictionary with key <coupling name> and value <number of agents>.
         """
         newAgents = {}
 
@@ -386,14 +441,18 @@ class CouplingInterface:
 
         return newAgents
 
+
     @check_args_type
     def writeOutputToFile(self, day: int) -> None:
         """
-        Summary
+        Summary:
+            Writes the output to file.
 
         Args:
-            day (int): Description
+            day (int): current day.
 
+        Returns:
+            None.
         """
         out_csv_string = self.generateOutputCSVString()
         csv_outputfile_name = "{}[{}].{}.csv".format(self.outputfilename, self.instance_index, day)
@@ -409,14 +468,19 @@ class CouplingInterface:
             file=sys.stderr,
         )
 
+
     @check_args_type
     def waitForInputFiles(self, check_dir: str, in_fnames: dict) -> None:
         """
-        Summary
+        Summary:
+            Waits until input files from all instances are available.
 
         Args:
-            check_dir (str): Description
-            in_fnames (str): Description
+            check_dir (str): directory to check
+            in_fnames (str): dictionary with key <file name> and value <file status>.
+
+        Returns:
+            None.
         """
         # input format for in_fnames : [dic{"fileName",False}]
         founded_files = 0
@@ -429,17 +493,19 @@ class CouplingInterface:
                         in_fnames[fname] = True
                         founded_files += 1
 
+
     @check_args_type
     def readInputFromFile(self, t: int) -> dict:
         """
-        Returns a dictionary with key <coupling name> and
-        value <number of agents>.
+        Summary:
+            Returns a dictionary with key <coupling name> and
+            value <number of agents>.
 
         Args:
-            t (int): Description
+            t (int): current time step.
 
         Returns:
-            dict: Description
+            dict: Dictionary with key <coupling name> and value <number of agents>.
         """
         in_fnames = {}
         for i in range(self.num_instances):
@@ -479,7 +545,14 @@ class CouplingInterface:
 
     def saveExchangeDataToFile(self) -> None:
         """
-        Summary
+        Summary:
+            Saves exchanged data to file.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         # save logTotalAgents to file
         if hasattr(self, "logTotalAgents"):
@@ -525,14 +598,19 @@ class CouplingInterface:
                 csvWriter = csv.writer(file, delimiter=",")
                 csvWriter.writerows(self.logNewRefugees)
 
+
     @check_args_type
     def logNewAgents(self, t: int, new_refs: int) -> None:
         """
-        create log all variables only if they are not exist
+        Summary:
+            Create log all variables only if they are not exist
 
         Args:
-            t (int): Description
-            new_refs (int): Description
+            t (int): time step
+            new_refs (int): number of new refugees
+
+        Returns:
+            None.
         """
         if not hasattr(self, "logNewRefugees"):
             self.logNewRefugees = []
@@ -540,13 +618,18 @@ class CouplingInterface:
 
         self.logNewRefugees.append([t, new_refs])
 
+
     @check_args_type
     def logExchangeData(self, t: int) -> None:
         """
-        Summary
+        Summary:
+            Exchange log data between instances.
 
         Args:
-            t (int): Description
+            t (int): time step
+
+        Returns:
+            None.
         """
         # save log of total agents
         if not hasattr(self, "logTotalAgents"):
@@ -567,9 +650,17 @@ class CouplingInterface:
 
         self.logLocationsNumAgents.append(data)
 
+
     def sumOutputCSVFiles(self) -> None:
         """
-        Summary
+        Summary:
+            Sum output CSV files.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         in_fnames = {}
         for i in range(self.num_instances):
@@ -600,7 +691,14 @@ class CouplingInterface:
 
     def plotExchangedData(self) -> None:
         """
-        Summary
+        Summary:
+            Plot exchanged data.
+
+        Args:
+            None.
+        
+        Returns:
+            None.
         """
         if hasattr(self, "logTotalAgents"):
             self.plotTotalAgentsHistory()
@@ -611,9 +709,17 @@ class CouplingInterface:
         if hasattr(self, "logNewRefugees"):
             self.plotNewRefugeesHistory()
 
+
     def plotLocationsNumAgentsHistory(self) -> None:
         """
-        Summary
+        Summary:
+            Plot locations number of agents history.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         in_fnames = {}
         for i in range(self.num_instances):
@@ -679,9 +785,17 @@ class CouplingInterface:
         )
         plt.savefig(outputPlotFile)
 
+
     def plotTotalAgentsHistory(self) -> None:
         """
-        Summary
+        Summary:
+            Plot total agents history.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         in_fnames = {}
         for i in range(self.num_instances):
@@ -721,9 +835,17 @@ class CouplingInterface:
         )
         plt.savefig(outputPlotFile)
 
+
     def plotNewRefugeesHistory(self) -> None:
         """
-        Summary
+        Summary:
+            Plot new refugees history.
+
+        Args:
+            None.
+        
+        Returns:
+            None.
         """
         in_fnames = {}
 
@@ -764,20 +886,26 @@ class CouplingInterface:
         )
         plt.savefig(outputPlotFile)
 
+
     @check_args_type
     def readCSVLogFiles(
         self, dirInputFiles: str, inputFileNames: List[str], columnHeader: List[str]
     ) -> Tuple[np.ndarray, dict]:
         """
-        Summary
+        Summary:
+            Read CSV log files.
 
         Args:
-            dirInputFiles (str): Description
-            inputFileNames (List[str]): Description
-            columnHeader (List[str]): Description
+            dirInputFiles (str): directory of input files
+            inputFileNames (List[str]): list of input file names
+            columnHeader (List[str]): list of column headers
 
         No Longer Returned:
-            Tuple[np.ndarray, dict]: Description
+            Tuple[np.ndarray, dict]: days and dictionary with key <column header> and value <column data>.
+        
+        Returns:
+            days (np.ndarray): days
+            dict_res (dict): dictionary with key <column header> and value <column data>.
         """
         dict_res = {}
         days = np.array([])

@@ -35,7 +35,10 @@ class InputGeography:
         Reads a Conflict input file, to set conflict information.
 
         Args:
-            csv_name (str): Description
+            csv_name (str): csv file name
+        
+        Returns:
+            None.
         """
         self.conflicts = {}
 
@@ -66,10 +69,16 @@ class InputGeography:
     @check_args_type
     def ReadAttributeInputCSV(self, attribute_name: str, attribute_type: str, csv_name: str) -> None:
         """
-        Reads an attribute input file, to set attribute-specific information.
+        Summary:
+            Reads an attribute input file, to set attribute-specific information.
 
         Args:
-            csv_name (str): Description
+            attribute_name (str): name of the attribute
+            attribute_type (str): type of the attribute (int or float)
+            csv_name (str): csv file name
+        
+        Returns:
+            None.
         """
         self.attributes[attribute_name] = {}
 
@@ -102,10 +111,14 @@ class InputGeography:
     @check_args_type
     def getConflictLocationNames(self) -> List[str]:
         """
-        Summary
+        Summary:
+            Returns a list of conflict location names.
+        
+        Args:
+            None.
 
         Returns:
-            List[str]: Description
+            List[str]: list of conflict location names
         """
         if len(SimulationSettings.ConflictInputFile) == 0:
             conflict_names = []
@@ -117,19 +130,26 @@ class InputGeography:
 
         return list(self.conflicts.keys())
 
+
     @check_args_type
     def ReadLocationsFromCSV(self, csv_name: str) -> None:
         """
-        Converts a CSV file to a locations information table
+        Summary:
+            Converts a CSV file to a locations information table
 
         Args:
-            csv_name (str): Description
+            csv_name (str): csv file name
+
+        Returns:
+            None.
         """
-
-
         # Read flood location attributes.
         if SimulationSettings.spawn_rules["flood_driven_spawning"] is True:
-            self.ReadAttributeInputCSV("flood_level","int","input_csv/flood_level.csv")
+            self.ReadAttributeInputCSV("flood_level","int","input_csv/flood_level.csv") 
+            self.ReadAttributeInputCSV("forecast_flood_levels","int","input_csv/flood_level.csv") 
+            #LAURA VSCODE debugger lines:
+            # self.ReadAttributeInputCSV("flood_level","int","/Users/laura/Documents/PhD/Codes/FLEE/FabFlee/config_files/dflee_test_copy/input_csv/flood_level.csv")
+            # self.ReadAttributeInputCSV("forecast_flood_levels","int","/Users/laura/Documents/PhD/Codes/FLEE/FabFlee/config_files/dflee_test_copy/input_csv/flood_level.csv")
         elif SimulationSettings.move_rules["FloodRulesEnabled"] is False:
             self.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
 
@@ -165,20 +185,36 @@ class InputGeography:
                     # print(row)
                     self.locations.append(row)
 
+
     @check_args_type
     def MakeLocationList(self) -> dict:
+        """
+        Summary:
+            Returns a dictionary of location names and their coordinates.
+
+        Args:
+            None.
+
+        Returns:
+            dict: dictionary of location names and their coordinates.
+        """
         loc_list = {}
         for l in self.locations:
             loc_list[l[0]] = [float(l[3]),float(l[4])]
         return loc_list
 
+
     @check_args_type
     def ReadLinksFromCSV(self, csv_name: str) -> None:
         """
-        Converts a CSV file to a locations information table
+        Summary:
+            Converts a CSV file to a locations information table
 
         Args:
-            csv_name (str): Description
+            csv_name (str): csv file name
+
+        Returns:
+            None.
         """
         self.links = []
 
@@ -199,14 +235,19 @@ class InputGeography:
                     # print(row)
                     self.links.append(row)
 
+
     @check_args_type
     def ReadClosuresFromCSV(self, csv_name: str) -> None:
         """
-        Read the closures.csv file. Format is:
-        closure_type,name1,name2,closure_start,closure_end
+        Summary:
+            Read the closures.csv file. Format is:
+            closure_type,name1,name2,closure_start,closure_end
 
         Args:
-            csv_name (str): Description
+            csv_name (str): csv file name
+
+        Returns:
+            None.
         """
         self.closures = []
 
@@ -223,11 +264,16 @@ class InputGeography:
 
     def ReadAgentsFromCSV(self, e, csv_name: str) -> None:
         """
-        Read the agents.csv file. Format is:
-        location,attributes
+        Summary:
+            Read the agents.csv file. Format is:
+            location, attributes
 
         Args:
-            csv_name (str): Description
+            e (Ecosystem): ecosystem object
+            csv_name (str): csv file name
+
+        Returns:
+            None.
         """
 
         self.agents = []
@@ -261,14 +307,15 @@ class InputGeography:
 
     def StoreInputGeographyInEcosystem(self, e):
         """
-        Store the geographic information in this class in a FLEE simulation,
-        overwriting existing entries.
+        Summary:
+            Store the geographic information in this class in a Flee simulation,
+            overwriting existing entries.
 
         Args:
-            e (Ecosystem): Description
+            e (Ecosystem): ecosystem object
 
         Returns:
-            Tuple[Ecosystem, Dict]: Description
+            Tuple[Ecosystem, Dict]: tuple of ecosystem object and location dictionary
         """
 
         #0"name",1"region",2"country",3"gps_x",4"gps_y",5"location_type",6"conflict_date",7"pop/cap"
@@ -399,32 +446,62 @@ class InputGeography:
 
     @check_args_type
     def UpdateLocationAttributes(self, e, attribute_name: str, time: int) -> None:
+        """
+        Summary: 
+            Updates the attributes of a location.
 
-        attrlist = self.attributes[attribute_name]
-       
+        Args:
+            e (Ecosystem): ecosystem object
+            attribute_name (str): name of the attribute
+            time (int): time step
+
+        Returns:
+            None.
+        """
+        # In DFlee attrlist is a dictionary of flood location names and their attributes
+        #e.g {'F1': [0, 0, 1, 1, 2, 1, 1, 1, 1, 1, 1], 'F2': [1, 1, 1, 3, 1, 1, 0, 0, 0, 0, 1], 'F3': [0, 0, 0, 1, 1, 2, 3, 2, 1, 1, 0]}
+        attrlist = self.attributes[attribute_name] 
+        
+        #Iterate through the locations and update their attributes
         for i in range(0, len(e.locations)):
             loc_name = e.locations[i].name
+            #If the location name is in the attribute list, then update the attribute
             if loc_name in attrlist:
-                e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
+                if attribute_name == "forecast_flood_levels":
+                    #Store future flood levels in the forecast_flood_levels attribute
+                    e.locations[i].attributes[attribute_name] = attrlist[loc_name]
+                else:
+                    #Update the locations attribute based on this time step. 
+                    e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
+
 
 
     @check_args_type
     def AddNewConflictZones(self, e, time: int, Debug: bool = False) -> None:
         """
-        Adds new conflict zones according to information about the current time step.
-        If there is no conflict input file, then the values from locations.csv are used.
-        If there is one, then the data from it is used instead.
-        Note: there is no support for *removing* conflict zones at this stage.
+        Summary:
+            Adds new conflict zones according to information about the current time step.
+            If there is no conflict input file, then the values from locations.csv are used.
+            If there is one, then the data from it is used instead.
+            Note: there is no support for *removing* conflict zones at this stage.
 
         Args:
-            e (Ecosystem): Description
-            time (int): Description
-            Debug (bool, optional): Description
-        """
+            e (Ecosystem): ecosystem object
+            time (int): time step
+            Debug (bool, optional): debug flag. Defaults to False.
 
+        Returns:
+            None.
+        """
+        #Add New Flood Zones
+        # If modelling a flood, update the location attributes with the flood levels specified in flood_level.csv 
         if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
             self.UpdateLocationAttributes(e, "flood_level", time)
-
+            if SimulationSettings.move_rules["FloodForecaster"] is True:
+                #Store future flood levels in the forecast_flood_levels attribute
+                self.UpdateLocationAttributes(e, "forecast_flood_levels", time) 
+        
+        #Add New Conflict Zones
         if len(SimulationSettings.ConflictInputFile) == 0:
             for loc in self.locations:
                 if "conflict" in loc[4].lower() and int(loc[5]) == time:

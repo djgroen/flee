@@ -43,6 +43,17 @@ class Person:
 
     @check_args_type
     def __init__(self, location, attributes):
+        """
+        Summary: 
+            Initializes a new Flee Agent
+        
+        Args:
+            location: The initial location of the agent.
+            attributes: A dictionary of attributes for the agent.
+
+        Returns:
+            None.
+        """
         self.location = location
         self.home_location = location
         self.timesteps_since_departure = 0
@@ -73,10 +84,12 @@ class Person:
 
         self.location.IncrementNumAgents(self)
 
+
     @check_args_type
     def getBaseEndPointScore(self, link) -> float:
         """
-        Serial base endpoint score retrieval.
+        Summary:
+            Serial base endpoint score retrieval.
 
         Args:
             link (Link) : Description
@@ -90,13 +103,17 @@ class Person:
     @check_args_type
     def handle_travel(self, location, travelling) -> None:
         """
-        Summary
+        Summary:
+            Updates the agent's travel state.
 
         Args:
             location: location to travel to (can be Location of Link type).
             travelling: set to True if location is a Link, False if it is a Location object.
+        
+        Returns:
+            None.
         """
-        self.location.DecrementNumAgents()
+        self.location.DecrementNumAgents() 
         self.location = location
         self.location.IncrementNumAgents(self)
         self.travelling = travelling
@@ -104,6 +121,17 @@ class Person:
 
 
     def check_dest_is_full_camp(self,e):
+        """
+        Summary:
+            Checks if the agent's destination camp is full.
+            Prevents the agent from moving to a camp that is already full.
+
+        Args:
+            e: ecosystem object
+
+        Returns:
+            True if the destination camp is full, False otherwise.
+        """
         for i in range(0, len(e.locationNames)):
             if e.locationNames[i] == self.route[-1]:
                 if e.locations[i].camp and moving.getCapMultiplier(e.locations[i],1) < 0.5:
@@ -113,9 +141,21 @@ class Person:
                     return False
         print(f"Error: camp {self.route[-1]} not found in check_dest_is_full_camp", file=sys.stderr)
         sys.exit()
-
+    
 
     def take_next_step(self,e):
+        """
+        Summary:
+            Takes the next step on the agent's route.
+
+        Args:
+            e: The ecosystem object.
+
+        Returns:
+            The next link on the agent's route, 
+            or `None` if the agent's route is empty 
+            or the next link is invalid.
+        """
         for l in self.location.links:
             if l.endpoint.name == self.route[0]:
                 if self.check_dest_is_full_camp(e):
@@ -128,37 +168,47 @@ class Person:
         self.route = []
         return None
 
+
     @check_args_type
     def evolve(self, e, time: int, ForceTownMove: bool = False) -> None:
         """
-        Summary
+        Summary:
+            Updates the agent's location and state 
+            based on the current simulation timestep.
 
         Args:
-            time (int): Description
-            ForceTownMove (bool, optional): Description
+            time (int): The current simulation timestep.
+            ForceTownMove (bool, optional): Whether or not the agent is forced to move to a town.
+
+        Returns:
+            None.
         """
 
         if self.travelling is False:
+            # Calculate the agent's move chance.
             movechance = moving.calculateMoveChance(self, ForceTownMove)
+
             #if self.location.town and ForceTownMove: # called through evolveMore
             #    movechance = 1.0
             #else: # called first time in loop
             #    movechance = self.location.movechance
             #    movechance *= (float(max(self.location.pop, self.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
 
+            # Generate a random number and compare it to the move chance.
             outcome = random.random()
             # print(movechance)
 
+            # If the outcome is less than the move chance, then the agent moves.
             if outcome < movechance:
-                #only plan a route if the agent has no existing route.
+                # If the agent does not have an existing route, then plan a new route.
                 if len(self.route) == 0:
-                    # determine here which route to take
+                    # Determine which route to take
                     self.route = moving.selectRoute(self, time=time)
 
-                # attempt to follow route. Return None if fail.    
+                # Attempt to follow route. Return None if fail.  
                 chosenDest = self.take_next_step(e)
 
-                # if there is a viable route to a different location.
+                # If there is a viable route to a different location, then move to the next location.
                 if chosenDest:
                     # update location to link endpoint
                     self.handle_travel(chosenDest, travelling=True)
@@ -167,10 +217,16 @@ class Person:
     @check_args_type
     def finish_travel(self, e, time: int) -> None:
         """
-        Summary
+        Summary:
+            Completes the agent's current journey
+            and updates its location and state.
 
         Args:
-            time (int): Description
+            e: The ecosystem object.
+            time (int): The current simulation timestep.
+
+        Returns:
+            None.
         """
         if self.travelling:
 
@@ -264,6 +320,25 @@ class Location:
         country: str = "unknown",
         attributes: dict = {},
     ) -> None:
+        """
+        Summary:
+            Initializes a new Location object.
+
+        Args:
+            name: The name of the location.
+            x: The X-coordinate of the location.
+            y: The Y-coordinate of the location.
+            location_type: The type of the location (e.g. camp, town, conflict zone, etc.).
+            movechance: The probability that an agent will move to this location.
+            capacity: The capacity of the location (i.e. the maximum number of agents that can be present at the location at any one time).
+            pop: The population of the location (i.e. the number of non-refugee agents that are present at the location at any one time).
+            foreign: Whether or not the location is in a foreign country.
+            country: The country that the location is in.
+            attributes: A dictionary of attributes for the location.
+
+        Returns:
+            None.
+        """
         self.name = name
         self.x = x
         self.y = y
@@ -342,11 +417,19 @@ class Location:
     @check_args_type
     def calculateDistance(self, other_location) -> float:
         """
-        Summary: Calculate distance between this location and another one.
-        This concerns distance as the bird flies.
+        Summary: 
+            Calculates the distance between this location and another one.
+            This assumes distance as the crow flies.
+
+        Args:
+            other_location: The other location to calculate the distance to.
+
+        Returns:
+            The distance between this location and the other location in kilometers.
+
         """
         # Approximate radius of earth in km
-        R = 6373.0
+        R = 6371.0
 
         lat1 = math.radians(self.y)
         lon1 = math.radians(self.x)
@@ -362,11 +445,19 @@ class Location:
         return R * c
 
 
-
     @check_args_type
     def open_camp(self, IDP=False) -> None:
         """
-        Summary: change location type to camp or IDP camp.
+        Summary:
+            Changes the location type to camp or IDP camp.
+
+        Args:
+            IDP(boolean): Whether or not to open an IDP camp.
+
+        Returns:
+            None.
+
+        LAURA: Think I need to turn this off for flooding.
         """
         self.movechance = SimulationSettings.move_rules["CampMoveChance"]
         self.camp = True
@@ -381,13 +472,32 @@ class Location:
 
     @check_args_type
     def setAttribute(self, name: str, value) -> None:
+        """
+        Summary:
+            Sets the value of an attribute for the location.
+
+        Args:
+            name: The name of the attribute to set.
+            value: The value to set the attribute to.
+
+        Returns:
+            None.
+        """
         self.attributes[name] = value
 
 
     @check_args_type
     def close_camp(self, IDP=False) -> None:
         """
-        Summary: change location type to town.
+        Summary:
+            Changes the location type to town.
+
+        Args:
+            IDP: Whether or not to close an IDP camp.
+
+        Returns:
+            None.
+
         """
         self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
         self.camp = False
@@ -401,21 +511,46 @@ class Location:
     @check_args_type
     def DecrementNumAgents(self) -> None:
         """
-        Summary
+        Summary:
+            Decrements the number of agents in the location.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         self.numAgents -= 1
+
 
     @check_args_type
     def IncrementNumAgents(self, agent) -> None:
         """
-        Summary
+        Summary: 
+            Increments the number of agents in the location.
+
+        Args:
+            agent: The agent to add to the location. 
+            Needed to specify which agent is being added to the location, 
+            because there may be multiple agents in a location.
+
+        Returns:
+            None.
         """
         self.numAgents += 1
+
 
     @check_args_type
     def print(self) -> None:
         """
-        Summary
+        Summary: 
+            Prints information about the location.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         print(
             "Location name: {}, X: {}, Y: {}, movechance: {}, cap: {}, "
@@ -442,17 +577,34 @@ class Location:
                 file=sys.stderr,
             )
 
+
     @check_args_type
-    def SetConflictMoveChance(self) -> None:
+    def SetConflictMoveChance(self) -> None: 
+
         """
-        Modify move chance to the default value set for conflict regions.
+        Summary:
+            Sets the move chance to the default value set for conflict regions.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         self.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
 
     @check_args_type
     def SetCampMoveChance(self) -> None:
         """
-        Modify move chance to the default value set for camps.
+        Summary: 
+            Modify move chance to the default value set for camps.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+
         """
         self.movechance = SimulationSettings.CampMoveChance
 
@@ -460,35 +612,55 @@ class Location:
     @check_args_type
     def getScore(self, index: int) -> float:
         """
-        Summary
+        Summary: 
+            Gets the score at the specified index.
 
         Args:
-            index (int): Description
+            index (int): The index of the score to get.
 
         Returns:
-            float: Description
+            float: The score at the specified index.
         """
         return self.scores[index]
+
 
     @check_args_type
     def setScore(self, index: int, value: float) -> None:
         """
-        Summary
+        Summary:
+            Sets the score at the specified index.
 
         Args:
-            index (int): Description
-            value (float): Description
+            index (int): The index of the score to set.
+            value (float): The value to set the score to.
+
+        Returns:
+            None.
         """
         self.scores[index] = value
 
 
 class Link:
     """
-    the Link class
+    The Link class
     """
 
     @check_args_type
     def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False, attributes: dict = {}):
+        """
+        Summary: 
+            Initializes a new Link object.
+
+        Args:
+            startpoint (Location): The startpoint of the link.
+            endpoint (Location): The endpoint of the link.
+            distance (float): The distance between the startpoint and endpoint of the link, in kilometers.
+            forced_redirection (bool): Whether or not the link is a forced redirection. If True, all agents will be routed through this link.
+            attributes (dict): A dictionary of attributes for the link.
+
+        Returns:
+            None.
+        """
         self.name = "L:{}:{}".format(startpoint.name, endpoint.name)
         self.closed = False
 
@@ -514,17 +686,34 @@ class Link:
 
         self.attributes = attributes
 
+
     @check_args_type
     def DecrementNumAgents(self) -> None:
         """
-        Summary
+        Summary:
+            Decrements the number of agents on the link.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         self.numAgents -= 1
+
 
     @check_args_type
     def IncrementNumAgents(self, agent) -> None:
         """
-        Summary
+        Summary: 
+            Increments the number of agents on the link 
+            and the cumulative number of agents on the link.
+
+        Args:
+            agent: The agent to add to the link.
+
+        Returns:
+            None.
         """
         self.numAgents += 1
         self.cumNumAgents += 1
@@ -539,28 +728,53 @@ class Link:
 
     @check_args_type
     def setAttribute(self, name: str, value) -> None:
+        """
+        Summary: 
+            Sets the value of an attribute for the link.
+
+        Args:
+            name (str): The name of the attribute to set.
+            value: The value to set the attribute to.
+
+        Returns:
+            None.
+        """
+
         self.attributes[name] = value
+        
 
 
     def get_distance(self) -> float:
         """
-        Summary
+        Summary: 
+            Gets the distance of the link, in kilometers.
 
         Args:
+            None.
 
         Returns:
-            float: Description
+            float: The distance of the link, in kilometers.
         """
         return self.__distance
 
 
 class Ecosystem:
     """
-    the Ecosystem class
+    The Ecosystem class
     """
 
     @check_args_type
     def __init__(self):
+        """
+        Summary: 
+            Initializes a new Simulation object.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
         self.locations = []
         self.locationNames = []
         self.agents = []
@@ -575,13 +789,18 @@ class Ecosystem:
             self.num_arrivals = []  # one element per time step.
             self.travel_durations = []  # one element per time step.
 
+
     @check_args_type
     def get_camp_names(self) -> List[str]:
         """
-        Summary
+        Summary: 
+            Gets a list of the names of all camps in the simulation.
+
+        Args:
+            None.
 
         Returns:
-            List[str]: Description
+            List[str]: A list of the names of all camps in the simulation.
         """
         camp_names = []
         for loc in self.locations:
@@ -589,16 +808,17 @@ class Ecosystem:
                 camp_names += [loc.name]
         return camp_names
 
+
     @check_args_type
     def export_graph(self, use_ids_instead_of_names: bool = False) -> Tuple[List[str], List[List]]:
         """
-        Summary
+        Summary: Exports the simulation graph as a list of vertices and a list of edges.
 
         Args:
-            use_ids_instead_of_names (bool, optional): Description
+            use_ids_instead_of_names (bool, optional): Whether to use location IDs instead of location names for the vertices. Defaults to False.
 
         Returns:
-            Tuple[List[str], List[List]]: Description
+            Tuple[List[str], List[List]]: A tuple containing a list of vertices and a list of edges.
         """
         vertices = []
         edges = []
@@ -609,11 +829,19 @@ class Ecosystem:
 
         return vertices, edges
 
+
     @check_args_type
     def _aggregate_arrivals(self) -> None:
         """
-        Add up arrival statistics, to find out travel durations and
-        total number of camp arrivals.
+        Summary: 
+            Adds up arrival statistics, to find out travel durations 
+            and total number of camp arrivals.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         if SimulationSettings.log_levels["camp"] > 0:
             arrival_total = 0
@@ -635,15 +863,23 @@ class Ecosystem:
             # print("New arrivals: ", self.travel_durations[-1],
             #       arrival_total, tmp_num_arrivals)
 
+
     @check_args_type
     def enact_border_closures(self, time: int, twoway: bool = True, Debug: bool = False) -> None:
         """
-        Summary
+        Summary: 
+            Enacts border closures, location closures, link closures,
+            camp closures, and forced redirection removals according 
+            to the list of closures provided.
 
         Args:
-            time (int): Description
-            twoway (bool, optional): Description
-            Debug (bool, optional): Description
+            time (int): The current time.
+            twoway (bool, optional): Whether or not border closures should be two-way. Defaults to True.
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+
+        Returns:
+            None.
+
         """
         # print("Enact border closures: ", self.closures)
         if len(self.closures) > 0:
@@ -692,13 +928,14 @@ class Ecosystem:
     @check_args_type
     def _convert_location_name_to_index(self, name: str) -> int:
         """
-        Convert a location name to an index number
+        Summary: 
+            Converts a location name to an index number.
 
         Args:
-            name (str): Description
+            name (str): The name of the location.
 
         Returns:
-            int: Description
+            int: The index of the location in the `locations` list, or -1 if the location is not found.
         """
         x = -1
         # Convert name "startpoint" to index "x".
@@ -719,10 +956,11 @@ class Ecosystem:
     @check_args_type
     def _remove_link_1way(self, startpoint: str, endpoint: str, close_only: bool = False) -> bool:
         """
-        Remove link in one direction
-        (private function, use remove_link instead).
-        close_only: if True will instead move the link to the closed_links
-        list of the location, rendering it inactive.
+        Summary: 
+            Remove link in one direction
+            (private function, use remove_link instead).
+            close_only: if True will instead move the link to the closed_links
+            list of the location, rendering it inactive.
 
         Args:
             startpoint (str): Description
@@ -766,10 +1004,12 @@ class Ecosystem:
             )
         return removed
 
+
     @check_args_type
     def _reopen_link_1way(self, startpoint: str, endpoint: str) -> bool:
         """
-        Reopen a closed link.
+        Summary:
+            Reopen a closed link.
 
         Args:
             startpoint (str): Description
@@ -815,15 +1055,17 @@ class Ecosystem:
             )
         return reopened
 
+
     @check_args_type
     def remove_link(
         self, startpoint: str, endpoint: str, twoway: bool = True, close_only: bool = False
     ) -> bool:
         """
-        Removes a link between two location names.
-        twoway: if True, also removes link from endpoint to startpoint.
-        close_only: if True will instead move the link to the closed_links
-        list of the location, rendering it inactive.
+        Summary:
+            Removes a link between two location names.
+            twoway: if True, also removes link from endpoint to startpoint.
+            close_only: if True will instead move the link to the closed_links
+            list of the location, rendering it inactive.
 
         Args:
             startpoint (str): Description
@@ -843,11 +1085,13 @@ class Ecosystem:
             startpoint=startpoint, endpoint=endpoint, close_only=close_only
         )
 
+
     @check_args_type
     def reopen_link(self, startpoint: str, endpoint: str, twoway: bool = True) -> bool:
         """
-        Reopens a previously closed link between two location names.
-        twoway: if True, also removes link from endpoint to startpoint.
+        Summary: 
+            Reopens a previously closed link between two location names.
+            twoway: if True, also removes link from endpoint to startpoint.
 
         Args:
             startpoint (str): Description
@@ -862,41 +1106,45 @@ class Ecosystem:
 
         return self._reopen_link_1way(startpoint=startpoint, endpoint=endpoint)
 
+
     @check_args_type
     def close_link(self, startpoint: str, endpoint: str, twoway: bool = True) -> bool:
         """
-        Shorthand call for remove_link, only moving the link to
-        the closed list.
+        Summary:
+            Shorthand call for remove_link, only moving the link to
+            the closed list.
 
         Args:
-            startpoint (str): Description
-            endpoint (str): Description
-            twoway (bool, optional): Description
+            startpoint (str): name of the startpoint of the link.
+            endpoint (str): name of the endpoint of the link.
+            twoway (bool, optional): Whether or not the link is two-way. Defaults to True.
 
         Returns:
-            bool: Description
+            bool: True if the link was closed, False otherwise.
         """
         return self.remove_link(
             startpoint=startpoint, endpoint=endpoint, twoway=twoway, close_only=True
         )
+
 
     @check_args_type
     def _change_location_1way(
         self, location_name: str, mode: str = "close", direction: str = "both", Debug: bool = False
     ) -> bool:
         """
-        Close all links to or from one location.
-        mode: close or reopen
-        direction: in, out or both.
+        Summary: 
+            Close all links to or from one location.
+            mode: close or reopen
+            direction: in, out or both.
 
         Args:
-            location_name (str): Description
-            mode (str, optional): Description
-            direction (str, optional): Description
-            Debug (bool, optional): Description
+            location_name (str): The name of the location.
+            mode (str, optional): The mode of the change: "close" or "reopen". Defaults to "close".
+            direction (str, optional): The direction of the change: "in", "out", or "both". Defaults to "both".
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
 
         Returns:
-            bool: Description
+            bool: True if any links were changed, False otherwise.
         """
 
         dir_mode = 0
@@ -977,18 +1225,24 @@ class Ecosystem:
 
         return changed_anything
 
+
     @check_args_type
     def _change_border_1way(
         self, source_country: str, dest_country: str, mode: str = "close", Debug: bool = False
     ) -> None:
         """
-        Close all links between two countries in one direction.
+        Summary:
+            Close all links between two countries in one direction.
 
         Args:
-            source_country (str): Description
-            dest_country (str): Description
-            mode (str, optional): Description
-            Debug (bool, optional): Description
+            source_country (str): The name of the source country.
+            dest_country (str): The name of the destination country.
+            mode (str, optional): The mode of the change: "close" or "reopen". Defaults to "close".
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+
+        Returns:
+            None.
+
         """
         # print("{} border 1 way [{}] [{}]".format(
         #     mode, source_country, dest_country),file=sys.stderr)
@@ -1039,19 +1293,24 @@ class Ecosystem:
                 file=sys.stderr,
             )
 
+
     @check_args_type
     def close_border(
         self, source_country: str, dest_country: str, twoway: bool = True, Debug: bool = False
     ) -> None:
         """
-        Close all links between two countries. If twoway is set to false,
-        the only links from source to destination will be closed.
+        Summary: 
+            Close all links between two countries. If twoway is set to false,
+            the only links from source to destination will be closed.
 
         Args:
-            source_country (str): Description
-            dest_country (str): Description
-            twoway (bool, optional): Description
-            Debug (bool, optional): Description
+            source_country (str): The name of the source country.
+            dest_country (str): The name of the destination country.
+            twoway (bool, optional): Whether to close the links in both directions. Defaults to True.
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+        
+        Returns:
+            None.
         """
         self._change_border_1way(
             source_country=source_country, dest_country=dest_country, mode="close", Debug=Debug
@@ -1061,19 +1320,24 @@ class Ecosystem:
                 source_country=dest_country, dest_country=source_country, mode="close", Debug=Debug
             )
 
+
     @check_args_type
     def reopen_border(
         self, source_country: str, dest_country: str, twoway: bool = True, Debug: bool = False
     ) -> None:
         """
-        Re-open all links between two countries. If twoway is set to false,
-        the only links from source to destination will be closed.
+        Summary:
+            Re-open all links between two countries. If twoway is set to false,
+            the only links from source to destination will be closed.
 
         Args:
-            source_country (str): Description
-            dest_country (str): Description
-            twoway (bool, optional): Description
-            Debug (bool, optional): Description
+            source_country (str): The name of the source country.
+            dest_country (str): The name of the destination country.
+            twoway (bool, optional): Whether to reopen the links in both directions. Defaults to True.
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+
+        Returns:
+            None.
         """
         self._change_border_1way(
             source_country=source_country, dest_country=dest_country, mode="reopen", Debug=Debug
@@ -1086,18 +1350,51 @@ class Ecosystem:
 
     @check_args_type
     def close_camp(self, location_name: str, IDP: bool):
+        """
+        Summary: 
+            Closes a camp in a given location.
+
+        Args:
+            location_name (str): The name of the location where the camp is located.
+            IDP (bool): Whether the camp is for IDPs or not.
+
+        Returns:
+            None.
+        """     
         self.locations[self._convert_location_name_to_index(location_name)].close_camp(IDP)
         print("Time = {}. Close camp {}, IDP: {}.".format(self.time, location_name, IDP), file=sys.stderr)
 
 
     @check_args_type
     def open_camp(self, location_name: str, IDP: bool):
+        """
+        Summary: 
+            Opens a camp in a given location.
+
+        Args:
+            location_name (str): The name of the location where the camp is located.
+            IDP (bool): Whether the camp is for IDPs or not.
+
+        Returns:
+            None.
+        """
         self.locations[self._convert_location_name_to_index(location_name)].open_camp(IDP)
         print("Time = {}. Open camp {}, IDP: {}.".format(self.time, location_name, IDP), file=sys.stderr)
 
 
     @check_args_type
     def set_forced_redirection(self, loc1_name: str, loc2_name: str, value: bool):
+        """
+        Summary: Sets the forced redirection flag on the link between two locations.
+
+        Args:
+            loc1_name (str): The name of the first location.
+            loc2_name (str): The name of the second location.
+            value (bool): The new value of the forced redirection flag.
+
+        Returns:
+            None.
+        """
         id1 = self._convert_location_name_to_index(loc1_name)
         for i in range(0, len(self.locations[id1].links)):
             if self.locations[id1].links[i].endpoint.name == loc2_name:
@@ -1106,21 +1403,19 @@ class Ecosystem:
                 print("Time = {}. Redirection {}-{} changed from {} to {}.".format(self.time, loc1_name, loc2_name, old_val, value), file=sys.stderr)
 
 
- 
-
-
     @check_args_type
     def close_location(self, location_name: str, twoway: bool = True, Debug: bool = False) -> bool:
         """
-        Close in- and outgoing links for a location.
+        Summary:
+            Close in- and outgoing links for a location.
 
         Args:
-            location_name (str): Description
-            twoway (bool, optional): Description
-            Debug (bool, optional): Description
+            location_name (str): The name of the location.
+            twoway (bool, optional): Whether or not to close the links in both directions. Defaults to True.
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
 
         Returns:
-            bool: Description
+            bool: True if the location was successfully closed, False otherwise.
         """
         if twoway:
             return self._change_location_1way(
@@ -1131,15 +1426,20 @@ class Ecosystem:
             location_name=location_name, mode="close", direction="in", Debug=Debug
         )
 
+
     @check_args_type
     def reopen_location(self, location_name: str, twoway: bool = True, Debug: bool = False) -> bool:
         """
-        Reopen in- and outgoing links for a location.
+        Summary: 
+            Reopens the links for a location.
 
         Args:
-            location_name (str): Description
-            twoway (bool, optional): Description
-            Debug (bool, optional): Description
+            location_name (str): The name of the location.
+            twoway (bool, optional): Whether or not to reopen the links in both directions. Defaults to True.
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+
+        Returns:
+            bool: True if the location was successfully reopened, False otherwise.
         """
         if twoway:
             return self._change_location_1way(
@@ -1148,18 +1448,21 @@ class Ecosystem:
 
         return self._change_location_1way(location_name, mode="reopen", direction="in", Debug=Debug)
 
+
     @check_args_type
     def add_conflict_zone(self, name: str, conflict_intensity: float = 1.0, change_movechance: bool = True) -> None:
         """
-        Adds a conflict zone. Default weight is equal to
-        population of the location.
+        Summary: 
+            Adds a conflict zone. Default weight is equal to
+            population of the location.
 
         Args:
-            name (str): Description
-            change_movechance (bool, optional): Description
+            name (str): The name of the location to add as a conflict zone.
+            conflict_intensity (float, optional): The intensity of the conflict in the specified location. Defaults to 1.0.
+            change_movechance (bool, optional): Whether or not to change the movement chance for the specified location. Defaults to True.
 
         Returns:
-            None: Description
+            None.
         """
         for i in range(0, len(self.locationNames)):
             if self.locationNames[i] == name:
@@ -1184,16 +1487,22 @@ class Ecosystem:
             file=sys.stderr,
         )
 
+
     @check_args_type
     def remove_conflict_zone(self, name: str, change_movechance: bool = True) -> None:
         """
-        Shorthand function to remove a conflict zone from the list.
-        (not used yet)
+        Summary:
+            Shorthand function to remove a conflict zone from the list.
+            (not used yet)
 
         Args:
-            name (str): Description
-            change_movechance (bool, optional): Description
+            name (str): The name of the location to remove as a conflict zone.
+            change_movechance (bool, optional): Whether or not to change the movement chance for the specified location. Defaults to True.
+
+        Returns:
+            None.
         """
+        
         for i in range(0, len(self.locationNames)):
             if self.locationNames[i] == name:
                 if change_movechance:
@@ -1206,38 +1515,51 @@ class Ecosystem:
 
     @check_args_type
     def set_conflict_intensity(self, name: str, conflict_intensity: float, change_movechance: bool = True) -> None:
+        """
+        Summary: 
+            Sets the conflict intensity for a given location.
+
+        Args:
+            name (str): The name of the location to set the conflict intensity for.
+            conflict_intensity (float): The new conflict intensity for the specified location.
+            change_movechance (bool, optional): Whether or not to change the movement chance for the specified location. Defaults to True.
+
+        Returns:
+            None.
+        """
         if conflict_intensity < 0.000001:
             self.remove_conflict_zone(name, change_movechance)
         else:
             self.add_conflict_zone(name, conflict_intensity, change_movechance)
-            
-
+    
     @check_args_type
     def pick_spawn_location(self):
         """
-        Summary
-
-        !!! warning
+        Summary:
+            !!! warning
             this function is now deprecated as of ruleset 2.0.
             Please use `pick_spawn_locations()` instead in your scripts
 
         Returns:
-            Location: Description
+            pick_spawn_locations(1)[0] function defined below
         """
         return self.pick_spawn_locations(1)[0]
+
 
     @check_args_type
     def pick_spawn_locations(self, number: int = 1) -> list:
         """
-        Returns a weighted random element from the list of conflict locations.
-        This function returns a number, which is an index in the array of
-        conflict locations.
+        Summary:
+            Returns a weighted random element from the list of conflict locations.
+            This function returns a number, which is an index in the array of
+            conflict locations. The probability of selecting a location 
+            is proportional to its spawn weight.
 
         Args:
-            number (int, optional): Description
+            number (int, optional): The number of locations to sample. Defaults to 1.
 
         Returns:
-            list: Description
+            list[Location]: A list of unique locations.
         """
         spawn_weight_total = sum(self.spawn_weights)
 
@@ -1251,9 +1573,15 @@ class Ecosystem:
     @check_args_type
     def evolve(self) -> None:
         """
-        Summary
-        """
+        Summary: 
+            Updates the simulation state for the next timestep.
 
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
         spawning.refresh_spawn_weights(self) # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
 
         # update level 1, 2 and 3 location scores
@@ -1302,6 +1630,7 @@ class Ecosystem:
 
         self.time += 1
 
+
     @check_args_type
     def addLocation(
         self,
@@ -1317,22 +1646,23 @@ class Ecosystem:
         attributes: dict = {},
     ):
         """
-        Add a location to the ABM network graph
+        Summary: 
+            Adds a location to the simulation network graph.
 
         Args:
-            name (str): Description
-            x (float, optional): Description
-            y (float, optional): Description
-            location_type (str, optional): Description
-            movechance (float, optional): Description
-            capacity (int, optional): Description
-            pop (int, optional): Description
-            foreign (bool, optional): Description
-            country (str, optional): Description
+            name (str): The name of the location.
+            x (float, optional): The x-coordinate of the location. Defaults to 0.0.
+            y (float, optional): The y-coordinate of the location. Defaults to 0.0.
+            location_type (str, optional): The type of location. Defaults to None.
+            movechance (float, optional): The probability that an agent will move to this location. Defaults to 1.0.
+            capacity (int, optional): The maximum number of agents that can be present at this location. Defaults to -1 (unlimited).
+            pop (int, optional): The initial population of the location. Defaults to 0.
+            foreign (bool, optional): Whether or not this location is in a foreign country. Defaults to False.
+            country (str, optional): The country that this location is in. Defaults to "unknown".
+            attributes (dict, optional): A dictionary of additional attributes for the location. Defaults to an empty dictionary.
 
-        No Longer Returned:
-            Location: Description
-
+        Returns:
+            None.
         """
 
         loc = Location(
@@ -1357,13 +1687,19 @@ class Ecosystem:
         spawning.refresh_spawn_weights(self)
         return loc
 
+
     @check_args_type
     def addAgent(self, location, attributes) -> None:
         """
-        Summary
+        Summary: 
+            Adds an agent to the simulation at the specified location.
 
         Args:
-            location (Location): Description
+            location (Location): The location to add the agent to.
+            attributes (dict): A dictionary of attributes for the agent.
+
+        Returns:
+            None.
         """
         if SimulationSettings.spawn_rules["TakeFromPopulation"]:
             if location.conflict > 0.0:
@@ -1380,36 +1716,53 @@ class Ecosystem:
 
         self.agents.append(Person(location=location, attributes=attributes))
 
+
     @check_args_type
     def insertAgent(self, location) -> None:
         """
+        Summary: 
+        Inserts an agent into the simulation at the specified location.
         Note: insert Agent does NOT take from Population.
 
         Args:
-            location (Location): Description
+            location (Location): The location to insert the agent at.
+
+        Returns:
+            None.
         """
         self.agents.append(Person(location=location, attributes={}))
+
 
     @check_args_type
     def insertAgents(self, location, number: int) -> None:
         """
-        Summary
+        Summary: 
+            Inserts a specified number of agents into the simulation
+            at the specified location without taking from the population.
 
         Args:
-            location (Location): Description
-            number (int): Description
+            location (Location): The location to insert the agents at.
+            number (int): The number of agents to insert.
+
+        Returns:
+            None.
         """
         for _ in range(0, number):
             self.insertAgent(location=location)
 
+
     @check_args_type
     def clearLocationsFromAgents(self, location_names: List[str]) -> None:
         """
-        Remove all agents from a list of locations by name.
-        Useful for couplings to other simulation codes.
+        Summary: 
+            Remove all agents from a list of locations by name.
+            Useful for couplings to other simulation codes.
 
         Args:
-            location_names (List[str]): Description
+            location_names (List[str]): A list of location names.
+
+        Returns:
+            None.
         """
         new_agents = []
         for i in range(0, len(self.agents)):
@@ -1424,16 +1777,32 @@ class Ecosystem:
 
     @check_args_type
     def setAttribute(self, name: str, value) -> None:
+        """
+        Summary: 
+            Sets the value of an attribute for the simulation.
+
+        Args:
+            name (str): The name of the attribute.
+            value: The value of the attribute.
+
+        Returns:
+            None.
+        """
         self.attributes[name] = value
+        
 
 
     @check_args_type
     def numAgents(self) -> int:
         """
-        Summary
+        Summary:
+            Returns the number of agents in the simulation.
+
+        Args:
+            None.
 
         Returns:
-            int: Description
+            int: The number of agents in the simulation.
         """
         return len(self.agents)
 
@@ -1441,7 +1810,11 @@ class Ecosystem:
     @check_args_type
     def numIDPs(self) -> int:
         """
-        Aggregates number of IDPs across locations
+        Summary: 
+            Aggregates number of IDPs across locations
+        
+        Args:
+            None.
 
         Returns:
             int: total # of IDPs.
@@ -1465,13 +1838,18 @@ class Ecosystem:
         attributes: dict = {},
     ) -> None:
         """
-        Creates a link between two endpoint locations
+        Summary:
+            Creates a link between two endpoint locations
 
         Args:
-            endpoint1 (str): Description
-            endpoint2 (str): Description
-            distance (float, optional): Description
-            forced_redirection (bool, optional): Description
+            endpoint1 (str): The name of the first endpoint location.
+            endpoint2 (str): The name of the second endpoint location.
+            distance (float, optional): The distance between the two endpoint locations. Defaults to 1.0.
+            forced_redirection (bool, optional): Whether or not the link should be used as a forced redirection. Defaults to False.
+            attributes (dict, optional): A dictionary of attributes for the link. Defaults to an empty dictionary.
+
+        Returns:
+            None.
         """
         endpoint1_index = -1
         endpoint2_index = -1
@@ -1512,10 +1890,18 @@ class Ecosystem:
             )
         )
 
+
     @check_args_type
     def printInfo(self) -> None:
         """
-        Summary
+        Summary: 
+            Prints information about the simulation to the standard error stream.
+
+        Args:
+            None. 
+
+        Returns:
+            None.
         """
         print(
             "Time: {}, # of agents: {}, # of conflict zones {}.".format(
@@ -1531,10 +1917,18 @@ class Ecosystem:
         for loc in self.locations:
             print(loc.name, loc.numAgents, file=sys.stderr)
 
+
     @check_args_type
     def printComplete(self) -> None:
         """
-        Summary
+        Summary: 
+            Prints complete information about the simulation to the standard error stream.
+
+        Args: 
+            None.
+
+        Returns:
+            None.
         """
         print("Time: ", self.time, ", # of agents: ", len(self.agents))
         if self.print_location_output:
@@ -1545,17 +1939,19 @@ class Ecosystem:
                 )
                 loc.print()
 
+
     @check_args_type
-    def getRankN(self, t: int) -> bool:
+    def getRankN(self) -> bool:
         """
-        Returns whether this process should do a task. Always returns true,
-        as flee.py is sequential.
+        Summary:
+            Returns whether this process should do a task. Always returns true,
+            as flee.py is sequential.
 
         Args:
-            t (int): Description
+            None.
 
         Returns:
-            bool: Description
+            bool: True if this process should do a task, False otherwise.
 
         """
         return True

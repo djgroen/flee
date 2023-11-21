@@ -46,4 +46,4 @@ def test_flood_driven_spawning():
 
 
 if __name__ == "__main__":
-    test_conflict_driven_spawning()
+    test_flood_driven_spawning()

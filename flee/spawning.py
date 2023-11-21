@@ -21,14 +21,34 @@ __demographics = {}
 
 
 def getAttributeRatio(location, attribute):
+    """
+    Summary:
+        Returns the ratio of the attribute value to the maximum value of the attribute in the location.
+    
+    Args:
+        location (Location): Location object
+        attribute (str): Attribute name
+    
+    Returns:
+        float: Ratio of attribute value to maximum attribute value in the location.
+    """
     return 1.0
+
 
 def refresh_spawn_weights(e):
     """
-    This function needs to be called when
-    SimulationSettings.spawn_rules["TakeFromPopulation"] is set to True.
-    Also needed to model the ConflictSpawnDecay.
-    It will update the weights to reflect the new population numbers.
+    Summary:
+        Refreshes the spawn weights for all locations.
+        This function needs to be called when
+        SimulationSettings.spawn_rules["TakeFromPopulation"] is set to True.
+        Also needed to model the ConflictSpawnDecay.
+        It will update the weights to reflect the new population numbers.
+    
+    Args:
+        e (Ecosystem): Ecosystem object
+
+    Returns:
+        None.
     """
 
     conflict_pop_weight = 1.0
@@ -60,12 +80,23 @@ def refresh_spawn_weights(e):
     e.spawn_weight_total = sum(e.spawn_weights)
 
 
-
 def read_demographic_csv(e, csvname):
   """
-  Attribute CSV files have the following format:
-  Value,Default,LocA,LocB,...
-  ValueA,weight for that value by Default, ...
+  Summary:
+        Reads a CSV file containing demographic information for a location.
+        The CSV file should be named "demographics_<attribute>.csv".
+        The attribute name is extracted from the filename.
+        The CSV file should be located in the input_csv directory.
+        Attribute CSV files have the following format:
+        Value,Default,LocA,LocB,...
+        ValueA,weight for that value by Default, ...
+
+  Args:
+        e (Ecosystem): Ecosystem object
+        csvname (str): Name of the CSV file to read.
+
+  Returns:
+        None.
   """
   attribute = (csvname.split(os.sep)[1].split('.')[0]).split('_')[1]
 
@@ -81,6 +112,22 @@ def read_demographic_csv(e, csvname):
 
 
 def read_demographics(e):
+  """
+  Summary:
+      Reads all CSV files containing demographic information for a location.
+      The CSV files should be named "demographics_<attribute>.csv".
+      The attribute name is extracted from the filename.
+      The CSV files should be located in the input_csv directory.
+      Attribute CSV files have the following format:
+      Value,Default,LocA,LocB,...R
+      ValueA,weight for that value by Default, ...
+
+  Args:
+      e (Ecosystem): Ecosystem object
+
+  Returns:
+      None.
+  """
   if not os.path.exists("input_csv"):
       return
 
@@ -90,11 +137,22 @@ def read_demographics(e):
       read_demographic_csv(e, csvname)
   
 
-
 def draw_sample(e, loc, attribute):
+  """
+  Summary:
+      Draw a sample from the attribute distribution for a location.
+      If the attribute is not found, return -1.
+
+  Args:
+      e (Ecosystem): Ecosystem object
+      loc (Location): Location object
+      attribute (str): Attribute name
+
+  Returns:
+      float: Sample from the attribute distribution.
+  """
   #print(__demographics[attribute], file=sys.stderr)
   #print(__demographics[attribute].iloc[0]['Default'], file=sys.stderr)
-
   if attribute in __demographics:
     if loc.name in __demographics[attribute].columns:
       a = __demographics[attribute].sample(n=1,weights=loc.name)
@@ -108,7 +166,15 @@ def draw_sample(e, loc, attribute):
 
 def draw_samples(e,loc):
     """
-    Draw samples from all optional attributes.
+    Summary:
+        Draw samples from all optional attributes.
+    
+    Args:
+        e (Ecosystem): Ecosystem object
+        loc (Location): Location object
+    
+    Returns:
+        Dict: Dictionary of attribute names and values.
     """
     samples = {}
     for a in __demographics.keys():
@@ -117,8 +183,18 @@ def draw_samples(e,loc):
 
 
 def add_initial_refugees(e, d, loc):
-  """ Add the initial refugees to a location, using the location name"""
-
+  """
+  Summary:
+      Add the initial refugees to a location, using the location name
+      
+  Args:
+      e (Ecosystem): Ecosystem object
+      d (DataTable): DataTable object
+      loc (Location): Location object
+  
+  Returns:
+      None.
+  """
   # Only initialize demographics when first called.
   if len(__demographics) == 0:
       read_demographics(e)
@@ -131,14 +207,25 @@ def add_initial_refugees(e, d, loc):
           e.addAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
 
+@check_args_type
 def spawn_daily_displaced(e, t, d):
+    """
+    Summary:
+        spawn_daily_displaced is called once per day, and spawns new agents
+        according to the rules specified in SimulationSettings.spawn_rules.
+    Args:
+        e (Ecosystem): Ecosystem object
+        t (int): Time step
+        d (DataTable): DataTable object
+        refugees_raw = raw refugee count
+        refugee_debt = number of refugees that could not be spawned due to rounding errors
+    
+    Returns:
+        Tuple[int, int, int]: Tuple containing the number of new agents, 
+        the raw refugee count, and the refugee debt.
+    """
     global __refugees_raw, __refugee_debt
-    """
-    t = time
-    e = Ecosystem object
-    d = DataTable object
-    refugees_raw = raw refugee count
-    """
+
     new_refs = 0
 
     SumFromCamps = SimulationSettings.spawn_rules["sum_from_camps"]
@@ -225,7 +312,17 @@ def spawn_daily_displaced(e, t, d):
 
 
 def spawn_agents(e, number):
+    """
+    Summary:
+        Spawn a given number of agents at random locations.
+    
+    Args:
+        e (Ecosystem): Ecosystem object
+        number (int): Number of agents to spawn
 
+    Returns:
+        None.
+    """
     #Insert refugee agents
     for i in range(0, number):
         loc = e.pick_spawn_location()

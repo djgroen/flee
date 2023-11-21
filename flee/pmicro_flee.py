@@ -26,6 +26,16 @@ class MPIManager(pflee.MPIManager):
     """
 
     def __init__(self):
+        """
+        Summary:
+            Constructor of the MPIManager class.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
         super().__init__()
 
 
@@ -35,6 +45,17 @@ class Person(pflee.Person):
     """
 
     def __init__(self, e, location):
+        """
+        Summary:
+            Initialise the Person class.
+        
+        Args:
+            e (TYPE): ecocystem of the person
+            location (TYPE): location of the person
+
+        Returns:
+            None.
+        """
         super().__init__(e, location)
 
 
@@ -58,6 +79,26 @@ class Location(pflee.Location):
         foreign: bool = False,
         country: str = "unknown",
     ) -> None:
+        """
+        Summary:
+            Initialise the Location class.
+
+        Args:
+            e (TYPE): ecocystem of the location
+            cur_id (int): current id of the location
+            name (str): name of the location
+            x (float, optional): x coordinate of the location
+            y (float, optional): y coordinate of the location 
+            location_type (str, optional): type of the location
+            movechance (float, optional): chance of moving
+            capacity (int, optional): capacity of the location
+            pop (int, optional): population of the location
+            foreign (bool, optional): foreign or not
+            country (str, optional): country of the location
+
+        Returns:
+            None.    
+        """
         super().__init__(
             e=e,
             cur_id=cur_id,
@@ -91,14 +132,18 @@ class Ecosystem(pflee.Ecosystem):
         link_type: str = None,
     ) -> None:
         """
-        Creates a link between two endpoint locations
+        Summary:
+            Creates a link between two endpoint locations.
 
         Args:
-            endpoint1 (str): Description
-            endpoint2 (str): Description
-            distance (float, optional): Description
-            forced_redirection (bool, optional): Description
-            link_type (str, optional): Description
+            endpoint1 (str): location name of the first endpoint
+            endpoint2 (str): location name of the second endpoint
+            distance (float, optional): distance between two endpoints
+            forced_redirection (bool, optional): forced redirection or not. Defaults to False.
+            link_type (str, optional): type of the link. Defaults to None.
+
+        Returns:
+            None.
         """
         endpoint1_index = -1
         endpoint2_index = -1
@@ -148,7 +193,7 @@ class Ecosystem(pflee.Ecosystem):
 # -------------------------------------------------------------------------
 class Link(pflee.Link):
     """
-    the Link class
+    The Link class
     """
 
     @check_args_type
@@ -160,6 +205,15 @@ class Link(pflee.Link):
         forced_redirection: bool = False,
         link_type: str = None,
     ):
+        """
+        Summary:
+            Initialise the Link class for weather coupling.
+        
+        Args:
+
+        Returns:
+            None.
+        """
         super().__init__(startpoint, endpoint, distance, forced_redirection)
         self.link_type = link_type
 
@@ -181,6 +235,20 @@ class Link_weather_coupling(pflee.Link):
         forced_redirection: bool = False,
         link_type: Optional[str] = None,
     ):
+        """
+        Summary:
+            Initialise the Link_weather_coupling class.
+
+        Args:
+            startpoint (TYPE): location name of the startpoint
+            endpoint (TYPE): location name of the endpoint
+            distance (float): distance between two endpoints
+            forced_redirection (bool, optional): forced redirection or not. Defaults to False.
+            link_type (str, optional): type of the link. Defaults to None.
+
+        Returns:
+            None.
+        """
         self.name = "L:{}:{}".format(startpoint.name, endpoint.name)
         self.closed = False
 
@@ -221,28 +289,46 @@ class Link_weather_coupling(pflee.Link):
                 & (self.discharge["lon"] == self.closest_location["lon"])
             ]
 
+
     def DecrementNumAgents(self):
         """
-        Summary
+        Summary:
+            Decrement the number of agents on this link by 1.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         self.numAgents -= 1
 
+
     def IncrementNumAgents(self):
         """
-        Summary
+        Summary:
+            Increment the number of agents on this link by 1.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         self.numAgents += 1
+
 
     @check_args_type
     def get_start_date(self, time: int):
         """
-        Summary
+        Summary:
+            Get the start date of the conflict.
 
         Args:
-            time (TYPE): Description
+            time (TYPE): time of the conflict
 
         Returns:
-            TYPE: Description
+            TYPE: start date of the conflict
         """
         start_date = weather_source_files["conflict_start_date"]
         date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
@@ -250,13 +336,18 @@ class Link_weather_coupling(pflee.Link):
         date = date.strftime("%Y-%m-%d")
         return date
 
+
     @check_args_type
     def midpoint(self) -> Tuple[float, float]:
         """
-        This function returns the geoghraphical midpoint of two given locations
+        Summary:
+            This function returns the geoghraphical midpoint of two given locations.
+
+        Args:
+            None.
 
         Returns:
-            Tuple[float, float]: Description
+            Tuple[float, float]: geographical midpoint of two given locations.
         """
         lat1 = math.radians(self.get_latitude(location_name=self.startpoint.name))
         lon1 = math.radians(self.get_longitude(location_name=self.startpoint.name))
@@ -279,34 +370,38 @@ class Link_weather_coupling(pflee.Link):
 
         return latMid, lonMid
 
+
     @check_args_type
     def get_longitude(self, location_name: str) -> float:
         """
-        This function returns the longitude of given location name based on 40 years dataset of
-        South Sudan total precipitation
+        Summary:
+            This function returns the longitude of given location name 
+            based on 40 years dataset of South Sudan total precipitation
 
         Args:
-            location_name (str): Description
+            location_name (str): name of the location
 
         Returns:
-            float: Description
+            float: longitude of the location
         """
         history = weather_source_files["40yrs_total_precipitation"]
         coordination = history[history["names"] == location_name]
         longitude = coordination["longitude"].mean()
         return longitude
 
+
     @check_args_type
     def get_latitude(self, location_name: str) -> float:
         """
-        This function returns the latitude of given location name based on 40 years dataset of
-        South Sudan total precipitation
+        Summary:
+            This function returns the latitude of given location name
+            based on 40 years dataset of South Sudan total precipitation
 
         Args:
-            location_name (str): Description
+            location_name (str): name of the location
 
         Returns:
-            float: Description
+            float: latitude of the location
         """
         history = weather_source_files["40yrs_total_precipitation"]
         coordination = history[history["names"] == location_name]
@@ -314,15 +409,32 @@ class Link_weather_coupling(pflee.Link):
 
         return latitude
 
+
     @check_args_type
     def X1_X2(self) -> Tuple[float, float]:
         """
-        This function returns the two treshholds of X1 and X2.
-        The way of calculating threshholds needs to be discussed!
+        Summary: 
+            Calculates the X1 and X2 thresholds for the link.
+
+            The X1 and X2 thresholds are used to determine whether a link is considered to be flooded. 
+            A link is considered to be flooded if the total precipitation at the midpoint of the link 
+            is greater than or equal to the X2 threshold. A link is also considered to be flooded if
+            the total precipitation at the midpoint of the link is less than or equal to the X1 
+            threshold and the link is closed.
+
+            The X1 and X2 thresholds are calculated using the following steps:
+
+            1. Get the historical precipitation data for the midpoint of the link.
+            2. Calculate the 15th and 75th percentiles of the historical precipitation data.
+            3. Set the X1 threshold to the 15th percentile.
+            4. Set the X2 threshold to the 75th percentile.
+
+        Args:
+            None.
 
         Returns:
-            Tuple[float, float]: Description
-        """
+            Tuple[float, float]: The X1 and X2 thresholds for the link.
+         """
         # print(link)
         X1 = []
         X2 = []
@@ -346,38 +458,44 @@ class Link_weather_coupling(pflee.Link):
 
         return X1, X2
 
+
     @check_args_type
     def haversine_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """
-        Summary
+        Summary:
+            Calculate the great circle distance between two points 
+            on the earth (specified in decimal degrees).
 
         Args:
-            lat1 (float): Description
-            lon1 (float): Description
-            lat2 (float): Description
-            lon2 (float): Description
+            lat1 (float): latitude of the first point
+            lon1 (float): longitude of the first point
+            lat2 (float): latitude of the second point
+            lon2 (float): longitude of the second point
 
         Returns:
-            float: Description
+            float: distance between two points
         """
-        p = 0.017453292519943295
+        p = 0.017453292519943295 # Pi/180
         a = (
             0.5
             - math.cos((lat2 - lat1) * p) / 2
             + math.cos(lat1 * p) * math.cos(lat2 * p) * (1 - math.cos((lon2 - lon1) * p)) / 2
         )
-        return 12742 * math.asin(math.sqrt(a))
+        return 12742 * math.asin(math.sqrt(a)) # 2*R_earth*asin(sqrt(a))    
+
 
     def closest(self, data, v):
         """
-        Summary
+        Summary:
+            Find the closest point from a list of points.
 
         Args:
-            data (TYPE): Description
-            v (TYPE): Description
+            data (TYPE): data of the points
+            v (TYPE): point
 
         Returns:
-            TYPE: Description
+            TYPE: closest point
+            
         """
         return min(
             data,
@@ -386,16 +504,18 @@ class Link_weather_coupling(pflee.Link):
             ),
         )
 
+
     @check_args_type
     def get_distance(self, time: int) -> float:
         """
-        Summary
+        Summary:
+            Get the distance of the link.
 
         Args:
-            time (int): Description
+            time (int): time of the conflict
 
         Returns:
-            TYPE: Description
+            new_distance (float): distance of the link      
         """
         if len(weather_source_files) == 0:
             print("Error!!! there is NO input file names for weather coupling")

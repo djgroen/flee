@@ -14,16 +14,18 @@ else:
 
 
 @check_args_type
-def getEndPointScore(agent, link) -> float:
+def getEndPointScore(agent, link, time) -> float:
     """
-    Summary
+    Summary:
+        Calculates the score for a given endpoint.
+        This score is used to determine the probability of an agent moving to a given location.
 
     Args:
         agent (Person): agent making the decision
-        link (Link): Description
+        link (Link): link to the endpoint
 
     Returns:
-        float: Description
+        base (float): score for the endpoint
     """
     #print(link.endpoint.name, link.endpoint.scores)
     base = agent.getBaseEndPointScore(link) # called externally because serial and parallel implementations differ.
@@ -75,15 +77,16 @@ def getEndPointScore(agent, link) -> float:
 @check_args_type
 def getCapMultiplier(location, numOnLink: int) -> float:
     """
-    Checks whether a given location has reached full capacity
-    or is close to it.
+    Summary:
+        Checks whether a given location has reached full capacity
+        or is close to it.
 
     Args:
-        numOnLink (int): Description
+        location (Location): location to check
+        numOnLink (int): number of agents on the link
 
     Returns:
-        float: return
-
+        float: returns a value between 0.0 and 1.0, where:
         - 1.0 if occupancy < nearly_full_occ (0.9).
         - 0.0 if occupancy >= 1.0.
         - a value in between for intermediate values
@@ -117,7 +120,6 @@ def getCapMultiplier(location, numOnLink: int) -> float:
     return weight
 
 
-
 @check_args_type
 def calculateLinkWeight(
   agent,
@@ -129,17 +131,21 @@ def calculateLinkWeight(
   debug: bool = False,
 ) -> Tuple[List[float],List[List[str]]]:
   """
-  Calculates Link Weights recursively based on awareness level.
-  Loops are avoided.
+  Summary:
+      Calculates Link Weights recursively based on awareness level.
+      Loops are avoided.
 
   Args:
-  a: agent
-  link (Link): Description
-  prior_distance (float): Description
-  origin_names (List[str]): Description
-  step (int): Description
-  time (int): Description
-  debug (bool, optional): Description
+      a: agent  
+      link (Link): The link to calculate the weight for.
+      prior_distance (float): The distance travelled so far.
+      origin_names (List[str]): The names of the locations that have been visited so far.
+      step (int): The number of steps taken so far.
+      time (int): The current time. 
+      debug (bool, optional): Whether to print debug information. Defaults to False. 
+
+  Returns:
+      Tuple[List[float],List[List[str]]]: A tuple containing the weights and routes.
   """
 
   #if location_is_marker is True: #marker locations should not create a branch.
@@ -198,13 +204,14 @@ def calculateLinkWeight(
 @check_args_type
 def normalizeWeights(weights: List[float]) -> List[float]:
   """
-  Summary
+  Summary:
+    Normalizes a list of weights.
 
   Args:
-    weights (List[float]): Description
+    weights (List[float]): List of weights
 
   Returns:
-    list: Description
+    list: Normalized list of weights
   """
 
   if np.sum(weights) > 0.0:
@@ -221,14 +228,15 @@ def normalizeWeights(weights: List[float]) -> List[float]:
 @check_args_type
 def chooseFromWeights(weights, routes):
   """
-  Summary
+  Summary:
+      Chooses a route from a list of routes based on a list of weights.
 
   Args:
-    weights (List[float]): Weights for each route
-    routes (List[List[str]]]): List of possible routes
+      weights (List[float]): Weights for each route
+      routes (List[List[str]]]): List of possible routes
 
   Returns:
-    float: Description
+      float: The chosen route index   
   """
   if len(weights) == 0:
     return None
@@ -241,14 +249,15 @@ def chooseFromWeights(weights, routes):
 @check_args_type
 def calculateMoveChance(a, ForceTownMove: bool) -> float:
     """
-    Summary
+    Summary:
+        Calculates the probability that an agent will move this step.
 
     Args:
-    a: Agent
-    ForceTownMove: Whether to force agents to move through regular town.
+        a: Agent to calculate move chance for.
+        ForceTownMove: Whether to force agents to move through regular town. If True, agents will always move.
 
     Returns:
-    movechance (int): Probability that agent will move this step. 
+        movechance (int): Probability that agent will move this step. 
     """
     if a.location.town and ForceTownMove: # called through evolveMore
         return 1.0
@@ -263,21 +272,23 @@ def calculateMoveChance(a, ForceTownMove: bool) -> float:
         if flood_level > 0:
             return float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
 
+
     return movechance
 
 
 @check_args_type
 def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = False):
   """
-  Summary
+  Summary:
+      Selects a route for an agent to move to.
 
   Args:
-  a: Agent
-  time (int): Description
-  debug (bool, optional): Description
+    a: Agent
+    time (int): Current time
+    debug (bool, optional): Whether to print debug information. Defaults to False.
 
   Returns:
-  int: Description
+      int: Index of the chosen route
   """
   weights = []
   routes = []

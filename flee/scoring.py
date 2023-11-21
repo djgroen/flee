@@ -14,20 +14,34 @@ else:
 @check_args_type
 def updateLocationScore(time: int, loc) -> None:
     """
-    Attractiveness of the local point, based on local point
-    information only.
+    Summary: 
+        Attractiveness of the local point, based on local point
+        information only.
+
+    Args: 
+        time (int): The current timestep
+        loc (Location): The location to update the score for
+
+    Returns:
+        None. The score is updated in place.
     """
 
-    score = 1.0
+    score = 1.0 #default score
 
+    #score multiplier for foreign
     if loc.foreign is True:
-        score *= SimulationSettings.move_rules["ForeignWeight"]
-    if loc.camp or loc.idpcamp is True:
-        score *= SimulationSettings.move_rules["CampWeight"]
-    if loc.conflict > 0.0:
-        score *= SimulationSettings.move_rules["ConflictWeight"]**(SimulationSettings.get_location_conflict_decay(time, loc) * loc.conflict)
+        score *= SimulationSettings.move_rules["ForeignWeight"] 
 
-    loc.setScore(1, score)
+    #score multiplier for camps
+    if loc.camp or loc.idpcamp is True:
+        score *= SimulationSettings.move_rules["CampWeight"] 
+
+    #score multiplier for conflict
+    if loc.conflict > 0.0: 
+        #score takes the conflict weight to the power of the conflict decay multiplier
+        #conflict decay multiplier is larger for locations with conflict for longer periods of time
+        score *= SimulationSettings.move_rules["ConflictWeight"]**(SimulationSettings.get_location_conflict_decay(time, loc) * loc.conflict)
+    
 
     loc.setScore(0, 1.0)
     #print(loc.name,loc.camp,loc.foreign,loc.scores)

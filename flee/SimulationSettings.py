@@ -38,7 +38,16 @@ class SimulationSettings:
 
     @staticmethod
     def get_conflict_decay(time_since_conflict: int):
+        """
+        Summary:
+            Calculates the conflict decay factor for the attractiveness of a location.
 
+        Args:
+            time_since_conflict: time since the conflict started, in days.
+
+        Returns:
+            The conflict spawn decay factor for the attractiveness of a location
+        """ 
         interval = SimulationSettings.spawn_rules["conflict_spawn_decay_interval"]
 
         if SimulationSettings.spawn_rules["conflict_spawn_decay"] is None:
@@ -54,14 +63,23 @@ class SimulationSettings:
             if SimulationSettings.log_levels["conflict"] > 0:
               print("Conflict zone spawn status: time elapsed {}, decay factor {}".format(time_since_conflict, float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])), file=sys.stderr)
             return float(SimulationSettings.spawn_rules["conflict_spawn_decay"][i])
-
-
+        
+        
     @staticmethod
     def get_location_conflict_decay(time: int, loc):
         """
+        Summary:
+            Returns the decay multiplier for the attractiveness of a location. 
+            The decay is based on the time since the location became a conflict zone.
+            The more time that has passed since the location became a conflict zone,
+            the less attractive it is. Well established conflicts are less attractive.
 
-        time: e.time (time in simulation)
-        loc: location for which to calculate the decay multiplier.
+        Args:
+            time: e.time (time in simulation)
+            loc: location for which to calculate the decay multiplier.
+    
+        Returns:
+            The decay multiplier for the attractiveness of a location
         """
         time_since_conflict = time - loc.time_of_conflict
         multiplier = SimulationSettings.get_conflict_decay(time_since_conflict)
@@ -192,9 +210,8 @@ class SimulationSettings:
 
         SimulationSettings.move_rules["ForeignWeight"] = float(fetchss(dpr,"foreign_weight", 1.0)) # attraction multiplier for foreign locations (stacks with camp multiplier).
         SimulationSettings.move_rules["CampWeight"] = float(fetchss(dpr,"camp_weight", 1.0)) # attraction multiplier for camps.
-        SimulationSettings.move_rules["ConflictWeight"] = float(fetchss(dpr,"conflict_weight", 1.0 / SimulationSettings.sqrt_ten)) #attraction multiplier for source zones (conflict zones)
-
-
+        SimulationSettings.move_rules["ConflictWeight"] = float(fetchss(dpr,"conflict_weight", 1.0 / SimulationSettings.sqrt_ten)) #attraction multiplier for source zones (conflict zones), defaults to 0.3.
+        
         SimulationSettings.move_rules["ConflictMoveChance"] = float(fetchss(dpr,"conflict_movechance", 1.0)) # chance of persons leaving a conflict zone per day.
         SimulationSettings.move_rules["CampMoveChance"] = float(fetchss(dpr,"camp_movechance", 0.001)) # chance of persons leaving a camp.
         SimulationSettings.move_rules["IDPCampMoveChance"] = float(fetchss(dpr,"idpcamp_movechance", 0.1)) # chance of persons leaving a camp.
@@ -259,7 +276,7 @@ class SimulationSettings:
         if dpf is not None:
           SimulationSettings.move_rules["FloodRulesEnabled"] = True
           SimulationSettings.spawn_rules["MaxFloodLevel"] = int(fetchss(dpf,"max_flood_level", -1))
-
+    
           # FloodMovechances *override* move chances when flood level is higher than 0.
           SimulationSettings.move_rules["FloodMovechances"] = fetchss(dpf,"flood_movechances", None) # Expect an array or dict
           print("Flood Movechances set to:", SimulationSettings.move_rules["FloodMovechances"], file=sys.stderr)

@@ -95,4 +95,7 @@ def test_scoring_foreign_weight():
 
 
 if __name__ == "__main__":
+    test_stay_close_to_home()
     test_scoring_foreign_weight()
+    pass
+    

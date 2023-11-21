@@ -18,13 +18,14 @@ else:
 @check_args_type
 def read_sim_period(fname: str) -> Tuple[str, int]:
     """
-    Reads in a sim_period.csv file.
+    Summary:
+        Reads in a sim_period.csv file.
 
     Args:
-        fname (str): Description
+        fname (str): The filename of the sim_period.csv file
 
     Returns:
-        Tuple[str, int]: Description
+        Tuple[str, int]: A tuple containing the start date and the length of the simulation
     """
     startdate = ""
     length = 0
@@ -35,4 +36,5 @@ def read_sim_period(fname: str) -> Tuple[str, int]:
                 startdate = row[1]
             if row[0].lower() == "length":
                 length = int(row[1])
+                
     return startdate, length

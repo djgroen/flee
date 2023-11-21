@@ -38,7 +38,8 @@ class InputGeography(based_InputGeography_class):
         link_type_col: int = 4,
     ) -> None:
         """
-        Converts a CSV file to a locations information table
+        Summary:
+            Converts a CSV file to a locations information table.
 
         Args:
             csv_name (str): Description
@@ -47,6 +48,9 @@ class InputGeography(based_InputGeography_class):
             dist_col (int, optional): Description
             forced_redirection (int, optional): Description
             link_type_col (int, optional): Description
+        
+        Returns:
+            None.
         """
         self.links = []
 
@@ -84,17 +88,19 @@ class InputGeography(based_InputGeography_class):
                 sys.exit()
         """
 
+
     @check_args_type
     def StoreInputGeographyInEcosystem(self, e):
         """
-        Store the geographic information in this class in a FLEE simulation,
-        overwriting existing entries.
+        Summary:
+            Store the geographic information in this class in a FLEE simulation,
+            overwriting existing entries.
 
         Args:
-            e (Ecosystem): Description
+            e (Ecosystem): The ecosystem to store the geographic information in.
 
         Returns:
-            Tuple[Ecosystem, Dict]: Description
+            Tuple[Ecosystem, Dict]: The ecosystem and a dictionary of locations.
         """
         lm = {}
         num_conflict_zones = 0

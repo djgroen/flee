@@ -77,42 +77,65 @@ class Person(flee.Person):
 
     @check_args_type
     def __init__(self, e, location, attributes):
+        """
+        Summary: 
+            Initializes a new Person object.
+
+        Args:
+            e (Ecosystem): The ecosystem in which the person lives.
+            location (Location): The location where the person is initially placed.
+            attributes (dict): A dictionary of attributes for the person.
+
+        Returns:
+            None.
+        """
         super().__init__(location, attributes)
         self.e = e
 
     @check_args_type
     def evolve(self, e, time: int, ForceTownMove: bool = False) -> None:
         """
-        Summary
+        Summary:
+            Evolves the person's state for a given time step.
 
         Args:
-            time (int): Description
-            ForceTownMove (bool, optional): towns have a move chance of 1.0.
+            e (Ecosystem): The ecosystem in which the person lives.
+            time (int): The current time step.
+            ForceTownMove (bool, optional): Whether or not to force towns to move. Defaults to False. Towns have a move chance of 1.0.
+
+        Returns:
+            None.
         """
         super().evolve(e, time=time, ForceTownMove=ForceTownMove)
 
     @check_args_type
     def finish_travel(self, e, time: int) -> None:
         """
-        Summary
+        Summary: 
+            Completes the person's travel to their destination location.
 
         Args:
-            time (int): Description
+            e (Ecosystem): The ecosystem in which the person lives.
+            time (int): The current time step.
+
+        Returns:
+            None.
         """
         super().finish_travel(e, time=time)
 
     @check_args_type
     def getLinkWeightV1(self, link, awareness_level: int) -> float:
         """
-        Calculate the weight of an adjacent link. Weight = probability that
-        it will be chosen.
+        Summary: 
+            Calculate the weight of an adjacent link. 
+            Weight = probability that link will be chosen.
 
         Args:
-            link (Link): Description
-            awareness_level (int): Description
+            link (Link): The link to calculate the weight of.
+            awareness_level (int): The awareness level of the person.
 
         Returns:
-            float: Description
+            float: The weight of the link.
         """
 
         if awareness_level < 0:
@@ -126,14 +149,15 @@ class Person(flee.Person):
     @check_args_type
     def getBaseEndPointScore(self, link) -> float:
         """
-        Overwrite serial function because we have a different data structure
-        for endpoint scores.
+        Summary: 
+            Overwrite serial function because we have a different data structure
+            for endpoint scores.
 
         Args:
-            link (Link) : Description
+            link (Link): The link to calculate the score of.
 
         Returns:
-            float: Description
+            float: The score of the link.
         """
         return float(self.e.scores[(link.endpoint.id * 4) + 1])
 
@@ -158,6 +182,26 @@ class Location(flee.Location):
         foreign: bool = False,
         country: str = "unknown",
     ) -> None:
+        """
+        Summary: 
+            Initializes a new Location object.
+
+        Args: 
+            e (Ecosystem): The ecosystem in which the location exists.
+            cur_id (int): The current ID of the location.
+            name (str): The name of the location.
+            x (float, optional): The x coordinate of the location. Defaults to 0.0.
+            y (float, optional): The y coordinate of the location. Defaults to 0.0.
+            location_type (str, optional): The type of the location. Defaults to None.
+            movechance (float, optional): The chance that a person will move from the location. Defaults to 0.001.
+            capacity (int, optional): The capacity of the location. Defaults to -1.
+            pop (int, optional): The population of the location. Defaults to 0.
+            foreign (bool, optional): Whether or not the location is foreign. Defaults to False.
+            country (str, optional): The country of the location. Defaults to "unknown".
+
+        Returns: 
+            None.
+        """
         self.e = e
 
         self.id = cur_id
@@ -179,60 +223,96 @@ class Location(flee.Location):
         # Emptying this array, as it is not used in the parallel version.
         self.scores = []
 
+
     @check_args_type
     def DecrementNumAgents(self) -> None:
         """
-        Summary
+        Summary: 
+            Decrements the number of agents at the location by 1.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         self.numAgentsOnRank -= 1
+
 
     @check_args_type
     def IncrementNumAgents(self, agent) -> None:
         """
-        Summary
+        Summary: 
+            Increments the number of agents at the location by 1.
+
+        Args: 
+            None.
+
+        Returns: 
+            None.
         """
         self.numAgentsOnRank += 1
+
 
     @check_args_type
     def print(self) -> None:
         """
-        Summary
+        Summary: 
+            Prints information about the location to the standard output stream,
+            if the current process is the root process.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         if self.e.mpi.rank == 0:
             super().print()
 
+
     @check_args_type
     def getScore(self, index: int) -> float:
         """
-        Summary
+        Summary: 
+            Gets the score for the given index at the location.
 
         Args:
-            index (int): Description
+            index (int): The index of the score to get.
 
         Returns:
-            float: Description
+            float: The score for the given index.
         """
         return self.e.scores[self.id * self.e.scores_per_location + index]
+
 
     @check_args_type
     def setScore(self, index: int, value: float) -> None:
         """
-        Summary
+        Summary: 
+            Sets the score for the given index at the location.
 
         Args:
-            index (int): Description
-            value (float): Description
+            index (int): The index of the score to set.
+            value (float): The value to set the score to.
+        
+        Returns:
+            None.
         """
         self.e.scores[self.id * self.e.scores_per_location + index] = value
 
     @check_args_type
     def updateAllScores(self, time: int) -> None:
         """
-        Updates all scores of a particular location. Different to
-        Serial Flee, due to the reversed order there.
+        Summary:
+            Updates all scores of a particular location. Different to
+            Serial Flee, due to the reversed order there.
 
         Args:
-            time (int): Description
+            time (int): The current time step.
+        
+        Returns: 
+            None.
         """
         self.time = time
         scoring.updateLocationScore(time, self)
@@ -245,20 +325,49 @@ class Link(flee.Link):
 
     @check_args_type
     def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False):
+        """
+        Summary: 
+            Creates a new link object.
+
+        Args:
+            startpoint (Location): The startpoint of the link.
+            endpoint (Location): The endpoint of the link.
+            distance (float): The distance between the startpoint and endpoint.
+            forced_redirection (bool, optional): Whether or not the link should be used as a forced redirection. Defaults to False.
+
+        Returns:
+            None.
+        """
         super().__init__(startpoint, endpoint, distance, forced_redirection)
+
 
     @check_args_type
     def DecrementNumAgents(self) -> None:
         """
-        Summary
+        Summary: 
+            Decrements the number of agents on the link by 1.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         self.numAgentsOnRank -= 1
         super().DecrementNumAgents()
 
+
     @check_args_type
     def IncrementNumAgents(self, agent) -> None:
         """
-        Summary
+        Summary: 
+            Increments the number of agents on the link by 1.
+
+        Args: 
+            None.
+
+        Returns: 
+            None.
         """
         self.numAgentsOnRank += 1
         super().IncrementNumAgents(agent)
@@ -271,6 +380,16 @@ class Ecosystem(flee.Ecosystem):
 
     @check_args_type
     def __init__(self):
+        """
+        Summary: 
+            Initializes a new Ecosystem object.
+
+        Args: 
+            None.
+
+        Returns: 
+            None.
+        """
         self.locations = []
         self.locationNames = []
         self.agents = []
@@ -302,22 +421,24 @@ class Ecosystem(flee.Ecosystem):
             self.num_arrivals = []  # one element per time step.
             self.travel_durations = []  # one element per time step.
 
+
     @check_args_type
     def getRankN(self, t: int) -> bool:
         """
-        Returns the <rank N> value, which is the rank meant to perform
-        diagnostics at a given time step.
-        Argument t contains the current number of time steps taken by
-        the simulation.
+        Summary: 
+            Returns the <rank N> value, which is the rank meant to perform
+            diagnostics at a given time step.
+            Argument t contains the current number of time steps taken by
+            the simulation.
 
-        NOTE: This is overwritten to just give rank 0, to prevent garbage
-        output ordering...
+            NOTE: This is overwritten to just give rank 0, to prevent garbage
+            output ordering...
 
         Args:
-            t (int): Description
+            t (int): The current number of time steps taken by the simulation.
 
         Returns:
-            bool: Description
+            bool: Whether or not the current process is the rank meant to perform diagnostics.
         """
         # N = t % self.mpi.size
         # if self.mpi.rank == N:
@@ -325,10 +446,15 @@ class Ecosystem(flee.Ecosystem):
             return True
         return False
 
+
     @check_args_type
     def numIDPs(self) -> int:
         """
-        Aggregates number of IDPs across locations
+        Summary:
+            Aggregates number of IDPs across locations
+        
+        Args: 
+            None.
 
         Returns:
             int: total # of IDPs.
@@ -346,11 +472,14 @@ class Ecosystem(flee.Ecosystem):
     @check_args_type
     def updateNumAgents(self, CountClosed: bool = False, log: bool = True) -> None:
         """
-        Summary
+        Summary: Updates the number of agents in the ecosystem.
 
         Args:
-            CountClosed (bool, optional): Description
-            log (bool, optional): Description
+            CountClosed (bool, optional): Whether to count agents on closed links. Defaults to False.
+            log (bool, optional): Whether to log the updated number of agents to the standard error stream. Defaults to True.
+
+        Returns:
+            None.
         """
         mode = self.latency_mode
 
@@ -425,21 +554,26 @@ class Ecosystem(flee.Ecosystem):
     @check_args_type
     def addAgent(self, location, attributes) -> None:
         """
-        Summary
+        Summary: 
+            Adds an agent to the ecosystem at the specified location.
 
         Args:
-            location (Location): Description
+            location (Location): The location to add the agent to.
+            attributes (dict): A dictionary of attributes for the agent.
+
+        Returns:
+            None.
         """
         if SimulationSettings.spawn_rules["TakeFromPopulation"]:
-            if location.conflict > 0.0:
-                if location.pop > 1:
+            if location.conflict > 0.0:  
+                if location.pop > 1: 
                     location.pop -= 1
                     location.numAgentsSpawnedOnRank += 1
                     location.numAgentsSpawned += 1
                 else:
                     print(
                         "ERROR: Number of agents in the simulation is larger than the combined "
-                        "population of the conflict zones. Please amend locations.csv."
+                        "population of the conflict zones. Please amend locations.csv." 
                     )
                     location.print()
                     assert location.pop > 1
@@ -451,37 +585,54 @@ class Ecosystem(flee.Ecosystem):
     @check_args_type
     def insertAgent(self, location) -> None:
         """
-        Note: insert Agent does NOT take from Population.
+        Summary: 
+            Inserts an agent into the ecosystem at the specified location.
+            Note: insert Agent does NOT take from Population.
 
         Args:
-            location (Location): Description
+            location (Location): The location to insert the agent into.
+
+        Returns:
+            None.
         """
         self.total_agents += 1
         if self.total_agents % self.mpi.size == self.mpi.rank:
             self.agents.append(Person(self, location=location))
 
+
     @check_args_type
     def insertAgents(self, location, number: int) -> None:
         """
-        Summary
+        Summary: 
+            Inserts a number of agents into the ecosystem at the specified
+            location.
+            Note: insert Agent does NOT take from Population.
 
         Args:
-            location (Location): Description
-            number (int): Description
+            location (Location): The location to insert the agents into.
+            number (int): The number of agents to insert.
+
+        Returns:
+            None.
         """
         for _ in range(0, number):
             self.insertAgent(location=location)
 
+
     @check_args_type
     def clearLocationsFromAgents(self, location_names: List[str]) -> None:
         """
-        Remove all agents from a list of locations by name.
-        Useful for couplings to other simulation codes.
+        Summary: 
+            Remove all agents from a list of locations by name.
+            Useful for couplings to other simulation codes.
 
-        TODO : REWRITE!!
+            TODO : REWRITE!!
 
         Args:
-            location_names (List[str]): Description
+            location_names (List[str]): A list of location names to remove agents from.
+
+        Returns: 
+            None. 
         """
 
         new_agents = []
@@ -500,38 +651,51 @@ class Ecosystem(flee.Ecosystem):
         # MPI_Allreduce)
         self.updateNumAgents(log=False)
 
+
     @check_args_type
     def numAgents(self) -> int:
         """
-        Summary
+        Summary: 
+            Returns the number of agents in the ecosystem.
+
+        Args:
+            None.
 
         Returns:
-            int: Description
+            int: The number of agents in the ecosystem.
         """
         return int(self.total_agents)
+
 
     @check_args_type
     def numAgentsOnRank(self) -> int:
         """
-        Summary
+        Summary:
+            Returns the number of agents on the current process.
+
+        Args:
+            None.
 
         Returns:
-            int: Description
+            int: The number of agents on the current process.
         """
         return len(self.agents)
 
+
     @check_args_type
-    def synchronize_locations(
-        self, start_loc_local: int, end_loc_local: int, Debug: bool = False
-    ) -> None:
+    def synchronize_locations(self, start_loc_local: int, end_loc_local: int, Debug: bool = False) -> None:
         """
-        Gathers the scores from all the updated locations, and propagates them
-        across the processes.
+        Summary: 
+            Gathers the scores from all the updated locations,
+            and propagates them across the processes.
 
         Args:
-            start_loc_local (int): Description
-            end_loc_local (int): Description
-            Debug (bool, optional): Description
+            start_loc_local (int): The index of the first location to synchronize.
+            end_loc_local (int): The index of the last location to synchronize.
+            Debug (bool, optional): Turns on debugging output. Defaults to False.
+
+        Returns:
+            None.
         """
 
         base = int((len(self.scores) / self.scores_per_location) / self.mpi.size)
@@ -562,13 +726,20 @@ class Ecosystem(flee.Ecosystem):
         if Debug and self.mpi.rank == 0:
             print("end of synchronize_locations", file=sys.stderr)
 
+
     @check_args_type
     def evolve(self) -> None:
         """
-        Summary
+        Summary:
+            Evolves the ecosystem for a single time step.
+        
+        Args: 
+            None.
+
+        Returns:
+            None.
+
         """
-
-
         if self.time == 0:
             # print("rank, num_agents:", self.mpi.rank, len(self.agents))
 
@@ -661,6 +832,7 @@ class Ecosystem(flee.Ecosystem):
 
         self.time += 1
 
+
     @check_args_type
     def addLocation(
         self,
@@ -676,21 +848,25 @@ class Ecosystem(flee.Ecosystem):
         attributes: dict = {},
     ):
         """
-        Add a location to the ABM network graph
+        Summary: 
+            Add a location to the ABM network graph.
 
         Args:
-            name (str): Description
-            x (float, optional): Description
-            y (float, optional): Description
-            location_type (str, optional): Description
-            movechance (float, optional): Description
-            capacity (int, optional): Description
-            pop (int, optional): Description
-            foreign (bool, optional): Description
-            country (str, optional): Description
+            name (str): The name of the location.
+            x (float, optional): The x coordinate of the location. Defaults to 0.0.
+            y (float, optional): The y coordinate of the location. Defaults to 0.0.
+            location_type (str, optional): The type of the location. Defaults to None.
+            movechance (float, optional): The chance that a person will move from the location. Defaults to -1.0.
+            capacity (int, optional): The capacity of the location. Defaults to -1.
+            pop (int, optional): The population of the location. Defaults to 0.
+            foreign (bool, optional): Whether or not the location is foreign. Defaults to False.
+            country (str, optional): The country of the location. Defaults to "unknown".
 
         No Longer Returned:
-            Location: Description
+            Location: The location that was added.
+
+        Returns: 
+            None.
 
         """
 
@@ -735,18 +911,36 @@ class Ecosystem(flee.Ecosystem):
 
         return loc
 
+
     @check_args_type
     def printComplete(self) -> None:
         """
-        Summary
+        Summary:
+            Prints information about the ecosystem to the standard output stream,
+            if the current process is the root process.
+
+        Args:
+            None.
+
+        Returns:
+            None.
         """
         if self.mpi.rank == 0:
             super().printComplete()
 
+
     @check_args_type
     def printInfo(self) -> None:
         """
-        Summary
+        Summary:
+            Prints information about the ecosystem to the standard output stream,
+            if the current process is the root process.
+
+        Args: 
+            None.
+
+        Returns:
+            None.
         """
         if self.mpi.rank == 0:
             super().printInfo()
