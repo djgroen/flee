@@ -420,6 +420,14 @@ class InputGeography:
             loc_name = e.locations[i].name
             if loc_name in attrlist:
                 e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
+            else:
+                if attribute_name == "flood_level":
+                    #Locations not specified in flood_level.csv are then set to flood_level 0.
+                    e.locations[i].attributes[attribute_name] = 0 
+
+                # if attribute_name == "flood_level":
+                #     print("loc_name", loc_name, file=sys.stderr)
+                #     print("flood_level", e.locations[i].attributes["flood_level"], file=sys.stderr)            
 
 
     @check_args_type

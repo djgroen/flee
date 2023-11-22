@@ -51,6 +51,8 @@ def getEndPointScore(agent, link) -> float:
     # DFlee Flood Location Weight implementation
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         flood_level = link.endpoint.attributes.get("flood_level",0)
+        print("location name", link.endpoint.name, file=sys.stderr)
+        print("flood_level", link.endpoint.attributes["flood_level"], file=sys.stderr)  
         if flood_level > 0:
             base *= float(SimulationSettings.move_rules["FloodLocWeights"][flood_level])
 

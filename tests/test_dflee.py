@@ -75,6 +75,9 @@ def test_flood_level_location_attribute():
         if t == 0:
             assert lm["A"].attributes["flood_level"] == 0
             assert e.locations[1].attributes["flood_level"] == 1
+            # Check camps/towns have default flood level of 0
+            assert lm["C"].attributes["flood_level"] == 0
+            assert lm["D"].attributes["flood_level"] == 0
 
         # Propagate the model by one time step.
         e.evolve()
@@ -85,9 +88,15 @@ def test_flood_level_location_attribute():
         if t == 3:
             assert lm["A"].attributes["flood_level"] == 1
             assert e.locations[1].attributes["flood_level"] == 3
+            # Check camps/towns have default flood level of 0
+            assert lm["C"].attributes["flood_level"] == 0
+            assert lm["D"].attributes["flood_level"] == 0
     
     assert lm["A"].attributes["flood_level"] == 1
     assert e.locations[1].attributes["flood_level"] == 1
+    # Check camps/towns have default flood level of 0
+    assert lm["C"].attributes["flood_level"] == 0
+    assert lm["D"].attributes["flood_level"] == 0
 
 
 if __name__ == "__main__":
