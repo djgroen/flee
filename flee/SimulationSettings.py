@@ -84,6 +84,67 @@ class SimulationSettings:
         time_since_conflict = time - loc.time_of_conflict
         multiplier = SimulationSettings.get_conflict_decay(time_since_conflict)
         return multiplier
+    
+    # LAURA
+    # remove this?
+    # @staticmethod
+    # def flood_forecaster_location_weight(time: int, loc): #LAURA
+    #     """
+    #     Summary:
+    #         Calculates the location weight due to flooding.
+
+    #     Args:
+    #         current_flood_level: The current flood level for the location.
+    #         future_flood_levels: A list of the flood levels for the location from the
+    #         current day to the Nth day.
+    #         weight_function: A function that specifies the weight to give to flood levels
+    #         that are `day_number` days in the future.
+
+    #     Returns:
+    #         The location weight.
+
+    #     #LAURA turn this off now? 
+    #     """
+    #     # Get the current flood level.
+    #     flood_level = e.locations[i].attributes.get("flood_level",0)
+
+    #     # Calculate the weight for the current flood level.
+    #     current_flood_level_weight = weight_function(0)
+
+    #     # Calculate the weight for the future flood levels.
+    #     future_flood_level_weights = weight_function(np.arange(1, len(future_flood_levels) + 1))
+
+    #     # Calculate the total weight for the location.
+    #     location_weight = current_flood_level_weight * current_flood_level + np.sum(future_flood_level_weights * future_flood_levels)
+
+    #     return location_weight
+
+    #     #if the location is a flood zone
+    #     if loc.flood_zone > 0.0:
+    #         #if the flood forecaster is enabled
+    #         if SimulationSettings.move_rules["flood_forecaster"] is True:
+    #             #if the flood forecaster timescale is greater than zero
+    #             if SimulationSettings.move_rules["flood_forecaster_timescale"] > 0:
+    #                 #if the time since the flood is less than the flood forecaster timescale
+    #                 if time - loc.time_of_flood < SimulationSettings.move_rules["flood_forecaster_timescale"]:
+    #                     # number of days that the flood forecaster can predict the weather for.
+    #                     flood_forecaster_timescale = SimulationSettings.move_rules["flood_forecaster_timescale"]
+    #                     flood_forecaster_end_time = SimulationSetting.move_rule["flood_forecaster_end_time"]
+
+    #                     #then the flood forecaster is enabled
+    #                     return True
+    #                 else:
+    #                     #else the flood forecaster is disabled
+    #                     return False
+    #             else:
+    #                 #else the flood forecaster is disabled
+    #                 return False
+    #         else:
+    #             #else the flood forecaster is disabled
+    #             return False
+    #     else:
+    #         #else the flood forecaster is disabled
+    #         return False
 
 
     @staticmethod
@@ -167,6 +228,10 @@ class SimulationSettings:
         # Setting False by default.
         SimulationSettings.move_rules["FloodRulesEnabled"] = False
 
+        #Setting forecaster to false by default. 
+        SimulationSettings.move_rules["flood_forecaster"] = False 
+        SimulationSettings.move_rules["flood_focaster_timescale"] = 0 #defaults to zero days of forecasting abiltiy.
+
         if spawn_type == "flood":
           dpsc = fetchss(dps,"flood_driven_spawning",None)
           if dpsc is not None:
@@ -185,6 +250,10 @@ class SimulationSettings:
               SimulationSettings.spawn_rules["displaced_per_flood_day"] = fetchss(dpsc,"displaced_per_flood_day", [0.0,0.1,0.2,0.5,0.9]) #expect an array.
             else:
               SimulationSettings.spawn_rules["displaced_per_flood_day"] = fetchss(dpsc,"displaced_per_flood_day", [0,100,200,300,500])
+
+            # Flood forecaster
+            if SimulationSettings.move_rules["flood_forecaster"] is True:
+               SimulationSettings.move_rules["flood_focaster_timescale"] = fetchss(dpsc,"flood_focaster_timescale", 0) #defaults to zero days of forecasting abiltiy. 
 
 
         SimulationSettings.spawn_rules["conflict_spawn_decay"] = fetchss(dps,"conflict_spawn_decay", None) # Expect an array or dict
@@ -289,6 +358,27 @@ class SimulationSettings:
           SimulationSettings.move_rules["FloodLinkWeights"] = fetchss(dpf,"flood_link_weights", None) # Expect an array or dict
           print("Flood Link Weights set to:", SimulationSettings.move_rules["FloodLinkWeights"], file=sys.stderr)
           print("Note: Flood Link Weights are not supported yet in this version of DFlee.")
+
+          #Flood forecaster - allows agents to have awareness of the weather forecast 
+          SimulationSettings.move_rules["FloodForecaster"] = bool(fetchss(dpf,"flood_forecaster", False)) #defaults to false
+          print("Flood Forecaster set to:", SimulationSettings.move_rules["FloodForecaster"], file=sys.stderr)
+
+          #Flood forecaster timescale - how many days ahead can agents forecast the weather
+          SimulationSettings.move_rules["FloodForecasterTimescale"] = int(fetchss(dpf,"flood_forecaster_timescale", 0)) #defaults to zero days of forecasting abiltiy
+          print("Flood Forecaster Timescale set to:", SimulationSettings.move_rules["FloodForecasterTimescale"], file=sys.stderr)
+          
+          #Flood forcaster weights - how important each day in the forecast is. 
+          SimulationSettings.move_rules["FloodForecasterWeights"] = fetchss(dpf,"flood_forecaster_weights", None) # Expect an array or dict
+          print("Flood Forecaster Weights set to:", SimulationSettings.move_rules["FloodForecasterWeights"], file=sys.stderr)
+
+          #Flood forcaster end time - when the flood forecaster stops 
+          SimulationSettings.move_rules["FloodForecasterEndTime"] = int(fetchss(dpf,"flood_forecaster_end_time", 0)) #defaults to zero days of forecasting
+          print("Flood Forecaster End Time set to:", SimulationSettings.move_rules["FloodForecasterEndTime"], file=sys.stderr)
+
+          #Flood forcaster agent awareness level - how aware of the forecast an agent is when making a decision or how able an agent is to adapt to the forecast
+          SimulationSettings.move_rules["FloodAwarenessWeights"] = fetchss(dpf,"flood_awareness_weights", None) # Expect an array or dict
+          print("Flood Awareness Weights set to:", SimulationSettings.move_rules["FloodAwarenessWeights"], file=sys.stderr)
+
 
           #TODO: Add verification code.
 

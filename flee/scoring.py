@@ -42,6 +42,15 @@ def updateLocationScore(time: int, loc) -> None:
         #conflict decay multiplier is larger for locations with conflict for longer periods of time
         score *= SimulationSettings.move_rules["ConflictWeight"]**(SimulationSettings.get_location_conflict_decay(time, loc) * loc.conflict)
     
+    # LAURA
+    # do i need a score here?
+    #score multiplier for flooding
+    # if loc.flood_zone: 
+    #     flood_level = loc.attributes.get("flood_level",0)
+    #     score *= float(SimulationSettings.move_rules["FloodLocWeights"][flood_level])
+    # Forecast implementation here?:
+
+    
 
     loc.setScore(0, 1.0)
     #print(loc.name,loc.camp,loc.foreign,loc.scores)

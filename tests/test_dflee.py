@@ -90,10 +90,14 @@ def test_flood_level_location_attribute():
 
         ig.AddNewConflictZones(e, t)
 
-        # Check the floof levels at t=0
+        # Check the flood levels at t=0
         if t == 0:
             assert lm["A"].attributes["flood_level"] == 0
             assert e.locations[1].attributes["flood_level"] == 1
+            # LAURA
+            # #Check the flood levels at locations C a town and E a camp are 0 
+            # assert lm["C"].attributes["flood_level"] == 0
+            # assert lm["E"].attributes["flood_level"] == 0
 
         # Propagate the model by one time step.
         e.evolve()
@@ -107,6 +111,10 @@ def test_flood_level_location_attribute():
         if t == 3:
             assert lm["A"].attributes["flood_level"] == 1
             assert e.locations[1].attributes["flood_level"] == 3
+            # LAURA
+            # #Check the flood levels at locations C a town and E a camp are 0 
+            # assert lm["C"].attributes["flood_level"] == 0
+            # assert lm["E"].attributes["flood_level"] == 0
     
     #Check the flood levels at the final time step
     assert lm["A"].attributes["flood_level"] == 1

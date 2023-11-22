@@ -142,6 +142,49 @@ class Person:
         print(f"Error: camp {self.route[-1]} not found in check_dest_is_full_camp", file=sys.stderr)
         sys.exit()
     
+    # LAURA 
+    # check this is obsolete
+    # @check_args_type
+    # def check_dest_is_flooded(self,e):
+    #     """
+    #     Summary:
+    #         Checks the destination is not flooded based on flood_zones in flood_level.csv. 
+    #         If the destination is flooded, the link is removed. 
+
+    #     Args:
+    #         e: ecosystem object.
+      
+    #     Returns:
+    #         True if the destination is flooded, False otherwise.
+
+    #     LAURA: Finish this function.
+    #     """
+    #     # Access the max_flood_level value
+    #     # max_flood_level = flee.SimulationSettings.Flooding.get("max_flood_level", 0.0)
+    #     # print("max_flood_level",max_flood_level, file=sys.stderr)
+    #     #Iterate over the endpoint locations in the routes
+    #     for i in range(0, len(e.locationNames)):
+    #         # print("route", self.route, file=open('/Users/laura/Desktop/log.txt', 'a'))
+    #         if e.locationNames[i] == self.route[-1]:
+    #             # print("attributes", e.locations[i].attributes, file=open('/Users/laura/Desktop/log.txt', 'a'))
+    #             # print("flood_zone", e.locations[i].flood_zone, file=open('/Users/laura/Desktop/log.txt', 'a'))
+    #             if e.locations[i].flood_zone:
+    #                 # print("e.locationNames[i]", e.locationNames[i], file=open('/Users/laura/Desktop/log.txt', 'a'))
+    #                 # print("e.locations[i].attributes[flood_level]", e.locations[i].attributes["flood_level"], file=open('/Users/laura/Desktop/log.txt', 'a'))
+    #                 #Iterate over the flooded locations
+    #                 if e.locations[i].attributes["flood_level"] >= 1:
+    #                     # print("Flooded", file=open('/Users/laura/Desktop/log.txt', 'a'))
+    #                     return True
+    #                 else:
+    #                     # print("Not flooded", file=open('/Users/laura/Desktop/log.txt', 'a'))
+    #                     return False
+    #             else:
+    #                 return False
+
+    
+    #     print(f"Error: flood_zone {self.route[-1]} not found in check_dest_is_flooded", file=sys.stderr)
+    #     sys.exit()
+
 
     def take_next_step(self,e):
         """
@@ -157,10 +200,16 @@ class Person:
             or the next link is invalid.
         """
         for l in self.location.links:
+            # If the name of the destination on the current link is same as the agents current waypoint on the route:
             if l.endpoint.name == self.route[0]:
+                # Check if the destination camp is full, flooded. If so, remove the route and return `None`.
+                # LAURA remove if not used above. 
+                # LAURA ORIGINAL: if self.check_dest_is_full_camp(e):
+                # LAURA FUTURE: if self.check_dest_is_full_camp(e) or self.check_dest_is_flooded(e):
                 if self.check_dest_is_full_camp(e):
                     self.route = []
                     return None
+                # Otherwise, remove the first link from the route and return the next link.
                 self.route = self.route[1:]
                 return l
 
@@ -360,6 +409,7 @@ class Location:
         self.town = False
         self.forward = False
         self.marker = False
+        self.flood_zone = False 
         self.time_of_conflict = -1 # Time that a major conflict event last took place.
         self.numAgentsSpawned = 0
 
@@ -381,6 +431,10 @@ class Location:
             elif "marker" in location_type.lower():
                 self.movechance = 1.0
                 self.marker = True
+            elif "flood_zone" in location_type.lower(): 
+                # move chance based on default because flood_level not linked to flood_zone yet
+                self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+                self.flood_zone = True 
             elif "default" in location_type.lower() or "town" in location_type.lower():
                 self.town = True
                 self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
@@ -393,7 +447,8 @@ class Location:
 
         # Automatically tags a location as a Camp if refugees are less than 2%
         # likely to move out on a given day.
-        if self.movechance < 0.005 and not self.camp:
+        # Don't want flood zone to become a camp if movechance is low. 
+        if self.movechance < 0.005 and not self.camp and not self.flood_zone:
             print(
                 "Warning: automatically setting location {} to camp, "
                 "as movechance = {}".format(self.name, self.movechance),
@@ -456,8 +511,6 @@ class Location:
 
         Returns:
             None.
-
-        LAURA: Think I need to turn this off for flooding.
         """
         self.movechance = SimulationSettings.move_rules["CampMoveChance"]
         self.camp = True
@@ -465,6 +518,7 @@ class Location:
         self.town = False
         self.forward = False
         self.marker = False
+        self.flood_zone = False
         if IDP:
             self.idpcamp = True
             self.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
@@ -497,7 +551,6 @@ class Location:
 
         Returns:
             None.
-
         """
         self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
         self.camp = False
@@ -506,6 +559,7 @@ class Location:
         self.town = True
         self.forward = False
         self.marker = False
+        self.flood_zone = False
 
 
     @check_args_type
@@ -554,7 +608,7 @@ class Location:
         """
         print(
             "Location name: {}, X: {}, Y: {}, movechance: {}, cap: {}, "
-            "pop: {}, country: {}, conflict? {}, camp? {}, foreign? {}, attributes: {}".format(
+            "pop: {}, country: {}, conflict? {}, camp? {}, flood_zone? {}, foreign? {}, attributes: {}".format(
                 self.name,
                 self.x,
                 self.y,
@@ -564,6 +618,7 @@ class Location:
                 self.country,
                 self.conflict,
                 self.camp,
+                self.flood_zone,
                 self.foreign,
                 self.attributes,
             ),
@@ -592,6 +647,7 @@ class Location:
             None.
         """
         self.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
+
 
     @check_args_type
     def SetCampMoveChance(self) -> None:
@@ -812,7 +868,8 @@ class Ecosystem:
     @check_args_type
     def export_graph(self, use_ids_instead_of_names: bool = False) -> Tuple[List[str], List[List]]:
         """
-        Summary: Exports the simulation graph as a list of vertices and a list of edges.
+        Summary: 
+            Exports the simulation graph as a list of vertices and a list of edges.
 
         Args:
             use_ids_instead_of_names (bool, optional): Whether to use location IDs instead of location names for the vertices. Defaults to False.
@@ -879,7 +936,6 @@ class Ecosystem:
 
         Returns:
             None.
-
         """
         # print("Enact border closures: ", self.closures)
         if len(self.closures) > 0:
@@ -1385,7 +1441,8 @@ class Ecosystem:
     @check_args_type
     def set_forced_redirection(self, loc1_name: str, loc2_name: str, value: bool):
         """
-        Summary: Sets the forced redirection flag on the link between two locations.
+        Summary: 
+            Sets the forced redirection flag on the link between two locations.
 
         Args:
             loc1_name (str): The name of the first location.
@@ -1531,7 +1588,8 @@ class Ecosystem:
             self.remove_conflict_zone(name, change_movechance)
         else:
             self.add_conflict_zone(name, conflict_intensity, change_movechance)
-    
+
+
     @check_args_type
     def pick_spawn_location(self):
         """
