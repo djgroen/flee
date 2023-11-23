@@ -420,9 +420,6 @@ class InputGeography:
             loc_name = e.locations[i].name
             if loc_name in attrlist:
                 e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
-                print(loc_name, time, attrlist[loc_name][time], file=sys.stderr)
-
-        sys.exit()
 
 
     @check_args_type
