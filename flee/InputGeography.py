@@ -415,11 +415,14 @@ class InputGeography:
     def UpdateLocationAttributes(self, e, attribute_name: str, time: int) -> None:
 
         attrlist = self.attributes[attribute_name]
-       
+
         for i in range(0, len(e.locations)):
             loc_name = e.locations[i].name
             if loc_name in attrlist:
                 e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
+                print(loc_name, time, attrlist[loc_name][time], file=sys.stderr)
+
+        sys.exit()
 
 
     @check_args_type
