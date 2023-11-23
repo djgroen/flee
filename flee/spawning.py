@@ -195,12 +195,15 @@ def add_initial_refugees(e, d, loc):
   Returns:
       None.
   """
+  global __demographics
   # Only initialize demographics when first called.
   if len(__demographics) == 0:
       read_demographics(e)
 
+  if SimulationSettings.spawn_rules["EmptyCampsOnDay0"] is True:
+      return
 
-  if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"]:
+  if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"] is True:
       num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
       for i in range(0, num_refugees):
           attributes = draw_samples(e, loc)
@@ -262,17 +265,8 @@ def spawn_daily_displaced(e, t, d):
       for i in range(0, len(e.locations)):
 
         num_spawned = 0
-    
-        flood_level = e.locations[i].attributes["flood_level"] #original 
-        
-        # LAURA
-        # remove print statements 
-        # flood_level = e.locations[i].attributes.get("flood_level",0) #new
-
-        #print("spawning daily displaced")
-        #print("e.locations[i].name", e.locations[i].name, file=sys.stderr)
-        #print("flood_level", flood_level, file=sys.stderr)
-
+        flood_level = e.locations[i].attributes.get("flood_level",0)
+        #print(e.time, e.locations[i].name, e.locations[i].attributes, file=sys.stderr)
         if flood_level > 0:
             ## BASE RATES  
             if SimulationSettings.spawn_rules["flood_spawn_mode"] == "constant":
@@ -302,7 +296,14 @@ def spawn_daily_displaced(e, t, d):
       if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"]:
         if t == 0:
           new_refs = 0
-          #refugees_raw = 0
+          #__refugees_raw = 0
+
+          for l in e.locations:
+              print(l.name, l.capacity, d.day0pops.get(l.name,0),  file=sys.stderr)
+              if l.capacity > 0 :
+                  l.capacity -= int(float(d.day0pops.get(l.name,0)))
+              print(l.name, l.capacity, file=sys.stderr)
+
 
       if new_refs < 0:
         __refugee_debt = -new_refs
@@ -311,10 +312,10 @@ def spawn_daily_displaced(e, t, d):
         __refugee_debt = 0
 
       #Insert refugee agents
+      locs = e.pick_spawn_locations(new_refs)
       for i in range(0, new_refs):
-        loc = e.pick_spawn_location()
-        attributes = draw_samples(e, loc)
-        e.addAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
+        attributes = draw_samples(e, locs[i])
+        e.addAgent(location=locs[i], attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
     return new_refs, __refugees_raw, __refugee_debt
 

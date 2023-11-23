@@ -176,6 +176,8 @@ class SimulationSettings:
         SimulationSettings.log_levels["conflict"] = int(fetchss(dpll,"conflict",0))
         SimulationSettings.log_levels["idp_totals"] = int(fetchss(dpll,"idp_totals",0))
 
+        SimulationSettings.log_levels["granularity"] = fetchss(dpll,"granularity","location")
+        # location, region
 
 
         dps = fetchss(dp,"spawn_rules",None)
@@ -187,6 +189,7 @@ class SimulationSettings:
         SimulationSettings.spawn_rules["TakeFromPopulation"] = bool(fetchss(dps, "take_from_population", False))
         # Advanced settings
         SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"] = bool(fetchss(dps, "insert_day0", True))
+        SimulationSettings.spawn_rules["EmptyCampsOnDay0"] = bool(fetchss(dps, "empty_camps_on_day0", False))
 
 
         SimulationSettings.spawn_rules["conflict_zone_spawning_only"] = bool(fetchss(dps, "conflict_zone_spawning_only", True)) # Only spawn agents from conflict zones.
@@ -227,6 +230,7 @@ class SimulationSettings:
 
         # Setting False by default.
         SimulationSettings.move_rules["FloodRulesEnabled"] = False
+        SimulationSettings.spawn_rules["flood_driven_spawning"] = False # Conflicts provide a direct push factor.
 
         #Setting forecaster to false by default. 
         SimulationSettings.move_rules["flood_forecaster"] = False 

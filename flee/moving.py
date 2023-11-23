@@ -54,11 +54,7 @@ def getEndPointScore(agent, link, time) -> float:
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         #Get the current flood level of the endpoint, if flood level not set in flood_level.csv then default to zero
         flood_level = link.endpoint.attributes.get("flood_level",0)
-        
-        print("Attributes:", link.endpoint.attributes, file=sys.stderr)
-        print("Location Name", link.endpoint.name, file=sys.stderr)
-        
-        #Check if the endpoint is flooded (i.e. >0.0)
+        #print("Link:", link.endpoint.name, link.endpoint.attributes, file=sys.stderr)
         if flood_level > 0:
             #set the base equal to the flood location weight
             base *= float(SimulationSettings.move_rules["FloodLocWeights"][flood_level])
@@ -351,6 +347,7 @@ def calculateMoveChance(a, ForceTownMove: bool) -> float:
     # DFlee Flood Location Movechance implementation
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         flood_level = a.location.attributes.get("flood_level",0)
+        #print(a.location.name, a.location.attributes, file=sys.stderr)
         if flood_level > 0:
             # LAURA
             # movechance modified by flood, not done.  

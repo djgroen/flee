@@ -87,15 +87,24 @@ def write_agents_par(
             if a.location is None: #Do not write agent logs for agents that are removed from the simulation.
                 continue
 
+            loc_name = a.location.name
+            x = a.location.x
+            y = a.location.y
+
+            if SimulationSettings.log_levels["granularity"] == "region":
+                loc_name = location.region
+                x = 0.0
+                y = 0.0
+
             print(
                     "{},{}-{},{},{},{},{},{},{},{},{},{}".format(
                     time,
                     rank,
                     k,
                     a.home_location.name,
-                    a.location.name,
-                    a.location.x,
-                    a.location.y,
+                    loc_name,
+                    x,
+                    y,
                     a.travelling,
                     a.distance_travelled,
                     a.places_travelled,
@@ -109,6 +118,14 @@ def write_agents_par(
                 if SimulationSettings.log_levels["agent"] > 2:
                     hop_number = 1 # hop counter starts at 1 to indicate second hop in time step.
                     for l in a.locations_visited:
+                        loc_name = l.name
+                        x = l.x
+                        y = l.y
+                        if SimulationSettings.log_levels["granularity"] == "region":
+                            loc_name = l.region
+                            x = 0.0
+                            y = 0.0
+
                         print(
                             "{}-{},{}-{},{},{},{},{},{},{},{},{},{}".format(
                                 time,
@@ -116,9 +133,9 @@ def write_agents_par(
                                 rank,
                                 k,
                                 a.home_location.name,
-                                l.name,
-                                l.x,
-                                l.y,
+                                loc_name,
+                                x,
+                                y,
                                 a.travelling,
                                 a.distance_travelled,
                                 a.places_travelled,
@@ -130,15 +147,23 @@ def write_agents_par(
                         hop_number += 1
                 else:
                     for l in a.locations_visited:
+                        loc_name = l.name
+                        x = l.x
+                        y = l.y
+                        if SimulationSettings.log_levels["granularity"] == "region":
+                            loc_name = l.region
+                            x = 0.0
+                            y = 0.0
+
                         print(
                             "{},{}-{},{},{},{},{},{},{},{},{},{}".format(
                                 time,
                                 rank,
                                 k,
                                 a.home_location.name,
-                                l.name,
-                                l.x,
-                                l.y,
+                                loc_name,
+                                x,
+                                y,
                                 a.travelling,
                                 a.distance_travelled,
                                 a.places_travelled,
@@ -198,33 +223,66 @@ def write_links_par(
     else:
         my_file = open("links.out.%s" % rank, "a", encoding="utf-8")
 
-    if time % timestep_interval == 0:
-        for i in range(0, len(locations)):
-            for l in locations[i].links:
-                print(
-                    "{},{},{},{},total".format(
-                    time,
-                    l.startpoint.name,
-                    l.endpoint.name,
-                    l.cumNumAgents,
-                    ),
-                file=my_file,
-                )
 
-                if SimulationSettings.log_levels["link"] > 1:
-                    for a in l.cumNumAgentsByAttribute:
-                        for v in l.cumNumAgentsByAttribute[a]:
-                            print(
-                                "{},{},{},{},{}:{}".format(
-                                time,
-                                l.startpoint.name,
-                                l.endpoint.name,
-                                l.cumNumAgentsByAttribute[a][v],
-                                a,
-                                v,
-                                ),
-                            file=my_file,
-                            )
+
+    if SimulationSettings.log_levels["granularity"] == "region":
+        if time % timestep_interval == 0:
+            for i in range(0, len(locations)):
+                for l in locations[i].links:
+                    print(
+                        "{},{},{},{},total".format(
+                        time,
+                        l.startpoint.region,
+                        l.endpoint.region,
+                        l.cumNumAgents,
+                        ),
+                    file=my_file,
+                    )
+
+                    if SimulationSettings.log_levels["link"] > 1:
+                        for a in l.cumNumAgentsByAttribute:
+                            for v in l.cumNumAgentsByAttribute[a]:
+                                print(
+                                    "{},{},{},{},{}:{}".format(
+                                    time,
+                                    l.startpoint.region,
+                                    l.endpoint.region,
+                                    l.cumNumAgentsByAttribute[a][v],
+                                    a,
+                                    v,
+                                    ),
+                                file=my_file,
+                                )
+
+
+    else:
+        if time % timestep_interval == 0:
+            for i in range(0, len(locations)):
+                for l in locations[i].links:
+                    print(
+                        "{},{},{},{},total".format(
+                        time,
+                        l.startpoint.name,
+                        l.endpoint.name,
+                        l.cumNumAgents,
+                        ),
+                    file=my_file,
+                    )
+
+                    if SimulationSettings.log_levels["link"] > 1:
+                        for a in l.cumNumAgentsByAttribute:
+                            for v in l.cumNumAgentsByAttribute[a]:
+                                print(
+                                    "{},{},{},{},{}:{}".format(
+                                    time,
+                                    l.startpoint.name,
+                                    l.endpoint.name,
+                                    l.cumNumAgentsByAttribute[a][v],
+                                    a,
+                                    v,
+                                    ),
+                                file=my_file,
+                                )
 
 
 @check_args_type

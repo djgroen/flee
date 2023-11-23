@@ -1,7 +1,7 @@
 Simulation Settings (simsetting.yml)
 =====
 
-This file summarizes the basic settings in `simsetting.yml`. An example simsetting.yml can for example be found here: https://github.com/djgroen/FabFlee/blob/master/config_files/mali2012/simsetting.yml
+This file summarizes the basic settings in `simsetting.yml`. An example simsetting.yml can for example be found here: <https://github.com/djgroen/FabFlee/blob/master/config_files/mali2012/simsetting.yml>
 
 ## Introduction
 
@@ -20,7 +20,8 @@ log_levels:
   link: 0 
   camp: 0
   conflict: 0 
-  init: 0 
+  init: 0
+  granularity: location 
 spawn_rules:
   take_from_population: False
   insert_day0: True
@@ -47,7 +48,7 @@ optimisations:
 
 ### Log levels (log_levels)
 
-There are five log level variables, namely **agent**, **link**, **camp**,
+There are several logging level variables, such as **agent**, **link**, **camp**,
 **conflict** and **init**. If the value is set to `0` for these log levels,
 then no information is obtained from simulation runs. To obtain information,
 the values should be set to `1` (or `2` or `3` for agent log level). You can refer to
@@ -64,6 +65,11 @@ obtained from each log level (when set to `1` or `2`).
  conflict |    1   | Conflict zone spawning     			                 |
  init     |    1   | Initialisation                                                      |
  idp\_totals |    1   | Add a "total IDPs" column at the end of out.csv.                  |
+
+
+In some cases, it is not desirable to output geographical information on the `location` scale. This can be toggled using an additional variable:
+
+- `granularity` is a String variable that can be set either to `location`, to write logs by location, or to `region`. In the latter case, both the agent and link logs will contain the region name of agents, instead of their location names. The region name can be at any admin level, and is read from the `region` field for each location in `locations.csv`.  
 
 ### Spawn rules (spawn_rules)
 

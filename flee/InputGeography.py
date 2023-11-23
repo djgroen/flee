@@ -98,7 +98,7 @@ class InputGeography:
                             self.attributes[attribute_name][headers[i]] = []
                 else:
                     for i in range(1, len(row)):  # field 0 is day.
-                        # print(row[0])
+                        #print("RAICSV", row[0], row[i], file=sys.stderr)
                         if attribute_type == "int":
                             self.attributes[attribute_name][headers[i]].append(int(row[i].strip()))
                         elif attribute_type == "float":
@@ -143,15 +143,14 @@ class InputGeography:
         Returns:
             None.
         """
-        # Read flood location attributes.
-        if SimulationSettings.spawn_rules["flood_driven_spawning"] is True:
-            self.ReadAttributeInputCSV("flood_level","int","input_csv/flood_level.csv") 
-            self.ReadAttributeInputCSV("forecast_flood_levels","int","input_csv/flood_level.csv") 
-            #LAURA VSCODE debugger lines:
-            # self.ReadAttributeInputCSV("flood_level","int","/Users/laura/Documents/PhD/Codes/FLEE/FabFlee/config_files/dflee_test_copy/input_csv/flood_level.csv")
-            # self.ReadAttributeInputCSV("forecast_flood_levels","int","/Users/laura/Documents/PhD/Codes/FLEE/FabFlee/config_files/dflee_test_copy/input_csv/flood_level.csv")
-        elif SimulationSettings.move_rules["FloodRulesEnabled"] is False:
-            self.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
+
+       
+        if "flood_driven_spawning" in SimulationSettings.spawn_rules.keys():
+            # Read flood location attributes.
+            if SimulationSettings.spawn_rules["flood_driven_spawning"] is True:
+                self.ReadAttributeInputCSV("flood_level","int","input_csv/flood_level.csv")
+            elif SimulationSettings.move_rules["FloodRulesEnabled"] is False:
+                self.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
 
         self.locations = []
 
@@ -337,11 +336,22 @@ class InputGeography:
             if len(loc[7]) < 1:
                 population = 0
             else:
-                population = int(int(loc[7]) // SimulationSettings.optimisations["PopulationScaleDownFactor"])
+                try:
+                    population = int(int(loc[7]) // SimulationSettings.optimisations["PopulationScaleDownFactor"])
+                except ValueError:
+                    print(f"ERROR: location {loc[0]} has population value of {loc[7]}, which is not an int.", file=sys.stderr)
+                    sys.exit()
 
             x = float(loc[3]) if len(loc[3]) > 0 else 0.0
             y = float(loc[4]) if len(loc[4]) > 0 else 0.0
 
+            # if region field is empty, just set it to unknown.
+            if len(loc[1]) < 1:
+                region = "unknown"
+            else:
+                region = loc[1]
+
+            foreign = True
             # if country field is empty, just set it to unknown.
             if len(loc[2]) < 1:
                 country = "unknown"
@@ -360,6 +370,8 @@ class InputGeography:
                     location_type = "town"
 
             attributes = {}
+
+            # Loading of static attributes.
             if len(loc) > 8:
                 for i in range(8, len(loc)):
                     attributes[self.columns[i]] = loc[i]
@@ -367,6 +379,7 @@ class InputGeography:
             if "camp" in location_type.lower():
                 lm[name] = e.addLocation(
                     name=name,
+                    region=region,
                     location_type=location_type,
                     capacity=population,
                     x=x,
@@ -378,6 +391,7 @@ class InputGeography:
             else:
                 lm[name] = e.addLocation(
                     name=name,
+                    region=region,
                     location_type=location_type,
                     pop=population,
                     x=x,
@@ -460,11 +474,15 @@ class InputGeography:
         """
 
         attrlist = self.attributes[attribute_name]
-       
+
         for i in range(0, len(e.locations)):
             loc_name = e.locations[i].name
             if loc_name in attrlist:
                 e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
+                #print(e.time, loc_name, e.locations[i].attributes, attrlist[loc_name][time], file=sys.stderr)
+            else:
+                e.locations[i].attributes[attribute_name] = 0
+                #print(e.time, loc_name, e.locations[i].attributes, file=sys.stderr)
 
 
         # # LAURA - test again once flood levels are working. used for forecaster
@@ -563,31 +581,39 @@ class InputGeography:
         else:
             conflict_names = self.getConflictLocationNames()
             # print(confl_names)
+
+
             for conflict_name in conflict_names:
-                if Debug:
+                if len(self.conflicts[conflict_name]) < (time - 1):
+                    print(f"Error: conflict value at time {time} requested, but the conflicts table for {conflict_name} only has values up to t = {len(conflicts[conflict_name])}.", file=sys.stderr)
+
+                if Debug and e.getRankN(e.time) is True:
                     print("L:", conflict_name, self.conflicts[conflict_name], time, file=sys.stderr)
                 if self.conflicts[conflict_name][time] > 0.000001:
                     if time > 0:
                         if self.conflicts[conflict_name][time - 1] < 0.000001:
+                            if e.getRankN(e.time) is True:
+                                print(
+                                    "Time = {}. Adding a new conflict zone [{}] with intensity {}".format(
+                                        time, conflict_name, self.conflicts[conflict_name][time]
+                                    ),
+                                    file=sys.stderr,
+                                )
+                            e.set_conflict_intensity(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
+                    else:
+                        if e.getRankN(e.time) is True:
                             print(
                                 "Time = {}. Adding a new conflict zone [{}] with intensity {}".format(
                                     time, conflict_name, self.conflicts[conflict_name][time]
                                 ),
                                 file=sys.stderr,
                             )
-                            e.set_conflict_intensity(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
-                    else:
-                        print(
-                            "Time = {}. Adding a new conflict zone [{}] with intensity {}".format(
-                                time, conflict_name, self.conflicts[conflict_name][time]
-                            ),
-                            file=sys.stderr,
-                        )
                         e.add_conflict_zone(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
                 if self.conflicts[conflict_name][time] < 0.000001 and time > 0:
                     if self.conflicts[conflict_name][time - 1] >= 0.000001:
-                        print(
-                            "Time = {}. Removing conflict zone [{}]".format(time, conflict_name),
-                            file=sys.stderr,
-                        )
+                        if e.getRankN(e.time) is True:
+                            print(
+                                "Time = {}. Removing conflict zone [{}]".format(time, conflict_name),
+                                file=sys.stderr,
+                            )
                         e.set_conflict_intensity(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])

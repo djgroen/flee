@@ -204,40 +204,43 @@ markdown_extensions:
 #   Page tree   #
 #################
 nav:
-    - Home:
-      - Introduction: index.md
-      - Installation and Testing: Installation_and_Testing.md
-      - Simulation instance construction: Simulation_instance_construction.md
-      - Simulation settings configuration (basic): Simulation_settings_basic.md
-      - Simulation settings configuration (advanced): Simulation_settings_advanced.md
-      - Simulation instance execution : Simulation_instance_execution.md
-      - "FabFlee: Automated Flee-based simulation": FabFlee_Automated_Flee_based_simulation.md
-      - Remote execution on a supercomputer : Remote_execution_on_a_supercomputer.md
-      - Multiscale Simulation instance construction : Multiscale_Simulation_instance_construction.md
-      - Sensitivity analysis of parameters using EasyVVUQ : Sensitivity_analysis_of_parameters_using_EasyVVUQ.md
+  - Basic:
+    - Introduction: index.md
+    - Installation and Testing: Installation_and_Testing.md
+    - Simulation instance construction: Simulation_instance_construction.md
+    - Types of location graphs: Types_of_location_graphs.md
+    - Simulation settings configuration (basic): Simulation_settings_basic.md
+    - Simulation instance execution : Simulation_instance_execution.md
+    - "FabFlee: Automated Flee-based simulation": FabFlee_Automated_Flee_based_simulation.md
+    - Remote execution on a supercomputer : Remote_execution_on_a_supercomputer.md
 
-    - Code Reference:
-      - FLEE:
-         - Person: code_reference/flee/person.md
-         - Location: code_reference/flee/location.md
-         - Link: code_reference/flee/link.md
-         - Ecosystem: code_reference/flee/ecosystem.md
-         - Diagnostics: code_reference/flee/diagnostics.md
-         - InputGeography: code_reference/flee/inputGeography.md
-      - P-FLEE:
-         - Person: code_reference/pflee/person.md
-         - Location: code_reference/pflee/location.md
-         - Link: code_reference/pflee/link.md
-         - Ecosystem: code_reference/pflee/ecosystem.md
-      - multiscale-FLEE:
-         - CouplingInterface: code_reference/multiscale/coupling.md
-         - pmicro-FLEE:
-           - Person: code_reference/multiscale/pmicro_flee/person.md
-           - Location: code_reference/multiscale/pmicro_flee/location.md
-           - Link: code_reference/multiscale/pmicro_flee/link.md
-           - Link Weather Coupling : code_reference/multiscale/pmicro_flee/link_weather_coupling.md
-           - Ecosystem: code_reference/multiscale/pmicro_flee/ecosystem.md
-           - InputGeography: code_reference/multiscale/pmicro_flee/inputGeography.md
+  - Advanced:
+    - Multiscale Simulation instance construction : Multiscale_Simulation_instance_construction.md  
+    - Simulation settings configuration (advanced): Simulation_settings_advanced.md
+    - Sensitivity analysis of parameters using EasyVVUQ : Sensitivity_analysis_of_parameters_using_EasyVVUQ.md
+
+  - Code Reference:
+    - FLEE:
+       - Person: code_reference/flee/person.md
+       - Location: code_reference/flee/location.md
+       - Link: code_reference/flee/link.md
+       - Ecosystem: code_reference/flee/ecosystem.md
+       - Diagnostics: code_reference/flee/diagnostics.md
+       - InputGeography: code_reference/flee/inputGeography.md
+    - P-FLEE:
+       - Person: code_reference/pflee/person.md
+       - Location: code_reference/pflee/location.md
+       - Link: code_reference/pflee/link.md
+       - Ecosystem: code_reference/pflee/ecosystem.md
+    - multiscale-FLEE:
+       - CouplingInterface: code_reference/multiscale/coupling.md
+       - pmicro-FLEE:
+         - Person: code_reference/multiscale/pmicro_flee/person.md
+         - Location: code_reference/multiscale/pmicro_flee/location.md
+         - Link: code_reference/multiscale/pmicro_flee/link.md
+         - Link Weather Coupling : code_reference/multiscale/pmicro_flee/link_weather_coupling.md
+         - Ecosystem: code_reference/multiscale/pmicro_flee/ecosystem.md
+         - InputGeography: code_reference/multiscale/pmicro_flee/inputGeography.md
 
 
     - Contributing: contributing.md

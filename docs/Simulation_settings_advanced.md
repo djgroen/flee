@@ -80,7 +80,8 @@ obtained from each log level (when set to `1` or `2`).
 Spawn rules focus on spawning agents within simulation runs based on several settings. There are several settings that can be set to `True` or `False`:
 
 - **take_from_population** allows to subtract spawned agents from populations if the value is set to `True`. This can lead to crashes if the number of spawned agents exceeds the total population in conflict zones. Alternatively, you can remove the subtraction from populations by setting the value to `False`.
-- **insert_day0** accounts for a zero insertion of agents in camps at the start of simulations by setting the value to `True`. Please set to `False` if it is not required for your conflict instance. 
+- **insert_day0** will place existing agents in camps on Day 0 according to the camp populations in the source data, if set to `True`. If set to `False` these agents will instead be spawned in conflict zones as normal.
+- **empty_camps_on_day0** will start all simulations with 0 asylum seekers / unrecognized refugees in the destinations, and adjust any validation data accordingly. This setting can sometimes be useful for conflicts where there is a large static background population in destinations such as camps. 
 - **conflict_zone_spawning_only** spawns agents only from conflict zones when set to `True`. Otherwise, it is set to `False` to spawn agents from other locations that are present in your model. 
 - **camps_are_sinks** activates an attribute that you can add to locations.csv. If you set a location attribute named **deactivation_probability** to a value higher than 0.0, then there is a probability every time step that an agent in a **camp** location will be deactivated. Deactivated agents are no longer moved or changed, and are no longer logged individually although they do still count towards the totals. To have camps act as perfect sinks, simply set the **deactivation_probability** for each camp location to 1.0.
 - **sum_from_camps** will, if set to True, sum total migrant numbers from camp CSV data numbers, instead of from refugees.csv. The list of camp data that it will use to sum up is defined in `data_layout.csv`.
@@ -184,7 +185,7 @@ Value | Description                                                        |
 Set the following parameter to `True` or `False`:
 
 - **avoid_short_stints** allows to restrict displaced people that will take a break unless they at least travelled for a full day's distance in the last two days.
-- **start_on_foot** is a parameters allowing agents to traverse first link on foot.
+- **start_on_foot** is a parameter allowing agents to traverse first link on foot.
 - **stay_close_to_home** is a parameter adding a weight that favours locations closer to the persons home location.
 
 To set the following parameters, please use values:

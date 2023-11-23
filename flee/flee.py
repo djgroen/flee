@@ -359,6 +359,7 @@ class Location:
     def __init__(
         self,
         name: str,
+        region: str = "unknown",
         x: float = 0.0,
         y: float = 0.0,
         location_type: Optional[str] = None,
@@ -389,6 +390,7 @@ class Location:
             None.
         """
         self.name = name
+        self.region = region
         self.x = x
         self.y = y
         self.movechance = movechance
@@ -1591,20 +1593,6 @@ class Ecosystem:
 
 
     @check_args_type
-    def pick_spawn_location(self):
-        """
-        Summary:
-            !!! warning
-            this function is now deprecated as of ruleset 2.0.
-            Please use `pick_spawn_locations()` instead in your scripts
-
-        Returns:
-            pick_spawn_locations(1)[0] function defined below
-        """
-        return self.pick_spawn_locations(1)[0]
-
-
-    @check_args_type
     def pick_spawn_locations(self, number: int = 1) -> list:
         """
         Summary:
@@ -1623,8 +1611,10 @@ class Ecosystem:
 
         assert spawn_weight_total > 0
 
+        wgt = self.spawn_weights / spawn_weight_total
+
         return np.random.choice(
-            self.locations, number, p=self.spawn_weights / spawn_weight_total
+            self.locations, number, p=wgt
         ).tolist()
 
 
@@ -1693,6 +1683,7 @@ class Ecosystem:
     def addLocation(
         self,
         name: str,
+        region: str = "unknown",
         x: float = 0.0,
         y: float = 0.0,
         location_type: Optional[str] = None,
@@ -1709,6 +1700,7 @@ class Ecosystem:
 
         Args:
             name (str): The name of the location.
+            region (str): Description
             x (float, optional): The x-coordinate of the location. Defaults to 0.0.
             y (float, optional): The y-coordinate of the location. Defaults to 0.0.
             location_type (str, optional): The type of location. Defaults to None.
@@ -1725,6 +1717,7 @@ class Ecosystem:
 
         loc = Location(
             name=name,
+            region=region,
             x=x,
             y=y,
             location_type=location_type,
@@ -1763,14 +1756,13 @@ class Ecosystem:
             if location.conflict > 0.0:
                 if location.pop > 0:
                     location.pop -= 1
-                    location.numAgentsSpawned += 1
                 else:
                     print(
-                        "ERROR: Number of agents in the simulation is larger than the combined "
-                        "population of the conflict zones. Please amend locations.csv."
+                        "WARNING: Number of agents in the simulation is larger than the"
+                        "population of the conflict zone."
                     )
                     location.print()
-                    assert location.pop > 1
+                location.numAgentsSpawned += 1
 
         self.agents.append(Person(location=location, attributes=attributes))
 
