@@ -89,7 +89,7 @@ class InputGeography:
                             self.attributes[attribute_name][headers[i]] = []
                 else:
                     for i in range(1, len(row)):  # field 0 is day.
-                        # print(row[0])
+                        #print("RAICSV", row[0], row[i], file=sys.stderr)
                         if attribute_type == "int":
                             self.attributes[attribute_name][headers[i]].append(int(row[i].strip()))
                         elif attribute_type == "float":
@@ -325,6 +325,8 @@ class InputGeography:
                     location_type = "town"
 
             attributes = {}
+
+            # Loading of static attributes.
             if len(loc) > 8:
                 for i in range(8, len(loc)):
                     attributes[self.columns[i]] = loc[i]
@@ -420,6 +422,10 @@ class InputGeography:
             loc_name = e.locations[i].name
             if loc_name in attrlist:
                 e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
+                print(e.time, loc_name, e.locations[i].attributes, attrlist[loc_name][time], file=sys.stderr)
+            else:
+                e.locations[i].attributes[attribute_name] = 0
+                print(e.time, loc_name, e.locations[i].attributes, file=sys.stderr)
 
 
     @check_args_type
