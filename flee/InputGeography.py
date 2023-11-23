@@ -422,10 +422,10 @@ class InputGeography:
             loc_name = e.locations[i].name
             if loc_name in attrlist:
                 e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
-                print(e.time, loc_name, e.locations[i].attributes, attrlist[loc_name][time], file=sys.stderr)
+                #print(e.time, loc_name, e.locations[i].attributes, attrlist[loc_name][time], file=sys.stderr)
             else:
                 e.locations[i].attributes[attribute_name] = 0
-                print(e.time, loc_name, e.locations[i].attributes, file=sys.stderr)
+                #print(e.time, loc_name, e.locations[i].attributes, file=sys.stderr)
 
 
     @check_args_type
