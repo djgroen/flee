@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 
 class Simulation:
 
+
+
   # initialize simulation
   def __init__(self, input_csv_directory, validation_data_directory, duration, simsettings):
     # error handling
@@ -25,6 +27,8 @@ class Simulation:
     self.validation_data_directory = validation_data_directory
     self.duration = duration
     self.simsettings = simsettings
+
+
 
   # setup simulation
   def setup(self):
@@ -62,27 +66,30 @@ class Simulation:
 
     d.ReadL1Corrections("%s/registration_corrections.csv" % input_csv_directory)
 
-    output_header_string = "Day,Date,"
+    output = [{"Day": []}, {"Date": []}]
 
     camp_locations = e.get_camp_names()
 
     for l in camp_locations:
         spawning.add_initial_refugees(e,d,lm[l])
-        output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
+        output.append({"%s Simulation" % lm[l].name: []})
+        output.append({"%s Data" % lm[l].name: []})
+        output.append({"%s Error" % lm[l].name: []})
 
-    output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
+    header = ["Total error" ,"refugees in camps (UNHCR)", "total refugees (simulation)", "raw UNHCR refugee count", "refugees in camps (simulation)", "refugee_debt"]
+    for h in header:
+      output.append({"%s" % h: []})
 
     if SimulationSettings.log_levels["idp_totals"] > 0:
-      output_header_string += ",total IDPs"
+      output.append({"total IDPs": []})
 
-    print(output_header_string)
-
-    return e, d, ig, lm, camp_locations, start_date, end_time
+    return e, d, ig, lm, camp_locations, start_date, end_time, output, header
   
+
+
   # run simulation
   def run(self):
-
-    e, d, ig, lm, camp_locations, start_date, end_time = self.setup()
+    e, d, ig, lm, camp_locations, start_date, end_time, output, header = self.setup()
     
     refugee_debt = 0
     refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
@@ -124,19 +131,32 @@ class Simulation:
 
 
       date = datetime.strptime(start_date, "%Y-%m-%d") + timedelta(days=t)
-      output = "%s,%s" % (t, date.strftime("%Y-%m-%d"))
+      output[0]["Day"].append(t)
+      output[1]["Date"].append(date.strftime("%Y-%m-%d"))
+
+      # values for:
+      # "Total error" ,"refugees in camps (UNHCR)", "total refugees (simulation)", "raw UNHCR refugee count", "refugees in camps (simulation)", "refugee_debt"
+      results = [float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt]
 
       for i in range(0,len(errors)):
-        output += ",%s,%s,%s" % (lm[camp_locations[i]].numAgents, loc_data[i], errors[i])
+        output[2+i*3]["%s Simulation" % lm[camp_locations[i]].name].append(lm[camp_locations[i]].numAgents)
+        output[3+i*3]["%s Data" % lm[camp_locations[i]].name].append(loc_data[i])
+        output[4+i*3]["%s Error" % lm[camp_locations[i]].name].append(errors[i])
 
-      if refugees_raw>0:
-        output += ",%s,%s,%s,%s,%s,%s" % (float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt)
-      else:
-        output += ",0.0,0,{},0,{},0".format(e.numAgents(), refugees_in_camps_sim)
+        # append at end of output
+        if i == len(errors)-1:
+          if refugees_raw>0:
+            for j in range(0, len(results)):
+              output[5+i*3+j]["%s" % header[j]].append(results[j])
+          else:
+            for j in range(0, len(results)):
+              output[5+i*3+j]["%s" % header[j]].append(0)
+              if j == 3:
+                output[5+i*3+j]["%s" % header[j]].append(e.numAgents())
+              if j == 5:
+                output[5+i*3+j]["%s" % header[j]].append(refugees_in_camps_sim)
+          
+          if SimulationSettings.log_levels["idp_totals"] > 0:
+            output[5+i*3+len(results)]["total IDPs"].append(e.numIDPs())
 
-      if SimulationSettings.log_levels["idp_totals"] > 0:
-        output += ",{}".format(e.numIDPs())
-
-      print(output)
-
-      return 'Simulation finished.'
+    return output
