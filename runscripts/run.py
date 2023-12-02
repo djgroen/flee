@@ -66,35 +66,28 @@ class Simulation:
 
     d.ReadL1Corrections("%s/registration_corrections.csv" % input_csv_directory)
 
-    output = [{"Day": []}, {"Date": []}]
-
     camp_locations = e.get_camp_names()
 
     for l in camp_locations:
         spawning.add_initial_refugees(e,d,lm[l])
-        output.append({"%s Simulation" % lm[l].name: []})
-        output.append({"%s Data" % lm[l].name: []})
-        output.append({"%s Error" % lm[l].name: []})
 
-    header = ["Total error" ,"refugees in camps (UNHCR)", "total refugees (simulation)", "raw UNHCR refugee count", "refugees in camps (simulation)", "refugee_debt"]
-    for h in header:
-      output.append({"%s" % h: []})
 
-    if SimulationSettings.log_levels["idp_totals"] > 0:
-      output.append({"total IDPs": []})
-
-    return e, d, ig, lm, camp_locations, start_date, end_time, output, header
+    return e, d, ig, lm, camp_locations, start_date, end_time
   
 
 
   # run simulation
   def run(self):
-    e, d, ig, lm, camp_locations, start_date, end_time, output, header = self.setup()
+    e, d, ig, lm, camp_locations, start_date, end_time = self.setup()
     
     refugee_debt = 0
     refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
 
+    output = []
+
     for t in range(0,end_time):
+
+      sim_result = {}
 
       #if t>0:
       ig.AddNewConflictZones(e,t)
@@ -116,10 +109,12 @@ class Simulation:
         camps += [lm[i]]
         loc_data += [d.get_field(i, t)]
 
+
       # calculate retrofitted time.
       refugees_in_camps_sim = 0
       for c in camps:
         refugees_in_camps_sim += c.numAgents
+
 
       # calculate errors
       j=0
@@ -129,34 +124,38 @@ class Simulation:
 
         j += 1
 
-
+      # store day and date
       date = datetime.strptime(start_date, "%Y-%m-%d") + timedelta(days=t)
-      output[0]["Day"].append(t)
-      output[1]["Date"].append(date.strftime("%Y-%m-%d"))
+      sim_result["Day"] = t
+      sim_result["Date"] = date.strftime("%Y-%m-%d")
 
-      # values for:
-      # "Total error" ,"refugees in camps (UNHCR)", "total refugees (simulation)", "raw UNHCR refugee count", "refugees in camps (simulation)", "refugee_debt"
+      # define output keys and calculate corrsponding values
+      header = ["Total error" ,"refugees in camps (UNHCR)", "total refugees (simulation)", "raw UNHCR refugee count", "refugees in camps (simulation)", "refugee_debt"]
       results = [float(np.sum(abs_errors))/float(refugees_raw), int(sum(loc_data)), e.numAgents(), refugees_raw, refugees_in_camps_sim, refugee_debt]
 
+      # Sim Result, Validation Data and Error for each camp
       for i in range(0,len(errors)):
-        output[2+i*3]["%s Simulation" % lm[camp_locations[i]].name].append(lm[camp_locations[i]].numAgents)
-        output[3+i*3]["%s Data" % lm[camp_locations[i]].name].append(loc_data[i])
-        output[4+i*3]["%s Error" % lm[camp_locations[i]].name].append(errors[i])
+        sim_result["%s Simulation" % lm[camp_locations[i]].name] = lm[camp_locations[i]].numAgents
+        sim_result["%s Data" % lm[camp_locations[i]].name] = loc_data[i]
+        sim_result["%s Error" % lm[camp_locations[i]].name] = errors[i]
 
-        # append at end of output
-        if i == len(errors)-1:
-          if refugees_raw>0:
-            for j in range(0, len(results)):
-              output[5+i*3+j]["%s" % header[j]].append(results[j])
-          else:
-            for j in range(0, len(results)):
-              output[5+i*3+j]["%s" % header[j]].append(0)
-              if j == 3:
-                output[5+i*3+j]["%s" % header[j]].append(e.numAgents())
-              if j == 5:
-                output[5+i*3+j]["%s" % header[j]].append(refugees_in_camps_sim)
-          
-          if SimulationSettings.log_levels["idp_totals"] > 0:
-            output[5+i*3+len(results)]["total IDPs"].append(e.numIDPs())
+      # fill output dictionary with results
+      if refugees_raw>0:
+        for j in range(0, len(header)):
+          sim_result["%s" % header[j]] = results[j]
+      else:
+        for j in range(0, len(header)):
+          sim_result["%s" % header[j]] = 0
+          if j == 3:
+            sim_result["%s" % header[j]] = e.numAgents()
+          if j == 5:
+            sim_result["%s" % header[j]] = refugees_in_camps_sim
+
+      # total IDPs in simulation    
+      if SimulationSettings.log_levels["idp_totals"] > 0:
+        sim_result["total IDPs"] = e.numIDPs()
+
+
+      output.append(sim_result)
 
     return output
