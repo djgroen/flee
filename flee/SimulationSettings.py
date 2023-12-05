@@ -85,66 +85,6 @@ class SimulationSettings:
         multiplier = SimulationSettings.get_conflict_decay(time_since_conflict)
         return multiplier
     
-    # LAURA
-    # remove this?
-    # @staticmethod
-    # def flood_forecaster_location_weight(time: int, loc): #LAURA
-    #     """
-    #     Summary:
-    #         Calculates the location weight due to flooding.
-
-    #     Args:
-    #         current_flood_level: The current flood level for the location.
-    #         future_flood_levels: A list of the flood levels for the location from the
-    #         current day to the Nth day.
-    #         weight_function: A function that specifies the weight to give to flood levels
-    #         that are `day_number` days in the future.
-
-    #     Returns:
-    #         The location weight.
-
-    #     #LAURA turn this off now? 
-    #     """
-    #     # Get the current flood level.
-    #     flood_level = e.locations[i].attributes.get("flood_level",0)
-
-    #     # Calculate the weight for the current flood level.
-    #     current_flood_level_weight = weight_function(0)
-
-    #     # Calculate the weight for the future flood levels.
-    #     future_flood_level_weights = weight_function(np.arange(1, len(future_flood_levels) + 1))
-
-    #     # Calculate the total weight for the location.
-    #     location_weight = current_flood_level_weight * current_flood_level + np.sum(future_flood_level_weights * future_flood_levels)
-
-    #     return location_weight
-
-    #     #if the location is a flood zone
-    #     if loc.flood_zone > 0.0:
-    #         #if the flood forecaster is enabled
-    #         if SimulationSettings.move_rules["flood_forecaster"] is True:
-    #             #if the flood forecaster timescale is greater than zero
-    #             if SimulationSettings.move_rules["flood_forecaster_timescale"] > 0:
-    #                 #if the time since the flood is less than the flood forecaster timescale
-    #                 if time - loc.time_of_flood < SimulationSettings.move_rules["flood_forecaster_timescale"]:
-    #                     # number of days that the flood forecaster can predict the weather for.
-    #                     flood_forecaster_timescale = SimulationSettings.move_rules["flood_forecaster_timescale"]
-    #                     flood_forecaster_end_time = SimulationSetting.move_rule["flood_forecaster_end_time"]
-
-    #                     #then the flood forecaster is enabled
-    #                     return True
-    #                 else:
-    #                     #else the flood forecaster is disabled
-    #                     return False
-    #             else:
-    #                 #else the flood forecaster is disabled
-    #                 return False
-    #         else:
-    #             #else the flood forecaster is disabled
-    #             return False
-    #     else:
-    #         #else the flood forecaster is disabled
-    #         return False
 
 
     @staticmethod
@@ -233,8 +173,8 @@ class SimulationSettings:
         SimulationSettings.spawn_rules["flood_driven_spawning"] = False # Conflicts provide a direct push factor.
 
         #Setting forecaster to false by default. 
-        SimulationSettings.move_rules["flood_forecaster"] = False 
-        SimulationSettings.move_rules["flood_focaster_timescale"] = 0 #defaults to zero days of forecasting abiltiy.
+        SimulationSettings.move_rules["FloodForecaster"] = False 
+        SimulationSettings.move_rules["flood_forecaster_timescale"] = 0 #defaults to zero days of forecasting abiltiy.
 
         if spawn_type == "flood":
           dpsc = fetchss(dps,"flood_driven_spawning",None)
@@ -257,7 +197,7 @@ class SimulationSettings:
 
             # Flood forecaster
             if SimulationSettings.move_rules["flood_forecaster"] is True:
-               SimulationSettings.move_rules["flood_focaster_timescale"] = fetchss(dpsc,"flood_focaster_timescale", 0) #defaults to zero days of forecasting abiltiy. 
+               SimulationSettings.move_rules["flood_forecaster_timescale"] = fetchss(dpsc,"flood_forecaster_timescale", 0) #defaults to zero days of forecasting abiltiy. 
 
 
         SimulationSettings.spawn_rules["conflict_spawn_decay"] = fetchss(dps,"conflict_spawn_decay", None) # Expect an array or dict

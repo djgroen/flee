@@ -23,6 +23,7 @@ def getEndPointScore(agent, link, time) -> float:
     Args:
         agent (Person): agent making the decision
         link (Link): link to the endpoint
+        time (int): current time step
 
     Returns:
         base (float): score for the endpoint
@@ -60,79 +61,78 @@ def getEndPointScore(agent, link, time) -> float:
             base *= float(SimulationSettings.move_rules["FloodLocWeights"][flood_level])
             #otherwise base score is unaffected by flooding
 
-        # LAURA
-        # Turn flood forecaster implementation back on once flood level fixed. 
-        # #Flooding Forecaster implementation:
-        # if SimulationSettings.move_rules["FloodForecaster"] is True:
 
-        #     #Get the forecast timescale e.g. 5 day weather forecast
-        #     forecast_timescale = SimulationSettings.move_rules["FloodForecasterTimescale"]
+        #Flooding Forecaster Location Weight Implementation:
+        if SimulationSettings.move_rules["FloodForecaster"] is True:
 
-        #     #Get the forecast length e.g. only know the forecast until day 7
-        #     forecast_end_time = SimulationSettings.move_rules["FloodForecasterEndTime"] 
+            #Get the forecast timescale e.g. 5 day weather forecast
+            forecast_timescale = SimulationSettings.move_rules["FloodForecasterTimescale"]
 
-        #     # If there is a forecast timescale and endtime are set
-        #     # If forecast_timescale is greater than 1 and the current time step is less than the forecast end time
-        #     if forecast_timescale is not None:
-        #       if forecast_end_time is not None:
-        #         if (forecast_timescale > 1.0) and (time <= forecast_end_time): 
+            #Get the forecast length e.g. only know the forecast until day 7
+            forecast_end_time = SimulationSettings.move_rules["FloodForecasterEndTime"] 
+
+            # If there is a forecast timescale and endtime are set
+            # If forecast_timescale is greater than 1 and the current time step is less than the forecast end time
+            if forecast_timescale is not None:
+              if forecast_end_time is not None:
+                if (forecast_timescale > 1.0) and (time <= forecast_end_time): 
               
-        #           #Set the base forecast value
-        #           flood_forecast_base = 0.0 #no forecast, no flooding 
+                  #Set the base forecast value
+                  flood_forecast_base = 0.0 #no forecast, no flooding 
 
-        #           #Get the agents awareness level of the flood forecast
-        #           #Weighting of each awareness level defined in simsetting.yml
-        #           #Fraction of population with each level of flood awareness defined in demographics_floodawareness.csv 
-        #           #Awareness can be used as a proxy for ability to adapt to forecasted flooding.
-        #           #For example, low awareness will down weight the importance of the forecast or reduce the impact the forecast has on the 
-        #           # agents decision making process. 
-        #           agent_awareness_weight = float(SimulationSettings.move_rules["FloodAwarenessWeights"][int(agent.attributes["floodawareness"])])
+                  #Get the agents awareness level of the flood forecast
+                  #Weighting of each awareness level defined in simsetting.yml
+                  #Fraction of population with each level of flood awareness defined in demographics_floodawareness.csv 
+                  #Awareness can be used as a proxy for ability to adapt to forecasted flooding.
+                  #For example, low awareness will down weight the importance of the forecast or reduce the impact the forecast has on the 
+                  # agents decision making process. 
+                  agent_awareness_weight = float(SimulationSettings.move_rules["FloodAwarenessWeights"][int(agent.attributes["floodawareness"])])
 
-        #           #Forecast loop: iterate over the location flood level weights for the forecast timescale
-        #           for x in range(1, forecast_timescale + 1): #iterates over the 5 day forecast, ignoring the current day
+                  #Forecast loop: iterate over the location flood level weights for the forecast timescale
+                  for x in range(1, forecast_timescale + 1): #iterates over the 5 day forecast, ignoring the current day
 
-        #               #the day of the forcast we're considering 
-        #               forecast_day = time + x 
+                      #the day of the forcast we're considering 
+                      forecast_day = time + x 
 
-        #               #If the simulation length is less than the end of the forecast, then the forecast will be shorter
-        #               if forecast_day >= forecast_end_time:
-        #                   #set the forecast day to the end of the simulation
-        #                   forecast_day = forecast_end_time #same as time + x
+                      #If the simulation length is less than the end of the forecast, then the forecast will be shorter
+                      if forecast_day >= forecast_end_time:
+                          #set the forecast day to the end of the simulation
+                          forecast_day = forecast_end_time #same as time + x
                     
-        #               #get the forecast flood level for location on the day we're considering in the for loop
-        #               forecast_flood_level = link.endpoint.attributes.get("forecast_flood_levels",0)[forecast_day]
+                      #get the forecast flood level for location on the day we're considering in the for loop
+                      forecast_flood_level = link.endpoint.attributes.get("forecast_flood_levels",0)[forecast_day]
 
-        #               # if it's not zero, then we need to modify the base forecast value, otherwise leave the base as it will zero.
-        #               if forecast_flood_level > 0.0: 
-        #                 #get the endpoint locations current flood level weight based on that flood level.
-        #                 forecast_flood_level_weight = float(SimulationSettings.move_rules["FloodLocWeights"][forecast_flood_level]) 
+                      # if it's not zero, then we need to modify the base forecast value, otherwise leave the base as it will zero.
+                      if forecast_flood_level > 0.0: 
+                        #get the endpoint locations current flood level weight based on that flood level.
+                        forecast_flood_level_weight = float(SimulationSettings.move_rules["FloodLocWeights"][forecast_flood_level]) 
                         
-        #                 #get the current flood forecaster weight e.g. how important the current day is in the forecast
-        #                 flood_forecaster_weight = float(SimulationSettings.move_rules["FloodForecasterWeights"][forecast_day])
+                        #get the current flood forecaster weight e.g. how important the current day is in the forecast
+                        flood_forecaster_weight = float(SimulationSettings.move_rules["FloodForecasterWeights"][forecast_day])
                       
-        #                 #modify the flood_forecast_base using the flood level on the current day and the imporatance of the current day in the forecast loop
-        #                 flood_forecast_base += forecast_flood_level_weight * flood_forecaster_weight
+                        #modify the flood_forecast_base using the flood level on the current day and the imporatance of the current day in the forecast loop
+                        flood_forecast_base += forecast_flood_level_weight * flood_forecaster_weight
 
-        #               #break the loop if we've reached the end of the forecast data 
-        #               if forecast_day == forecast_end_time:
-        #                 break
+                      #break the loop if we've reached the end of the forecast data 
+                      if forecast_day == forecast_end_time:
+                        break
                     
-        #           #the flood_forecast_base now represents the total weight of the flooding during the forecast for the endpoint location,
-        #           # this needed to be divided by the total number of days in the forecast to get the average weight based on the severity and relative imporatance of the forecasted days
-        #           flood_forecast_base *= float(flood_forecast_base/forecast_timescale)
+                  #the flood_forecast_base now represents the total weight of the flooding during the forecast for the endpoint location,
+                  # this needed to be divided by the total number of days in the forecast to get the average weight based on the severity and relative imporatance of the forecasted days
+                  flood_forecast_base *= float(flood_forecast_base/forecast_timescale)
 
-        #           #down weight the overall importance of the flood forecast on the base depending on the agents awareness weighting
-        #           #currently using a simple down weighting, but may want lower awareness agents to only respond to high flood levels 
-        #           # or shorter forecast timescales.
-        #           flood_forecast_base *= float(agent_awareness_weight) 
+                  #down weight the overall importance of the flood forecast on the base depending on the agents awareness weighting
+                  #currently using a simple down weighting, but may want lower awareness agents to only respond to high flood levels 
+                  # or shorter forecast timescales.
+                  flood_forecast_base *= float(agent_awareness_weight) 
 
-        #           # Make the flood_forecast_base effect the actual base score
-        #           base *= flood_forecast_base  
+                  # Make the flood_forecast_base effect the actual base score
+                  base *= flood_forecast_base  
                     
-        #       else:
-        #           print("WARNING: flood_forecaster_endtime is not set in simsetting.yml", file=sys.stderr)
-        #     else:
-        #         print("WARNING: flood_forecaster_timescale is not set in simsetting.yml", file=sys.stderr)
+              else:
+                  print("WARNING: flood_forecaster_endtime is not set in simsetting.yml", file=sys.stderr)
+            else:
+                print("WARNING: flood_forecaster_timescale is not set in simsetting.yml", file=sys.stderr)
 
 
     if link.endpoint.camp is True:
@@ -325,7 +325,7 @@ def chooseFromWeights(weights, routes):
 
 
 @check_args_type
-def calculateMoveChance(a, ForceTownMove: bool) -> float:
+def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
     """
     Summary:
         Calculates the probability that an agent will move this step.
@@ -333,6 +333,7 @@ def calculateMoveChance(a, ForceTownMove: bool) -> float:
     Args:
         a: Agent to calculate move chance for.
         ForceTownMove: Whether to force agents to move through regular town. If True, agents will always move.
+        time (int): Current time step.
 
     Returns:
         movechance (int): Probability that agent will move this step. 
@@ -344,22 +345,91 @@ def calculateMoveChance(a, ForceTownMove: bool) -> float:
         # Population-based scaling
         movechance *= (float(max(a.location.pop, a.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
 
-    # DFlee Flood Location Movechance implementation
+    # DFlee Flood Location Movechance implementation:
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
+        #Get the current flood level of the agents location, if flood level not set in flood_level.csv then default to zero
         flood_level = a.location.attributes.get("flood_level",0)
-        #print(a.location.name, a.location.attributes, file=sys.stderr)
         if flood_level > 0:
-            # LAURA
-            # movechance modified by flood, not done.  
-            # if SimulationSettings.move_rules["FloodForecaster"] is False:
-            #     movechance *= float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
-            # else:
-            #     # Flood Forecaster movechance implementation:
-            #     movechance *= float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
-            return float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
+            #set the base equal to the flood location weight
+            movechance *= float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
+            #otherwise base movechance is unaffected by flooding
+
+        #Flooding Forecaster Location Weight Implementation:
+        if SimulationSettings.move_rules["FloodForecaster"] is True:
+
+          #Get the forecast timescale e.g. 5 day weather forecast
+          forecast_timescale = SimulationSettings.move_rules["FloodForecasterTimescale"]
+
+          #Get the forecast length e.g. only know the forecast until day 7
+          forecast_end_time = SimulationSettings.move_rules["FloodForecasterEndTime"] 
+
+          # If there is a forecast timescale and endtime are set
+          # If forecast_timescale is greater than 1 and the current time step is less than the forecast end time
+          if forecast_timescale is not None:
+            if forecast_end_time is not None:
+              if (forecast_timescale > 1.0) and (time <= forecast_end_time): 
+            
+                #Set the default movechance value
+                flood_forecast_movechance = 0.0 #no forecast, no flooding
+
+                #Get the agents awareness level of the flood forecast
+                #Weighting of each awareness level defined in simsetting.yml
+                #Fraction of population with each level of flood awareness defined in demographics_floodawareness.csv 
+                #Awareness can be used as a proxy for ability to adapt to forecasted flooding.
+                #For example, low awareness will down weight the importance of the forecast or reduce the impact the forecast has on the 
+                # agents decision making process. 
+                agent_awareness_weight = float(SimulationSettings.move_rules["FloodAwarenessWeights"][int(a.attributes["floodawareness"])])
+
+                #Forecast loop: iterate over the location flood level weights for the forecast timescale
+                for x in range(1, forecast_timescale + 1): #iterates over the 5 day forecast, ignoring the current day
+
+                    #the day of the forcast we're considering 
+                    forecast_day = time + x 
+
+                    #If the simulation length is less than the end of the forecast, then the forecast will be shorter
+                    if forecast_day >= forecast_end_time:
+                        #set the forecast day to the end of the simulation
+                        forecast_day = forecast_end_time #same as time + x
+                  
+                    #get the forecast flood level for location on the day we're considering in the for loop
+                    forecast_flood_level = a.location.attributes.get("forecast_flood_levels",0)[forecast_day]
+
+                    # if it's not zero, then we need to modify the base forecast value, otherwise leave the base as it will zero.
+                    if forecast_flood_level > 0.0: 
+                      #get the endpoint locations current flood level weight based on that flood level.
+                      forecast_flood_level_weight = float(SimulationSettings.move_rules["FloodLocWeights"][forecast_flood_level]) 
+                      
+                      #get the current flood forecaster weight e.g. how important the current day is in the forecast
+                      flood_forecaster_weight = float(SimulationSettings.move_rules["FloodForecasterWeights"][forecast_day])
+                    
+                      #modify the flood_forecast_base using the flood level on the current day and the imporatance of the current day in the forecast loop
+                      flood_forecast_base += forecast_flood_level_weight * flood_forecaster_weight
+
+                    #break the loop if we've reached the end of the forecast data 
+                    if forecast_day == forecast_end_time:
+                      break
+
+                #the flood_forecast_base now represents the total weight of the flooding during the forecast for the endpoint location,
+                # this needed to be divided by the total number of days in the forecast to get the average weight based on the severity and relative imporatance of the forecasted days
+                flood_forecast_movechance *= float(flood_forecast_movechance/forecast_timescale)
+
+                #down weight the overall importance of the flood forecast on the base depending on the agents awareness weighting
+                #currently using a simple down weighting, but may want lower awareness agents to only respond to high flood levels 
+                # or shorter forecast timescales.
+                flood_forecast_movechance *= float(agent_awareness_weight) 
+
+                # Make the flood_forecast_base effect the actual base score
+                movechance *= flood_forecast_movechance  
+
+                  
+            else:
+                print("WARNING: flood_forecaster_endtime is not set in simsetting.yml", file=sys.stderr)
+          else:
+              print("WARNING: flood_forecaster_timescale is not set in simsetting.yml", file=sys.stderr)
 
 
     return movechance
+
 
 
 @check_args_type

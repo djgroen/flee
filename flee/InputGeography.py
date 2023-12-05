@@ -98,7 +98,9 @@ class InputGeography:
                             self.attributes[attribute_name][headers[i]] = []
                 else:
                     for i in range(1, len(row)):  # field 0 is day.
-                        #print("RAICSV", row[0], row[i], file=sys.stderr)
+                        print("RAICSV", row[0], row[i], file=sys.stderr)
+                        print("attr name", attribute_name, file=sys.stderr)
+                        print("attr type", attribute_type, file=sys.stderr)
                         if attribute_type == "int":
                             self.attributes[attribute_name][headers[i]].append(int(row[i].strip()))
                         elif attribute_type == "float":
@@ -149,6 +151,7 @@ class InputGeography:
             # Read flood location attributes.
             if SimulationSettings.spawn_rules["flood_driven_spawning"] is True:
                 self.ReadAttributeInputCSV("flood_level","int","input_csv/flood_level.csv")
+                self.ReadAttributeInputCSV("forecast_flood_levels","int","input_csv/flood_level.csv") 
             elif SimulationSettings.move_rules["FloodRulesEnabled"] is False:
                 self.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
 
@@ -472,66 +475,37 @@ class InputGeography:
         Returns:
             None.
         """
-
+        # In DFlee attrlist is a dictionary of flood location names and their attributes
+        #e.g {'F1': [0, 0, 1, 1, 2, 1, 1, 1, 1, 1, 1], 'F2': [1, 1, 1, 3, 1, 1, 0, 0, 0, 0, 1], 'F3': [0, 0, 0, 1, 1, 2, 3, 2, 1, 1, 0]}
         attrlist = self.attributes[attribute_name]
 
+        # Get the length of the first array in attrlist 
+        for key, value in attrlist.items():
+            attrlength = int(len(value))
+            break
+
+        #Iterate through the locations and update their attributes
         for i in range(0, len(e.locations)):
             loc_name = e.locations[i].name
+
+            #If the attibute has been specified by the input file: 
             if loc_name in attrlist:
-                e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
-                #print(e.time, loc_name, e.locations[i].attributes, attrlist[loc_name][time], file=sys.stderr)
-            else:
-                e.locations[i].attributes[attribute_name] = 0
-                #print(e.time, loc_name, e.locations[i].attributes, file=sys.stderr)
-
-
-        # # LAURA - test again once flood levels are working. used for forecaster
-        # # In DFlee attrlist is a dictionary of flood location names and their attributes
-        # #e.g {'F1': [0, 0, 1, 1, 2, 1, 1, 1, 1, 1, 1], 'F2': [1, 1, 1, 3, 1, 1, 0, 0, 0, 0, 1], 'F3': [0, 0, 0, 1, 1, 2, 3, 2, 1, 1, 0]}
-        # attrlist = self.attributes[attribute_name] 
-        # # print("attrlist", attrlist, file=sys.stderr)
-        # # print("e.locations", e.locations, file=sys.stderr)
-        # print("time not in loop", time, file=sys.stderr)
-        # #Iterate through the locations and update their attributes
-        # for i in range(0, len(e.locations)):
-        #     print("time in loop", time, file=sys.stderr)
-        #     # print("before attrib", e.locations[i].attributes,file=sys.stderr)
-        #     loc_name = e.locations[i].name
-        #     print("loc_name", loc_name, file=sys.stderr)
-        #     #If the location name is in the attribute list, then update the attribute
-        #     # print("loc_name out", loc_name, file=sys.stderr)
-        #     if loc_name in attrlist:
-        #         # print("INSIDE loc_name", loc_name, file=sys.stderr)
-        #         if attribute_name == "forecast_flood_levels":
-        #             #Store future flood levels in the forecast_flood_levels attribute
-        #             e.locations[i].attributes[attribute_name] = attrlist[loc_name]
-        #         else:
-        #             #Update the locations attribute based on this time step.
-        #             # print("loc_name in", loc_name, file=sys.stderr)
-        #             # print("attrlist[loc_name][time]", attrlist[loc_name][time], file=sys.stderr)
-        #             # print("e.locations[i].name", e.locations[i].name, file=sys.stderr)
-        #             e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
-        #     else:
+                if attribute_name == "forecast_flood_levels":
+                    #Set forecast_flood_levels attribute for flood_zones
+                    e.locations[i].attributes[attribute_name] = attrlist[loc_name]
+                else:
+                    #Set flood_levels attribute for flood zones
+                    e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
+            else: 
+                #If the location name is not in the attribute list, then set the attribute to default value of zero
+                if attribute_name == "forecast_flood_levels":
+                    #Set default forecast_flood_levels attribute to array of zeros for towns/camps
+                    e.locations[i].attributes[attribute_name] = [0.0] * attrlength #array of zeros with length equal to the length of the first array in attrlist
+                else:
+                    #Set default flood_levels attribute to zero for towns/camps
+                    e.locations[i].attributes[attribute_name] = 0.0
                 
-        #         if attribute_name == "forecast_flood_levels":
-        #             #Store future flood levels in the forecast_flood_levels attribute
-        #             e.locations[i].attributes[attribute_name] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        #         else:
-        #             e.locations[i].attributes = {}
-        #             #Update the locations attribute based on this time step.
-        #             e.locations[i].attributes[attribute_name] = 0
-
-        #     print("after attrib", e.locations[i].attributes,file=sys.stderr)        
-        #     # else:
-        #     #     #If the location name is not in the attribute list, then set the attribute to 0
-        #     #     if attribute_name == "forecast_flood_levels":
-        #     #         #Store future flood levels in the forecast_flood_levels attribute
-        #     #         e.locations[i].attributes[attribute_name] = [0,0,0,0,0,0,0,0,0,0]
-        #     #     else:
-        #     #         #Update the locations attribute based on this time step. 
-        #     #         e.locations[i].attributes[attribute_name] = 0
-            
-
+            # print(e.time, loc_name, e.locations[i].attributes, file=sys.stderr)
 
 
     @check_args_type
@@ -552,18 +526,12 @@ class InputGeography:
             None.
         """
         #Add New Flood Zones
-        # If modelling a flood, update the location attributes with the flood levels specified in flood_level.csv 
         if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
+            #Current flood_level attribute is set to the flood level at the current time step specified in flood_level.csv. Default value is zero.
             self.UpdateLocationAttributes(e, "flood_level", time)
-            # if SimulationSettings.move_rules["FloodForecaster"] is True:
-            #     #Store future flood levels in the forecast_flood_levels attribute
-            #     self.UpdateLocationAttributes(e, "forecast_flood_levels", time)
-        # LAURA - test again once flood levels are working. used for forecaster
-        # remove print statements once working
-        print("Number of locations", len(e.locations), file=sys.stderr)
-        for loc in e.locations:
-            print("Location Name", loc.name, file=sys.stderr)
-            print("InputGeog Attributes", loc.attributes, file=sys.stderr)
+            if SimulationSettings.move_rules["FloodForecaster"] is True:
+                #Store future flood levels in the forecast_flood_levels attribute. Default value is array of zeros.
+                self.UpdateLocationAttributes(e, "forecast_flood_levels", time) 
 
         #Add New Conflict Zones
         if len(SimulationSettings.ConflictInputFile) == 0:

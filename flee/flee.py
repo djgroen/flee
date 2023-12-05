@@ -142,50 +142,6 @@ class Person:
         print(f"Error: camp {self.route[-1]} not found in check_dest_is_full_camp", file=sys.stderr)
         sys.exit()
     
-    # LAURA 
-    # check this is obsolete
-    # @check_args_type
-    # def check_dest_is_flooded(self,e):
-    #     """
-    #     Summary:
-    #         Checks the destination is not flooded based on flood_zones in flood_level.csv. 
-    #         If the destination is flooded, the link is removed. 
-
-    #     Args:
-    #         e: ecosystem object.
-      
-    #     Returns:
-    #         True if the destination is flooded, False otherwise.
-
-    #     LAURA: Finish this function.
-    #     """
-    #     # Access the max_flood_level value
-    #     # max_flood_level = flee.SimulationSettings.Flooding.get("max_flood_level", 0.0)
-    #     # print("max_flood_level",max_flood_level, file=sys.stderr)
-    #     #Iterate over the endpoint locations in the routes
-    #     for i in range(0, len(e.locationNames)):
-    #         # print("route", self.route, file=open('/Users/laura/Desktop/log.txt', 'a'))
-    #         if e.locationNames[i] == self.route[-1]:
-    #             # print("attributes", e.locations[i].attributes, file=open('/Users/laura/Desktop/log.txt', 'a'))
-    #             # print("flood_zone", e.locations[i].flood_zone, file=open('/Users/laura/Desktop/log.txt', 'a'))
-    #             if e.locations[i].flood_zone:
-    #                 # print("e.locationNames[i]", e.locationNames[i], file=open('/Users/laura/Desktop/log.txt', 'a'))
-    #                 # print("e.locations[i].attributes[flood_level]", e.locations[i].attributes["flood_level"], file=open('/Users/laura/Desktop/log.txt', 'a'))
-    #                 #Iterate over the flooded locations
-    #                 if e.locations[i].attributes["flood_level"] >= 1:
-    #                     # print("Flooded", file=open('/Users/laura/Desktop/log.txt', 'a'))
-    #                     return True
-    #                 else:
-    #                     # print("Not flooded", file=open('/Users/laura/Desktop/log.txt', 'a'))
-    #                     return False
-    #             else:
-    #                 return False
-
-    
-    #     print(f"Error: flood_zone {self.route[-1]} not found in check_dest_is_flooded", file=sys.stderr)
-    #     sys.exit()
-
-
     def take_next_step(self,e):
         """
         Summary:
@@ -203,9 +159,6 @@ class Person:
             # If the name of the destination on the current link is same as the agents current waypoint on the route:
             if l.endpoint.name == self.route[0]:
                 # Check if the destination camp is full, flooded. If so, remove the route and return `None`.
-                # LAURA remove if not used above. 
-                # LAURA ORIGINAL: if self.check_dest_is_full_camp(e):
-                # LAURA FUTURE: if self.check_dest_is_full_camp(e) or self.check_dest_is_flooded(e):
                 if self.check_dest_is_full_camp(e):
                     self.route = []
                     return None
@@ -235,7 +188,7 @@ class Person:
 
         if self.travelling is False:
             # Calculate the agent's move chance.
-            movechance = moving.calculateMoveChance(self, ForceTownMove)
+            movechance = moving.calculateMoveChance(self, ForceTownMove, time)
 
             #if self.location.town and ForceTownMove: # called through evolveMore
             #    movechance = 1.0

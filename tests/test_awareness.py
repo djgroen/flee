@@ -94,3 +94,4 @@ def test_marker_location():
 
 if __name__ == "__main__":
     test_awareness()
+    test_marker_location()
