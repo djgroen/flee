@@ -25,7 +25,7 @@ To extract location names from the ACLED data, you can run the following command
 
         python 00_extract_location_names.py nigeria2016 admin2
 
-**Input:** ACLED data (acled.csv)\</br\>
+**Input:** ACLED data (acled.csv)
 **Output:** Location Names
 
 **Command arguments:**
@@ -58,7 +58,7 @@ Run the following command in your terminal:
         python 01_extract_population_csv.py nigeria2016 0 7 10000
 
 **Input:** population.html
-**Output:** population.csv
+**Output:** Population data (population.csv)
 
 **Description:**
 
@@ -158,6 +158,43 @@ Save the modified locations.csv file.
 You can now proceed with generating the `routes.csv` file based on your updated locations.csv data, including the newly added camps.
 
 
-## Extract Routing Data
+## Extract Routes
 
-TBC.
+This script processes geographical location data to generate a set of routes between locations within a specified country or dataset. It uses a nearest neighbor approach, enhanced with the consideration of intermediate stops, to determine the most efficient routes based on Euclidean distance. 
+
+Run the following command in your terminal:
+
+        python 05_extract_routes_csv.py nigeria2016
+
+**Input:** CSV file containing geographical locations (locations.csv)
+**Output:** CSV file containing the distances between locations (routes.csv)
+
+Each entry in the file includes the starting location ('name1'), the destination location ('name2'), the distance between these locations, and a placeholder for 'force_redirection'.
+
+Command:
+Run the script using the following command:
+"python 05_extract_routes_csv.py \<country\>"
+
+- \<country\>: Name of the country or dataset (e.g., "nigeria2016").
+
+
+## Visualize Routes
+
+This script visualizes geographical routes and locations for a specified country. It primarily functions through the `extract_routes_info(country)` method, which processes location and route data for the given country. The script reads two CSV files: 'locations.csv' and 'routes.csv'. The 'locations.csv' file contains location data with fields such as 'name', 'latitude', and 'longitude'. The 'routes.csv' file contains routes data with fields including the starting location (name1), destination location (name2), and the distance between them.
+
+The script uses the `folium` library to create an interactive map. It first plots markers for each location from the 'locations.csv' file. Then, it draws lines representing the routes from the 'routes.csv' file, showing the connections between different locations.
+
+The resulting map offers a visual representation of how various locations are interconnected through different routes. This visualization can be particularly useful for understanding geographic proximity and route planning in the specified country.
+
+Run the following command in your terminal:
+
+        python 06_extract_routes_info.py nigeria2016
+
+**Input:** locations.csv & routes.csv
+**Output:** An interactive map file (HTML format)
+
+Command:
+Run the script using the following command:
+"python 06_extract_routes_info.py \<country\>"
+
+- \<country\>: Name of the country or dataset (e.g., "nigeria2016").
