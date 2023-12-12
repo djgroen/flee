@@ -1,6 +1,6 @@
 # Building a location graph
 
-![](images/network.png)
+![Sample network graph](images/network.png)
 
 The location graph is an essential part of the Flee simulation, and can be constructed in three different ways:
 
@@ -64,6 +64,8 @@ If a conflict occurs in a region, then the conflict value should be set higher t
 * Still unclear how to define conflict intensities, e.g. for small events.
 
 ## Grid-based location graph construction (draft)
+
+![Example population grid of the UK. Source: Columbia University](images/popgriduk.png)
 
 In this approach, we start out with a population database that provides estimates across a country in a grid-like fashion. Grid cells may be perfect squares (equal in height or width in kilometers), or be formed accoding to world coordinate offsets (which gives them a slightly curved shape, depending on the distance from the equator).
 
