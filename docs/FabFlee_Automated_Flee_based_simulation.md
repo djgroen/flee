@@ -199,7 +199,9 @@ It clears the active conflict directory upon which you can reload the conflict a
    ```
    The large suite should be run using at least 64 cores in our experience.
 
-Both commands will return an Averaged Relative Difference across all runs. They can also be run with duplicated samples using flags such as `replicas=10` and using QCG-PilotJob using `PJ=true`.
+Both commands will return an Averaged Relative Difference across all runs. They can also be run with duplicated samples using flags such as `replicas=10` and using QCG-PilotJob using `PJ=true`. By default, `validate_flee` will calculate errors using the `rescaled` approach, but this can be overridden by using the flag `mode=normal`.
+
+There is also a separate `validate_flee_output` command, which reproduces the post-processing tasks on runs that have been performed previously using `validate_flee`.
    
 ### *Plotting link graphs for quick visual inspection*
 
