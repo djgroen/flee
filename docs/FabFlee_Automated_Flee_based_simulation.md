@@ -186,6 +186,23 @@ It clears the active conflict directory upon which you can reload the conflict a
 	```
 	Local results are typically locations in the `~/FabSim3/results/` subdirectory.
 
+#### *Running the Flee Autovalidator*
+
+1. You can run the autovalidator using e.g.:
+   ```sh
+   fabsim <machine_name> validate_flee:flee3_validation,cores=4
+   ```
+   Note that the autovalidator can take a while to complete, so ideally it is run on a remote machine using `cores=32` or more.
+2. It is also possible to run the large validation suite using:
+   ```sh
+   fabsim <machine_name> validate_flee:cores=64
+   ```
+   The large suite should be run using at least 64 cores in our experience.
+
+Both commands will return an Averaged Relative Difference across all runs. They can also be run with duplicated samples using flags such as `replicas=10` and using QCG-PilotJob using `PJ=true`. By default, `validate_flee` will calculate errors using the `rescaled` approach, but this can be overridden by using the flag `mode=normal`.
+
+There is also a separate `validate_flee_output` command, which reproduces the post-processing tasks on runs that have been performed previously using `validate_flee`.
+   
 ### *Plotting link graphs for quick visual inspection*
 
 1. To quickly plot a link graph, simply type:
