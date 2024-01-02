@@ -1,6 +1,6 @@
 import unittest
 
-from runscripts.runner import Simulation
+from runner import Simulation
 
 
 class TestRunner(unittest.TestCase):
