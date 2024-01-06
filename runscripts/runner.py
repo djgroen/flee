@@ -105,7 +105,6 @@ class Simulation:
       camps = []
       for i in camp_locations:
         camps += [lm[i]]
-        loc_data += [d.get_field(i, t)]
 
       # calculate retrofitted time.
       refugees_in_camps_sim = 0
