@@ -185,11 +185,9 @@ class Person:
         Returns:
             None.
         """
-
         if self.travelling is False:
             # Calculate the agent's move chance.
             movechance = moving.calculateMoveChance(self, ForceTownMove, time)
-
             #if self.location.town and ForceTownMove: # called through evolveMore
             #    movechance = 1.0
             #else: # called first time in loop
@@ -263,7 +261,6 @@ class Person:
                 # destination and return.
                 if self.location.closed is True:
                     self.handle_travel(self.location.startpoint, travelling=False)
-
                 else:
                     # if the person has moved less than the MaxMoveSpeed, it
                     # should go through another evolve() step in the new
@@ -1584,7 +1581,7 @@ class Ecosystem:
             None.
         """
         spawning.refresh_spawn_weights(self) # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
-
+        
         # update level 1, 2 and 3 location scores
         for loc in self.locations:
             scoring.updateLocationScore(self.time, loc)
@@ -1657,7 +1654,7 @@ class Ecosystem:
             x (float, optional): The x-coordinate of the location. Defaults to 0.0.
             y (float, optional): The y-coordinate of the location. Defaults to 0.0.
             location_type (str, optional): The type of location. Defaults to None.
-            movechance (float, optional): The probability that an agent will move to this location. Defaults to 1.0.
+            movechance (float, optional): The probability that an agent will move from this location. Defaults to 1.0.
             capacity (int, optional): The maximum number of agents that can be present at this location. Defaults to -1 (unlimited).
             pop (int, optional): The initial population of the location. Defaults to 0.
             foreign (bool, optional): Whether or not this location is in a foreign country. Defaults to False.
@@ -1944,7 +1941,7 @@ class Ecosystem:
 
 
     @check_args_type
-    def getRankN(self) -> bool:
+    def getRankN(self, time) -> bool:
         """
         Summary:
             Returns whether this process should do a task. Always returns true,

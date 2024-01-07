@@ -338,6 +338,7 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
     Returns:
         movechance (int): Probability that agent will move this step. 
     """
+
     if a.location.town and ForceTownMove: # called through evolveMore
         return 1.0
     else: # called first time in loop
@@ -349,7 +350,8 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         #Get the current flood level of the agents location, if flood level not set in flood_level.csv then default to zero
         flood_level = a.location.attributes.get("flood_level",0)
-        if flood_level > 0:
+              
+        if flood_level > 0.0:
             #set the base equal to the flood location weight
             movechance *= float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
             #otherwise base movechance is unaffected by flooding
@@ -368,7 +370,10 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
           if forecast_timescale is not None:
             if forecast_end_time is not None:
               if (forecast_timescale > 1.0) and (time <= forecast_end_time): 
-            
+                
+                #Set the base forecast value
+                flood_forecast_base = 0.0 #no forecast, no flooding 
+
                 #Set the default movechance value
                 flood_forecast_movechance = 0.0 #no forecast, no flooding
 
@@ -379,7 +384,7 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
                 #For example, low awareness will down weight the importance of the forecast or reduce the impact the forecast has on the 
                 # agents decision making process. 
                 agent_awareness_weight = float(SimulationSettings.move_rules["FloodAwarenessWeights"][int(a.attributes["floodawareness"])])
-
+          
                 #Forecast loop: iterate over the location flood level weights for the forecast timescale
                 for x in range(1, forecast_timescale + 1): #iterates over the 5 day forecast, ignoring the current day
 
@@ -426,8 +431,6 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
                 print("WARNING: flood_forecaster_endtime is not set in simsetting.yml", file=sys.stderr)
           else:
               print("WARNING: flood_forecaster_timescale is not set in simsetting.yml", file=sys.stderr)
-
-
     return movechance
 
 

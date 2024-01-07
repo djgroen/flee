@@ -196,8 +196,8 @@ class SimulationSettings:
               SimulationSettings.spawn_rules["displaced_per_flood_day"] = fetchss(dpsc,"displaced_per_flood_day", [0,100,200,300,500])
 
             # Flood forecaster
-            if SimulationSettings.move_rules["flood_forecaster"] is True:
-               SimulationSettings.move_rules["flood_forecaster_timescale"] = fetchss(dpsc,"flood_forecaster_timescale", 0) #defaults to zero days of forecasting abiltiy. 
+            if SimulationSettings.move_rules["FloodForecaster"] is True:
+               SimulationSettings.move_rules["FloodForecasterTimescale"] = fetchss(dpsc,"flood_forecaster_timescale", 0) #defaults to zero days of forecasting abiltiy. 
 
 
         SimulationSettings.spawn_rules["conflict_spawn_decay"] = fetchss(dps,"conflict_spawn_decay", None) # Expect an array or dict

@@ -98,9 +98,7 @@ class InputGeography:
                             self.attributes[attribute_name][headers[i]] = []
                 else:
                     for i in range(1, len(row)):  # field 0 is day.
-                        print("RAICSV", row[0], row[i], file=sys.stderr)
-                        print("attr name", attribute_name, file=sys.stderr)
-                        print("attr type", attribute_type, file=sys.stderr)
+                        # print("RAICSV", row[0], row[i], file=sys.stderr)
                         if attribute_type == "int":
                             self.attributes[attribute_name][headers[i]].append(int(row[i].strip()))
                         elif attribute_type == "float":
@@ -500,10 +498,10 @@ class InputGeography:
                 #If the location name is not in the attribute list, then set the attribute to default value of zero
                 if attribute_name == "forecast_flood_levels":
                     #Set default forecast_flood_levels attribute to array of zeros for towns/camps
-                    e.locations[i].attributes[attribute_name] = [0.0] * attrlength #array of zeros with length equal to the length of the first array in attrlist
+                    e.locations[i].attributes[attribute_name] = [0] * attrlength #array of zeros with length equal to the length of the first array in attrlist
                 else:
                     #Set default flood_levels attribute to zero for towns/camps
-                    e.locations[i].attributes[attribute_name] = 0.0
+                    e.locations[i].attributes[attribute_name] = 0
                 
             # print(e.time, loc_name, e.locations[i].attributes, file=sys.stderr)
 

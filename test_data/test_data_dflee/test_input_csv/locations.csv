@@ -1,0 +1,8 @@
+#"name","region","country","lat","lon","location_type","conflict_date","population",
+"A","AB","ABC",1.0,1.0,"flood_zone",,200000000,
+"B","AB","ABC",1.0,1.0,"flood_zone",,1000000000,
+"C","C","ABC",1.0,1.0,"town",,100,
+"C2","C","ABC",1.0,1.0,"town",,200,
+"D","D","DEF",1.0,1.0,"camp",,30000,
+"E","EF","DEF",1.0,1.0,"camp",,20000,
+"F","EF","DEF",1.0,1.0,"camp",,10000,

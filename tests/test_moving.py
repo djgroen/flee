@@ -88,6 +88,7 @@ def test_scoring_foreign_weight():
 
     assert t == 9
     # This includes refugee counts from Fassala as well
+    #Should be zero, as the foreign weight is set to zero.
     assert l4.numAgents == 0
     # 79 746 24601 14784 38188
 
