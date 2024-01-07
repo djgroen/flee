@@ -299,10 +299,10 @@ def spawn_daily_displaced(e, t, d):
           #__refugees_raw = 0
 
           for l in e.locations:
-              print(l.name, l.capacity, d.day0pops.get(l.name,0),  file=sys.stderr)
+              #print(l.name, l.capacity, d.day0pops.get(l.name,0),  file=sys.stderr)
               if l.capacity > 0 :
                   l.capacity -= int(float(d.day0pops.get(l.name,0)))
-              print(l.name, l.capacity, file=sys.stderr)
+              #print(l.name, l.capacity, file=sys.stderr)
 
 
       if new_refs < 0:
