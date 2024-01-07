@@ -95,7 +95,9 @@ class SimulationSettings:
             dp = yaml.safe_load(f)
 
         number_of_steps = float(fetchss(dp,"number_of_steps",-1))
+        #Defined in run.py
         SimulationSettings.ConflictInputFile = fetchss(dp,"conflict_input_file","")
+        SimulationSettings.FloodLevelInputFile = fetchss(dp,"flood_level_input_file","")
 
         print("YAML:", dp, file=sys.stderr)
 

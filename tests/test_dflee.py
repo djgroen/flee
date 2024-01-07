@@ -258,6 +258,9 @@ def test_agent_flood_awareness():
     flee.SimulationSettings.spawn_rules["flood_spawn_mode"] = "pop_ratio"
     flee.SimulationSettings.spawn_rules["displaced_per_flood_day"] = [0.0,0.1,0.2,0.5,0.9]
 
+    #Define flood level file location for ReadAttributeInputCSV called in AddNewConflictZones
+    flee.SimulationSettings.FloodLevelInputFile = os.path.join("test_data/test_data_dflee","test_input_csv/flood_level.csv")
+
     # Set simulation ecosystem and input geography
     e = flee.Ecosystem()
     ig = InputGeography.InputGeography()
@@ -272,7 +275,7 @@ def test_agent_flood_awareness():
     ig.ReadAttributeInputCSV("flood_level", "int", os.path.join("test_data/test_data_dflee","test_input_csv/flood_level.csv"))
 
     ig.ReadAttributeInputCSV("forecast_flood_levels", "int",os.path.join("test_data/test_data_dflee","test_input_csv/flood_level.csv"))
-    
+
     ig.ReadAttributeInputCSV("age", "float", os.path.join("test_data/test_data_dflee","test_input_csv/demographics_age.csv")) 
    
     ig.ReadAttributeInputCSV("floodawareness", "float", os.path.join("test_data/test_data_dflee","test_input_csv/demographics_floodawareness.csv"))
@@ -287,6 +290,7 @@ def test_agent_flood_awareness():
     e, lm = ig.StoreInputGeographyInEcosystem(e=e)
 
     #Add Dynamic Attibrutes e.g. Flood Zone Levels to the Locations
+    
     ig.AddNewConflictZones(e=e, time=0)
 
     # Add agents to the simulation in the towns
