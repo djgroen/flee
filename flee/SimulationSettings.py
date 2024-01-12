@@ -303,7 +303,7 @@ class SimulationSettings:
           # FloodLinkWeights *multiply* existing link weights when flood level is higher than 0.
           SimulationSettings.move_rules["FloodLinkWeights"] = fetchss(dpf,"flood_link_weights", None) # Expect an array or dict
           print("Flood Link Weights set to:", SimulationSettings.move_rules["FloodLinkWeights"], file=sys.stderr)
-          print("Note: Flood Link Weights are not supported yet in this version of DFlee.")
+          print("Note: Flood Link Weights are not supported yet in this version of DFlee.", file=sys.stderr)
 
           #Flood forecaster - allows agents to have awareness of the weather forecast 
           SimulationSettings.move_rules["FloodForecaster"] = bool(fetchss(dpf,"flood_forecaster", False)) #defaults to false
