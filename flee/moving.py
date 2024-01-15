@@ -349,11 +349,12 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         #Get the current flood level of the agents location, if flood level not set in flood_level.csv then default to zero
         flood_level = a.location.attributes.get("flood_level",0)
-              
+        
         if flood_level > 0.0:
             #set the base equal to the flood location weight
             movechance = float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
             #otherwise base movechance is unaffected by flooding
+            #print(f"flood_level: {flood_level}, movechance: {movechance}")
 
         #Flooding Forecaster Location Weight Implementation:
         if SimulationSettings.move_rules["FloodForecaster"] is True:
@@ -383,7 +384,8 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
                 #For example, low awareness will down weight the importance of the forecast or reduce the impact the forecast has on the 
                 # agents decision making process. 
                 agent_awareness_weight = float(SimulationSettings.move_rules["FloodAwarenessWeights"][int(a.attributes["floodawareness"])])
-          
+         
+
                 #Forecast loop: iterate over the location flood level weights for the forecast timescale
                 for x in range(1, forecast_timescale + 1): #iterates over the 5 day forecast, ignoring the current day
 
@@ -396,7 +398,7 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
                         forecast_day = forecast_end_time #same as time + x
                   
                     #get the forecast flood level for location on the day we're considering in the for loop
-                    forecast_flood_level = a.location.attributes.get("forecast_flood_levels",0)[forecast_day]
+                    forecast_flood_level = int(a.location.attributes.get("forecast_flood_levels",0)[forecast_day])
 
                     # if it's not zero, then we need to modify the base forecast value, otherwise leave the base as it will zero.
                     if forecast_flood_level > 0.0: 
@@ -415,7 +417,7 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
 
                 #the flood_forecast_base now represents the total weight of the flooding during the forecast for the endpoint location,
                 # this needed to be divided by the total number of days in the forecast to get the average weight based on the severity and relative imporatance of the forecasted days
-                flood_forecast_movechance *= float(flood_forecast_movechance/forecast_timescale)
+                flood_forecast_movechance = float(flood_forecast_base/forecast_timescale)
 
                 #down weight the overall importance of the flood forecast on the base depending on the agents awareness weighting
                 #currently using a simple down weighting, but may want lower awareness agents to only respond to high flood levels 
@@ -424,12 +426,12 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
 
                 # Make the flood_forecast_base effect the actual base score
                 movechance *= flood_forecast_movechance  
-
                   
             else:
                 print("WARNING: flood_forecaster_endtime is not set in simsetting.yml", file=sys.stderr)
           else:
               print("WARNING: flood_forecaster_timescale is not set in simsetting.yml", file=sys.stderr)
+
     return movechance
 
 
