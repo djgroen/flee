@@ -50,7 +50,6 @@ def getEndPointScore(agent, link, time) -> float:
         power_factor = SimulationSettings.move_rules["HomeDistancePower"]
         base *= 1.0/(max(1.0,link.endpoint.calculateDistance(agent.location))**power_factor)
 
-
     # DFlee Flood Location Weight implementation
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         #Get the current flood level of the endpoint, if flood level not set in flood_level.csv then default to zero
@@ -353,7 +352,7 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
               
         if flood_level > 0.0:
             #set the base equal to the flood location weight
-            movechance *= float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
+            movechance = float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
             #otherwise base movechance is unaffected by flooding
 
         #Flooding Forecaster Location Weight Implementation:
