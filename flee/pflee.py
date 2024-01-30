@@ -248,8 +248,8 @@ class Link(flee.Link):
     """
 
     @check_args_type
-    def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False):
-        super().__init__(startpoint, endpoint, distance, forced_redirection)
+    def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False, attributes: dict = {}):
+        super().__init__(startpoint, endpoint, distance, forced_redirection, attributes)
 
     @check_args_type
     def DecrementNumAgents(self) -> None:
