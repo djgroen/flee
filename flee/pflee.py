@@ -158,6 +158,7 @@ class Location(flee.Location):
         pop: int = 0,
         foreign: bool = False,
         country: str = "unknown",
+        attributes: dict = {},
     ) -> None:
         self.e = e
 
@@ -176,6 +177,7 @@ class Location(flee.Location):
             pop=pop,
             foreign=foreign,
             country=country,
+            attributes=attributes,
         )
 
         # Emptying this array, as it is not used in the parallel version.
@@ -719,6 +721,7 @@ class Ecosystem(flee.Ecosystem):
             pop=pop,
             foreign=foreign,
             country=country,
+            attributes=attributes,
         )
 
         self.cur_loc_id += 1

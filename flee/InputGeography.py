@@ -96,7 +96,7 @@ class InputGeography:
                             self.attributes[attribute_name][headers[i]].append(float(row[i].strip()))
                 row_count += 1
 
-        # print(self.attributes[attribute_name])
+        #print(self.attributes, file=sys.stderr)
 
 
     @check_args_type
@@ -420,12 +420,10 @@ class InputGeography:
 
         for i in range(0, len(e.locations)):
             loc_name = e.locations[i].name
+            e.locations[i].attributes[attribute_name] = 0
             if loc_name in attrlist:
-                e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
-                #print(e.time, loc_name, e.locations[i].attributes, attrlist[loc_name][time], file=sys.stderr)
-            else:
-                e.locations[i].attributes[attribute_name] = 0
-                #print(e.time, loc_name, e.locations[i].attributes, file=sys.stderr)
+                e.locations[i].attributes[attribute_name] = int(attrlist[loc_name][time])
+
 
 
     @check_args_type
@@ -445,7 +443,7 @@ class InputGeography:
         if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
             self.UpdateLocationAttributes(e, "flood_level", time)
 
-        if len(SimulationSettings.ConflictInputFile) == 0:
+        elif len(SimulationSettings.ConflictInputFile) == 0:
             for loc in self.locations:
                 if "conflict" in loc[4].lower() and int(loc[5]) == time:
                     conflict_intensity = 1.0
@@ -496,3 +494,4 @@ class InputGeography:
                                 file=sys.stderr,
                             )
                         e.set_conflict_intensity(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
+
