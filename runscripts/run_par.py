@@ -29,6 +29,8 @@ if __name__ == "__main__":
 
   # Conflict file will be read if modelling conflict-driven displacement. Ignored otherwise.
   flee.SimulationSettings.ConflictInputFile = "%s/conflicts.csv" % input_csv_directory
+  # Flood file will be read if modelling flood-driven displacement. Ignored otherwise.
+  flee.SimulationSettings.FloodLevelInputFile = "%s/flood_level.csv" % input_csv_directory
 
   e = flee.Ecosystem()
 
@@ -70,7 +72,7 @@ if __name__ == "__main__":
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
 
   for t in range(0,end_time):
-
+    
     #if t>0:
     ig.AddNewConflictZones(e,t)
 

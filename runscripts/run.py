@@ -28,6 +28,8 @@ if __name__ == "__main__":
 
   # Conflict file will be read if modelling conflict-driven displacement. Ignored otherwise.
   flee.SimulationSettings.ConflictInputFile = "%s/conflicts.csv" % input_csv_directory
+  # Flood file will be read if modelling flood-driven displacement. Ignored otherwise.
+  flee.SimulationSettings.FloodLevelInputFile = "%s/flood_level.csv" % input_csv_directory
 
   e = flee.Ecosystem()
 

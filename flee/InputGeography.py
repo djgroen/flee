@@ -143,33 +143,12 @@ class InputGeography:
         Returns:
             None.
         """
-        #These print statements show SimulationSettings.FloodLevelInputFile is an unexpected empty string
-        # print("csv_name", csv_name, file=sys.stderr)
-        # print("SimulationSettings.ConflictInputFile", SimulationSettings.ConflictInputFile, file=sys.stderr)
-        # print("SimulationSettings.FloodLevelInputFile", SimulationSettings.FloodLevelInputFile, file=sys.stderr)
 
         if "flood_driven_spawning" in SimulationSettings.spawn_rules.keys():
             # Read flood location attributes.
             if SimulationSettings.spawn_rules["flood_driven_spawning"] is True:
-                #Works with the dflee_test_laura config file
-                # self.ReadAttributeInputCSV("flood_level","int","input_csv/flood_level.csv") 
-                # self.ReadAttributeInputCSV("forecast_flood_levels","int","input_csv/flood_level.csv") 
-                
-                #Works with the dflee_test.py test case 
-                # self.ReadAttributeInputCSV("flood_level","int","/Users/laura/Documents/PhD/Codes/FLEE/flee/test_data/test_data_dflee/test_input_csv/flood_level.csv")
-                # self.ReadAttributeInputCSV("forecast_flood_levels","int","/Users/laura/Documents/PhD/Codes/FLEE/flee/test_data/test_data_dflee/test_input_csv/flood_level.csv")
-                
-                #Works with both dflee_test.py and dflee_test_laura config file
-                flood_level_file = SimulationSettings.FloodLevelInputFile
-                if flood_level_file == "":
-                    flood_level_file = SimulationSettings.ConflictInputFile[:-13] + "flood_level.csv"
-                self.ReadAttributeInputCSV("flood_level","int",flood_level_file)
-                self.ReadAttributeInputCSV("forecast_flood_levels","int",flood_level_file)
-                
-                #Can't get this to work with dflee_test_laura config file as SimulationSettings.FloodLevelInputFile returns an empty string. 
-                
-                # self.ReadAttributeInputCSV("flood_level","int",SimulationSettings.FloodLevelInputFile)
-                # self.ReadAttributeInputCSV("forecast_flood_levels","int",SimulationSettings.FloodLevelInputFile)
+                self.ReadAttributeInputCSV("flood_level","int",SimulationSettings.FloodLevelInputFile)
+                self.ReadAttributeInputCSV("forecast_flood_levels","int",SimulationSettings.FloodLevelInputFile)
 
             elif SimulationSettings.move_rules["FloodRulesEnabled"] is False:
                 self.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
