@@ -105,7 +105,7 @@ class InputGeography:
                             self.attributes[attribute_name][headers[i]].append(float(row[i].strip()))
                 row_count += 1
 
-        # print(self.attributes[attribute_name])
+        #print(self.attributes, file=sys.stderr)
 
 
     @check_args_type
@@ -506,6 +506,7 @@ class InputGeography:
         #Iterate through the locations and update their attributes
         for i in range(0, len(e.locations)):
             loc_name = e.locations[i].name
+            e.locations[i].attributes[attribute_name] = 0
 
             #If the attibute has been specified by the input file: 
             if loc_name in attrlist:
@@ -514,7 +515,7 @@ class InputGeography:
                     e.locations[i].attributes[attribute_name] = attrlist[loc_name]
                 else:
                     #Set flood_levels attribute for flood zones
-                    e.locations[i].attributes[attribute_name] = attrlist[loc_name][time]
+                    e.locations[i].attributes[attribute_name] =int(attrlist[loc_name][time])
             else: 
                 #If the location name is not in the attribute list, then set the attribute to default value of zero
                 if attribute_name == "forecast_flood_levels":
@@ -552,8 +553,7 @@ class InputGeography:
                 #Store future flood levels in the forecast_flood_levels attribute. Default value is array of zeros.
                 self.UpdateLocationAttributes(e, "forecast_flood_levels", time) 
 
-        #Add New Conflict Zones
-        if len(SimulationSettings.ConflictInputFile) == 0:
+        elif len(SimulationSettings.ConflictInputFile) == 0:
             for loc in self.locations:
                 if "conflict" in loc[4].lower() and int(loc[5]) == time:
                     conflict_intensity = 1.0
@@ -604,3 +604,4 @@ class InputGeography:
                                 file=sys.stderr,
                             )
                         e.set_conflict_intensity(name=conflict_name, conflict_intensity=self.conflicts[conflict_name][time])
+

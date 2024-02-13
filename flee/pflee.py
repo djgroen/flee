@@ -182,6 +182,7 @@ class Location(flee.Location):
         pop: int = 0,
         foreign: bool = False,
         country: str = "unknown",
+        attributes: dict = {},
     ) -> None:
         """
         Summary: 
@@ -220,6 +221,7 @@ class Location(flee.Location):
             pop=pop,
             foreign=foreign,
             country=country,
+            attributes=attributes,
         )
 
         # Emptying this array, as it is not used in the parallel version.
@@ -326,7 +328,7 @@ class Link(flee.Link):
     """
 
     @check_args_type
-    def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False):
+    def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False, attributes: dict = {}):
         """
         Summary: 
             Creates a new link object.
@@ -336,11 +338,12 @@ class Link(flee.Link):
             endpoint (Location): The endpoint of the link.
             distance (float): The distance between the startpoint and endpoint.
             forced_redirection (bool, optional): Whether or not the link should be used as a forced redirection. Defaults to False.
-
+            attributes (dict, optional): A dictionary of attributes for the link. Defaults to {}.
         Returns:
             None.
         """
-        super().__init__(startpoint, endpoint, distance, forced_redirection)
+        super().__init__(startpoint, endpoint, distance, forced_redirection, attributes)
+
 
 
     @check_args_type
@@ -895,6 +898,7 @@ class Ecosystem(flee.Ecosystem):
             pop=pop,
             foreign=foreign,
             country=country,
+            attributes=attributes,
         )
 
         self.cur_loc_id += 1

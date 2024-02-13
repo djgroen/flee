@@ -268,6 +268,7 @@ def spawn_daily_displaced(e, t, d):
         flood_level = e.locations[i].attributes.get("flood_level",0)
         #print(e.time, e.locations[i].name, e.locations[i].attributes, file=sys.stderr)
         if flood_level > 0:
+            print(e.time, e.locations[i].name, e.locations[i].attributes, int(SimulationSettings.spawn_rules["displaced_per_flood_day"][flood_level]),  file=sys.stderr)
             ## BASE RATES  
             if SimulationSettings.spawn_rules["flood_spawn_mode"] == "constant":
                 num_spawned = int(SimulationSettings.spawn_rules["displaced_per_flood_day"][flood_level]) 
