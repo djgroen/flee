@@ -506,8 +506,7 @@ class InputGeography:
         #Iterate through the locations and update their attributes
         for i in range(0, len(e.locations)):
             loc_name = e.locations[i].name
-            e.locations[i].attributes[attribute_name] = 0
-
+            
             #If the attibute has been specified by the input file: 
             if loc_name in attrlist:
                 if attribute_name == "forecast_flood_levels":
