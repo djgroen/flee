@@ -435,6 +435,17 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
     return movechance
 
 
+def pruneRoutes(weights, routes):
+    threshold = 5.0
+    min_weight = min(weights)
+    for i in range(0,len(weights)):
+        while weights[i] / min_weight > threshold:
+            weights.remove(weights[i])
+            routes.remove(routes[i])
+            if i >= len(weights):
+              return weights, routes
+    return weights, routes
+
 
 @check_args_type
 def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = False):
@@ -479,6 +490,8 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
   #Last step: delete origin from suggested routes.
   for i in range(0, len(routes)):
     routes[i] = routes[i][1:]
+
+  #weights, routes = pruneRoutes(routes,weights)
 
   #print(weights, routes)
   route = chooseFromWeights(weights=weights, routes=routes)

@@ -95,8 +95,22 @@ def test_scoring_foreign_weight():
     print("Test successful!")
 
 
+def test_prune_routes():
+
+    weights = [1,8,4,12]
+    routes = ["A","B","C","D"]
+
+    flee.moving.pruneRoutes(weights, routes)
+    assert len(weights) == 2
+    assert len(routes) == 2
+
+    assert weights[1] == 4
+    assert routes[1] == "C"
+
+
 if __name__ == "__main__":
     test_stay_close_to_home()
     test_scoring_foreign_weight()
+    test_prune_routes()
     pass
     
