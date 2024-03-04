@@ -271,7 +271,7 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
     diffdata = sim_errors.abs_diff(rescaled=False) / np.maximum(un_refs, np.ones(len(un_refs)))
     diffdata_rescaled = sim_errors.abs_diff(rescaled=True) / np.maximum(un_refs, np.ones(len(un_refs)))
 
-    print(sim_errors.location_errors)
+    #print(sim_errors.location_errors)
     #print(diffdata)
     #print(diffdata_rescaled)
 
