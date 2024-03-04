@@ -278,6 +278,11 @@ class SimulationSettings:
         SimulationSettings.move_rules["MovechancePopBase"] = float(fetchss(dpr,"movechance_pop_base",10000.0)) 
         SimulationSettings.move_rules["MovechancePopScaleFactor"] = float(fetchss(dpr,"movechance_pop_scale_factor",0.0))
 
+        # Threshold for route weight to be pruned. Equal to a multiplier of the route weight of the most efficient route.
+        # Values >=1.0 indicate that it is disabled.
+        # Higher values mean less pruning.
+        SimulationSettings.move_rules["PruningThreshold"] = float(fetchss(dpr,"pruning_threshold",1.0))
+
 
         # Flee 3.0 Prototyping conditionals (see design focument)
         # TODO: embed these in a more flexible/powerful framework of conditionals

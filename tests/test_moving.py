@@ -97,6 +97,7 @@ def test_scoring_foreign_weight():
 
 def test_prune_routes():
 
+    flee.SimulationSettings.move_rules["PruningThreshold"] = 5.0
     weights = [1,8,4,12]
     routes = ["A","B","C","D"]
 

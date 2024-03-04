@@ -435,15 +435,34 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
     return movechance
 
 
+def check_routes(weights, routes, label):
+    if len(weights) == 0 or len(routes) == 0:
+        print(f"ERROR: Pruning to empty tree at {label}, W:{len(weights)} R:{len(routes)}", file=sys.stderr)
+    if sum(weights) == 0:
+        print(f"ERROR: Pruning to empty weight sum at {label}", file=sys.stderr)
+    if len(weights) != len(routes):
+        print(f"ERROR: Pruning to broken tree at {label}, W:{len(weights)} R:{len(routes)}", file=sys.stderr)
+
+
 def pruneRoutes(weights, routes):
-    threshold = 5.0
+
+    #check_routes(weights, routes, "START")
+
+    threshold = SimulationSettings.move_rules["PruningThreshold"]
+    if threshold < 1.001:
+        #check_routes(weights, routes, "LOTHRESHOLD")
+        return weights, routes
+
     min_weight = min(weights)
     for i in range(0,len(weights)):
         while weights[i] / min_weight > threshold:
             weights.remove(weights[i])
             routes.remove(routes[i])
             if i >= len(weights):
-              return weights, routes
+                #check_routes(weights, routes, "LOOPJUMP")
+                return weights, routes
+
+    #check_routes(weights, routes, "END")
     return weights, routes
 
 
@@ -491,7 +510,7 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
   for i in range(0, len(routes)):
     routes[i] = routes[i][1:]
 
-  #weights, routes = pruneRoutes(routes,weights)
+  weights, routes = pruneRoutes(weights, routes)
 
   #print(weights, routes)
   route = chooseFromWeights(weights=weights, routes=routes)
