@@ -454,13 +454,13 @@ def pruneRoutes(weights, routes):
         return weights, routes
 
     min_weight = min(weights)
-    for i in range(0,len(weights)):
-        while weights[i] / min_weight > threshold:
+    i = 0
+    while i < len(weights):
+        if weights[i] / min_weight > threshold:
             weights.remove(weights[i])
             routes.remove(routes[i])
-            if i >= len(weights) - 1:
-                #check_routes(weights, routes, "LOOPJUMP")
-                return weights, routes
+            i -= 1
+        i += 1
 
     #check_routes(weights, routes, "END")
     return weights, routes

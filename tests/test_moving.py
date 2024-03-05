@@ -109,9 +109,26 @@ def test_prune_routes():
     assert routes[1] == "C"
 
 
+def test_prune_routes2():
+
+    flee.SimulationSettings.move_rules["PruningThreshold"] = 5.0
+    weights = [1,8,9,12]
+    routes = ["A","B","C","D"]
+
+    flee.moving.pruneRoutes(weights, routes)
+    assert len(weights) == 1
+    assert len(routes) == 1
+
+    assert weights[0] == 1
+    assert routes[0] == "A"
+
+
+
+
 if __name__ == "__main__":
     test_stay_close_to_home()
     test_scoring_foreign_weight()
     test_prune_routes()
+    test_prune_routes2()
     pass
     
