@@ -97,7 +97,7 @@ def test_scoring_foreign_weight():
 
 def test_prune_routes():
 
-    flee.SimulationSettings.move_rules["PruningThreshold"] = 5.0
+    flee.SimulationSettings.move_rules["PruningThreshold"] = 2.0
     weights = [1,8,4,12]
     routes = ["A","B","C","D"]
 
@@ -105,13 +105,13 @@ def test_prune_routes():
     assert len(weights) == 2
     assert len(routes) == 2
 
-    assert weights[1] == 4
-    assert routes[1] == "C"
+    assert weights[0] == 8
+    assert routes[0] == "B"
 
 
 def test_prune_routes2():
 
-    flee.SimulationSettings.move_rules["PruningThreshold"] = 5.0
+    flee.SimulationSettings.move_rules["PruningThreshold"] = 1.1
     weights = [1,8,9,12]
     routes = ["A","B","C","D"]
 
@@ -119,8 +119,8 @@ def test_prune_routes2():
     assert len(weights) == 1
     assert len(routes) == 1
 
-    assert weights[0] == 1
-    assert routes[0] == "A"
+    assert weights[0] == 12
+    assert routes[0] == "D"
 
 
 
