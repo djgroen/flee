@@ -151,7 +151,8 @@ class InputGeography:
                 self.ReadAttributeInputCSV("forecast_flood_levels","int",SimulationSettings.FloodLevelInputFile)
 
             elif SimulationSettings.move_rules["FloodRulesEnabled"] is False:
-                self.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
+                if SimulationSettings.spawn_rules["conflict_driven_spawning"] is True:
+                    self.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
 
         self.locations = []
 
@@ -202,6 +203,41 @@ class InputGeography:
         for l in self.locations:
             loc_list[l[0]] = [float(l[3]),float(l[4])]
         return loc_list
+
+
+    @check_args_type
+    def MakeLocationColorsList(self) -> dict:
+        """
+        Summary:
+            Returns a list of location colors.
+
+        Args:
+            None.
+
+        Returns:
+            list: list of location colors, ordered in the same way as in MakeLocationList.
+        """
+        loc_list = []
+        for l in self.locations:
+            if l[5].lower() == "camp":
+                loc_list.append("green")
+            elif "conflict" in l[5].lower():
+                loc_list.append("red")
+            elif l[5].lower() == "town":
+                loc_list.append("yellow")
+            elif l[5].lower() == "idpcamp":
+                loc_list.append("teal")
+            elif l[5].lower() == "marker":
+                loc_list.append("white")
+            elif l[5].lower() == "flood_zone":
+                loc_list.append("blue")
+            elif l[5].lower() == "forward":
+                loc_list.append("blue")
+            else:
+                loc_list.append("black")
+
+        return loc_list
+
 
 
     @check_args_type
