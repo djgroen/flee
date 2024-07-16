@@ -3,7 +3,7 @@
 This page serves to provide definitive references for key aspects of the Flee code.
 
 ## Flee 3 paper
-(in preparation)
+Accepted for publication at the Journal Of Computational Science. Please find a preprint at: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4710692
 
 ## Parallelized Flee (2) paper
 Groen, D., Papadopoulou, N., Anastasiadis, P., Lawenda, M., Szustak, L., Gogolenko, S., Arabnejad, H. and Jahani, A., 2023. Large-Scale Parallelization of Human Migration Simulation. IEEE Transactions on Computational Social Systems.
