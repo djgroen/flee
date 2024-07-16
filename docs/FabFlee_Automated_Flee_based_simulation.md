@@ -215,6 +215,8 @@ When running this script for config `mali2012`, you can expect the following typ
     <img src="../images/location_graph.png" alt="Image" width="800" />
 </p>
 
+Note that as of 16-07-2024, locations are coloured by type when using this visualisation approach.
+
 ### *Plotting movements for individual agents during simulation*
 
 1. To plot the movements of individual agents within a single simulation from agent.out files, simply type:
