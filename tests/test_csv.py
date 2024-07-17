@@ -20,6 +20,52 @@ def date_to_sim_days(date):
     return DataTable.subtract_dates(date1=date, date2="2010-01-01")
 
 
+def test_location_changes():
+
+    flee.SimulationSettings.ReadFromYML("empty.yml")
+
+    e = flee.Ecosystem()
+
+    ig = InputGeography.InputGeography()
+
+    ig.ReadLocationsFromCSV(csv_name=os.path.join("test_data", "test_input_csv/locations.csv"))
+
+    ig.ReadLinksFromCSV(csv_name=os.path.join("test_data", "test_input_csv/routes.csv"))
+
+    ig.ReadClosuresFromCSV(csv_name=os.path.join("test_data", "test_input_csv/closures.csv"))
+
+    e, lm = ig.StoreInputGeographyInEcosystem(e=e)
+    # Because location_changes are in a different file than default for this test, I am reading this after storing the input.
+    # Location changes are also only stored in ig, not in the Ecosystem.
+    ig.ReadLocationChangesFromCSV(os.path.join("test_data", "test_input_csv/location_changes.csv"))
+
+    assert ig.location_changes[0][0] == "C"
+    assert ig.location_changes[0][1] == "idpcamp"
+    assert ig.location_changes[0][2] == "100"
+    assert ig.location_changes[1][0] == "A"
+    assert ig.location_changes[1][1] == "town"
+    assert ig.location_changes[1][2] == "500"
+
+
+    for t in range(0, 501):
+
+        ig.AddNewConflictZones(e=e, time=t)
+
+        if t == 99:
+            assert e.locations[e._convert_location_name_to_index("C")].town
+        if t == 100:
+            print(f"{e.locations[e._convert_location_name_to_index('C')].town} {e.locations[e._convert_location_name_to_index('C')].camp} {e.locations[e._convert_location_name_to_index('C')].idpcamp}")
+            assert e.locations[e._convert_location_name_to_index("C")].idpcamp
+        if t == 499:
+            assert e.locations[e._convert_location_name_to_index("A")].conflict > 0.0001
+        if t == 500:
+            assert e.locations[e._convert_location_name_to_index("A")].town
+
+        e.evolve()
+
+
+
+
 def test_csv(end_time=30, last_physical_day=30):
 
     flee.SimulationSettings.ReadFromYML("empty.yml")

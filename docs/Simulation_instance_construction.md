@@ -187,10 +187,32 @@ We create a **conflicts.csv** file to record conflict locations indicating the s
 
 ## **Construct a network map for a conflict situation**
 
-Construct an agent-based network map from locations.csv and routes.csv using [https://carto.com](https://carto.com).
-
+You can construct an agent-based network map from locations.csv and routes.csv using the instructions in the [https://flee.readthedocs.io/en/master/FabFlee_Automated_Flee_based_simulation/](FabFlee tutorial section).
 
 ![](images/network.png)
+
+
+## **Construct a location type changes file**
+
+In some cases, you may want to specify that a location type changes during the simulation. You can do this by including a file names `location_changes.csv` in the main directory.
+
+The format of this file is as follows:
+
+| #location name | new location type | date (in simulation days) |
+|:--:|:--:|:--:|
+| <location name> | <new type> | <day to make change> |
+|:--:|:--:|:--:|
+
+
+For example, the file below changes location C to an IDPCamp on Day 100, and location A to a town on Day 500.
+```
+#location name, new location type, date
+C,idpcamp,100
+A,town,500
+
+```
+
+Note that changes in `conflicts.csv` may override these change, triggering locations to become a conflict zone instead.
 
 
 ## **Construct validation data**

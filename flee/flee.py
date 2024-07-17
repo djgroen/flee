@@ -1374,6 +1374,63 @@ class Ecosystem:
 
 
     @check_args_type
+    def change_location_type(self, location_name: str, location_type: str):
+        """
+        Summary: 
+            Changes the type of a given location.
+
+        Args:
+            location_name (str): The name of the location where the camp is located.
+            location_type (str): New type of the location.
+
+        Returns:
+            None.
+        """
+
+        l = self.locations[self._convert_location_name_to_index(location_name)]
+
+        l.town = False
+        l.camp = False
+        l.idpcamp = False
+        l.conflict = -1.0
+        l.forward = False
+        l.marker = False
+        l.flood_zone = False
+
+        if "camp" in location_type.lower():
+            l.movechance = SimulationSettings.move_rules["CampMoveChance"]
+            l.camp = True
+            if "idp" in location_type.lower():
+                    l.idpcamp = True
+                    l.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
+        elif "conflict" in location_type.lower():
+            l.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
+            l.conflict = float(self.attributes.get("conflict_intensity",1.0))
+        elif "forward" in location_type.lower():
+            l.movechance = 1.0
+            l.forward = True
+        elif "marker" in location_type.lower():
+            l.movechance = 1.0
+            l.marker = True
+        elif "flood_zone" in location_type.lower():
+            # move chance based on default because flood_level not linked to flood_zone yet
+            l.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+            l.flood_zone = True
+        elif "default" in location_type.lower() or "town" in location_type.lower():
+                l.town = True
+                l.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+                print(f"Change to town.", file=sys.stderr)
+        else:
+            print(
+                "Error in creating Location() object: cannot parse location_type value of"
+                " {} for location object with name {}".format(location_type, name),
+                file=sys.stderr
+            )
+
+        print(f"Time = {self.time}. Location {location_name} changed type to {location_type}.", file=sys.stderr)
+
+
+    @check_args_type
     def open_camp(self, location_name: str, IDP: bool):
         """
         Summary: 

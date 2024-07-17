@@ -299,6 +299,36 @@ class InputGeography:
                     self.closures.append(row)
 
 
+    @check_args_type
+    def ReadLocationChangesFromCSV(self, csv_name: str) -> None:
+        """
+        Summary:
+            Read the location_changes.csv file. Format is:
+            location_name,new_location_type,date
+
+        Args:
+            csv_name (str): csv file name
+
+        Returns:
+            None.
+        """
+        self.location_changes = []
+
+        if not os.path.isfile(csv_name):
+            return []
+
+        with open(csv_name, newline="", encoding="utf-8") as csvfile:
+            values = csv.reader(csvfile)
+
+            for row in values:
+                if len(row) == 0 or row[0][0] == "#":
+                    pass
+                else:
+                    #print(f"Location changes read {row}", file=sys.stderr)
+                    self.location_changes.append(row)
+
+
+
     def ReadAgentsFromCSV(self, e, csv_name: str) -> None:
         """
         Summary:
@@ -493,6 +523,9 @@ class InputGeography:
                 file=sys.stderr,
             )
 
+        # Add location type changes
+        self.ReadLocationChangesFromCSV("location_changes.csv")
+
         return e, lm
 
 
@@ -560,6 +593,15 @@ class InputGeography:
         Returns:
             None.
         """
+
+        #Incorporate Location changes from location_changes.csv
+        #print(self.location_changes, file=sys.stderr)
+        for change in self.location_changes:
+            #print(f"loc change? {int(change[2])}, {time}", file=sys.stderr)
+            if int(change[2]) == time:
+                e.change_location_type(change[0],change[1])
+
+
         #Add New Flood Zones
         if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
             #Current flood_level attribute is set to the flood level at the current time step specified in flood_level.csv. Default value is zero.
