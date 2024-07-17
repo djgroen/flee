@@ -200,8 +200,8 @@ The format of this file is as follows:
 
 | #location name | new location type | date (in simulation days) |
 |:--:|:--:|:--:|
-| <location name> | <new type> | <day to make change> |
-|:--:|:--:|:--:|
+| location name | new type | day to make change |
+| ... | ... | ... |
 
 
 For example, the file below changes location C to an IDPCamp on Day 100, and location A to a town on Day 500.
