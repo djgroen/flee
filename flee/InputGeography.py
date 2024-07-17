@@ -315,7 +315,7 @@ class InputGeography:
         self.location_changes = []
 
         if not os.path.isfile(csv_name):
-            return []
+            return 
 
         with open(csv_name, newline="", encoding="utf-8") as csvfile:
             values = csv.reader(csvfile)
@@ -327,6 +327,7 @@ class InputGeography:
                     #print(f"Location changes read {row}", file=sys.stderr)
                     self.location_changes.append(row)
 
+        return
 
 
     def ReadAgentsFromCSV(self, e, csv_name: str) -> None:
