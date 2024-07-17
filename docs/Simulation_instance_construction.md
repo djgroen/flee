@@ -187,7 +187,7 @@ We create a **conflicts.csv** file to record conflict locations indicating the s
 
 ## **Construct a network map for a conflict situation**
 
-You can construct an agent-based network map from locations.csv and routes.csv using the instructions in the [FabFlee section](FabFlee_Automated_Flee_based_simulation).
+You can construct an agent-based network map from locations.csv and routes.csv using the instructions in the [FabFlee section](https://flee.readthedocs.io/en/master/FabFlee_Automated_Flee_based_simulation/).
 
 ![](images/network.png)
 
