@@ -203,11 +203,15 @@ def add_initial_refugees(e, d, loc):
   if SimulationSettings.spawn_rules["EmptyCampsOnDay0"] is True:
       return
 
+  num_refugees = 0
+
   if SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"] is True:
-      num_refugees = int(d.get_field(loc.name, 0, FullInterpolation=True))
-      for i in range(0, num_refugees):
-          attributes = draw_samples(e, loc)
-          e.addAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
+      num_refugees += int(d.get_field(loc.name, 0, FullInterpolation=True))
+
+  num_refugees += int(loc.attributes.get("initial_idps",0))
+  for i in range(0, num_refugees):
+      attributes = draw_samples(e, loc)
+      e.addAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
 
 @check_args_type
