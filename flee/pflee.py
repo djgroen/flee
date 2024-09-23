@@ -570,18 +570,17 @@ class Ecosystem(flee.Ecosystem):
             None.
         """
         if SimulationSettings.spawn_rules["TakeFromPopulation"]:
-            if location.conflict > 0.0:  
-                if location.pop > 1: 
-                    location.pop -= 1
-                    location.numAgentsSpawnedOnRank += 1
-                    location.numAgentsSpawned += 1
-                else:
-                    print(
-                        "ERROR: Number of agents in the simulation is larger than the combined "
-                        "population of the conflict zones. Please amend locations.csv." 
-                    )
-                    location.print()
-                    assert location.pop > 1
+            if location.pop > 1: 
+                location.pop -= 1
+                location.numAgentsSpawnedOnRank += 1
+                location.numAgentsSpawned += 1
+            else:
+                print(
+                    "ERROR: Number of agents in the simulation is larger than the combined "
+                    "population of the conflict zones. Please amend locations.csv." 
+                )
+                location.print()
+                assert location.pop > 1
         self.total_agents += 1
         if self.total_agents % self.mpi.size == self.mpi.rank:
             self.agents.append(Person(self, location=location, attributes=attributes))
