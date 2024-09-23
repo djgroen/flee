@@ -1774,7 +1774,7 @@ class Ecosystem:
 
 
     @check_args_type
-    def insertAgent(self, location) -> None:
+    def insertAgent(self, location, attributes={}) -> None:
         """
         Summary: 
         Inserts an agent into the simulation at the specified location.
@@ -1786,7 +1786,7 @@ class Ecosystem:
         Returns:
             None.
         """
-        self.agents.append(Person(location=location, attributes={}))
+        self.agents.append(Person(location=location, attributes=attributes))
 
 
     @check_args_type

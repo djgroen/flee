@@ -587,7 +587,7 @@ class Ecosystem(flee.Ecosystem):
 
 
     @check_args_type
-    def insertAgent(self, location) -> None:
+    def insertAgent(self, location, attributes={}) -> None:
         """
         Summary: 
             Inserts an agent into the ecosystem at the specified location.
@@ -601,7 +601,7 @@ class Ecosystem(flee.Ecosystem):
         """
         self.total_agents += 1
         if self.total_agents % self.mpi.size == self.mpi.rank:
-            self.agents.append(Person(self, location=location))
+            self.agents.append(Person(self, location=location, attributes=attributes))
 
 
     @check_args_type
