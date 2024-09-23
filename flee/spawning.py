@@ -211,7 +211,7 @@ def add_initial_refugees(e, d, loc):
   num_refugees += int(loc.attributes.get("initial_idps",0))
   for i in range(0, num_refugees):
       attributes = draw_samples(e, loc)
-      e.addAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
+      e.insertAgent(location=loc, attributes=attributes) # Parallelization is incorporated *inside* the addAgent function.
 
 
 @check_args_type

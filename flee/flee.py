@@ -1760,16 +1760,15 @@ class Ecosystem:
             None.
         """
         if SimulationSettings.spawn_rules["TakeFromPopulation"]:
-            if location.conflict > 0.0:
-                if location.pop > 0:
-                    location.pop -= 1
-                else:
-                    print(
-                        "WARNING: Number of agents in the simulation is larger than the"
-                        "population of the conflict zone."
-                    )
-                    location.print()
-                location.numAgentsSpawned += 1
+            if location.pop > 0:
+                location.pop -= 1
+            else:
+                print(
+                    "WARNING: Number of agents in the simulation is larger than the"
+                    "population of the conflict zone."
+                )
+                location.print()
+            location.numAgentsSpawned += 1
 
         self.agents.append(Person(location=location, attributes=attributes))
 
