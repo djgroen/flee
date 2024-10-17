@@ -20,19 +20,19 @@ __refugee_debt = 0
 __demographics = {}
 
 
-def getAttributeRatio(location, attribute):
+def getAttributeRatio(location, attr_name):
     """
     Summary:
         Returns the ratio of the attribute value to the maximum value of the attribute in the location.
     
     Args:
         location (Location): Location object
-        attribute (str): Attribute name
+        attr_name (str): Attribute name
     
     Returns:
         float: Ratio of attribute value to maximum attribute value in the location.
     """
-    return 1.0
+    return location.attributes[attr_name] / float(location.pop)
 
 
 def refresh_spawn_weights(e):
