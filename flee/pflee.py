@@ -123,28 +123,6 @@ class Person(flee.Person):
         """
         super().finish_travel(e, time=time)
 
-    @check_args_type
-    def getLinkWeightV1(self, link, awareness_level: int) -> float:
-        """
-        Summary: 
-            Calculate the weight of an adjacent link. 
-            Weight = probability that link will be chosen.
-
-        Args:
-            link (Link): The link to calculate the weight of.
-            awareness_level (int): The awareness level of the person.
-
-        Returns:
-            float: The weight of the link.
-        """
-
-        if awareness_level < 0:
-            return 1.0
-
-        return float(
-            self.e.scores[(link.endpoint.id * 4) + awareness_level]
-            / float(SimulationSettings.move_rules["Softening"] + link.get_distance())
-        )
 
     @check_args_type
     def getBaseEndPointScore(self, link) -> float:
