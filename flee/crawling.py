@@ -11,7 +11,8 @@ else:
     def check_args_type(func):
         return func
 
-
+# File for generating routes to interconnect different locations using pregenerate routes.
+# To be used for alternative algorithms for agent movement selection.
 
 @check_args_type
 def getLocationCrawlEndPointScore(agent, link, time) -> float:
