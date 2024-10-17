@@ -386,9 +386,9 @@ class Ecosystem(flee.Ecosystem):
             print("Creating Flee Ecosystem.", file=sys.stderr)
 
         self.cur_loc_id = 0
-        self.scores_per_location = 4
+        self.scores_per_location = 2
         # single array holding all the location-related scores.
-        self.scores = np.array([1.0, 1.0, 1.0, 1.0])
+        self.scores = np.array([1.0, 1.0])
 
         # Bring conflict zone management into FLEE.
         self.spawn_weights = np.array([])
