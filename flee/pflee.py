@@ -124,6 +124,22 @@ class Person(flee.Person):
         super().finish_travel(e, time=time)
 
 
+    @check_args_type
+    def getBaseEndPointScore(self, link) -> float:
+        """
+        Summary: 
+            Overwrite serial function because we have a different data structure
+            for endpoint scores.
+
+        Args:
+            link (Link): The link to calculate the score of.
+
+        Returns:
+            float: The score of the link.
+        """
+        return float(self.e.scores[(link.endpoint.id * 2) + 1])
+
+
 class Location(flee.Location):
     """
     The Location class
