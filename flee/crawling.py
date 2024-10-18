@@ -15,7 +15,7 @@ else:
 # To be used for alternative algorithms for agent movement selection.
 
 @check_args_type
-def getLocationCrawlEndPointScore(agent, link, time) -> float:
+def getLocationCrawlEndPointScore(loc, link, time) -> float:
     """
     Summary:
         Calculates the score for a given endpoint.
@@ -30,7 +30,7 @@ def getLocationCrawlEndPointScore(agent, link, time) -> float:
         base (float): score for the endpoint
     """
     #print(link.endpoint.name, link.endpoint.scores)
-    base = agent.getBaseEndPointScore(link) # called externally because serial and parallel implementations differ.
+    base = link.getBaseEndPointScore() # called externally because serial and parallel implementations differ.
 
     # The base score is derived from the perceived level of safety and security.
     # E.g. Conflict zones have lower scores, camps have higher scores.
@@ -50,7 +50,7 @@ def getLocationCrawlEndPointScore(agent, link, time) -> float:
 
 
 @check_args_type
-def calculateLinkWeight(
+def calculateLocCrawlLinkWeight(
   agent,
   link,
   prior_distance: float,
@@ -111,7 +111,7 @@ def calculateLinkWeight(
       # so the step variable doesn't increment.
       # Branch above will prevent (infinite) loops from occurring.
       else:
-        wgt, rts = calculateLinkWeight(agent=agent,
+        wgt, rts = calculateLocCrawlLinkWeight(agent=agent,
               link=lel,
               prior_distance=prior_distance + link.get_distance(),
               origin_names=origin_names + [link.endpoint.name],
@@ -180,7 +180,7 @@ def generateLocationRoutes(l: Location, time: int, debug: bool = False, return_a
     return [np.random.randint(0, linklen)]
 
   for k, e in enumerate(a.location.links):
-    wgt, rts = calculateLinkWeight(
+    wgt, rts = calculateLocCrawlLinkWeight(
          a,
          link=e,
          prior_distance=0.0,
@@ -203,10 +203,6 @@ def generateLocationRoutes(l: Location, time: int, debug: bool = False, return_a
     routes[i] = routes[i][1:]
 
   weights, routes = pruneRoutes(weights, routes)
-
-  #print(weights, routes)
-  route = chooseFromWeights(weights=weights, routes=routes)
-  #print("route chosen:", route)
 
   return route
 

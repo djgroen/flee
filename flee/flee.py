@@ -86,21 +86,6 @@ class Person:
 
 
     @check_args_type
-    def getBaseEndPointScore(self, link) -> float:
-        """
-        Summary:
-            Serial base endpoint score retrieval.
-
-        Args:
-            link (Link) : Description
-
-        Returns:
-            float: Description
-        """
-        return link.endpoint.scores[1]
-
-
-    @check_args_type
     def handle_travel(self, location, travelling) -> None:
         """
         Summary:
@@ -708,6 +693,21 @@ class Link:
             None.
         """
         self.numAgents -= 1
+
+
+    @check_args_type
+    def getBaseEndPointScore(self) -> float:
+        """
+        Summary:
+            Serial base endpoint score retrieval.
+
+        Args:
+            link (Link) : Description
+
+        Returns:
+            float: Description
+        """
+        return self.endpoint.scores[1]
 
 
     @check_args_type

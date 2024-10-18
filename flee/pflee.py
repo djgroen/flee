@@ -124,22 +124,6 @@ class Person(flee.Person):
         super().finish_travel(e, time=time)
 
 
-    @check_args_type
-    def getBaseEndPointScore(self, link) -> float:
-        """
-        Summary: 
-            Overwrite serial function because we have a different data structure
-            for endpoint scores.
-
-        Args:
-            link (Link): The link to calculate the score of.
-
-        Returns:
-            float: The score of the link.
-        """
-        return float(self.e.scores[(link.endpoint.id * 4) + 1])
-
-
 class Location(flee.Location):
     """
     The Location class
@@ -265,7 +249,7 @@ class Location(flee.Location):
         Returns:
             float: The score for the given index.
         """
-        return self.e.scores[self.id * self.e.scores_per_location + index]
+        return Ecosystem.scores[self.id * self.e.scores_per_location + index]
 
 
     @check_args_type
@@ -281,7 +265,7 @@ class Location(flee.Location):
         Returns:
             None.
         """
-        self.e.scores[self.id * self.e.scores_per_location + index] = value
+        Ecosystem.scores[self.id * self.e.scores_per_location + index] = value
 
     @check_args_type
     def updateAllScores(self, time: int) -> None:
@@ -356,10 +340,31 @@ class Link(flee.Link):
         super().IncrementNumAgents(agent)
 
 
+    @check_args_type
+    def getBaseEndPointScore(self) -> float:
+        """
+        Summary: 
+            Overwrite serial function because we have a different data structure
+            for endpoint scores.
+
+        Args:
+            link (Link): The link to calculate the score of.
+
+        Returns:
+            float: The score of the link.
+        """
+        return float(Ecosystem.scores[(self.endpoint.id * 2) + 1])
+
+
+
 class Ecosystem(flee.Ecosystem):
     """
     The Ecosystem class
     """
+    # single array holding all the location-related scores.
+    # made static, assuming Parallel Flee simulations only have a single ecosystem.
+    # (sequential Flee simulations have it non-static still).
+    scores = np.array([1.0, 1.0])
 
     @check_args_type
     def __init__(self):
@@ -387,8 +392,6 @@ class Ecosystem(flee.Ecosystem):
 
         self.cur_loc_id = 0
         self.scores_per_location = 2
-        # single array holding all the location-related scores.
-        self.scores = np.array([1.0, 1.0])
 
         # Bring conflict zone management into FLEE.
         self.spawn_weights = np.array([])
@@ -450,6 +453,55 @@ class Ecosystem(flee.Ecosystem):
 
         num_idps_all = self.mpi.CalcCommWorldTotalSingle(num_idps)
         return num_idps_all
+
+
+    @check_args_type
+    def linkUp(
+        self,
+        endpoint1: str,
+        endpoint2: str,
+        distance: float = 1.0,
+        forced_redirection: bool = False,
+        attributes: dict = {},
+    ) -> None:
+        endpoint1_index = -1
+        endpoint2_index = -1
+        for i in range(0, len(self.locationNames)):
+            if self.locationNames[i] == endpoint1:
+                endpoint1_index = i
+            if self.locationNames[i] == endpoint2:
+                endpoint2_index = i
+
+        if endpoint1_index < 0:
+            print("Diagnostic: Ecosystem.locationNames: ", self.locationNames, file=sys.stderr)
+            print(
+                "Error: link created to non-existent source: {}  with dest {}".format(
+                    endpoint1, endpoint2), file=sys.stderr)
+            sys.exit()
+        if endpoint2_index < 0:
+            print("Diagnostic: Ecosystem.locationNames: ", self.locationNames, file=sys.stderr)
+            print(
+                "Error: link created to non-existent destination: {} with source {}".format(
+                    endpoint2, endpoint1), file=sys.stderr)
+            sys.exit()
+
+        self.locations[endpoint1_index].links.append(
+            Link(
+                startpoint=self.locations[endpoint1_index],
+                endpoint=self.locations[endpoint2_index],
+                distance=distance,
+                forced_redirection=forced_redirection,
+                attributes=attributes,
+            )
+        )
+        self.locations[endpoint2_index].links.append(
+            Link(
+                startpoint=self.locations[endpoint2_index],
+                endpoint=self.locations[endpoint1_index],
+                distance=distance,
+                attributes=attributes,
+            )
+        )
 
 
     @check_args_type
@@ -680,11 +732,11 @@ class Ecosystem(flee.Ecosystem):
             None.
         """
 
-        base = int((len(self.scores) / self.scores_per_location) / self.mpi.size)
-        leftover = int((len(self.scores) / self.scores_per_location) % self.mpi.size)
+        base = int((len(Ecosystem.scores) / self.scores_per_location) / self.mpi.size)
+        leftover = int((len(Ecosystem.scores) / self.scores_per_location) % self.mpi.size)
 
         if Debug:
-            print("Sync Locs:", self.mpi.rank, base, leftover, len(self.scores), file=sys.stderr)
+            print("Sync Locs:", self.mpi.rank, base, leftover, len(Ecosystem.scores), file=sys.stderr)
 
         sizes = np.ones(self.mpi.size, dtype="i") * base
         sizes[:leftover] += 1
@@ -692,18 +744,18 @@ class Ecosystem(flee.Ecosystem):
         offsets = np.zeros(self.mpi.size, dtype="i")
         offsets[1:] = np.cumsum(sizes)[:-1]
 
-        assert np.sum(sizes) == len(self.scores)
-        assert offsets[-1] + sizes[-1] == len(self.scores)
+        assert np.sum(sizes) == len(Ecosystem.scores)
+        assert offsets[-1] + sizes[-1] == len(Ecosystem.scores)
 
         # Populate scores array
         scores_start = int(offsets[self.mpi.rank])
         local_scores_size = int(sizes[self.mpi.rank])
-        local_scores = self.scores[scores_start : scores_start + local_scores_size].copy()
+        local_scores = Ecosystem.scores[scores_start : scores_start + local_scores_size].copy()
 
         if Debug and self.mpi.rank == 0:
             print("start of synchronize_locations MPI call.", file=sys.stderr)
-            # print(self.mpi.rank, local_scores, self.scores, sizes, offsets)
-        self.mpi.comm.Allgatherv(local_scores, [self.scores, sizes, offsets, MPI.DOUBLE])
+            # print(self.mpi.rank, local_scores, scores, sizes, offsets)
+        self.mpi.comm.Allgatherv(local_scores, [Ecosystem.scores, sizes, offsets, MPI.DOUBLE])
 
         if Debug and self.mpi.rank == 0:
             print("end of synchronize_locations", file=sys.stderr)
@@ -859,8 +911,8 @@ class Ecosystem(flee.Ecosystem):
         # Enlarge the scores array in Ecosystem to reflect the new location.
         # Pflee only.
         if self.cur_loc_id > 0:
-            self.scores = np.append(self.scores, np.array([1.0, 1.0, 1.0, 1.0]))
-        # print(len(self.scores))
+            Ecosystem.scores = np.append(Ecosystem.scores, np.array([1.0, 1.0]))
+        # print(len(Ecosystem.scores))
 
         loc = Location(
             self,

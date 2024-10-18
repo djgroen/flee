@@ -43,7 +43,7 @@ if __name__ == "__main__":
   ig.ReadClosuresFromCSV("%s/closures.csv" % input_csv_directory)
 
   e,lm = ig.StoreInputGeographyInEcosystem(e)
-  
+
   if SimulationSettings.spawn_rules["read_from_agents_csv_file"] == True:
       ig.ReadAgentsFromCSV(e, "%s/agents.csv" % input_csv_directory)
 
