@@ -137,7 +137,7 @@ class Person(flee.Person):
         Returns:
             float: The score of the link.
         """
-        return float(self.e.scores[(link.endpoint.id * 4) + 1])
+        return float(self.e.scores[(link.endpoint.id * 2) + 1])
 
 
 class Location(flee.Location):
