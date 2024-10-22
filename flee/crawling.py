@@ -51,7 +51,7 @@ def getLocationCrawlEndPointScore(loc, link, time) -> float:
 
 @check_args_type
 def calculateLocCrawlLinkWeight(
-  agent,
+  loc,
   link,
   prior_distance: float,
   origin_names: List[str],
@@ -83,7 +83,7 @@ def calculateLocCrawlLinkWeight(
   if link.endpoint.marker is False:
 
     # Core formula for calculating link weight  
-    weight = (float(SimulationSettings.move_rules["WeightSoftening"] + (float(getEndPointScore(agent=agent, link=link, time=time)))) / float(SimulationSettings.move_rules["DistanceSoftening"] + link.get_distance() + prior_distance)**SimulationSettings.move_rules["DistancePower"]) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
+    weight = (float(SimulationSettings.move_rules["WeightSoftening"] + (float(getLocationCrawlEndPointScore(loc=loc, link=link, time=time)))) / float(SimulationSettings.move_rules["DistanceSoftening"] + link.get_distance() + prior_distance)**SimulationSettings.move_rules["DistancePower"])
 
     #print(weight, float(getEndPointScore(agent=agent, link=link)))
     weight = weight**SimulationSettings.move_rules["WeightPower"]
@@ -111,7 +111,7 @@ def calculateLocCrawlLinkWeight(
       # so the step variable doesn't increment.
       # Branch above will prevent (infinite) loops from occurring.
       else:
-        wgt, rts = calculateLocCrawlLinkWeight(agent=agent,
+        wgt, rts = calculateLocCrawlLinkWeight(loc=loc,
               link=lel,
               prior_distance=prior_distance + link.get_distance(),
               origin_names=origin_names + [link.endpoint.name],
@@ -160,7 +160,7 @@ def pruneRoutes(weights, routes):
 
 
 @check_args_type
-def generateLocationRoutes(l: Location, time: int, debug: bool = False, return_all_routes: bool = False):
+def generateLocationRoutes(l, time: int, debug: bool = False):
   """
   Summary:
       Selects a route for an agent to move to.
@@ -176,15 +176,15 @@ def generateLocationRoutes(l: Location, time: int, debug: bool = False, return_a
   l.routes = {}
 
   if SimulationSettings.move_rules["AwarenessLevel"] == 0:
-    linklen = len(a.location.links)
+    linklen = len(l.links)
     return [np.random.randint(0, linklen)]
 
-  for k, e in enumerate(a.location.links):
+  for k, e in enumerate(l.links):
     wgt, rts = calculateLocCrawlLinkWeight(
-         a,
+         l,
          link=e,
          prior_distance=0.0,
-         origin_names=[a.location.name],
+         origin_names=[l.name],
          step=1,
          time=time,
          debug=debug,
@@ -204,5 +204,5 @@ def generateLocationRoutes(l: Location, time: int, debug: bool = False, return_a
 
   weights, routes = pruneRoutes(weights, routes)
 
-  return route
+  return routes
 
