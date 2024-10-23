@@ -15,7 +15,7 @@ else:
 # To be used for alternative algorithms for agent movement selection.
 
 @check_args_type
-def getLocationCrawlEndPointScore(loc, link, time) -> float:
+def getLocationCrawlEndPointScore(link, time) -> float:
     """
     Summary:
         Calculates the score for a given endpoint.
@@ -83,13 +83,13 @@ def calculateLocCrawlLinkWeight(
   if link.endpoint.marker is False:
 
     # Core formula for calculating link weight  
-    weight = (float(SimulationSettings.move_rules["WeightSoftening"] + (float(getLocationCrawlEndPointScore(loc=loc, link=link, time=time)))) / float(SimulationSettings.move_rules["DistanceSoftening"] + link.get_distance() + prior_distance)**SimulationSettings.move_rules["DistancePower"])
+    weight = (float(SimulationSettings.move_rules["WeightSoftening"] + (float(getLocationCrawlEndPointScore(link=link, time=time)))) / float(SimulationSettings.move_rules["DistanceSoftening"] + link.get_distance() + prior_distance)**SimulationSettings.move_rules["DistancePower"])
 
     #print(weight, float(getEndPointScore(agent=agent, link=link)))
     weight = weight**SimulationSettings.move_rules["WeightPower"]
 
     if weight > loc.routes.get(link.endpoint.name, [0,None])[0]:
-        loc.routes[link.endpoint.name] = [weight, origin_names + [link.endpoint.name]]
+        loc.routes[link.endpoint.name] = [weight, origin_names + [link.endpoint.name], link.endpoint]
 
     weights = [weight]
     routes = [origin_names + [link.endpoint.name]]

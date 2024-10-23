@@ -14,7 +14,7 @@ else:
 
 
 @check_args_type
-def getEndPointScore(agent, link, time) -> float:
+def getEndPointScore(agent, endpoint, time) -> float:
     """
     Summary:
         Calculates the score for a given endpoint.
@@ -28,8 +28,8 @@ def getEndPointScore(agent, link, time) -> float:
     Returns:
         base (float): score for the endpoint
     """
-    #print(link.endpoint.name, link.endpoint.scores)
-    base = link.getBaseEndPointScore() # called externally because serial and parallel implementations differ.
+    #print(endpoint.name, endpoint.scores)
+    base = endpoint.getScore(1)
 
     # The base score is derived from the perceived level of safety and security.
     # E.g. Conflict zones have lower scores, camps have higher scores.
@@ -48,13 +48,13 @@ def getEndPointScore(agent, link, time) -> float:
 
     if SimulationSettings.move_rules["StayCloseToHome"]:
         power_factor = SimulationSettings.move_rules["HomeDistancePower"]
-        base *= 1.0/(max(1.0,link.endpoint.calculateDistance(agent.location))**power_factor)
+        base *= 1.0/(max(1.0,endpoint.calculateDistance(agent.location))**power_factor)
 
     # DFlee Flood Location Weight implementation
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         #Get the current flood level of the endpoint, if flood level not set in flood_level.csv then default to zero
-        flood_level = link.endpoint.attributes.get("flood_level",0)
-        #print("Link:", link.endpoint.name, link.endpoint.attributes, file=sys.stderr)
+        flood_level = endpoint.attributes.get("flood_level",0)
+        #print("Link:", endpoint.name, endpoint.attributes, file=sys.stderr)
         if flood_level > 0:
             #set the base equal to the flood location weight
             base *= float(SimulationSettings.move_rules["FloodLocWeights"][flood_level])
@@ -99,7 +99,7 @@ def getEndPointScore(agent, link, time) -> float:
                           forecast_day = forecast_end_time #same as time + x
                     
                       #get the forecast flood level for location on the day we're considering in the for loop
-                      forecast_flood_level = link.endpoint.attributes.get("forecast_flood_levels",0)[forecast_day]
+                      forecast_flood_level = endpoint.attributes.get("forecast_flood_levels",0)[forecast_day]
 
                       # if it's not zero, then we need to modify the base forecast value, otherwise leave the base as it will zero.
                       if forecast_flood_level > 0.0: 
@@ -134,19 +134,19 @@ def getEndPointScore(agent, link, time) -> float:
                 print("WARNING: flood_forecaster_timescale is not set in simsetting.yml", file=sys.stderr)
 
 
-    if link.endpoint.camp is True:
+    if endpoint.camp is True:
         if SimulationSettings.move_rules["MatchCampEthnicity"]:
-            base *= (spawning.getAttributeRatio(link.endpoint, agent.attributes["ethnicity"]) * 10.0)
-    elif link.endpoint.conflict > 0.0:
+            base *= (spawning.getAttributeRatio(endpoint, agent.attributes["ethnicity"]) * 10.0)
+    elif endpoint.conflict > 0.0:
         if SimulationSettings.move_rules["MatchConflictEthnicity"]:
-            base *= (spawning.getAttributeRatio(link.endpoint, agent.attributes["ethnicity"]) * 10.0)
+            base *= (spawning.getAttributeRatio(endpoint, agent.attributes["ethnicity"]) * 10.0)
         if SimulationSettings.move_rules["UsePopForLocWeight"]:
-            base *= min(1.0,link.endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
+            base *= min(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
     else:
         if SimulationSettings.move_rules["MatchTownEthnicity"]:
-            base *= (spawning.getAttributeRatio(link.endpoint, agent.attributes["ethnicity"]) * 10.0)
+            base *= (spawning.getAttributeRatio(endpoint, agent.attributes["ethnicity"]) * 10.0)
         if SimulationSettings.move_rules["UsePopForLocWeight"]:
-            base *= min(1.0,link.endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
+            base *= min(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
 
     return base
 
@@ -231,9 +231,9 @@ def calculateLinkWeight(
   if link.endpoint.marker is False:
 
     # Core formula for calculating link weight  
-    weight = (float(SimulationSettings.move_rules["WeightSoftening"] + (float(getEndPointScore(agent=agent, link=link, time=time)))) / float(SimulationSettings.move_rules["DistanceSoftening"] + link.get_distance() + prior_distance)**SimulationSettings.move_rules["DistancePower"]) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
+    weight = (float(SimulationSettings.move_rules["WeightSoftening"] + (float(getEndPointScore(agent=agent, endpoint=link.endpoint, time=time)))) / float(SimulationSettings.move_rules["DistanceSoftening"] + link.get_distance() + prior_distance)**SimulationSettings.move_rules["DistancePower"]) * getCapMultiplier(link.endpoint, numOnLink=int(link.numAgents))
 
-    #print(weight, float(getEndPointScore(agent=agent, link=link)))
+    #print(weight, float(getEndPointScore(agent=agent, endpoint=link.endpoint)))
     weight = weight**SimulationSettings.move_rules["WeightPower"]
 
     weights = [weight]
@@ -489,7 +489,7 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
 
   if SimulationSettings.move_rules["FixedRoutes"] is True:
       for l in a.location.routes.keys():
-          weights = weights + [a.location.routes[l][0]]
+          weights = weights + [a.location.routes[l][0] * getEndPointScore(a, a.location.routes[l][2], time)]
           routes = routes + [a.location.routes[l][1]]
   else:
       for k, e in enumerate(a.location.links):
