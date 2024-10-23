@@ -57,7 +57,6 @@ def calculateLocCrawlLinkWeight(
   origin_names: List[str],
   step: int,
   time: int,
-  debug: bool = False,
 ) -> Tuple[List[float],List[List[str]]]:
   """
   Summary:
@@ -65,7 +64,7 @@ def calculateLocCrawlLinkWeight(
       Loops are avoided.
 
   Args:
-      a: agent  
+      loc: start location  
       link (Link): The link to calculate the weight for.
       prior_distance (float): The distance travelled so far.
       origin_names (List[str]): The names of the locations that have been visited so far.
@@ -80,6 +79,7 @@ def calculateLocCrawlLinkWeight(
   #if location_is_marker is True: #marker locations should not create a branch.
   weights = []
   routes = []
+
   if link.endpoint.marker is False:
 
     # Core formula for calculating link weight  
@@ -87,6 +87,9 @@ def calculateLocCrawlLinkWeight(
 
     #print(weight, float(getEndPointScore(agent=agent, link=link)))
     weight = weight**SimulationSettings.move_rules["WeightPower"]
+
+    if weight > loc.routes.get(link.endpoint.name, [0,None])[0]:
+        loc.routes[link.endpoint.name] = [weight, origin_names + [link.endpoint.name]]
 
     weights = [weight]
     routes = [origin_names + [link.endpoint.name]]
@@ -117,14 +120,11 @@ def calculateLocCrawlLinkWeight(
               origin_names=origin_names + [link.endpoint.name],
               step=step + 1,
               time=time,
-              debug=debug,
               )
         weights = weights + wgt
         routes = routes + rts
         #print("Endpoint:", link.endpoint.name, lel.endpoint.name, lel.endpoint.marker, weights, routes)
 
-  if debug:
-    print("step {}, total weight returned {}, routes {}".format(step, weights, routes), file=sys.stderr)
   return weights, routes
 
 
@@ -135,28 +135,6 @@ def check_routes(weights, routes, label):
         print(f"ERROR: Pruning to empty weight sum at {label}", file=sys.stderr)
     if len(weights) != len(routes):
         print(f"ERROR: Pruning to broken tree at {label}, W:{len(weights)} R:{len(routes)}", file=sys.stderr)
-
-
-def pruneRoutes(weights, routes):
-
-    #check_routes(weights, routes, "START")
-
-    threshold = SimulationSettings.move_rules["PruningThreshold"]
-    if threshold < 1.001:
-        #check_routes(weights, routes, "LOTHRESHOLD")
-        return weights, routes
-
-    min_weight_threshold = max(weights) / threshold
-    i = 0
-    while i < len(weights):
-        if weights[i] < min_weight_threshold:
-            weights.remove(weights[i])
-            routes.remove(routes[i])
-            i -= 1
-        i += 1
-
-    #check_routes(weights, routes, "END")
-    return weights, routes
 
 
 @check_args_type
@@ -174,6 +152,8 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
       int: Index of the chosen route
   """
   l.routes = {}
+  weights = []
+  routes = []
 
   if SimulationSettings.move_rules["AwarenessLevel"] == 0:
     linklen = len(l.links)
@@ -187,22 +167,13 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
          origin_names=[l.name],
          step=1,
          time=time,
-         debug=debug,
     )
 
     weights = weights + wgt
     routes = routes + rts
 
-  if return_all_routes is True:
-    return weights, routes
   if debug is True:
     print("selectRoute: ",routes, weights, file=sys.stderr)
 
-  #Last step: delete origin from suggested routes.
-  for i in range(0, len(routes)):
-    routes[i] = routes[i][1:]
-
-  weights, routes = pruneRoutes(weights, routes)
-
-  return routes
+  return l.routes
 
