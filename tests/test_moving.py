@@ -40,6 +40,41 @@ def test_stay_close_to_home():
     assert l3.numAgents < 2
 
 
+def test_stay_close_to_home_fixed_routes():
+    """
+    Check that previous test holds when fixed routes are used.
+    """
+    flee.SimulationSettings.ReadFromYML("empty.yml")
+
+    flee.SimulationSettings.move_rules["MaxMoveSpeed"] = 100.0
+    flee.SimulationSettings.move_rules["MaxWalkSpeed"] = 100.0
+    flee.SimulationSettings.move_rules["StayCloseToHome"] = True
+    flee.SimulationSettings.move_rules["HomeDistancePower"] = 5.0
+    flee.SimulationSettings.move_rules["FixedRoutes"] = True
+
+    end_time = 20
+    e = flee.Ecosystem()
+
+    l1 = e.addLocation(name="A", x=0.0, y=0.0, movechance=1.0, foreign=False)
+    l2 = e.addLocation(name="B", x=1.0, y=1.0, movechance=1.0, foreign=False)
+    l3 = e.addLocation(name="C", x=100.0, y=100.0, movechance=1.0, foreign=False)
+
+    e.linkUp(endpoint1="A", endpoint2="B", distance=100.0)
+    e.linkUp(endpoint1="B", endpoint2="C", distance=100.0)
+
+    # Insert refugee agents
+    for _ in range(0, 100):
+        e.addAgent(location=l1, attributes={})
+
+    for t in range(0, end_time):
+        # Propagate the model by one time step.
+        e.evolve()
+
+    assert t == 19
+    # With such a strong HomeDistancePower, not more than agent should reside in l3.
+    assert l3.numAgents < 2
+
+
 def test_scoring_foreign_weight():
     flee.SimulationSettings.ReadFromYML("empty.yml")
 

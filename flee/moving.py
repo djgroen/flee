@@ -484,33 +484,38 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
   routes = []
 
   if SimulationSettings.move_rules["AwarenessLevel"] == 0:
-    linklen = len(a.location.links)
-    return [np.random.randint(0, linklen)]
+      linklen = len(a.location.links)
+      return [np.random.randint(0, linklen)]
 
-  for k, e in enumerate(a.location.links):
-    wgt, rts = calculateLinkWeight(
-         a,
-         link=e,
-         prior_distance=0.0,
-         origin_names=[a.location.name],
-         step=1,
-         time=time,
-         debug=debug,
-    )
+  if SimulationSettings.move_rules["FixedRoutes"] is True:
+      for l in a.location.routes.keys():
+          weights = weights + [a.location.routes[l][0]]
+          routes = routes + [a.location.routes[l][1]]
+  else:
+      for k, e in enumerate(a.location.links):
+          wgt, rts = calculateLinkWeight(
+               a,
+               link=e,
+               prior_distance=0.0,
+               origin_names=[a.location.name],
+               step=1,
+               time=time,
+               debug=debug,
+          )
 
-    weights = weights + wgt
-    routes = routes + rts
+          weights = weights + wgt
+          routes = routes + rts
 
-  if return_all_routes is True:
-    return weights, routes
-  if debug is True:
-    print("selectRoute: ",routes, weights, file=sys.stderr)
+      if return_all_routes is True:
+          return weights, routes
+      if debug is True:
+          print("selectRoute: ",routes, weights, file=sys.stderr)
 
-  #Last step: delete origin from suggested routes.
-  for i in range(0, len(routes)):
-    routes[i] = routes[i][1:]
+      #Last step: delete origin from suggested routes.
+      for i in range(0, len(routes)):
+          routes[i] = routes[i][1:]
 
-  weights, routes = pruneRoutes(weights, routes)
+      weights, routes = pruneRoutes(weights, routes)
 
   #print(weights, routes)
   route = chooseFromWeights(weights=weights, routes=routes)

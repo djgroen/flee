@@ -1,4 +1,5 @@
 from flee.SimulationSettings import SimulationSettings
+from flee import crawling
 import numpy as np
 import os
 
@@ -122,4 +123,7 @@ def updateLocationScore(time: int, loc) -> None:
     loc.setScore(0, 1.0)
     loc.setScore(1, score)
     # print(time, loc.name,loc.camp,loc.foreign,loc.scores)
+
+    if SimulationSettings.move_rules["FixedRoutes"] is True:
+        crawling.generateLocationRoutes(loc, time)
 

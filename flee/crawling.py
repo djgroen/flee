@@ -152,15 +152,13 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
       int: Index of the chosen route
   """
   l.routes = {}
-  weights = []
-  routes = []
 
   if SimulationSettings.move_rules["AwarenessLevel"] == 0:
     linklen = len(l.links)
     return [np.random.randint(0, linklen)]
 
   for k, e in enumerate(l.links):
-    wgt, rts = calculateLocCrawlLinkWeight(
+    calculateLocCrawlLinkWeight(
          l,
          link=e,
          prior_distance=0.0,
@@ -168,12 +166,6 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
          step=1,
          time=time,
     )
-
-    weights = weights + wgt
-    routes = routes + rts
-
-  if debug is True:
-    print("selectRoute: ",routes, weights, file=sys.stderr)
 
   return l.routes
 

@@ -290,6 +290,9 @@ class SimulationSettings:
             SimulationSettings.move_rules[a] = bool(fetchss(dpr,a,False))
 
 
+        # Flee 3+ Fixed Location Routes
+        SimulationSettings.move_rules["FixedRoutes"] = bool(fetchss(dpr,"fixed_routes",False))
+
         # DFlee Flood Location Move rules
         dpf = fetchss(dpr, "flood_rules", None)
 
