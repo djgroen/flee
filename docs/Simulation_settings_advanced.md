@@ -48,6 +48,7 @@ move_rules:
   weight_power: 1.0
   distance_power: 1.0
   home_distance_power: 0.0
+  fixed_routes: False
 optimisations:
   hasten: 1
 ```
@@ -184,6 +185,7 @@ Value | Description                                                        |
 
 Set the following parameter to `True` or `False`:
 
+- **fixed_routes** allows to replace agent-generated routes with location-generated routes. This approach is much faster, but all agents will take the same route on a given day when travelling from A to B.
 - **avoid_short_stints** allows to restrict displaced people that will take a break unless they at least travelled for a full day's distance in the last two days.
 - **start_on_foot** is a parameter allowing agents to traverse first link on foot.
 - **stay_close_to_home** is a parameter adding a weight that favours locations closer to the persons home location.
