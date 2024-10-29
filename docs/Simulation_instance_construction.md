@@ -22,6 +22,9 @@ To create input and validation data files, the following forced displacement dat
 
 The ACLED database provides conflict location data for forced displacement simulations. To obtain data on chosen conflict situation, complete the ACLED data export tool fields ([https://acleddata.com/acleddatanew/data-export-tool/](https://acleddata.com/acleddatanew/data-export-tool/)) as follows:
 
+!!! note
+	A School/Institution Email will be needed to access ACLED resources.
+
 
 * Provide dates of interest for conflict situations (i.e. From and To).
 * Select `Event Type: Battle`.

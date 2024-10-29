@@ -48,7 +48,8 @@ which will automatically generate required input and validation files, as well a
 
 ### *Step 2: Extract conflict zones from ACLED database*
 
--   Go to <https://acleddata.com/data-export-tool/>, complete fields with conflict instance details and download ACLED data.
+-   Go to <https://acleddata.com/data-export-tool/>, complete fields with conflict instance details and download ACLED data. 
+	**Note: A School/Institution Email will be needed to access ACLED resources.**
 -   Rename downloaded file as acled.csv and place it in `~/FabSim3/plugins/FabFlee/config_files/<conflcit_name>`
 -   In your terminal, go to your `~/FabSim3/plugins/FabFlee` directory and execute the following command with your conflict instance details:
 	```sh
