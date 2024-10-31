@@ -125,5 +125,6 @@ def updateLocationScore(time: int, loc) -> None:
     # print(time, loc.name,loc.camp,loc.foreign,loc.scores)
 
     if SimulationSettings.move_rules["FixedRoutes"] is True:
+        #print("INFO: Generating location routes.", file=sys.stderr)
         crawling.generateLocationRoutes(loc, time)
 

@@ -93,8 +93,8 @@ def calculateLocCrawlLinkWeight(
 
     weights = [weight]
     routes = [origin_names + [link.endpoint.name]]
-  else:
-    step -= 1
+  #else:
+  #  step -= 1
 
 
   #print("Endpoint:", link.endpoint.name, weights, routes, origin_names, step)
@@ -151,6 +151,9 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
   Returns:
       int: Index of the chosen route
   """
+  if l.marker:
+      return {}
+
   l.routes = {}
 
   if SimulationSettings.move_rules["AwarenessLevel"] == 0:
@@ -167,5 +170,6 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
          time=time,
     )
 
+  print(f"Generated {len(l.routes)} routes for {l.name} at time {time}.", file=sys.stderr)
   return l.routes
 
