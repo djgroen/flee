@@ -151,6 +151,9 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
   Returns:
       int: Index of the chosen route
   """
+  if l.marker:
+      return {}
+
   l.routes = {}
 
   if SimulationSettings.move_rules["AwarenessLevel"] == 0:
