@@ -491,6 +491,7 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
       for l in a.location.routes.keys():
           weights = weights + [a.location.routes[l][0] * getEndPointScore(a, a.location.routes[l][2], time)]
           routes = routes + [a.location.routes[l][1]]
+          #print("FixedRoute Weights", weights, routes, file=sys.stderr)
   else:
       for k, e in enumerate(a.location.links):
           wgt, rts = calculateLinkWeight(
@@ -517,7 +518,6 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
 
       weights, routes = pruneRoutes(weights, routes)
 
-  #print(weights, routes)
   route = chooseFromWeights(weights=weights, routes=routes)
   #print("route chosen:", route)
 
