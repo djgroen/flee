@@ -292,7 +292,7 @@ class SimulationSettings:
 
         # Flee 3+ Fixed Location Routes
         SimulationSettings.move_rules["FixedRoutes"] = bool(fetchss(dpr,"fixed_routes",False))
-        print(f"INFO: Fixed Route Generation for Locations: {SimulationSettings.move_rules["FixedRoutes"]}", file=sys.stderr)
+        print(f"INFO: Fixed Route Generation for Locations: {SimulationSettings.move_rules['FixedRoutes']}", file=sys.stderr)
 
         # DFlee Flood Location Move rules
         dpf = fetchss(dpr, "flood_rules", None)
