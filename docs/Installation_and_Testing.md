@@ -21,18 +21,28 @@ To install Flee on your local workstation, you need to
 	```
 	Once cloning completes, Flee will appear in your working directory as `<current dir>/flee`.
 
-2. Open `.bashrc` file:
+2. Open the appropriate configuration file:
+	- For Linux users and Mac users with a bash shell (default for many Linux distributions):
 	```sh
 	vim ~/.bashrc
+	```
+	- For Mac users using zsh (the default shell on macOS Catalina and later):
+	```sh
+	vim ~/.zshrc
 	```
 
 3. Add the following line to the end of the file:
 	```sh
 	export PYTHONPATH=<path to flee>:$PYTHONPATH
 	```
-4. Save and close the `.bashrc` file and reload the `.bashrc` file by:
+4. Save and close the file, then reload the configuration:
+	- For bash:
 	```sh
 	source ~/.bashrc
+	```
+	- For zsh:
+	```sh
+	source ~/.zshrc
 	```
 
 ## **Updating Flee**
