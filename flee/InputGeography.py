@@ -251,6 +251,27 @@ class InputGeography:
             csv_name (str): csv file name
 
         Returns:
+            None
+        """
+        self.major_routes = []
+        with open(csv_name, newline="", encoding="utf-8") as csvfile:
+            values = csv.reader(csvfile)
+            for row in values:
+                if len(row) == 0 or row[0][0] == "#":
+                    pass
+            self.major_routes.append(row)
+
+
+    @check_args_type
+    def ReadLinksFromCSV(self, csv_name: str) -> None:
+        """
+        Summary:
+            Converts a CSV file to a locations information table
+
+        Args:
+            csv_name (str): csv file name
+
+        Returns:
             None.
         """
         self.links = []
