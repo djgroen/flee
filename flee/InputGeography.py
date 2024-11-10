@@ -25,6 +25,7 @@ class InputGeography:
     def __init__(self):
         self.locations = []
         self.links = []
+        self.major_links = []
         self.conflicts = {}
         self.attributes = {}
 
@@ -240,9 +241,15 @@ class InputGeography:
         return loc_list
 
 
+    @check_args_type
+    def _convert_to_major(self, csv_name: str) -> str:
+        pathlist = csv_name.split(os.sep)
+        pathlist[-1] = "major_" + pathlist[-1]
+        return os.sep.join(pathlist)
+
 
     @check_args_type
-    def ReadLinksFromCSV(self, csv_name: str) -> None:
+    def _ReadMajorLinksFromCSV(self, csv_name: str) -> None:
         """
         Summary:
             Converts a CSV file to a locations information table
@@ -254,6 +261,10 @@ class InputGeography:
             None
         """
         self.major_routes = []
+        
+        if not os.path.isfile(csv_name):
+            return
+
         with open(csv_name, newline="", encoding="utf-8") as csvfile:
             values = csv.reader(csvfile)
             for row in values:
@@ -292,7 +303,7 @@ class InputGeography:
                 else:
                     # print(row)
                     self.links.append(row)
-
+        self._ReadMajorLinksFromCSV(self._convert_to_major(csv_name))
 
     @check_args_type
     def ReadClosuresFromCSV(self, csv_name: str) -> None:
@@ -490,6 +501,14 @@ class InputGeography:
                     country=country,
                     attributes=attributes
                 )
+
+            # Add major link information
+            for ml in self.major_links:
+                if ml[0] == name:
+                    lm[name].major_links.append(ml[1:])
+                if ml[-1] == name:
+                    lm[name].major_links.append((ml.reverse)[1:])
+
 
         for link in self.links:
             attributes = {}
