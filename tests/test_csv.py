@@ -46,6 +46,11 @@ def test_location_changes():
     assert ig.location_changes[1][1] == "town"
     assert ig.location_changes[1][2] == "500"
 
+    # Checks for major routes
+    assert len(ig.major_routes) == 3
+
+    assert len(lm["B"].major_routes) == 2
+    assert len(lm["C"].major_routes) == 2
 
     for t in range(0, 501):
 

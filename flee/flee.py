@@ -330,6 +330,7 @@ class Location:
         self.y = y
         self.movechance = movechance
         self.links = []  # paths connecting to other towns
+        self.major_routes = []  # paths connecting to other towns
         # paths connecting to other towns that are closed.
         self.closed_links = []
         self.numAgents = 0  # refugee population

@@ -25,7 +25,7 @@ class InputGeography:
     def __init__(self):
         self.locations = []
         self.links = []
-        self.major_links = []
+        self.major_routes = []
         self.conflicts = {}
         self.attributes = {}
 
@@ -270,7 +270,7 @@ class InputGeography:
             for row in values:
                 if len(row) == 0 or row[0][0] == "#":
                     pass
-            self.major_routes.append(row)
+                self.major_routes.append(row)
 
 
     @check_args_type
@@ -503,11 +503,12 @@ class InputGeography:
                 )
 
             # Add major link information
-            for ml in self.major_links:
-                if ml[0] == name:
-                    lm[name].major_links.append(ml[1:])
-                if ml[-1] == name:
-                    lm[name].major_links.append((ml.reverse)[1:])
+            for mr in self.major_routes:
+                if mr[0] == name:
+                    lm[name].major_routes.append(mr[1:])
+                if mr[-1] == name:
+                    # operator below reverses the list, then skips the first value.
+                    lm[name].major_routes.append(mr[-2::-1])
 
 
         for link in self.links:
