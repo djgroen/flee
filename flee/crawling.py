@@ -57,7 +57,7 @@ def calculateLocCrawlLinkWeight(
   origin_names: List[str],
   step: int,
   time: int,
-) -> Tuple[List[float],List[List[str]]]:
+) -> None:
   """
   Summary:
       Calculates Link Weights recursively based on awareness level.
