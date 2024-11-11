@@ -11,7 +11,7 @@ else:
     def check_args_type(func):
         return func
 
-# File for generating routes to interconnect different locations using pregenerate routes.
+# File for generating routes to interconnect different locations using pregenerated routes.
 # To be used for alternative algorithms for agent movement selection.
 
 @check_args_type
@@ -113,13 +113,13 @@ def calculateLocCrawlLinkWeight(
 
 
 @check_args_type
-def insertMajorRoutesForLocation(l, route_to_l, dest_list):
+def insertMajorRoutesForLocation(source_loc, l, route_to_l, dest_list):
     """
     Inserts major_routes into the route list for a given location.
     """
     for ml in l.major_routes:
         if ml[-1] not in dest_list:
-            l.routes.append([route_to_l] + [ml])
+            source_loc.routes.append([route_to_l] + [ml])
 
 
 @check_args_type
@@ -138,14 +138,21 @@ def compileDestList(l):
 
 @check_args_type
 def insertMajorRoutes(l):
-    # get list of destination locations (perhaps from the crawling?)
-    
-    # get list of destination location names (perhaps from the crawling?)
+    # get list of destination locations (l.routes[name][2]) 
+    # get list of destination location names keys of (l.routes)
+    # get list of destination location routes (l.routes[name][1]) 
     dest_list = compileDestList(l)
-    # get list of destination location routes 
-    l.routes
-    
-    # call insert MajorRoutesForLocation
+
+    # Check for major routes from current location.
+    if len(l.major_routes) > 0:
+        insertMajorRoutesForLocation(l, l, [], dest_list)
+
+    # Check for major routes from all other locations reachable
+    # with regular routes.
+    for route_name in l.routes:
+        loc = l.routes[route_name][2]
+        if len(loc.major_routes) > 0:
+            insertMajorRoutesForLocation(l, loc, l.routes[route_name][1], dest_list)
 
 
 
