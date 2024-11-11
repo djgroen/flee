@@ -11,7 +11,7 @@ else:
     def check_args_type(func):
         return func
 
-# File for generating routes to interconnect different locations using pregenerate routes.
+# File for generating routes to interconnect different locations using pregenerated routes.
 # To be used for alternative algorithms for agent movement selection.
 
 @check_args_type
@@ -57,7 +57,7 @@ def calculateLocCrawlLinkWeight(
   origin_names: List[str],
   step: int,
   time: int,
-) -> Tuple[List[float],List[List[str]]]:
+) -> None:
   """
   Summary:
       Calculates Link Weights recursively based on awareness level.
@@ -73,12 +73,8 @@ def calculateLocCrawlLinkWeight(
       debug (bool, optional): Whether to print debug information. Defaults to False. 
 
   Returns:
-      Tuple[List[float],List[List[str]]]: A tuple containing the weights and routes.
+      None (routes are stored in loc.routes)
   """
-
-  #if location_is_marker is True: #marker locations should not create a branch.
-  weights = []
-  routes = []
 
   if link.endpoint.marker is False:
 
@@ -91,13 +87,6 @@ def calculateLocCrawlLinkWeight(
     if weight > loc.routes.get(link.endpoint.name, [0,None])[0]:
         loc.routes[link.endpoint.name] = [weight, origin_names + [link.endpoint.name], link.endpoint]
 
-    weights = [weight]
-    routes = [origin_names + [link.endpoint.name]]
-  #else:
-  #  step -= 1
-
-
-  #print("Endpoint:", link.endpoint.name, weights, routes, origin_names, step)
 
   if SimulationSettings.move_rules["AwarenessLevel"] > step:
     # Traverse the tree one step further.
@@ -114,27 +103,57 @@ def calculateLocCrawlLinkWeight(
       # so the step variable doesn't increment.
       # Branch above will prevent (infinite) loops from occurring.
       else:
-        wgt, rts = calculateLocCrawlLinkWeight(loc=loc,
+        calculateLocCrawlLinkWeight(loc=loc,
               link=lel,
               prior_distance=prior_distance + link.get_distance(),
               origin_names=origin_names + [link.endpoint.name],
               step=step + 1,
               time=time,
               )
-        weights = weights + wgt
-        routes = routes + rts
-        #print("Endpoint:", link.endpoint.name, lel.endpoint.name, lel.endpoint.marker, weights, routes)
-
-  return weights, routes
 
 
-def check_routes(weights, routes, label):
-    if len(weights) == 0 or len(routes) == 0:
-        print(f"ERROR: Pruning to empty tree at {label}, W:{len(weights)} R:{len(routes)}", file=sys.stderr)
-    if sum(weights) == 0:
-        print(f"ERROR: Pruning to empty weight sum at {label}", file=sys.stderr)
-    if len(weights) != len(routes):
-        print(f"ERROR: Pruning to broken tree at {label}, W:{len(weights)} R:{len(routes)}", file=sys.stderr)
+@check_args_type
+def insertMajorRoutesForLocation(source_loc, l, route_to_l, dest_list):
+    """
+    Inserts major_routes into the route list for a given location.
+    """
+    for ml in l.major_routes:
+        if ml[-1] not in dest_list:
+            source_loc.routes.append([route_to_l] + [ml])
+
+
+@check_args_type
+def compileDestList(l):
+    """
+    Makes a list of destinations that are reachable through regular routes
+    from the location, given the AwarenessLevel.
+    """
+    dest_list = []
+    for lr in l.routes:
+        if lr[-1] not in dest_list:
+            dest_list.append(lr[-1])
+
+    return dest_list
+
+
+@check_args_type
+def insertMajorRoutes(l):
+    # get list of destination locations (l.routes[name][2]) 
+    # get list of destination location names keys of (l.routes)
+    # get list of destination location routes (l.routes[name][1]) 
+    dest_list = compileDestList(l)
+
+    # Check for major routes from current location.
+    if len(l.major_routes) > 0:
+        insertMajorRoutesForLocation(l, l, [], dest_list)
+
+    # Check for major routes from all other locations reachable
+    # with regular routes.
+    for route_name in l.routes:
+        loc = l.routes[route_name][2]
+        if len(loc.major_routes) > 0:
+            insertMajorRoutesForLocation(l, loc, l.routes[route_name][1], dest_list)
+
 
 
 @check_args_type
@@ -169,6 +188,8 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
          step=1,
          time=time,
     )
+
+  insertMajorRoutes(l)
 
   print(f"Generated {len(l.routes)} routes for {l.name} at time {time}.", file=sys.stderr)
   return l.routes
