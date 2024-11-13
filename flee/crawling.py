@@ -49,6 +49,25 @@ def getLocationCrawlEndPointScore(link, time) -> float:
     return base
 
 
+
+@check_args_type
+def _addLocationRoute(
+  loc,
+  link,
+  prior_distance: float,
+  origin_names: List[str],
+  time: int,
+) -> None:
+    # Core formula for calculating link weight  
+    weight = (float(SimulationSettings.move_rules["WeightSoftening"] + (float(getLocationCrawlEndPointScore(link=link, time=time)))) / float(SimulationSettings.move_rules["DistanceSoftening"] + link.get_distance() + prior_distance)**SimulationSettings.move_rules["DistancePower"])
+
+    #print(weight, float(getEndPointScore(agent=agent, link=link)))
+    weight = weight**SimulationSettings.move_rules["WeightPower"]
+
+    if weight > loc.routes.get(link.endpoint.name, [0,None])[0]:
+        loc.routes[link.endpoint.name] = [weight, origin_names + [link.endpoint.name], link.endpoint]
+
+
 @check_args_type
 def calculateLocCrawlLinkWeight(
   loc,
@@ -78,38 +97,30 @@ def calculateLocCrawlLinkWeight(
 
   if link.endpoint.marker is False:
 
-    # Core formula for calculating link weight  
-    weight = (float(SimulationSettings.move_rules["WeightSoftening"] + (float(getLocationCrawlEndPointScore(link=link, time=time)))) / float(SimulationSettings.move_rules["DistanceSoftening"] + link.get_distance() + prior_distance)**SimulationSettings.move_rules["DistancePower"])
-
-    #print(weight, float(getEndPointScore(agent=agent, link=link)))
-    weight = weight**SimulationSettings.move_rules["WeightPower"]
-
-    if weight > loc.routes.get(link.endpoint.name, [0,None])[0]:
-        loc.routes[link.endpoint.name] = [weight, origin_names + [link.endpoint.name], link.endpoint]
-
+      _addLocationRoute(loc, link, prior_distance, origin_names, time)
 
   if SimulationSettings.move_rules["AwarenessLevel"] > step:
-    # Traverse the tree one step further.
-    for lel in link.endpoint.links:
+      # Traverse the tree one step further.
+      for lel in link.endpoint.links:
 
-      #proposed route is defined as: origin_names + [link.endpoint.name, lel.endpoint.name]
+          #proposed route is defined as: origin_names + [link.endpoint.name, lel.endpoint.name]
 
-      if lel.endpoint.name in origin_names:
-        #print("Looped endpoint:", link.endpoint.name, lel.endpoint.name, origin_names)
-        # Link points back to an origin, so ignore.
-        pass
+          if lel.endpoint.name in origin_names:
+              #print("Looped endpoint:", link.endpoint.name, lel.endpoint.name, origin_names)
+              # Link points back to an origin, so ignore.
+              pass
         
-      # Markers are ignored in the pathfinding, 
-      # so the step variable doesn't increment.
-      # Branch above will prevent (infinite) loops from occurring.
-      else:
-        calculateLocCrawlLinkWeight(loc=loc,
-              link=lel,
-              prior_distance=prior_distance + link.get_distance(),
-              origin_names=origin_names + [link.endpoint.name],
-              step=step + 1,
-              time=time,
-              )
+          # Markers are ignored in the pathfinding, 
+          # so the step variable doesn't increment.
+          # Branch above will prevent (infinite) loops from occurring.
+          else:
+              calculateLocCrawlLinkWeight(loc=loc,
+                    link=lel,
+                    prior_distance=prior_distance + link.get_distance(),
+                    origin_names=origin_names + [link.endpoint.name],
+                    step=step + 1,
+                    time=time,
+                    )
 
 
 @check_args_type
@@ -117,9 +128,17 @@ def insertMajorRoutesForLocation(source_loc, l, route_to_l, dest_list):
     """
     Inserts major_routes into the route list for a given location.
     """
+    dest_names = []
+    for d in dest_list:
+        dest_names.append(d.name)
+
     for ml in l.major_routes:
-        if ml[-1] not in dest_list:
-            source_loc.routes.append([route_to_l] + [ml])
+        if ml[2].name not in dest_names:
+            route = [route_to_l] + [ml]
+            weight = 0.0 #TODO:add meaningful weight.
+            dest = ml[2]
+
+            source_loc.routes.append([weight, route, dest])
 
 
 @check_args_type
@@ -129,9 +148,10 @@ def compileDestList(l):
     from the location, given the AwarenessLevel.
     """
     dest_list = []
-    for lr in l.routes:
-        if lr[-1] not in dest_list:
-            dest_list.append(lr[-1])
+    for route_name in l.routes:
+        print(l.routes, file=sys.stderr)
+        if l.routes[route_name][1][-1] not in dest_list:
+            dest_list.append(l.routes[route_name][2]) # dest_list contains Location objects.
 
     return dest_list
 
