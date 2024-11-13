@@ -52,6 +52,7 @@ def getLocationCrawlEndPointScore(link, time) -> float:
 
 @check_args_type
 def _addLocationRoute(
+  source_loc,
   loc,
   link,
   prior_distance: float,
@@ -65,7 +66,7 @@ def _addLocationRoute(
     weight = weight**SimulationSettings.move_rules["WeightPower"]
 
     if weight > loc.routes.get(link.endpoint.name, [0,None])[0]:
-        loc.routes[link.endpoint.name] = [weight, origin_names + [link.endpoint.name], link.endpoint]
+        source_loc.routes[link.endpoint.name] = [weight, origin_names + [link.endpoint.name], link.endpoint]
 
 
 @check_args_type
@@ -84,7 +85,7 @@ def _addMajorRouteToLocation(
             print(f"{current_loc.name}: {link.endpoint.name}={route[routing_step]}? Full route = {route}, routing_step {routing_step}.", file=sys.stderr)
             if link.endpoint.name == route[routing_step]:
                 if routing_step == len(route)-1:
-                    _addLocationRoute(current_loc, link, prior_distance, route[:-1], time)
+                    _addLocationRoute(source_loc, current_loc, link, prior_distance, route[:-1], time)
                     return
                 prior_distance += link.get_distance()
                 selected_endpoint = link.endpoint
@@ -103,6 +104,7 @@ def _addMajorRouteToLocation(
 
 @check_args_type
 def calculateLocCrawlLinkWeight(
+  source_loc,
   loc,
   link,
   prior_distance: float,
@@ -130,7 +132,7 @@ def calculateLocCrawlLinkWeight(
 
   if link.endpoint.marker is False:
 
-      _addLocationRoute(loc, link, prior_distance, origin_names, time)
+      _addLocationRoute(source_loc, loc, link, prior_distance, origin_names, time)
 
   if SimulationSettings.move_rules["AwarenessLevel"] > step:
       # Traverse the tree one step further.
@@ -147,7 +149,9 @@ def calculateLocCrawlLinkWeight(
           # so the step variable doesn't increment.
           # Branch above will prevent (infinite) loops from occurring.
           else:
-              calculateLocCrawlLinkWeight(loc=loc,
+              calculateLocCrawlLinkWeight(
+                    source_loc=source_loc,
+                    loc=loc,
                     link=lel,
                     prior_distance=prior_distance + link.get_distance(),
                     origin_names=origin_names + [link.endpoint.name],
@@ -175,7 +179,7 @@ def insertMajorRoutesForLocation(
         #print(mr, file=sys.stderr)
         if mr[2].name not in dest_names:
             route = route_to_l + mr[1]
-            #print(f"Route: {route}, {route_to_l}, {mr[1]}", file=sys.stderr)
+            print(f"Adding route for {source_loc.name}: {route}, {route_to_l}, {mr[1]}", file=sys.stderr)
 
             _addMajorRouteToLocation(source_loc, route, time)
 
@@ -240,6 +244,7 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
 
   for k, e in enumerate(l.links):
     calculateLocCrawlLinkWeight(
+         l,
          l,
          link=e,
          prior_distance=0.0,

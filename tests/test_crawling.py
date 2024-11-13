@@ -1,3 +1,4 @@
+import sys
 from flee import flee, crawling
 
 """
@@ -54,3 +55,6 @@ def test_location_crawling_4loc():
 
     # Insert major routes for location l1 test. Since the context is l1 here, there is no prior_route.
     crawling.insertMajorRoutesForLocation(l1, l1, [], dest_list, 0)
+
+    print(l1.routes, file=sys.stderr)
+    assert "E" in l1.routes.keys()
