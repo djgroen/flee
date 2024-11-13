@@ -69,6 +69,30 @@ def _addLocationRoute(
 
 
 @check_args_type
+def _addMajorRouteToLocation(
+  source_loc, 
+  route,
+  time,
+) -> None:
+    prior_distance = 0.0
+    routing_step = 0
+    current_loc = source_loc
+    while True:
+        for link in current_loc.links:
+            if link.endpoint.name == route[routing_step]:
+                if routing_step == len(route-1):
+                    _addLocationRoute(current_loc, link, prior_distance, route[:-1], time)
+                    return
+                prior_distance += link.distance
+                current_loc = link.endpoint
+                routing_step += 1
+                continue
+        print(f"ERROR: major route {route} cannot be resolved. No connection between {current_loc.name} and {route[routing_step]}.", file=sys.stderr)
+        sys.exit()
+
+
+
+@check_args_type
 def calculateLocCrawlLinkWeight(
   loc,
   link,
@@ -124,7 +148,13 @@ def calculateLocCrawlLinkWeight(
 
 
 @check_args_type
-def insertMajorRoutesForLocation(source_loc, l, route_to_l, dest_list):
+def insertMajorRoutesForLocation(
+  source_loc, 
+  l, 
+  route_to_l, 
+  dest_list, 
+  time: int
+) -> None:
     """
     Inserts major_routes into the route list for a given location.
     """
@@ -135,10 +165,8 @@ def insertMajorRoutesForLocation(source_loc, l, route_to_l, dest_list):
     for ml in l.major_routes:
         if ml[2].name not in dest_names:
             route = [route_to_l] + [ml]
-            weight = 0.0 #TODO:add meaningful weight.
-            dest = ml[2]
 
-            source_loc.routes.append([weight, route, dest])
+            _addMajorRouteToLocation(source_loc, route, time)
 
 
 @check_args_type
@@ -157,7 +185,7 @@ def compileDestList(l):
 
 
 @check_args_type
-def insertMajorRoutes(l):
+def insertMajorRoutes(l, time: int):
     # get list of destination locations (l.routes[name][2]) 
     # get list of destination location names keys of (l.routes)
     # get list of destination location routes (l.routes[name][1]) 
@@ -165,14 +193,14 @@ def insertMajorRoutes(l):
 
     # Check for major routes from current location.
     if len(l.major_routes) > 0:
-        insertMajorRoutesForLocation(l, l, [], dest_list)
+        insertMajorRoutesForLocation(l, l, [], dest_list, time)
 
     # Check for major routes from all other locations reachable
     # with regular routes.
     for route_name in l.routes:
         loc = l.routes[route_name][2]
         if len(loc.major_routes) > 0:
-            insertMajorRoutesForLocation(l, loc, l.routes[route_name][1], dest_list)
+            insertMajorRoutesForLocation(l, loc, l.routes[route_name][1], dest_list, time)
 
 
 
@@ -209,7 +237,7 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
          time=time,
     )
 
-  insertMajorRoutes(l)
+  insertMajorRoutes(l, time)
 
   print(f"Generated {len(l.routes)} routes for {l.name} at time {time}.", file=sys.stderr)
   return l.routes
