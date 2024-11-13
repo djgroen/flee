@@ -44,3 +44,4 @@ def test_location_crawling_4loc():
         assert routes[key][0] > 0.0
         assert len(routes[key][1]) > 0
 
+    assert crawling.getLocationCrawlEndPointScore(l1.links[0], 0) == 1.0
