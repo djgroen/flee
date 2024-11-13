@@ -75,20 +75,29 @@ def _addMajorRouteToLocation(
   time,
 ) -> None:
     prior_distance = 0.0
-    routing_step = 0
+    routing_step = 1
     current_loc = source_loc
+    selected_endpoint = None
     while True:
+        print(f"{current_loc.name}: {len(current_loc.links)}", file=sys.stderr)
         for link in current_loc.links:
+            print(f"{current_loc.name}: {link.endpoint.name}={route[routing_step]}? Full route = {route}, routing_step {routing_step}.", file=sys.stderr)
             if link.endpoint.name == route[routing_step]:
-                if routing_step == len(route-1):
+                if routing_step == len(route)-1:
                     _addLocationRoute(current_loc, link, prior_distance, route[:-1], time)
                     return
-                prior_distance += link.distance
-                current_loc = link.endpoint
-                routing_step += 1
-                continue
-        print(f"ERROR: major route {route} cannot be resolved. No connection between {current_loc.name} and {route[routing_step]}.", file=sys.stderr)
-        sys.exit()
+                prior_distance += link.get_distance()
+                selected_endpoint = link.endpoint
+                break
+        if selected_endpoint is None:
+            print(f"ERROR: major route {route} cannot be resolved at step {routing_step}. No connection between {current_loc.name} and {route[routing_step]}.", file=sys.stderr)
+            for link in current_loc.links:
+                print(f"Current location {current_loc.name} has a link to {link.endpoint.name}.", file=sys.stderr)
+            sys.exit()
+        else:
+            routing_step += 1
+            current_loc = selected_endpoint
+            selected_endpoint = None
 
 
 
@@ -162,9 +171,11 @@ def insertMajorRoutesForLocation(
     for d in dest_list:
         dest_names.append(d.name)
 
-    for ml in l.major_routes:
-        if ml[2].name not in dest_names:
-            route = [route_to_l] + [ml]
+    for mr in l.major_routes:
+        #print(mr, file=sys.stderr)
+        if mr[2].name not in dest_names:
+            route = route_to_l + mr[1]
+            #print(f"Route: {route}, {route_to_l}, {mr[1]}", file=sys.stderr)
 
             _addMajorRouteToLocation(source_loc, route, time)
 

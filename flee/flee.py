@@ -330,6 +330,7 @@ class Location:
         self.y = y
         self.movechance = movechance
         self.links = []  # paths connecting to other towns
+        self.routes = {}  # if Location-based routing is enabled, this will contain routes to other towns (may have multiple steps).
         self.major_routes = []  # paths connecting to other towns
         # paths connecting to other towns that are closed.
         self.closed_links = []
@@ -1640,8 +1641,9 @@ class Ecosystem:
         """
         spawning.refresh_spawn_weights(self) # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
         
-        # update level 1, 2 and 3 location scores
+        # update location scores
         for loc in self.locations:
+            loc.routes = {}
             scoring.updateLocationScore(self.time, loc)
 
         # update agent locations
