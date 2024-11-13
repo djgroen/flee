@@ -58,3 +58,5 @@ def test_location_crawling_4loc():
 
     print(l1.routes, file=sys.stderr)
     assert "E" in l1.routes.keys()
+    assert l1.routes["E"][1][2] == "D"
+    assert l1.routes["E"][2].name == "E"
