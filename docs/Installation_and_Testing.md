@@ -8,7 +8,10 @@ To use the Flee code, one requires:
 	- pandas (see [https://pandas.pydata.org](https://pandas.pydata.org))
 	- matplotlib (see [https://matplotlib.org](https://matplotlib.org))
 	- scipy (see [https://scipy.org](https://scipy.org))
+	- folium (see https://python-visualization.github.io/folium/)
+	- ipython (see https://ipython.org)
 * [git](https://git-scm.com/docs/git) needs to be installed in your machine.
+* [mpirun](https://www.open-mpi.org/) needs to be installed in your machine.
 
 
 ## **Installing Flee**
