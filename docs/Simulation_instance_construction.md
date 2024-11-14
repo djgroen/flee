@@ -148,9 +148,26 @@ Record distances between locations in **`routes.csv`** file for simulation using
 	3. Q: If citypopulation.de does not contain the city, or does not have recent data. look for other websites that already list location name/latitude/longitude/populations e.g. simple maps.
 	4. Find Latitudes and longitudes by identifying the places on OpenStreetMap. We tend to use OpenStreetMap because of its openness, but have used Bing and Google maps in the past.
 
-## **Define location and border closures in closures.csv file**
+## **Defining Major Routes**
 
-We identify location or border closure events and document them in **closures.csv** file:
+(This feature is currently in testing and will be new in Flee 3.2)
+
+Major routes are routes that are known by most displaced persons in a country, and will be added to their awareness if the end point of such a route is within their base awareness range (which is equal to the number of steps set by `AwarenessLevel` in `simsetting.yml`).
+
+Major routes are set in a comma-separated fashion in a file named **major_routes.csv**.
+
+For each line the format is as follows:
+`<first location name>,<second location name>, ... , <last location name>`
+
+For the time being the following constraints apply:
+* Major routes are always considered to be two-way.
+* Major routes cannot be closed (but agents may be interrupted and redirect themselves if there is a conflict on the way).
+* Major routes should have a length of at least one step.
+* Major routes are not recursively applied to an agent awareness. I.e. if an agent is aware of location A, and there are major routes `A->B` and `B->C`, then the agent will not be aware of location C and its accessibility through B. To include this awareness, you'll need to explicitly add a major route for `A->C`.
+
+## **Define Location and Border Closures**
+
+We identify location or border closure events and document them in a file named **closures.csv**:
 
 | **closure_type** | **name1** | **name2** | **closure_start = 0** | **closure_end = -1** |
 |:----:|:------:|:-------:|:---:|:---:|
