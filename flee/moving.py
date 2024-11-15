@@ -521,10 +521,10 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
   route = chooseFromWeights(weights=weights, routes=routes)
 
   if route == None:
-      print("ERROR: Empty route (None type) generated in selectRoute.", file=sys.stderr)
-      print(weights, routes, file=sys.stderr)
-      sys.exit()
-  if len(route) == 0:
+      print("WARNING: Empty route (None type) generated in selectRoute.", file=sys.stderr)
+      print(f"Location: {a.location.name}, {weights}, {routes}", file=sys.stderr)
+      #sys.exit()
+  elif len(route) == 0:
       print(f"ERROR: Empty route {route} generated in selectRoute.", file=sys.stderr)
       sys.exit()
   #print("route chosen:", route)
