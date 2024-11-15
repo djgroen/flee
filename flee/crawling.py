@@ -66,7 +66,7 @@ def _addLocationRoute(
     weight = weight**SimulationSettings.move_rules["WeightPower"]
 
     if weight > loc.routes.get(link.endpoint.name, [0,None])[0]:
-        source_loc.routes[link.endpoint.name] = [weight, origin_names + [link.endpoint.name], link.endpoint]
+        source_loc.routes[link.endpoint.name] = [weight, origin_names[1:] + [link.endpoint.name], link.endpoint]
 
 
 @check_args_type
@@ -79,10 +79,10 @@ def _addMajorRouteToLocation(
     routing_step = 1
     current_loc = source_loc
     selected_endpoint = None
-    while True:
-        print(f"{current_loc.name}: {len(current_loc.links)}", file=sys.stderr)
+    while routing_step < len(route):
+        #print(f"{current_loc.name}: {len(current_loc.links)}", file=sys.stderr)
         for link in current_loc.links:
-            print(f"{current_loc.name}: {link.endpoint.name}={route[routing_step]}? Full route = {route}, routing_step {routing_step}.", file=sys.stderr)
+            #print(f"{current_loc.name}: {link.endpoint.name}={route[routing_step]}? Full route = {route}, routing_step {routing_step}.", file=sys.stderr)
             if link.endpoint.name == route[routing_step]:
                 if routing_step == len(route)-1:
                     _addLocationRoute(source_loc, current_loc, link, prior_distance, route[:-1], time)
@@ -99,6 +99,9 @@ def _addMajorRouteToLocation(
             routing_step += 1
             current_loc = selected_endpoint
             selected_endpoint = None
+
+    print(f"ERROR: major route {route} cannot be resolved at step {routing_step}. No connection between {current_loc.name} and {link.endpoint.name}.", file=sys.stderr)
+    sys.exit()
 
 
 
@@ -192,7 +195,7 @@ def compileDestList(l):
     """
     dest_list = []
     for route_name in l.routes:
-        print(l.routes, file=sys.stderr)
+        #print(l.routes, file=sys.stderr)
         if l.routes[route_name][1][-1] not in dest_list:
             dest_list.append(l.routes[route_name][2]) # dest_list contains Location objects.
 
@@ -255,6 +258,6 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
 
   insertMajorRoutes(l, time)
 
-  print(f"Generated {len(l.routes)} routes for {l.name} at time {time}.", file=sys.stderr)
+  #print(f"Generated {len(l.routes)} routes for {l.name} at time {time}.", file=sys.stderr)
   return l.routes
 
