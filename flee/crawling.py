@@ -65,6 +65,7 @@ def _addLocationRoute(
     #print(weight, float(getEndPointScore(agent=agent, link=link)))
     weight = weight**SimulationSettings.move_rules["WeightPower"]
 
+    #print("Adding loc route:", origin_names[1:], link.endpoint.name, file=sys.stderr)
     if weight > loc.routes.get(link.endpoint.name, [0,None])[0]:
         source_loc.routes[link.endpoint.name] = [weight, origin_names[1:] + [link.endpoint.name], link.endpoint]
 
@@ -76,13 +77,13 @@ def _addMajorRouteToLocation(
   time,
 ) -> None:
     prior_distance = 0.0
-    routing_step = 1
+    routing_step = 0
     current_loc = source_loc
     selected_endpoint = None
     while routing_step < len(route):
         #print(f"{current_loc.name}: {len(current_loc.links)}", file=sys.stderr)
         for link in current_loc.links:
-            #print(f"{current_loc.name}: {link.endpoint.name}={route[routing_step]}? Full route = {route}, routing_step {routing_step}.", file=sys.stderr)
+            print(f"{current_loc.name}: {link.endpoint.name}={route[routing_step]}? Full route = {route}, routing_step {routing_step}.", file=sys.stderr)
             if link.endpoint.name == route[routing_step]:
                 if routing_step == len(route)-1:
                     _addLocationRoute(source_loc, current_loc, link, prior_distance, route[:-1], time)
@@ -182,7 +183,7 @@ def insertMajorRoutesForLocation(
         #print(mr, file=sys.stderr)
         if mr[-1] not in dest_names:
             route = route_to_l + mr
-            print(f"Adding route for {source_loc.name}: {route}, {route_to_l}, {mr[1]}", file=sys.stderr)
+            print(f"Adding route for {source_loc.name}: {route}, {route_to_l}, {mr}", file=sys.stderr)
 
             _addMajorRouteToLocation(source_loc, route, time)
 
@@ -218,6 +219,8 @@ def insertMajorRoutes(l, time: int):
     for route_name in l.routes:
         loc = l.routes[route_name][2]
         if len(loc.major_routes) > 0:
+            #print(l.routes, file=sys.stderr)
+            #print(f"Location {l.name}, Major route hub: {loc.name}, Route to hub: {l.routes[route_name][1]}, Major route #1 {loc.major_routes[0]}", file=sys.stderr)
             insertMajorRoutesForLocation(l, loc, l.routes[route_name][1], dest_list, time)
 
 
