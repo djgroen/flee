@@ -505,10 +505,14 @@ class InputGeography:
             # Add major link information
             for mr in self.major_routes:
                 if mr[0] == name:
-                    lm[name].major_routes.append(mr[1:])
+                    major_route = [x for x in mr[1:] if x]
+                    #lm[name].major_routes.append(mr[1:])
+                    lm[name].major_routes.append(major_route)
                 if mr[-1] == name:
+                    major_route = [x for x in mr[-2::-1] if x]
                     # operator below reverses the list, then skips the first value.
-                    lm[name].major_routes.append(mr[-2::-1])
+                    #lm[name].major_routes.append(mr[-2::-1])
+                    lm[name].major_routes.append(major_route)
 
 
         for link in self.links:
