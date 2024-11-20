@@ -83,7 +83,7 @@ def _addMajorRouteToLocation(
     while routing_step < len(route):
         #print(f"{current_loc.name}: {len(current_loc.links)}", file=sys.stderr)
         for link in current_loc.links:
-            print(f"{current_loc.name}: {link.endpoint.name}={route[routing_step]}? Full route = {route}, routing_step {routing_step}.", file=sys.stderr)
+            #print(f"{current_loc.name}: {link.endpoint.name}={route[routing_step]}? Full route = {route}, routing_step {routing_step}.", file=sys.stderr)
             if link.endpoint.name == route[routing_step]:
                 if routing_step == len(route)-1:
                     _addLocationRoute(source_loc, current_loc, link, prior_distance, route[:-1], time)
@@ -175,17 +175,19 @@ def insertMajorRoutesForLocation(
     """
     Inserts major_routes into the route list for a given location.
     """
-    dest_names = []
+    dest_names = [source_loc.name]
     for d in dest_list:
         dest_names.append(d.name)
 
+    #print(f"major route loop: {l.name}, {l.major_routes}, {dest_names}", file=sys.stderr)
     for mr in l.major_routes:
-        #print(mr, file=sys.stderr)
+        #print(f"MR contains: {mr}", file=sys.stderr)
         if mr[-1] not in dest_names:
             route = route_to_l + mr
-            print(f"Adding route for {source_loc.name}: {route}, {route_to_l}, {mr}", file=sys.stderr)
+            #print(f"Adding route for {source_loc.name}: {route}, {route_to_l}, {mr}", file=sys.stderr)
 
             _addMajorRouteToLocation(source_loc, route, time)
+    #print(f"major route loop done.", file=sys.stderr)
 
 
 @check_args_type
@@ -204,7 +206,7 @@ def compileDestList(l):
 
 
 @check_args_type
-def insertMajorRoutes(l, time: int):
+def insertAllMajorRoutesAtLocation(l, time: int):
     # get list of destination locations (l.routes[name][2]) 
     # get list of destination location names keys of (l.routes)
     # get list of destination location routes (l.routes[name][1]) 
@@ -212,11 +214,20 @@ def insertMajorRoutes(l, time: int):
 
     # Check for major routes from current location.
     if len(l.major_routes) > 0:
+        #print(f"Adding major route in curloc: {l.name}, {l.routes}, {l.major_routes}.", file=sys.stderr)
+        print(f"Adding major route in curloc {l.name}.", file=sys.stderr)
+        print(f"{l.major_routes}", file=sys.stderr)
         insertMajorRoutesForLocation(l, l, [], dest_list, time)
 
     # Check for major routes from all other locations reachable
     # with regular routes.
-    for route_name in l.routes:
+
+    # Storing current route names before the loop, because l.routes
+    # itself will be expanded with major routes during the iterations. 
+    route_names = list(l.routes.keys()).copy()
+
+    # Main loop over regular routes.
+    for route_name in route_names:
         loc = l.routes[route_name][2]
         if len(loc.major_routes) > 0:
             #print(l.routes, file=sys.stderr)
@@ -259,7 +270,7 @@ def generateLocationRoutes(l, time: int, debug: bool = False):
          time=time,
     )
 
-  insertMajorRoutes(l, time)
+  insertAllMajorRoutesAtLocation(l, time)
 
   #print(f"Generated {len(l.routes)} routes for {l.name} at time {time}.", file=sys.stderr)
   return l.routes
