@@ -49,15 +49,16 @@ def test_location_crawling_4loc():
     assert crawling.getLocationCrawlEndPointScore(l1.links[0], 0) == 1.0
 
     # Manually insert a major route for testing.
-    l1.major_routes = [[1.0, ["A","B","D","E"], l5]]
+    l1.major_routes = [["A","B","D","E"]]
 
     dest_list = crawling.compileDestList(l1)
 
     # Insert major routes for location l1 test. Since the context is l1 here, there is no prior_route.
     crawling.insertMajorRoutesForLocation(l1, l1, [], dest_list, 0)
 
-    print(l1.routes, file=sys.stderr)
+    #print(l1.routes, l1.major_routes, file=sys.stderr)
     assert "E" in l1.routes.keys()
     assert l1.routes["E"][1][1] == "D"
     assert l1.routes["E"][2].name == "E"
+    sys.exit()
     

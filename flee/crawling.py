@@ -180,8 +180,8 @@ def insertMajorRoutesForLocation(
 
     for mr in l.major_routes:
         #print(mr, file=sys.stderr)
-        if mr[2].name not in dest_names:
-            route = route_to_l + mr[1]
+        if mr[-1] not in dest_names:
+            route = route_to_l + mr
             print(f"Adding route for {source_loc.name}: {route}, {route_to_l}, {mr[1]}", file=sys.stderr)
 
             _addMajorRouteToLocation(source_loc, route, time)

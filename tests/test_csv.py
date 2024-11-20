@@ -50,6 +50,9 @@ def test_location_changes():
     assert len(ig.major_routes) == 3
 
     assert len(lm["B"].major_routes) == 2
+    assert lm["B"].major_routes[0][0] == "C2"
+    assert lm["B"].major_routes[0][1] == "D"
+    assert lm["B"].major_routes[1][1] == "C"
     assert len(lm["C"].major_routes) == 2
 
     for t in range(0, 501):
