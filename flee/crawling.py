@@ -58,9 +58,15 @@ def _addLocationRoute(
   prior_distance: float,
   origin_names: List[str],
   time: int,
+  major: bool,
 ) -> None:
+
+    dist = float(SimulationSettings.move_rules["DistanceSoftening"] + link.get_distance() + prior_distance)
+    if major:
+        dist /= 4.0
+
     # Core formula for calculating link weight  
-    weight = (float(SimulationSettings.move_rules["WeightSoftening"] + (float(getLocationCrawlEndPointScore(link=link, time=time)))) / float(SimulationSettings.move_rules["DistanceSoftening"] + link.get_distance() + prior_distance)**SimulationSettings.move_rules["DistancePower"])
+    weight = (float(SimulationSettings.move_rules["WeightSoftening"] + (float(getLocationCrawlEndPointScore(link=link, time=time)))) / dist**SimulationSettings.move_rules["DistancePower"])
 
     #print(weight, float(getEndPointScore(agent=agent, link=link)))
     weight = weight**SimulationSettings.move_rules["WeightPower"]
@@ -86,7 +92,7 @@ def _addMajorRouteToLocation(
             #print(f"{current_loc.name}: {link.endpoint.name}={route[routing_step]}? Full route = {route}, routing_step {routing_step}.", file=sys.stderr)
             if link.endpoint.name == route[routing_step]:
                 if routing_step == len(route)-1:
-                    _addLocationRoute(source_loc, current_loc, link, prior_distance, route[:-1], time)
+                    _addLocationRoute(source_loc, current_loc, link, prior_distance, route[:-1], time, major=True)
                     return
                 prior_distance += link.get_distance()
                 selected_endpoint = link.endpoint
@@ -136,7 +142,7 @@ def calculateLocCrawlLinkWeight(
 
   if link.endpoint.marker is False:
 
-      _addLocationRoute(source_loc, loc, link, prior_distance, origin_names, time)
+      _addLocationRoute(source_loc, loc, link, prior_distance, origin_names, time, major=False)
 
   if SimulationSettings.move_rules["AwarenessLevel"] > step:
       # Traverse the tree one step further.
