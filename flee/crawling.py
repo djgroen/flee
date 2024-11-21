@@ -212,6 +212,10 @@ def insertAllMajorRoutesAtLocation(l, time: int):
     # get list of destination location routes (l.routes[name][1]) 
     dest_list = compileDestList(l)
 
+    # Storing current route names before major loop additions, because l.routes
+    # itself will be expanded with major routes during the iterations. 
+    route_names = list(l.routes.keys()).copy()
+
     # Check for major routes from current location.
     if len(l.major_routes) > 0:
         #print(f"Adding major route in curloc: {l.name}, {l.routes}, {l.major_routes}.", file=sys.stderr)
@@ -221,10 +225,6 @@ def insertAllMajorRoutesAtLocation(l, time: int):
 
     # Check for major routes from all other locations reachable
     # with regular routes.
-
-    # Storing current route names before the loop, because l.routes
-    # itself will be expanded with major routes during the iterations. 
-    route_names = list(l.routes.keys()).copy()
 
     # Main loop over regular routes.
     for route_name in route_names:
