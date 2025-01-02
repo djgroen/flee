@@ -69,11 +69,19 @@ def write_agents_par(
     my_file = None
     if time == 0:
         my_file = open("agents.out.%s" % rank, "w", encoding="utf-8")
-        print(
-            "#time,rank-agentid,original_location,current_location,gps_x,gps_y,is_travelling,distance_travelled,"
-            "places_travelled,distance_moved_this_timestep,{}".format(print_attribute_keys(agents[0])),
-            file=my_file,
-        )
+
+        if agents:
+            print(
+                "#time,rank-agentid,original_location,current_location,gps_x,gps_y,is_travelling,distance_travelled,"
+                "places_travelled,distance_moved_this_timestep,{}".format(print_attribute_keys(agents[0])),
+                file=my_file,
+            )
+        else:  # Handle the case where agents list is empty
+            print(
+                "#time,rank-agentid,original_location,current_location,gps_x,gps_y,is_travelling,distance_travelled,"
+                "places_travelled,distance_moved_this_timestep",
+                file=my_file,
+            )
     else:
         my_file = open("agents.out.%s" % rank, "a", encoding="utf-8")
 
