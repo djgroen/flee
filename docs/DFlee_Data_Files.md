@@ -37,12 +37,13 @@ Example input data files can be viewed here: [https://github.com/djgroen/FabFlee
     *   **Granularity:** Data should ideally match the model's spatial scale (e.g., town, region, district, or postcode).
  
 ## Flood Data Sources (in no particular order)
-*    **UNOSAT**: [https://unosat.org/products/](https://unosat.org/products/) (Provides rapid mapping for some disaster events, also has some IDP data. 
+*    **UNOSAT**: [https://unosat.org/products/](https://unosat.org/products/) (Provides rapid mapping for some disaster events, and also has some IDP data. 
 *   **Global Flood Awareness System (GloFAS):** [https://global-flood.emergency.copernicus.eu](https://global-flood.emergency.copernicus.eu) (Provides global flood mapping of historical events and forecasts)
+*   **Global Flood Database** [https://global-flood-database.cloudtostreet.ai](https://global-flood-database.cloudtostreet.ai)
 *   **Copernicus Climate Change Service (C3S) - ERA5 Reanalysis:** [https://cds.climate.copernicus.eu](https://cds.climate.copernicus.eu) (A comprehensive climate reanalysis dataset that includes hydrological variables)
 *   **Local/National Weather Services:** Consult national meteorological agencies or disaster management organizations for region-specific flood data.
 *   **Global Flood Hub/River Gauge Data:** There is another website with river gauge data and this flood hub:[https://sites.research.google/floods/l/0/0/3]([https://sites.research.google/floods/l/0/0/3)
-*   **National River Gauge Data** Search online for data from river gauges in the affected area recorded by national/local weather services.                                                              
+*   **National River Gauge Data** Search online for data from river gauges in the affected area recorded by national/local weather services.                                          
 *   **Satellite Imagery:**
     *   Google Earth Engine: (Provides access to a vast archive of satellite imagery)
     *   Sentinel-1: (Radar satellite data useful for flood mapping)
