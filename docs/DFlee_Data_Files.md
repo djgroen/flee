@@ -2,6 +2,8 @@
 
 This guide outlines the data requirements for DFlee, an agent-based model simulating internally displaced persons (IDPs) during flood events. Due to the diverse nature of flood events and the complexities of data collection in disaster zones, finding suitable data sources can be challenging. Available data often varies significantly in scale, temporal coverage, and spatial resolution, requiring careful evaluation and potential modification before use in the model. 
 
+Example input data files can be viewed here: [https://github.com/djgroen/FabFlee/tree/master/config_files/dflee_test_laura](https://github.com/djgroen/FabFlee/tree/master/config_files/dflee_test_laura)
+
 ## Flood Level Data File Format
 *   **`flood_level.csv` File Format:** This file provides a simplified representation of flood levels over time for different locations. The file should be formatted as a comma-separated value (CSV) file with the following structure:
 *   **Header Row:** The first row contains the column names. The first column should be named `#Day` representing the time step (e.g., days). Subsequent columns (e.g., `F1`, `F2`, `F3`) represent flood levels at different flooded locations or areas. 
