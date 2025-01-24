@@ -67,5 +67,7 @@ Example input data files can be viewed here: [https://github.com/djgroen/FabFlee
 *   **ReliefWeb:** [https://reliefweb.int](https://reliefweb.int) (Provides access to humanitarian reports, assessments, and maps)
 *   **Government and NGO Reports:** Look for reports published by government agencies, international organizations, and NGOs working in the affected area.
 *   **Food and Agriculture Organization of the United Nations (FAO) Emergency Data Database:** (While potentially sparse and with limited regional specificity, it can offer insights into migration patterns, shocks, and food security on a regional/national scale).
-
+*   **IOM** 
+*   **Facebook/MetaDataForGood** Application to access in progress. Some public data products as examples for their blog. 
+*   **Mobile Data** Some data is available in the scientific literature. Often private/pay to use. 
 
