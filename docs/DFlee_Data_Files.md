@@ -49,16 +49,18 @@ Example input data files can be viewed here: [https://github.com/djgroen/FabFlee
     *   Sentinel-1: (Radar satellite data useful for flood mapping)
     *   ArcGIS - data sources on ArcGIS (some are open source, some require a license which can be obtained via some universities) 
 *   **Scientific Literature:** Search for research papers using keywords such as "inundation extent," "flood mapping," and "remote sensing." You may also use key terms for the disaster e.g. cyclone/hurricane. Insurance companies or satellite companies sometimes have examples of flood mapping on their websites/blogs. Example inundation mapping from literature: [https://www.mdpi.com/2072-4292/12/20/3454](https://www.mdpi.com/2072-4292/12/20/3454)
-* **Google Gemini or Equivalent** - Use with caution. AI chatbots connected to the internet can sometimes find interesting resources that are not always at the top of Google. 
+* **Google Gemini or Equivalent** - Use with caution. AI chatbots connected to the internet can sometimes find interesting resources that are not always at the top of Google.
+* **News Reports** Local or international news reports of an event may include details of the regions (worst) affected etc. 
 
 ## IDP Data Requirements
 
 *   **IDP Data:** Information on the number and location of IDPs is essential. This can include:
     *   Pre-flood population distribution
-    *   Displacement locations
+    *   Displacement locations / where people were displaced from
+    *   Temporary or permanent displacement 
     *   Demographic information of displaced populations (age, gender, etc.)
 *   **Temporal Resolution (Time Cadence):** Should ideally align with the flood data's temporal resolution to understand displacement dynamics over time. This data is hard to find. 
-*   **Spatial Resolution (Spatial Cadence):** Should ideally align with the flood data's spatial resolution to link displacement to specific flood-affected areas. This data is hard to find.
+*   **Spatial Resolution (Spatial Cadence):** Should ideally align with the flood data's spatial resolution to link displacement to specific flood-affected areas. Ideally includes where people started and where they moved to. This data is hard to find. 
 
 ## IDP Data Sources (in no particular order)
 
@@ -69,5 +71,6 @@ Example input data files can be viewed here: [https://github.com/djgroen/FabFlee
 *   **Food and Agriculture Organization of the United Nations (FAO) Emergency Data Database:** (While potentially sparse and with limited regional specificity, it can offer insights into migration patterns, shocks, and food security on a regional/national scale).
 *   **IOM** 
 *   **Facebook/MetaDataForGood** Application to access in progress. Some public data products as examples for their blog. 
-*   **Mobile Data** Some data is available in the scientific literature. Often private/pay to use. 
+*   **Mobile Data** Some data is available in the scientific literature. Often private/pay to use.
+*   * **News Reports** Local or international news reports of an event may include details of the regions (worst) affected and the number of people displaced to another region. 
 
