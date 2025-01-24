@@ -72,5 +72,5 @@ Example input data files can be viewed here: [https://github.com/djgroen/FabFlee
 *   **IOM** 
 *   **Facebook/MetaDataForGood** Application to access in progress. Some public data products as examples for their blog. 
 *   **Mobile Data** Some data is available in the scientific literature. Often private/pay to use.
-*   * **News Reports** Local or international news reports of an event may include details of the regions (worst) affected and the number of people displaced to another region. 
+*   **News Reports** Local or international news reports of an event may include details of the regions (worst) affected and the number of people displaced to another region. 
 
