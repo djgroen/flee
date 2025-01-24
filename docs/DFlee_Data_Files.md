@@ -47,7 +47,7 @@ Example input data files can be viewed here: [https://github.com/djgroen/FabFlee
 *   **Satellite Imagery:**
     *   Google Earth Engine: (Provides access to a vast archive of satellite imagery)
     *   Sentinel-1: (Radar satellite data useful for flood mapping)
-*   **Scientific Literature:** Search for research papers using keywords such as "inundation extent," "flood mapping," and "remote sensing." You may also use key terms for the disaster e.g. cyclone/hurricane. 
+*   **Scientific Literature:** Search for research papers using keywords such as "inundation extent," "flood mapping," and "remote sensing." You may also use key terms for the disaster e.g. cyclone/hurricane. Example inundation mapping from literature: [https://www.mdpi.com/2072-4292/12/20/3454](https://www.mdpi.com/2072-4292/12/20/3454)
 
 ## IDP Data Requirements
 
