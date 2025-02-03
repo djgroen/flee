@@ -144,8 +144,8 @@ Each FabFlee command refines different actions and changes three main input CSV 
 | Border closure                | close_border:country1,country2,closure_start,closure_end         |
 | Forced redirection            | redirect:source,destination,redirect_start,redirect_end          |
 | Change distance between two locations   | change_distance:name1,name2,distance                   |
-| Add new link between locations| add_new_link:<name1>,<name2>,<distance>                          |
-| Find highest refugee number   | find_capacity:<csv_name>                                         |
+| Add new link between locations| add_new_link:name1,name2,distance                                |
+| Find highest refugee number   | find_capacity:csv_name                                           |
 
 
 
