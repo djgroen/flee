@@ -6,7 +6,7 @@ from functools import wraps
 from typing import List, Optional
 
 import numpy as np
-from flee import flee,scoring,spawning
+from flee import flee,scoring,spawning,crawling
 from flee.Diagnostics import write_agents_par,write_links_par
 from flee.SimulationSettings import SimulationSettings
 from mpi4py import MPI
@@ -805,6 +805,7 @@ class Ecosystem(flee.Ecosystem):
             # Scores remain perfectly updated in classic mode.
             for loc in self.locations:
                 loc.time = self.time
+                loc.routes = {}
                 scoring.updateLocationScore(self.time, loc)
 
         elif self.parallel_mode == "loc-par":
@@ -826,6 +827,15 @@ class Ecosystem(flee.Ecosystem):
             self.synchronize_locations(
                 start_loc_local=offset, end_loc_local=offset + num_locs_on_this_rank
             )
+
+            # Ensure Location Routes are updated on all cores for now.
+            if SimulationSettings.move_rules["FixedRoutes"] is True:
+                for i in range(len(self.locations)):
+                    loc = self.locations[i]
+                    if len(loc.routes) == 0:
+                        #print("INFO: Generating location routes.", file=sys.stderr)
+                        crawling.generateLocationRoutes(loc, self.time)
+
 
         # SYNCHRONIZE SPAWN COUNTS IN LOCATIONS (needed for all versions).
         spawn_counts = np.zeros(len(self.locations), dtype="i")

@@ -1,3 +1,4 @@
+import sys
 from flee import flee, crawling
 
 """
@@ -28,6 +29,8 @@ def test_location_crawling_4loc():
 
     routes = crawling.generateLocationRoutes(l1, 0)
 
+    print(routes, file=sys.stderr)
+
     assert "E" not in routes
 
     assert "A" not in routes
@@ -44,3 +47,27 @@ def test_location_crawling_4loc():
         assert routes[key][0] > 0.0
         assert len(routes[key][1]) > 0
 
+    # Check location end point score function.
+    assert crawling.getLocationCrawlEndPointScore(l1.links[0], 0) == 1.0
+
+    # Manually insert a major route for testing.
+    l1.major_routes = [["B","D","E"]]
+    """ 
+    NOTE: in files major routes contain the source location ("A" in this case).
+    But when loaded in the code, the source location is already implied by the 
+    Location object it is attached to, so it is omitted from the list.
+
+    Hence a major route specified as A,B,D,E in a file, will show as ["B","D","E"]
+    in the major_routes list for Location "A".
+    """
+
+    dest_list = crawling.compileDestList(l1)
+
+    # Insert major routes for location l1 test. Since the context is l1 here, there is no prior_route.
+    crawling.insertMajorRoutesForLocation(l1, l1, [], dest_list, 0)
+
+    #print("routes A:", l1.routes, l1.major_routes, file=sys.stderr)
+    assert "E" in l1.routes.keys()
+    assert l1.routes["E"][1][0] == "D"
+    assert l1.routes["E"][2].name == "E"
+    
