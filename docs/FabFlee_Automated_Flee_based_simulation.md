@@ -109,14 +109,23 @@ which creates the locations.csv file in `~/FabSim3/plugins/FabFlee/config_files/
 		```
 		which will populate locations.csv in `~/FabSim3/plugins/FabFlee/config_files/<conflict_name>/input_csv`
 
-## **Initiate, refine and instantiate a conflict instance using FabFlee**
+## **Create and refine a conflict instance using FabFlee**
 
-### *Initiation*
-To load conflict scenario, simply type:
+### *Creating New Conflict*
+To create a new conflict scenario, simply type:
 ```sh
-fabsim localhost load_conflict:<conflict_name>
+fabsim localhost new_conflict:<conflict_name>
 ```
-It duplicates all existing files from a base conflict directory to a working directory, namely `active_conflict`, inside `conflict_data` directory. The load command also generates a text file (i.e. `commands.log.txt`) that records command logs of commencing activities.
+It creates a new folder inside the `config_files` directory with files for the new conflict.
+
+Then process the `.csv` file for the simulation using the command:
+```sh
+fabsim localhost process_acled:country,start_date=dd-mm-yyyy,filter=[earliest,fatalities]
+```
+Finally, add the population with the command:
+```sh
+fabsim localhost add_population:<config_name>
+```
 
 ### *Refinement*
 
@@ -134,21 +143,11 @@ Each FabFlee command refines different actions and changes three main input CSV 
 | Camp closure                  | close_camp:camp_name,country,closure_start,closure_end           |
 | Border closure                | close_border:country1,country2,closure_start,closure_end         |
 | Forced redirection            | redirect:source,destination,redirect_start,redirect_end          |
+| Change distance between two locations   | change_distance:name1,name2,distance                   |
+| Add new link between locations| add_new_link:<name1>,<name2>,<distance>                          |
+| Find highest refugee number   | find_capacity:<csv_name>                                         |
 
-### *Instantiation*
 
-To instantiate Flee simulation, simply type:
-```sh
-fabsim localhost instantiate:<conflict_name> 
-```
-It saves parameter changes of the simulation in a new directory of `config_files` including conflict name, version and date of instantiation on users insert choice. It also duplicates base files of conflict scenario.
-
-### *Cleaning and iteration*
-To create a clean slate for further work, run the following command:
-```sh
-fabsim localhost clear_active_conflict
-```
-It clears the active conflict directory upon which you can reload the conflict and change other parameters (and instantiate and run a new simulation).
 
 ### *Execution*
 
