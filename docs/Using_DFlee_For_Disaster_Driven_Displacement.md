@@ -11,7 +11,7 @@ Currently, DFlee has limited support for flood-driven displacement.
 
 ## How to use
 
-To introduce flood-driven displacement, you will need to change several settings in `simulationsetting.yml`.
+To introduce flood-driven displacement, you will need to change several settings in `simsetting.yml`.
 
 In the section `spawn_rules`, you will need to add or set the following:
 ```yaml
@@ -27,7 +27,7 @@ Here, `displaced_per_flood_day` contains a list of floats. Each float in the lis
 
 !!! note
         * It is currently not possible to combine flood-driven and conflict-driven spawning. Any Flee simulation must use one or the other.
-        * `take_from_population` may be set in simulationsetting.yml already, but for DFlee to work it needs to be set to True. This is to prevent unrealistically high spawning rates.
+        * `take_from_population` may be set in `simsetting.yml` already, but for DFlee to work it needs to be set to True. This is to prevent unrealistically high spawning rates.
         * The first entry in the `displaced_per_flood_day` list is actually ignored by DFlee, as such locations are not flooded and regular rules apply fully.
 
 In the section `move_rules`, you will need to add or set the following:
