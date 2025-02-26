@@ -57,8 +57,8 @@ which will automatically generate required input and validation files, as well a
 	```
 
 	!!! note
-		-   **<conflict_name>** is the name of the country directory the acled.csv is stored in.
-		-   **<DD-MM-YYYY>** is the date which conflict_date will be calculated from.
+		-   **conflict_name** is the name of the country directory the acled.csv is stored in.
+		-   **DD-MM-YYYY** is the date which conflict_date will be calculated from.
 		-   **filter** takes earliest or fatalities. Earliest will keep the first occurring (using date) location and remove all occurrences in that location after that date. Fatalities will keep the highest fatalities of each location and remove all other occurrences of that location.
 		-   **location** is the location in which the event took place.
 
