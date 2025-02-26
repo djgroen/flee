@@ -53,22 +53,22 @@ which will automatically generate required input and validation files, as well a
 -   Rename downloaded file as acled.csv and place it in `~/FabSim3/plugins/FabFlee/config_files/<conflcit_name>`
 -   In your terminal, go to your `~/FabSim3/plugins/FabFlee` directory and execute the following command with your conflict instance details:
 	```sh
-	fabsim localhost process_acled:country=<conflict_name>,start_date=<DD-MM-YYYY>,filter=earliest/fatalities,admin_level=admin1/admin2/admin3/location
+	fabsim localhost process_acled:<conflict_name>,<DD-MM-YYYY>,earliest,location
 	```
 
 	!!! note
-		-   **country** is the name of the country directory the acled.csv is stored in.
-		-   **start_date** uses DD-MM-YYYY format and is the date which conflict_date will be calculated from.
+		-   **<conflict_name>** is the name of the country directory the acled.csv is stored in.
+		-   **<DD-MM-YYYY>** is the date which conflict_date will be calculated from.
 		-   **filter** takes earliest or fatalities. Earliest will keep the first occurring (using date) location and remove all occurrences in that location after that date. Fatalities will keep the highest fatalities of each location and remove all other occurrences of that location.
-		-   **admin_level** has 4 divisions of conflict locations for you to choose and process, where *ADMIN1* is the largest sub-national administrative region, *ADMIN2* is the second largest sub-national administrative region, *ADMIN3* is the third largest sub-national administrative region or *LOCATION* is the location in which the event took place.
+		-   **location** is the location in which the event took place.
 
 This will produce the locations.csv into the `input_csv` directory in `~/FabSim3/plugins/FabFlee/config_files/<conflict_name>/input_csv`for the given country.
 
 To demonstrate, the following command uses the Mali conflict situation:
 ```sh
-fabsim localhost process_acled:country=mali,start_date=20-01-2010,filter=earliest,admin_level=location    
+fabsim localhost process_acled:rohingya2017,01-08-2017,earliest,location    
 ```
-which creates the locations.csv file in `~/FabSim3/plugins/FabFlee/config_files/mali/input_csv`.
+which creates the locations.csv file in `~/FabSim3/plugins/FabFlee/config_files/rohingya2017/input_csv`.
 
 ### *Step 3: Extract population data for your conflict instance using OpenRouteService API*
 
@@ -109,25 +109,7 @@ which creates the locations.csv file in `~/FabSim3/plugins/FabFlee/config_files/
 		```
 		which will populate locations.csv in `~/FabSim3/plugins/FabFlee/config_files/<conflict_name>/input_csv`
 
-## **Create and refine a conflict instance using FabFlee**
-
-### *Creating New Conflict*
-To create a new conflict scenario, simply type:
-```sh
-fabsim localhost new_conflict:<conflict_name>
-```
-It creates a new folder inside the `config_files` directory with files for the new conflict.
-
-Then process the `.csv` file for the simulation using the command:
-```sh
-fabsim localhost process_acled:country,start_date=dd-mm-yyyy,filter=[earliest,fatalities]
-```
-Finally, add the population with the command:
-```sh
-fabsim localhost add_population:<config_name>
-```
-
-### *Refinement*
+### *Step 4: Refinement*
 
 To modify simulation and explore policy decisions, simply type:
 ```sh
@@ -149,7 +131,7 @@ Each FabFlee command refines different actions and changes three main input CSV 
 
 
 
-### *Execution*
+### *Step 5.1: Execution*
 
 1.  To run a Flee simulation:
 	```sh
@@ -170,7 +152,7 @@ Each FabFlee command refines different actions and changes three main input CSV 
 	```
 	If the results directory includes Multiscale results, it will plot them too. Otherwise, it only plots serial mode results.
 
-### *Ensemble execution*
+### *Step 5.2: Ensemble execution*
 
 1.  To run an ensemble of Flee jobs, simply type:
 	```sh
@@ -186,7 +168,7 @@ Each FabFlee command refines different actions and changes three main input CSV 
 	```
 	Local results are typically locations in the `~/FabSim3/results/` subdirectory.
 
-#### *Running the Flee Autovalidator*
+### *Step 5.3: Running the Flee Autovalidator*
 
 1. You can run the autovalidator using e.g.:
    ```sh
@@ -203,7 +185,7 @@ Both commands will return an Averaged Relative Difference across all runs. They 
 
 There is also a separate `validate_flee_output` command, which reproduces the post-processing tasks on runs that have been performed previously using `validate_flee`.
    
-### *Plotting link graphs for quick visual inspection*
+### *Step 6: Post-Analysis & Visualisation*
 
 1. To quickly plot a link graph, simply type:
         ```sh
@@ -217,7 +199,7 @@ When running this script for config `mali2012`, you can expect the following typ
 
 Note that as of 16-07-2024, locations are coloured by type when using this visualisation approach.
 
-### *Plotting movements for individual agents during simulation*
+#### *Plotting movements for individual agents during simulation*
 
 1. To plot the movements of individual agents within a single simulation from agent.out files, simply type:
         ```sh
