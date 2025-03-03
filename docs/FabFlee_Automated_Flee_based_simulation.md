@@ -51,24 +51,31 @@ which will automatically generate required input and validation files, as well a
 -   Go to <https://acleddata.com/data-export-tool/>, complete fields with conflict instance details and download ACLED data. 
 	**Note: A School/Institution Email will be needed to access ACLED resources.**
 -   Rename downloaded file as acled.csv and place it in `~/FabSim3/plugins/FabFlee/config_files/<conflcit_name>`
--   In your terminal, go to your `~/FabSim3/plugins/FabFlee` directory and execute the following command with your conflict instance details:
+-   In your terminal, go to your `~/FabSim3/plugins/FabFlee` directory 
+-   Execute the following command with your conflict instance details, examples of ways to build your command are shown below:
+	- For earliest occurrences of a conflict covering the largest sub-national region use this example:
 	```sh
-	fabsim localhost process_acled:<conflict_name>,<DD-MM-YYYY>,earliest,location
+	fabsim localhost process_acled:<conflict_name>,<DD-MM-YYYY>,earliest,admin1
+	```
+	- For fatalities at a specific location use this example:
+	```sh
+	fabsim localhost process_acled:<conflict_name>,<DD-MM-YYYY>,fatalities,location
 	```
 
 	!!! note
 		-   **conflict_name** is the name of the country directory the acled.csv is stored in.
 		-   **DD-MM-YYYY** is the date which conflict_date will be calculated from.
 		-   **filter** takes earliest or fatalities. Earliest will keep the first occurring (using date) location and remove all occurrences in that location after that date. Fatalities will keep the highest fatalities of each location and remove all other occurrences of that location.
-		-   **location** is the location in which the event took place.
+		-   **admin_level** has 4 divisions of conflict locations for you to choose and process, where ADMIN1 is the largest sub-national administrative region, ADMIN2 is the second largest sub-national administrative region, ADMIN3 is the third largest sub-national administrative region
+		-   **location** is the location in which the event took place. You can choose between either admin_level or location.
 
 This will produce the locations.csv into the `input_csv` directory in `~/FabSim3/plugins/FabFlee/config_files/<conflict_name>/input_csv`for the given country.
 
 To demonstrate, the following command uses the Mali conflict situation:
 ```sh
-fabsim localhost process_acled:rohingya2017,01-08-2017,earliest,location    
+fabsim localhost process_acled:mali,01-08-2017,earliest,location    
 ```
-which creates the locations.csv file in `~/FabSim3/plugins/FabFlee/config_files/rohingya2017/input_csv`.
+which creates the locations.csv file in `~/FabSim3/plugins/FabFlee/config_files/mali/input_csv`.
 
 ### *Step 3: Extract population data for your conflict instance using OpenRouteService API*
 
@@ -168,7 +175,7 @@ Each FabFlee command refines different actions and changes three main input CSV 
 	```
 	Local results are typically locations in the `~/FabSim3/results/` subdirectory.
 
-### *Step 5.3: Running the Flee Autovalidator*
+### *Advanced: Running the Flee Autovalidator*
 
 1. You can run the autovalidator using e.g.:
    ```sh
@@ -185,7 +192,7 @@ Both commands will return an Averaged Relative Difference across all runs. They 
 
 There is also a separate `validate_flee_output` command, which reproduces the post-processing tasks on runs that have been performed previously using `validate_flee`.
    
-### *Step 6: Post-Analysis & Visualisation*
+### *Step 6: Post-Analysis and Visualisation*
 
 1. To quickly plot a link graph, simply type:
         ```sh
