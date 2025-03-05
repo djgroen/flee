@@ -65,10 +65,20 @@ Here is an example of a `flood_level.csv` file, containing flood values for loca
 9,1,0
 10,1,1
 ```
+
+### Running the Simulation.
+
+After changing the `simulationsetting.yml` to include the settings for flood-driven displacement, you can run DFlee by the following command:
+```sh
+fabsim localhost pflee:<config_name>, simulation_period=10
+```
+An example of a DFlee configuration file can be found at `~/FabSim3/plugins/FabFlee/config_files/dflee_test/`. Ensure that your files follow the same structure.
+Also make sure that FabSim3 is located in the PYTHONPATH variable to prefent errors.
+
 ## Weather Forecaster 
 
 ### Example Config Files
-The flood forecaster is demonstrated using the dflee_test_laura config files in flee/FabSim/config_files. This is the same set up as dflee_test, but with additional flood forecasting settings. 
+The flood forecaster is demonstrated using the dflee_test_laura config files in `/FabSim/config_files/`. This is the same set up as dflee_test, but with additional flood forecasting settings. 
 
 ###  Testing 
 
