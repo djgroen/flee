@@ -215,6 +215,7 @@ nav:
     - Input File Generation: Input_File_generator.md 
     - Remote execution on a supercomputer : Remote_execution_on_a_supercomputer.md
     - Configuring Flee for Disasters (DFlee): DFlee_Data_Files.md
+    - Simulation using Dflee: Using_DFlee_For_Disaster_Driven_Displacement.md
     - Literature / cite us : Flee_Literature.md
 
   - Advanced:
