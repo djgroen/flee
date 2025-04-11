@@ -25,6 +25,7 @@ log_levels:
 spawn_rules:
   take_from_population: False
   insert_day0: True
+  sum_from_camps: True
 move_rules:
   max_move_speed: 360.0
   max_walk_speed: 35.0
@@ -76,7 +77,8 @@ In some cases, it is not desirable to output geographical information on the `lo
 Spawn rules focus on spawning agents within simulation runs based on several settings. There are several settings that can be set to `True` or `False`:
 
 - **take_from_population** allows to subtract spawned agents from populations if the value is set to `True`. This can lead to crashes if the number of spawned agents exceeds the total population in conflict zones. Alternatively, you can remove the subtraction from populations by setting the value to `False`.
-- **insert_day0** accounts for a zero insertion of agents in camps at the start of simulations by setting the value to `True`. Please set to `False` if it is not required for your conflict instance. 
+- **insert_day0** accounts for a zero insertion of agents in camps at the start of simulations by setting the value to `True`. Please set to `False` if it is not required for your conflict instance.
+- **sum_from_camps** is a Boolean setting (default: `True`) which is only used when `conflict_driven_spawning` not enabled (usually the case with simple scenarios). When set to `False`, the total number of agents spawned in the simulation is derived from `refugees.csv` instead of the total population change across all the camp CSV population files. `sum_from_camps` must be set to False when there is no validation data on the camp-level, and `conflict_driven_spawning` is disabled (otherwise the simulation might not spawn any agents).
 
 #### Spawning agents from file.
 
