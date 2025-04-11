@@ -41,6 +41,9 @@ In the section `move_rules`, you will need to add or set the following:
 Here, `flood_movechances` is a list that *overrides* existing move chances, depending on the `flood_level`. Again, the first value in the list is actually ignored, as regular rules apply for unflooded areas. `flood_loc_weights` is a list that *multiplies* location weights based on the `flood_level`. The first value is ignored, and locations with lower weights are less likely to be selected.
 
 !!! note
+        As a reminder, the location `movechance` indicates the base probability that a spawned agent will move away from that specific location, while the location `weight` indicates the attractiveness of the location when searching for an optimal path. Locations with a `weight` of 0.0 will be avoided in the pathfinding algorithm.
+
+!!! note
         The values in the list for `displaced_per_flood_day`, `flood_movechances` and `flood_loc_weights` are no better than educated guesses, so feel free to test DFlee with using different values for the different flood levels. A completely inaccessible area should have a move chance of 1.0 and a location weight multiplier of 0.0.
 
 #### Reading in flood levels.
