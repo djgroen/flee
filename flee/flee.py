@@ -814,8 +814,11 @@ class Ecosystem:
         """
         camp_names = []
         for loc in self.locations:
-            if loc.camp:
+            if "flood_driven_spawning" in SimulationSettings.spawn_rules.keys():
                 camp_names += [loc.name]
+            else:
+                if loc.camp:
+                    camp_names += [loc.name]
         return camp_names
 
 
