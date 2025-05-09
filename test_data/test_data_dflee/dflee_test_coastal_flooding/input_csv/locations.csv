@@ -1,0 +1,10 @@
+#name,region,country,lat,lon,location_type,conflict_date,population
+Top_Left,A,ABC,1,1,flood_zone,0,2000
+Top_Centre,A,ABC,1,1,flood_zone,0,2000
+Top_Right,A,ABC,1,1,flood_zone,0,2000
+Down_Right,A,ABC,1,1,flood_zone,0,2000
+Down_Centre,A,ABC,1,1,flood_zone,0,2000
+Down_Left,A,ABC,1,1,flood_zone,0,1000
+Middle_Left,A,ABC,1,1,flood_zone,0,2000
+Middle_Centre,A,ABC,1,1,flood_zone,0,2000
+Middle_Right,A,ABC,1,1,flood_zone,0,1001
