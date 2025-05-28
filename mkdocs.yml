@@ -208,6 +208,7 @@ nav:
     - Introduction: index.md
     - Installation and Testing: Installation_and_Testing.md
     - Simulation instance construction: Simulation_instance_construction.md
+    - Camp Capacity Explained: Camp_Capacity_Explained.md
     - Types of location graphs: Types_of_location_graphs.md
     - Simulation settings configuration (basic): Simulation_settings_basic.md
     - Simulation instance execution : Simulation_instance_execution.md
