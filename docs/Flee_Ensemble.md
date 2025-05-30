@@ -19,16 +19,19 @@ To run an ensemble in Flee (using FabFlee), you organise your scenario as follow
 
 ```
 config_files/<scenario_name>/
-  ├── input_csv/
-  ├── source_data/
+ 
   ├── SWEEP/
   │    ├── variant1/
-  │    │    ├── simsetting.csv
-  │    │    ├── locations.csv
+  |    |    ├── input_csv/
+  │    │    |   ├── locations.csv
+  |    │    │   └── ... 
+  |    │    ├── source_data/
   │    │    └── ...
   │    ├── variant2/
-  │    │    ├── simsetting.csv
-  │    │    ├── locations.csv
+  |    |    ├── input_csv/
+  │    │    |   ├── locations.csv
+  |    │    │   └── ... 
+  |    │    ├── source_data/
   │    │    └── ...
   │    └── ...
   └── ...
