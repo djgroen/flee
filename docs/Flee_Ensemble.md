@@ -13,28 +13,28 @@ An **ensemble** is a set of simulation runs, each with slightly different input 
 
 ---
 
-## Organizing Input Files for an Ensemble
+## Organising Input Files for an Ensemble
 
 To run an ensemble in Flee (using FabFlee), you organise your scenario as follows:
 
 ```
 config_files/<scenario_name>/
  
-  ├── SWEEP/
-  │    ├── variant1/
-  |    |    ├── input_csv/
-  │    │    |   ├── locations.csv
-  |    │    │   └── ... 
-  |    │    ├── source_data/
-  │    │    └── ...
-  │    ├── variant2/
-  |    |    ├── input_csv/
-  │    │    |   ├── locations.csv
-  |    │    │   └── ... 
-  |    │    ├── source_data/
-  │    │    └── ...
-  │    └── ...
-  └── ...
+    ├── SWEEP/
+    │    ├── variant1/
+    |    |    ├── input_csv/
+    │    │    |   ├── locations.csv
+    |    │    │   └── ... 
+    |    │    ├── source_data/
+    │    │    └── ...
+    │    ├── variant2/
+    |    |    ├── input_csv/
+    │    │    |   ├── locations.csv
+    |    │    │   └── ... 
+    |    │    ├── source_data/
+    │    │    └── ...
+    │    └── ...
+    └── ...
 ```
 
 - Each subdirectory in `SWEEP/` (e.g., `variant1`, `variant2`) contains a full set of input files for a single simulation run.
@@ -56,19 +56,29 @@ fabsim localhost pflee_ensemble:<scenario_name>,simulation_period=<days>
 
 For serial (non-parallel) runs, use `flee_ensemble` instead of `pflee_ensemble`.
 
+## Synchronising Simulation Results
+
+After all ensemble runs have completed, you can synchronise the simulation outputs from the remote or distributed execution environment back to your local machine using the following command:
+
+```sh
+fabsim localhost fetch_results
+```
+
+This command gathers all output files and organises them under your designated results folder, making it easier to compare and analyse simulation outputs across different variants.
+
 ---
 
-## Output Organization
+## Output Organisation
 
 After execution, results are collected in a `RUNS` directory under your results folder:
 
 ```
 results/<job_name>/RUNS/
-  ├── variant1/
-  │    └── out.csv
-  ├── variant2/
-  │    └── out.csv
-  └── ...
+    ├── variant1/
+    │    └── out.csv
+    ├── variant2/
+    │    └── out.csv
+    └── ...
 ```
 
 - Each subdirectory matches a variant from `SWEEP` and contains the output files for that simulation.
@@ -92,4 +102,3 @@ Suppose you want to test three different maximum move speeds. You would:
 - See [FabFlee_Automated_Flee_based_simulation.md](FabFlee_Automated_Flee_based_simulation.md) for more details on automated scenario construction and execution.
 - For sensitivity analysis, see [Sensitivity_analysis_of_parameters_using_EasyVVUQ.md](Sensitivity_analysis_of_parameters_using_EasyVVUQ.md).
 
----
