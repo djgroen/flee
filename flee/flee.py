@@ -39,6 +39,8 @@ class Person:
         "attributes",
         "locations_visited",
         "route",
+        "days_in_current_location",   
+        "last_connection_update", 
     ]
 
     @check_args_type
@@ -48,9 +50,9 @@ class Person:
             Initializes a new Flee Agent
         
         Args:
-            location: The initial location of the agent.
+            location: The initial location of the agent (can be None for testing).
             attributes: A dictionary of attributes for the agent.
-
+    
         Returns:
             None.
         """
@@ -58,39 +60,98 @@ class Person:
         self.home_location = location
         self.timesteps_since_departure = 0
         self.places_travelled = 1
-
+    
         # An index of how much the agent has recently traveled
-        # (range : 0.0-1.0).
         self.recent_travel_distance = 0.0
-        # Number of km moved this timestep.
         self.distance_moved_this_timestep = 0.0
-
+    
         # Set to true when an agent resides on a link.
         self.travelling = False
-
+    
         # Tracks how much distance a Person has been able to travel on the
         # current link.
         self.distance_travelled_on_link = 0
-
-        self.attributes=attributes
+    
+        # Initialize attributes dictionary and ensure "connections" is set
+        self.attributes = attributes
+        if "connections" not in self.attributes:
+            # Default starting social connections value
+            self.attributes["connections"] = 0
+    
         self.route = []
-
+        
+        # System 1/System 2 tracking attributes
+        self.days_in_current_location = 0      # Track time in current location
+        self.last_connection_update = 0        # Track when connections were last updated
+    
         if SimulationSettings.log_levels["agent"] > 0:
             self.distance_travelled = 0 
-            # track total distance travelled.
         if SimulationSettings.log_levels["agent"] > 1:
             self.locations_visited = [] 
-            # track and write locations visited before final one in timestep.
+    
+        # Only increment location count if location is not None
+        if self.location is not None:
+            self.location.IncrementNumAgents(self)
 
-        self.location.IncrementNumAgents(self)
 
+    # Add social connectivity
+    def update_social_connectivity(self, new_location, time):
+        """
+        Update agent's social connectivity based on location and interactions.
+        
+        Args:
+            new_location: The location the agent is moving to or currently in (can be Location or Link)
+            time: Current simulation time
+        """
+        # Skip if location is None (for testing scenarios)
+        if new_location is None:
+            return
+        
+        # Skip social connectivity updates when traveling on links
+        # only update when actually at locations
+        if hasattr(new_location, 'endpoint'):  # This means it's a Link object
+            return
+            
+        current_connections = self.attributes.get("connections", 0)
+        
+        # Factor 1: Population density effect
+        if new_location.numAgents > 100:
+            # High population areas increase connectivity
+            connection_boost = min(2, new_location.numAgents // 100)
+            self.attributes["connections"] = min(10, current_connections + connection_boost)
+        elif new_location.numAgents < 10:
+            # Isolated areas decrease connectivity
+            self.attributes["connections"] = max(0, current_connections - 1)
+        
+        # Factor 2: Camp effect (camps build stronger social networks)
+        if new_location.camp or new_location.idpcamp:
+            # Camps foster community building over time
+            days_in_location = getattr(self, 'days_in_current_location', 0) + 1
+            if days_in_location > 7:  # After a week
+                self.attributes["connections"] = min(8, current_connections + 1)
+            self.days_in_current_location = days_in_location
+        else:
+            self.days_in_current_location = 0
+        
+        # Factor 3: Conflict zones disrupt social networks
+        if new_location.conflict > 0.5:
+            # Active conflict disrupts connections
+            self.attributes["connections"] = max(0, current_connections - 2)
+        
+        # Factor 4: Time decay (connections fade without maintenance)
+        if hasattr(self, 'last_connection_update'):
+            time_since_update = time - self.last_connection_update
+            if time_since_update > 30:  # Monthly decay
+                self.attributes["connections"] = max(0, current_connections - 1)
+        
+        self.last_connection_update = time
 
     @check_args_type
     def handle_travel(self, location, travelling) -> None:
         """
         Summary:
             Updates the agent's travel state.
-
+    
         Args:
             location: location to travel to (can be Location of Link type).
             travelling: set to True if location is a Link, False if it is a Location object.
@@ -99,6 +160,12 @@ class Person:
             None.
         """
         self.location.DecrementNumAgents() 
+        old_location = self.location
+        
+        # Only reset days counter when actually changing locations (not links)
+        if not travelling and self.location != location:
+            self.days_in_current_location = 0
+        
         self.location = location
         self.location.IncrementNumAgents(self)
         self.travelling = travelling
@@ -162,38 +229,44 @@ class Person:
         Summary:
             Updates the agent's location and state 
             based on the current simulation timestep.
-
+    
         Args:
             time (int): The current simulation timestep.
             ForceTownMove (bool, optional): Whether or not the agent is forced to move to a town.
-
+    
         Returns:
             None.
         """
+        # Update social connectivity at the start of each time step
+        self.update_social_connectivity(self.location, time)
+        
+        # Increment days in current location for System 2 tracking
+        if not self.travelling:
+            self.days_in_current_location += 1
+        
         if self.travelling is False:
-            # Calculate the agent's move chance.
-            movechance = moving.calculateMoveChance(self, ForceTownMove, time)
-            #if self.location.town and ForceTownMove: # called through evolveMore
-            #    movechance = 1.0
-            #else: # called first time in loop
-            #    movechance = self.location.movechance
-            #    movechance *= (float(max(self.location.pop, self.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
-
-            # Generate a random number and compare it to the move chance.
+            # Calculate the agent's move chance with System 1/System 2 logic
+            movechance, system2_active = moving.calculateMoveChance(self, ForceTownMove, time)
+    
+            # Generate a random number and compare it to the move chance
             outcome = random.random()
-            # print(movechance)
-
-            # If the outcome is less than the move chance, then the agent moves.
+    
+            # If the outcome is less than the move chance, then the agent moves
             if outcome < movechance:
-                # If the agent does not have an existing route, then plan a new route.
+                # If the agent does not have an existing route, then plan a new route
                 if len(self.route) == 0:
-                    # Determine which route to take
-                    self.route = moving.selectRoute(self, time=time)
-
+                    # System 2 route planning: use pre-calculated route if available
+                    if system2_active and "_temp_route" in self.attributes:
+                        self.route = self.attributes["_temp_route"]
+                        del self.attributes["_temp_route"]
+                    else:
+                        # System 1 route planning: calculate route on the fly
+                        self.route = moving.selectRoute(self, time=time)
+    
                 # Attempt to follow route. Return None if fail.  
                 chosenDest = self.take_next_step(e)
-
-                # If there is a viable route to a different location, then move to the next location.
+    
+                # If there is a viable route to a different location, then move to the next location
                 if chosenDest:
                     # update location to link endpoint
                     self.handle_travel(chosenDest, travelling=True)
@@ -814,11 +887,8 @@ class Ecosystem:
         """
         camp_names = []
         for loc in self.locations:
-            if bool(SimulationSettings.spawn_rules.get("flood_driven_spawning", False)) is True: 
+            if loc.camp:
                 camp_names += [loc.name]
-            else:
-                if loc.camp:
-                    camp_names += [loc.name]
         return camp_names
 
 
