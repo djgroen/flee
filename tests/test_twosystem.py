@@ -10,11 +10,12 @@ if parent_dir not in sys.path:
 
 from flee import flee
 
+
 def test_social_connectivity_crowded_area():
     """Unit test: Social connectivity increases in crowded areas"""
     print("Testing: Social connectivity in crowded areas")
     
-    flee.SimulationSettings.ReadFromYML("test_settings.yml")
+    flee.SimulationSettings.ReadFromYML("test_data/test_settings.yml")
     
     # Create a simple agent
     agent_attributes = {"connections": 2}
@@ -37,18 +38,15 @@ def test_social_connectivity_crowded_area():
     final_connections = agent.attributes["connections"]
     
     # Check result
-    if final_connections > initial_connections:
-        print("PASS: Connections increased from", initial_connections, "to", final_connections)
-        return True
-    else:
-        print("FAIL: Connections should increase in crowded areas")
-        return False
+    assert final_connections > initial_connections
+    # if FAIL: Connections should increase in crowded areas
+
 
 def test_social_connectivity_isolated_area():
     """Unit test: Social connectivity decreases in isolated areas"""
     print("Testing: Social connectivity in isolated areas")
     
-    flee.SimulationSettings.ReadFromYML("test_settings.yml")
+    flee.SimulationSettings.ReadFromYML("test_data/test_settings.yml")
     
     agent_attributes = {"connections": 5}
     agent = flee.Person(None, agent_attributes)
@@ -66,12 +64,9 @@ def test_social_connectivity_isolated_area():
     agent.update_social_connectivity(isolated_location, time=0)
     final_connections = agent.attributes["connections"]
     
-    if final_connections < initial_connections:
-        print("PASS: Connections decreased from", initial_connections, "to", final_connections)
-        return True
-    else:
-        print("FAIL: Connections should decrease in isolated areas")
-        return False
+    assert final_connections < initial_connections
+    # if FAIL: Connections should decrease in isolated areas
+
 
 def test_system2_quick():
     """verify the logic paths work"""
@@ -103,7 +98,7 @@ def test_system2_quick():
     assert connected == True
     
     print("System 2 activation logic works!")
-    return True  # ← Add this line!
+
 
 def test_system1_quick():
     """Quick test for System 1 path"""
@@ -142,7 +137,7 @@ def test_days_in_location_tracking():
     """Unit test: Days in location counter works correctly"""
     print("Testing: Days in location tracking")
     
-    flee.SimulationSettings.ReadFromYML("test_settings.yml")
+    flee.SimulationSettings.ReadFromYML("test_data/test_settings.yml")
     
     # Create agent
     agent_attributes = {"connections": 3}
@@ -157,13 +152,7 @@ def test_days_in_location_tracking():
     agent.travelling = False
     agent.days_in_current_location += 1  # Simulate what evolve() does
     
-    if agent.days_in_current_location == 1:
-        print("PASS: Days in location incremented correctly")
-        return True
-    else:
-        print("FAIL: Days tracking not working")
-        return False
-
+    assert agent.days_in_current_location == 1
         
 
 if __name__ == "__main__":

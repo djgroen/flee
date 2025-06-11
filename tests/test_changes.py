@@ -42,7 +42,7 @@ def test_dynamic_social_connectivity():
     print("=== Testing Dynamic Social Connectivity ===")
     
     # Initialize settings
-    flee.SimulationSettings.ReadFromYML("simsetting.yml")
+    flee.SimulationSettings.ReadFromYML("test_data/simsetting.yml")
     
     e = flee.Ecosystem()
     
