@@ -74,9 +74,7 @@ class Person:
     
         # Initialize attributes dictionary and ensure "connections" is set
         self.attributes = attributes
-        if "connections" not in self.attributes:
-            # Default starting social connections value
-            self.attributes["connections"] = 0
+        self.attributes["connections"] = self.attributes.get("connections", 0)
     
         self.route = []
         
