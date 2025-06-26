@@ -1,0 +1,12 @@
+Issues with flee install
+
+Versioneer issues with python 3.12 
+https://github.com/pydata/pandas-datareader/issues/969
+https://stackoverflow.com/questions/79624972/how-to-solve-error-about-configparser-not-having-a-safeconfigparser-attribute-wh
+AttributeError: module 'configparser' has no attribute 'SafeConfigParser'. Did you mean: 'RawConfigParser'?
+      [end of output]
+
+Fixed by changing versioneer.py to
+342    parser = configparser.ConfigParser()
+343    with open(setup_cfg, "r") as f:
+344        parser.read_file(f)

@@ -125,8 +125,8 @@ def plot_camps(data: pd.DataFrame, config: str, output: str) -> None:
 
     for i in range(len(cols)):
 
-        name = cols[i].split()
-
+        # Split sim and data from the column name,
+        name = cols[i].rsplit(" ", 1)
         if name[0]=="Date": #Date is not a camp field.
             continue
 
