@@ -1,0 +1,26 @@
+Flee commands
+
+mkdir out/test_data_dflee/dflee_test_coastal_flooding
+
+python runscripts/run.py test_data/test_input_csv test_data/test_input_csv/refugee_data 0 test_data/simsetting.yml > out/out.csv
+
+python test_data/test_data_dflee/dflee_test_coastal_flooding/run.py test_data/test_data_dflee/dflee_test_coastal_flooding/input_csv test_data/test_data_dflee/dflee_test_coastal_flooding/source_data 0 test_data/test_data_dflee/dflee_test_coastal_flooding/simsetting.yml > out/test_data_dflee/dflee_test_coastal_flooding/out.csv
+
+python test_data/test_data_dflee/dflee_test_coastal_flooding/plot_flee_output.py out/test_data_dflee/dflee_test_coastal_flooding/ out/test_data_dflee/dflee_test_coastal_flooding/
+
+
+
+python flee/postprocessing/plot_flee_output.py out/test_data_dflee/dflee_test_coastal_flooding/ out/test_data_dflee/dflee_test_coastal_flooding/
+
+
+Mozambique test commands only
+python data_assimilation/test/run.py data_assimilation/test/disaster_input/Mozambique data_assimilation/test/disaster_validation/mozambique 0 data_assimilation/test/simsetting.yml > out/Mozambique/out.csv
+
+python data_assimilation/test/run.py data_assimilation/test/disaster_input/Mozambique data_assimilation/test/disaster_validation/mozambique 0 data_assimilation/test/simsetting_doc.yml > out/Mozambique/out.csv
+
+python data_assimilation/test/plot_flee_output.py out/Mozambique/ out/Mozambique/
+
+Weird hybrid command
+python test_data/test_data_dflee/dflee_test_coastal_flooding/run.py data_assimilation/test/disaster_input/Mozambique data_assimilation/test/disaster_validation/mozambique 0 data_assimilation/test/simsetting.yml > out/Mozambique/out.csv
+
+python test_data/test_data_dflee/dflee_test_coastal_flooding/plot_flee_output.py out/Mozambique/ out/Mozambique/

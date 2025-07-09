@@ -10,3 +10,12 @@ Fixed by changing versioneer.py to
 342    parser = configparser.ConfigParser()
 343    with open(setup_cfg, "r") as f:
 344        parser.read_file(f)
+
+
+mpi4py not installed with requirements.txt or setup.py
+
+issues with reading in output csv with plot flee output
+# whole_df = pd.read_csv(whole_df_PATH, sep=",", encoding="latin1", index_col="Day")
+whole_df = pd.read_csv(whole_df_PATH, sep=",", encoding="utf-16", index_col="Day")
+
+

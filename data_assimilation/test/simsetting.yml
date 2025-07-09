@@ -1,9 +1,9 @@
 log_levels:
-  agent: 1
-  camp: 1
-  init: 1
-  flood: 1
-  link: 1
+  agent: 0
+  camp: 0
+  init: 0
+  flood: 0
+  link: 0
 
 # Set to 100 to scale down the population by 100 and increase the execution time.
 optimisations:
@@ -16,11 +16,11 @@ spawn_rules:
   take_from_population: True
   flood_driven_spawning:
     flood_spawn_mode: "pop_ratio"
-    displaced_per_flood_day: [0.0,0.1,0.2,0.5,0.9]
+    displaced_per_flood_day: [0.0,0.0,0.0,0.0,0.0]
 
 move_rules:
-  default_movechance: 0.0
-  awareness_level: 3
+  default_movechance: 0.3
+  awareness_level: 4
   start_on_foot: True
   flood_rules:
     max_flood_level: 5
