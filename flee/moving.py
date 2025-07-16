@@ -141,12 +141,12 @@ def getEndPointScore(agent, endpoint, time) -> float:
         if SimulationSettings.move_rules["MatchConflictEthnicity"]:
             base *= (spawning.getAttributeRatio(endpoint, agent.attributes["ethnicity"]) * 10.0)
         if SimulationSettings.move_rules["UsePopForLocWeight"]:
-            base *= min(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
+            base *= max(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
     else:
         if SimulationSettings.move_rules["MatchTownEthnicity"]:
             base *= (spawning.getAttributeRatio(endpoint, agent.attributes["ethnicity"]) * 10.0)
         if SimulationSettings.move_rules["UsePopForLocWeight"]:
-            base *= min(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
+            base *= max(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
 
     return base
 
