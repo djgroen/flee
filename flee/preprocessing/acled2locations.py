@@ -1,3 +1,54 @@
+"""
+ACLED to Locations Converter
+
+This script processes ACLED (Armed Conflict Location & Event Data) files and converts them 
+to locations.csv format for use in displacement modeling.
+
+USAGE:
+------
+
+For FabFlee directory structure:
+    python acled2locations.py <fabflee_path> <country> <start_date> <filter_opt> <adminlevel> <population_file>
+
+For local data files:
+    python acled2locations.py . <country> <start_date> <filter_opt> <adminlevel> <population_file> <acled_file>
+
+PARAMETERS:
+-----------
+fabflee_path    : Path to FabFlee directory (use '.' for local files)
+country         : Country name/code for identification
+start_date      : Start date in dd-mm-yyyy format (e.g., "01-01-2020")
+filter_opt      : Filter option - "earliest" or "fatalities"
+adminlevel      : Administrative level - "admin1", "admin2", or "location"
+population_file : Path to CSV file with population data
+acled_file      : Path to ACLED CSV file (optional, for local files only)
+
+EXAMPLES:
+---------
+# Using local files
+python acled2locations.py . Nigeria 01-01-2020 earliest admin1 population.csv nigeria_acled.csv
+
+# Using FabFlee structure
+python acled2locations.py /path/to/fabflee Nigeria 01-01-2020 fatalities admin1 population.csv
+
+REQUIRED FILE FORMATS:
+----------------------
+ACLED CSV file must contain columns:
+    - event_date, country, admin1, latitude, longitude, fatalities
+
+Population CSV file must contain columns:
+    - States (state/region names)
+    - Population (population numbers)
+
+OUTPUT:
+-------
+Creates locations.csv (or new_locations.csv if file exists) with columns:
+    - #name, country, latitude, longitude, location_type, conflict_date, population
+
+The script filters conflicts by fatalities > 0, applies the specified filter,
+and enriches the data with population information.
+"""
+
 import pandas as pd
 import warnings
 import sys
@@ -160,11 +211,16 @@ def find_csv(country):
 
 
 def acled2locations(fab_flee_loc, country, start_date,
-                    filter_opt, admin_level):
+                    filter_opt, admin_level, population_input_file, acled_file=None):
     warnings.filterwarnings('ignore')
-    input_file = os.path.join(fab_flee_loc, "config_files",
-                              country,
-                              "acled.csv")
+    
+    # If acled_file is provided, use it directly, otherwise use FabFlee structure
+    if acled_file:
+        input_file = acled_file
+    else:
+        input_file = os.path.join(fab_flee_loc, "config_files",
+                                  country,
+                                  "acled.csv")
     print("Current Path: ", input_file)
     try:
         tempdf = pd.read_csv(input_file)
@@ -213,7 +269,7 @@ def acled2locations(fab_flee_loc, country, start_date,
     #print(df['admin1'])
     for name in df['admin1']:
         #output_df[name]["population"] = get_city_population(name)
-        population.append(get_state_population(name,population_input_file))
+        population.append(get_state_population(name, population_input_file))
         #print('{0},{1}'.format(name,population))
         #time.sleep(1)
         #print('Due to the request limit of GeoDB API, which is one request per second, please wait:')
@@ -225,21 +281,35 @@ def acled2locations(fab_flee_loc, country, start_date,
          'longitude', 'location_type', 'conflict_date',
          'population']
     ]
-    output_file = os.path.join(fab_flee_loc, "config_files",
-                               country, "input_csv",
-                               "locations.csv")
+    
+    # If using local files, save to current directory, otherwise use FabFlee structure
+    if acled_file:
+        output_file = "locations.csv"
+    else:
+        output_file = os.path.join(fab_flee_loc, "config_files",
+                                   country, "input_csv",
+                                   "locations.csv")
 
     try:
         output_df.to_csv(output_file, index=False, mode='x')
+        print(f"Output saved to: {output_file}")
     except FileExistsError:
-        print("File Already exists, saving as new_locations.csv")
-        output_file = os.path.join(fab_flee_loc, "config_files",
-                                   country, "input_csv",
-                                   "new_locations.csv")
-        output_df.to_csv(output_file, index=False, mode='x')
+        if acled_file:
+            new_output_file = "new_locations.csv"
+        else:
+            new_output_file = os.path.join(fab_flee_loc, "config_files",
+                                           country, "input_csv",
+                                           "new_locations.csv")
+        print(f"File already exists, saving as: {new_output_file}")
+        output_df.to_csv(new_output_file, index=False, mode='x')
 
 
 if __name__ == '__main__':
+
+    if len(sys.argv) < 7:
+        print("Usage: python acled2locations.py <fabflee_path> <country> <start_date> <filter_opt> <adminlevel> <population_input_file> [acled_file]")
+        print("For local files, use: python acled2locations.py . <country> <start_date> <filter_opt> <adminlevel> <population_file> <acled_file>")
+        sys.exit(1)
 
     fabflee = sys.argv[1]
     country = sys.argv[2]
@@ -247,4 +317,8 @@ if __name__ == '__main__':
     filter_opt = sys.argv[4]
     adminlevel = sys.argv[5]
     population_input_file = sys.argv[6]
-    acled2locations(fabflee, country, start_date, filter_opt, adminlevel)
+    
+    # Optional 7th argument for local ACLED file
+    acled_file = sys.argv[7] if len(sys.argv) > 7 else None
+    
+    acled2locations(fabflee, country, start_date, filter_opt, adminlevel, population_input_file, acled_file)
