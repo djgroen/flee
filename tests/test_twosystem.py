@@ -150,8 +150,8 @@ def test_days_in_location_tracking():
         
 
 if __name__ == "__main__":
-    test_social_connectivity_crowded_area():
-    test_social_connectivity_isolated_area():
-    test_system2_quick():
-    test_days_in_location_tracking():
+    test_social_connectivity_crowded_area()
+    test_social_connectivity_isolated_area()
+    test_system2_quick()
+    test_days_in_location_tracking()
     
