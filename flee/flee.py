@@ -73,7 +73,7 @@ class Person:
         self.distance_travelled_on_link = 0
     
         # Initialize attributes dictionary and ensure "connections" is set
-        self.attributes = {"connections":0}.update(attributes)
+        self.attributes = {"connections":0} | attributes
         
         self.route = []
         
