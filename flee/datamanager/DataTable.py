@@ -498,7 +498,7 @@ class DataTable:
                 return i
 
         print(self.header, file=sys.stderr)
-        sys.exit("Error: can't find the header %s in the header list" % (name))
+        raise Exception("Error: can't find the header %s in the header list" % (name))
 
     @check_args_type
     def get_field(self, name: str, day: int, FullInterpolation=True) -> int:

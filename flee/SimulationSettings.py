@@ -179,7 +179,7 @@ class SimulationSettings:
         SimulationSettings.move_rules["flood_forecaster_timescale"] = 0 #defaults to zero days of forecasting abiltiy.
 
         if spawn_type == "flood":
-          dpsc = fetchss(dps,"flood_driven_spawning",None)
+          dpsc = fetchss(dps,"flood_driven_spawn_mode",None)
           if dpsc is not None:
             SimulationSettings.move_rules["FloodRulesEnabled"] = True
 
