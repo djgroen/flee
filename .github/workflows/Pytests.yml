@@ -22,7 +22,8 @@ jobs:
         include:
         - os: ubuntu-24.04
           mpi: mpich
-          install-mpi: sudo apt install -y mpich libmpich-dev tree
+          install-mpi: python3 -m pip install mpi4py mpich
+          #install-mpi: sudo apt install -y mpich libmpich-dev tree
         - os: ubuntu-24.04
           mpi: openmpi
           install-mpi: sudo apt install -y openmpi-bin libopenmpi-dev tree
