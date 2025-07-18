@@ -4,7 +4,7 @@
 
 import pathlib
 import os
-import pkg_resources
+#import pkg_resources
 from setuptools import setup, find_packages
 import versioneer
 
@@ -19,11 +19,13 @@ with open(
 
 
 with pathlib.Path("requirements.txt").open() as requirements_txt:
-    install_requires = [
-        str(requirement)
-        for requirement
-        in pkg_resources.parse_requirements(requirements_txt)
-    ]
+    install_requires = [line.strip() for line in requirements_txt]
+        
+    #install_requires = [
+    #    str(requirement)
+    #    for requirement
+    #    in pkg_resources.parse_requirements(requirements_txt)
+    #]
 
 test_requirements = ["pytest>=3", ]
 
