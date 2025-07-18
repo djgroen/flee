@@ -26,6 +26,12 @@ jobs:
         - os: ubuntu-24.04
           mpi: openmpi
           install-mpi: sudo apt install -y openmpi-bin libopenmpi-dev tree
+        - os: ubuntu-22.04
+          mpi: mpich
+          install-mpi: sudo apt install -y mpich libmpich-dev tree
+        - os: ubuntu-22.04
+          mpi: openmpi
+          install-mpi: sudo apt install -y openmpi-bin libopenmpi-dev tree
         # - os: macos-11
         #   mpi: mpich
         #   install-mpi: brew install mpich tree
