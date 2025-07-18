@@ -73,8 +73,8 @@ class Person:
         self.distance_travelled_on_link = 0
     
         # Initialize attributes dictionary and ensure "connections" is set
+        attributes["connections"] = attributes.get("connections", 0)
         self.attributes = attributes
-        self.attributes["connections"] = self.attributes.get("connections", 0)
     
         self.route = []
         
@@ -158,7 +158,6 @@ class Person:
             None.
         """
         self.location.DecrementNumAgents() 
-        old_location = self.location
         
         # Only reset days counter when actually changing locations (not links)
         if not travelling and self.location != location:
@@ -885,7 +884,9 @@ class Ecosystem:
         """
         camp_names = []
         for loc in self.locations:
-            if loc.camp:
+            if bool(SimulationSettings.spawn_rules.get("flood_driven_spawning", False)) is True:
+                camp_names += [loc.name]
+            elif loc.camp:
                 camp_names += [loc.name]
         return camp_names
 

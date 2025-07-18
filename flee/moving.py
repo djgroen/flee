@@ -360,11 +360,11 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
             else:
                 a.attributes["_temp_route"] = provisional_route
             # For System 2, always return 1.0 (100% chance to initiate movement decision)
-            return 1.0, True
+            return 1.0, system2_active
 
     # If System 2 is not active, calculate standard System 1 move chance
     if a.location.town and ForceTownMove:  # called through evolve
-        return 1.0, False
+        return 1.0, system2_active
     else:  # called first time in loop
         movechance = a.location.movechance
 
@@ -459,7 +459,7 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
                 # Make the flood_forecast_base effect the actual base score
                 movechance *= flood_forecast_movechance  
                   
-    return movechance, False 
+    return movechance, system2_active 
 
 
 def check_routes(weights, routes, label):
@@ -516,7 +516,7 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
 
   # Store original parameters for System 2 modification
   original_params = {}
-  if system2_active:
+  if SimulationSettings.move_rules["TwoSystemDecisionMaking"] and system2_active:
       # Store original values
       original_params['awareness_level'] = SimulationSettings.move_rules["AwarenessLevel"]
       original_params['weight_softening'] = SimulationSettings.move_rules["WeightSoftening"]
@@ -529,45 +529,43 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
       SimulationSettings.move_rules["DistancePower"] = 1.2  # Slightly more distance-sensitive
       SimulationSettings.move_rules["PruningThreshold"] = 1.5  # Less aggressive pruning (consider more options)
 
-  try:
-      if SimulationSettings.move_rules["FixedRoutes"] is True:
-          for l in a.location.routes.keys():
-              weights = weights + [a.location.routes[l][0] * getEndPointScore(a, a.location.routes[l][2], time)]
-              routes = routes + [a.location.routes[l][1]]
-          #print("FixedRoute Weights", a.location.name, weights, routes, file=sys.stderr)
-      else:
-          for k, e in enumerate(a.location.links):
-              wgt, rts = calculateLinkWeight(
-                   a,
-                   link=e,
-                   prior_distance=0.0,
-                   origin_names=[a.location.name],
-                   step=1,
-                   time=time,
-                   debug=debug,
-              )
-              weights = weights + wgt
-              routes = routes + rts
+  if SimulationSettings.move_rules["FixedRoutes"] is True:
+      for l in a.location.routes.keys():
+          weights = weights + [a.location.routes[l][0] * getEndPointScore(a, a.location.routes[l][2], time)]
+          routes = routes + [a.location.routes[l][1]]
+      #print("FixedRoute Weights", a.location.name, weights, routes, file=sys.stderr)
+  else:
+      for k, e in enumerate(a.location.links):
+          wgt, rts = calculateLinkWeight(
+               a,
+               link=e,
+               prior_distance=0.0,
+               origin_names=[a.location.name],
+               step=1,
+               time=time,
+               debug=debug,
+          )
+          weights = weights + wgt
+          routes = routes + rts
 
-          if return_all_routes is True:
-              return weights, routes
-          if debug is True:
-              print("selectRoute: ",routes, weights, file=sys.stderr)
+      if return_all_routes is True:
+          return weights, routes
+      if debug is True:
+          print("selectRoute: ",routes, weights, file=sys.stderr)
           
-          #Last step: delete origin from suggested routes.
-          for i in range(0, len(routes)):
-              routes[i] = routes[i][1:]
+      #Last step: delete origin from suggested routes.
+      for i in range(0, len(routes)):
+          routes[i] = routes[i][1:]
 
-          # Apply pruning (now influenced by System 2 parameters if active)
-          weights, routes = pruneRoutes(weights, routes)
+      # Apply pruning (now influenced by System 2 parameters if active)
+      weights, routes = pruneRoutes(weights, routes)
           
-  finally:
+  if SimulationSettings.move_rules["TwoSystemDecisionMaking"] and system2_active:
       # Always restore original parameters if they were modified
-      if system2_active and original_params:
-          SimulationSettings.move_rules["AwarenessLevel"] = original_params['awareness_level']
-          SimulationSettings.move_rules["WeightSoftening"] = original_params['weight_softening']
-          SimulationSettings.move_rules["DistancePower"] = original_params['distance_power']
-          SimulationSettings.move_rules["PruningThreshold"] = original_params['pruning_threshold']
+      SimulationSettings.move_rules["AwarenessLevel"] = original_params['awareness_level']
+      SimulationSettings.move_rules["WeightSoftening"] = original_params['weight_softening']
+      SimulationSettings.move_rules["DistancePower"] = original_params['distance_power']
+      SimulationSettings.move_rules["PruningThreshold"] = original_params['pruning_threshold']
 
   route = chooseFromWeights(weights=weights, routes=routes)
   

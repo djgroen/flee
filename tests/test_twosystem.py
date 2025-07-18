@@ -150,33 +150,8 @@ def test_days_in_location_tracking():
         
 
 if __name__ == "__main__":
-    print("Running Unit Tests for System 1/System 2 Integration")
-    print("=" * 50)
+    test_social_connectivity_crowded_area():
+    test_social_connectivity_isolated_area():
+    test_system2_quick():
+    test_days_in_location_tracking():
     
-    tests_passed = 0
-    total_tests = 0
-    
-    # Run each test
-    total_tests += 1
-    if test_social_connectivity_crowded_area():
-        tests_passed += 1
-    
-    total_tests += 1  
-    if test_social_connectivity_isolated_area():
-        tests_passed += 1
-        
-    total_tests += 1
-    if test_system2_quick():
-        tests_passed += 1
-    
-    total_tests += 1
-    if test_days_in_location_tracking():
-        tests_passed += 1
-    
-    print("=" * 50)
-    print(f"Tests passed: {tests_passed}/{total_tests}")
-    
-    if tests_passed == total_tests:
-        print("All unit tests passed!")
-    else:
-        print("Some tests failed :(")

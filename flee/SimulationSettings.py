@@ -169,6 +169,8 @@ class SimulationSettings:
             else:
               SimulationSettings.spawn_rules["displaced_per_conflict_day"] = int(fetchss(dpsc,"displaced_per_conflict_day", 500))
 
+        # Social connectivity (for TwoSystemDecisionMaking)
+        SimulationSettings.spawn_rules["AverageSocialConnectivity"] = float(fetchss(dps, "average_social_connectivity", 3.0))
 
         # Setting False by default.
         SimulationSettings.move_rules["FloodRulesEnabled"] = False
@@ -293,6 +295,10 @@ class SimulationSettings:
         # Flee 3+ Fixed Location Routes
         SimulationSettings.move_rules["FixedRoutes"] = bool(fetchss(dpr,"fixed_routes",False))
         print(f"INFO: Fixed Route Generation for Locations: {SimulationSettings.move_rules['FixedRoutes']}", file=sys.stderr)
+
+        # Enable / Disable System 2 logic
+        SimulationSettings.move_rules["TwoSystemDecisionMaking"] = float(fetchss(dpr,"two_system_decision_making", False))
+
 
         # DFlee Flood Location Move rules
         dpf = fetchss(dpr, "flood_rules", None)
