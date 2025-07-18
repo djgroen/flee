@@ -10,7 +10,8 @@ def test_social_connectivity_crowded_area():
     print("Testing: Social connectivity in crowded areas")
     
     flee.SimulationSettings.ReadFromYML("test_data/test_settings.yml")
-    
+    flee.SimulationSettings.move_rules["TwoSystemDecisionMaking"] = True
+
     # Create a simple agent
     agent_attributes = {"connections": 2}
     agent = flee.Person(None, agent_attributes)  # No location needed yet
@@ -41,6 +42,7 @@ def test_social_connectivity_isolated_area():
     print("Testing: Social connectivity in isolated areas")
     
     flee.SimulationSettings.ReadFromYML("test_data/test_settings.yml")
+    flee.SimulationSettings.move_rules["TwoSystemDecisionMaking"] = True
     
     agent_attributes = {"connections": 5}
     agent = flee.Person(None, agent_attributes)
@@ -132,6 +134,7 @@ def test_days_in_location_tracking():
     print("Testing: Days in location tracking")
     
     flee.SimulationSettings.ReadFromYML("test_data/test_settings.yml")
+    flee.SimulationSettings.move_rules["TwoSystemDecisionMaking"] = True
     
     # Create agent
     agent_attributes = {"connections": 3}
