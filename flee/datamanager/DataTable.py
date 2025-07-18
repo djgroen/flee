@@ -426,6 +426,7 @@ class DataTable:
             print(f"Data table contains the following: {ref_table}.", file=sys.stderr)
             print("Please double check the formatting of all your CSV files in the source_data subdirectory.", file=sys.stderr)
             sys.exit()
+
         # print(ref_table[0][self.days_column])
         old_day = ref_table[0, self.days_column]
         if day <= old_day:

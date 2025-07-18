@@ -324,7 +324,7 @@ def chooseFromWeights(weights, routes):
 
 
 @check_args_type
-def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
+def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
     """
     Summary:
         Calculates the probability that an agent will move this step.
@@ -335,16 +335,42 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
         time (int): Current time step.
 
     Returns:
-        movechance (int): Probability that agent will move this step. 
+        movechance (float): Probability that agent will move this step. 
+        system2_active: Whether System 2 thinking is active.
     """
+    system2_active = False
 
-    if a.location.town and ForceTownMove: # called through evolveMore
-        return 1.0
-    else: # called first time in loop
+    if SimulationSettings.move_rules["TwoSystemDecisionMaking"] is True:
+        # System 2 Activation Logic
+        conflict_triggered = a.location.conflict > 0.6
+        in_recovery = a.location.time_of_conflict >= 0 and \
+                  time >= a.location.time_of_conflict + 10
+        connected = a.attributes.get("connections", 0) >= 3
+   
+        if conflict_triggered and in_recovery and connected:
+            system2_active = True
+        
+            # Safe access to location name for debugging
+            location_name = getattr(a.location, 'name', 'UnknownLocation')
+            print(f"System 2 activated: Agent at {location_name} (connections: {a.attributes.get('connections', 0)}) at time {time}", file=sys.stderr)
+
+            provisional_route = selectRoute(a, time)
+            if len(provisional_route) == 0:
+                return 0.0, True  # suppress move if no viable route
+            else:
+                a.attributes["_temp_route"] = provisional_route
+            # For System 2, always return 1.0 (100% chance to initiate movement decision)
+            return 1.0, system2_active
+
+    # If System 2 is not active, calculate standard System 1 move chance
+    if a.location.town and ForceTownMove:  # called through evolve
+        return 1.0, system2_active
+    else:  # called first time in loop
         movechance = a.location.movechance
-        # Population-based scaling
+
         movechance *= (float(max(a.location.pop, a.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
 
+    # flood
     # DFlee Flood Location Movechance implementation:
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         #Get the current flood level of the agents location, if flood level not set in flood_level.csv then default to zero
@@ -359,17 +385,23 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
         #Flooding Forecaster Location Weight Implementation:
         if SimulationSettings.move_rules["FloodForecaster"] is True:
 
-          #Get the forecast timescale e.g. 5 day weather forecast
-          forecast_timescale = SimulationSettings.move_rules["FloodForecasterTimescale"]
+            #Get the forecast timescale e.g. 5 day weather forecast
+            forecast_timescale = SimulationSettings.move_rules["FloodForecasterTimescale"]
 
-          #Get the forecast length e.g. only know the forecast until day 7
-          forecast_end_time = SimulationSettings.move_rules["FloodForecasterEndTime"] 
+            #Get the forecast length e.g. only know the forecast until day 7
+            forecast_end_time = SimulationSettings.move_rules["FloodForecasterEndTime"] 
 
-          # If there is a forecast timescale and endtime are set
-          # If forecast_timescale is greater than 1 and the current time step is less than the forecast end time
-          if forecast_timescale is not None:
-            if forecast_end_time is not None:
-              if (forecast_timescale > 1.0) and (time <= forecast_end_time): 
+            # If there is a forecast timescale and endtime are set
+            # If forecast_timescale is greater than 1 and the current time step is less than the forecast end time
+            if forecast_timescale is None:
+                print("ERROR: flood_forecaster_timescale is not set in simsetting.yml", file=sys.stderr)
+                sys.exit()
+            if forecast_end_time is None:
+                print("ERROR: flood_forecaster_endtime is not set in simsetting.yml", file=sys.stderr)
+                sys.exit()
+
+
+            if (forecast_timescale > 1.0) and (time <= forecast_end_time): 
                 
                 #Set the base forecast value
                 flood_forecast_base = 0.0 #no forecast, no flooding 
@@ -402,18 +434,18 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
 
                     # if it's not zero, then we need to modify the base forecast value, otherwise leave the base as it will zero.
                     if forecast_flood_level > 0.0: 
-                      #get the endpoint locations current flood level weight based on that flood level.
-                      forecast_flood_level_weight = float(SimulationSettings.move_rules["FloodLocWeights"][forecast_flood_level]) 
+                        #get the endpoint locations current flood level weight based on that flood level.
+                        forecast_flood_level_weight = float(SimulationSettings.move_rules["FloodLocWeights"][forecast_flood_level]) 
                       
-                      #get the current flood forecaster weight e.g. how important the current day is in the forecast
-                      flood_forecaster_weight = float(SimulationSettings.move_rules["FloodForecasterWeights"][forecast_day])
+                        #get the current flood forecaster weight e.g. how important the current day is in the forecast
+                        flood_forecaster_weight = float(SimulationSettings.move_rules["FloodForecasterWeights"][forecast_day])
                     
-                      #modify the flood_forecast_base using the flood level on the current day and the imporatance of the current day in the forecast loop
-                      flood_forecast_base += forecast_flood_level_weight * flood_forecaster_weight
+                        #modify the flood_forecast_base using the flood level on the current day and the imporatance of the current day in the forecast loop
+                        flood_forecast_base += forecast_flood_level_weight * flood_forecaster_weight
 
                     #break the loop if we've reached the end of the forecast data 
                     if forecast_day == forecast_end_time:
-                      break
+                        break
 
                 #the flood_forecast_base now represents the total weight of the flooding during the forecast for the endpoint location,
                 # this needed to be divided by the total number of days in the forecast to get the average weight based on the severity and relative imporatance of the forecasted days
@@ -427,12 +459,7 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> float:
                 # Make the flood_forecast_base effect the actual base score
                 movechance *= flood_forecast_movechance  
                   
-            else:
-                print("WARNING: flood_forecaster_endtime is not set in simsetting.yml", file=sys.stderr)
-          else:
-              print("WARNING: flood_forecaster_timescale is not set in simsetting.yml", file=sys.stderr)
-
-    return movechance
+    return movechance, system2_active 
 
 
 def check_routes(weights, routes, label):
@@ -467,25 +494,40 @@ def pruneRoutes(weights, routes):
 
 
 @check_args_type
-def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = False):
+def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = False, system2_active: bool = False):
   """
   Summary:
       Selects a route for an agent to move to.
-
   Args:
     a: Agent
     time (int): Current time
     debug (bool, optional): Whether to print debug information. Defaults to False.
-
+    return_all_routes (bool, optional): Whether to return all routes. Defaults to False.
+    system2_active (bool, optional): Whether the agent's System 2 thinking is active. Defaults to False.
   Returns:
       int: Index of the chosen route
   """
   weights = []
   routes = []
-
+  
   if SimulationSettings.move_rules["AwarenessLevel"] == 0:
       linklen = len(a.location.links)
       return [np.random.randint(0, linklen)]
+
+  # Store original parameters for System 2 modification
+  original_params = {}
+  if SimulationSettings.move_rules["TwoSystemDecisionMaking"] and system2_active:
+      # Store original values
+      original_params['awareness_level'] = SimulationSettings.move_rules["AwarenessLevel"]
+      original_params['weight_softening'] = SimulationSettings.move_rules["WeightSoftening"]
+      original_params['distance_power'] = SimulationSettings.move_rules["DistancePower"]
+      original_params['pruning_threshold'] = SimulationSettings.move_rules["PruningThreshold"]
+      
+      # Set System 2 parameters (more deliberative thinking)
+      SimulationSettings.move_rules["AwarenessLevel"] = min(3, original_params['awareness_level'] + 1)  # Higher awareness
+      SimulationSettings.move_rules["WeightSoftening"] = 0.0  # Less randomness, more deliberate
+      SimulationSettings.move_rules["DistancePower"] = 1.2  # Slightly more distance-sensitive
+      SimulationSettings.move_rules["PruningThreshold"] = 1.5  # Less aggressive pruning (consider more options)
 
   if SimulationSettings.move_rules["FixedRoutes"] is True:
       for l in a.location.routes.keys():
@@ -503,7 +545,6 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
                time=time,
                debug=debug,
           )
-
           weights = weights + wgt
           routes = routes + rts
 
@@ -511,23 +552,30 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
           return weights, routes
       if debug is True:
           print("selectRoute: ",routes, weights, file=sys.stderr)
-
+          
       #Last step: delete origin from suggested routes.
       for i in range(0, len(routes)):
           routes[i] = routes[i][1:]
 
+      # Apply pruning (now influenced by System 2 parameters if active)
       weights, routes = pruneRoutes(weights, routes)
+          
+  if SimulationSettings.move_rules["TwoSystemDecisionMaking"] and system2_active:
+      # Always restore original parameters if they were modified
+      SimulationSettings.move_rules["AwarenessLevel"] = original_params['awareness_level']
+      SimulationSettings.move_rules["WeightSoftening"] = original_params['weight_softening']
+      SimulationSettings.move_rules["DistancePower"] = original_params['distance_power']
+      SimulationSettings.move_rules["PruningThreshold"] = original_params['pruning_threshold']
 
   route = chooseFromWeights(weights=weights, routes=routes)
-
+  
   if route == None:
       print("WARNING: Empty route (None type) generated in selectRoute.", file=sys.stderr)
       print(f"Location: {a.location.name}, {weights}, {routes}", file=sys.stderr)
-      #sys.exit()
+      return []
   elif len(route) == 0:
       print(f"ERROR: Empty route {route} generated in selectRoute.", file=sys.stderr)
       sys.exit()
-  #print("route chosen:", route)
-
+  
   return route
 

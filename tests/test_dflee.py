@@ -318,8 +318,6 @@ def test_agent_flood_awareness():
             lm["F"].numAgents,
         )
 
-        e.evolve()  
-
         #Check the flood level attributes at t=0
         if t == 0:
             #Check the flood level at flood zones A and B
@@ -354,6 +352,9 @@ def test_agent_flood_awareness():
             assert e.agents[4].attributes["floodawareness"] == 1.0
             assert e.agents[5].location.name == "E"
             assert e.agents[5].attributes["floodawareness"] == 1.0
+
+        e.evolve()  
+
 
     #Check flood forecaster is calculating the correct base score
     #Choose a day, e.g. day 4, and a location, flood zone A, and calcualted the flood move chance based on different flood awareness levels
