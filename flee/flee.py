@@ -73,9 +73,8 @@ class Person:
         self.distance_travelled_on_link = 0
     
         # Initialize attributes dictionary and ensure "connections" is set
-        self.attributes = attributes
-        self.attributes["connections"] = attributes.get("connections", 0)
-    
+        self.attributes = {"connections":0}.update(attributes)
+        
         self.route = []
         
         # System 1/System 2 tracking attributes
