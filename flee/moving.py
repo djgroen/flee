@@ -365,6 +365,8 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
     # If System 2 is not active, calculate standard System 1 move chance
     if a.location.town and ForceTownMove:  # called through evolve
         return 1.0, system2_active
+    elif len(a.route) > 0: #If a route with destination is known, the agent will continue to follow it.
+        return 1.0, system2_active
     else:  # called first time in loop
         movechance = a.location.movechance
 
