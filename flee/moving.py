@@ -529,7 +529,7 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
       SimulationSettings.move_rules["AwarenessLevel"] = min(3, original_params['awareness_level'] + 1)  # Higher awareness
       SimulationSettings.move_rules["WeightSoftening"] = 0.0  # Less randomness, more deliberate
       SimulationSettings.move_rules["DistancePower"] = 1.2  # Slightly more distance-sensitive
-      SimulationSettings.move_rules["PruningThreshold"] = 1.5  # Less aggressive pruning (consider more options)
+      SimulationSettings.move_rules["PruningThreshold"] = 1.0  # Pruning is disable (just to be sure).
 
   if SimulationSettings.move_rules["FixedRoutes"] is True:
       for l in a.location.routes.keys():
