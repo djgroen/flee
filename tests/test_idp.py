@@ -4,7 +4,7 @@ from flee.datamanager import handle_refugee_data
 
 def test_idp_escape():
 
-    flee.SimulationSettings.ReadFromYML("empty.yml")
+    flee.SimulationSettings.ReadFromYML("test_data/test_data_idp/simsetting.yml")
 
     flee.SimulationSettings.move_rules["MaxMoveSpeed"] = 5000.0
     flee.SimulationSettings.move_rules["MaxWalkSpeed"] = 5000.0
@@ -57,7 +57,7 @@ def test_idp_escape():
 
 def test_idp_escape_start_empty():
 
-    flee.SimulationSettings.ReadFromYML("empty.yml")
+    flee.SimulationSettings.ReadFromYML("test_data/test_data_idp/simsetting.yml")
 
     flee.SimulationSettings.move_rules["MaxMoveSpeed"] = 5000.0
     flee.SimulationSettings.move_rules["MaxWalkSpeed"] = 5000.0

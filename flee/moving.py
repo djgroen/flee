@@ -4,6 +4,7 @@ import numpy as np
 import random
 from beartype.typing import List, Optional, Tuple
 from flee.SimulationSettings import SimulationSettings
+import flee.spawning as spawning
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type

@@ -1,3 +1,8 @@
+move_rules:
+  MatchCampEthnicity: True
+  MatchTownEthnicity: True
+  MatchConflictEthnicity: False
+
 optimisations:
   hasten: 5
-
+    
