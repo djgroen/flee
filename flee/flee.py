@@ -860,6 +860,7 @@ class Ecosystem:
         self.closures = []  # format [type, source, dest, start, end]
         self.time = 0
         self.print_location_output = True  # print location output data
+        self.test_prefix = "" # Should be empty unless testing demographics.
 
         # FLEE3 does not have a conflict zone list, and spawn weights cover all locations.
         self.spawn_weights = np.array([])

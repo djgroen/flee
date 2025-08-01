@@ -128,13 +128,16 @@ def read_demographics(e):
   Returns:
       None.
   """
-  if not os.path.exists("input_csv"):
+  if not os.path.exists(f"{e.test_prefix}/input_csv"):
       return
 
-  csv_list = glob.glob(os.path.join("input_csv","demographics_*.csv"))
+  csv_list = glob.glob(os.path.join(e.test_prefix, "input_csv","demographics_*.csv"))
+
+  print("Reading demographics information", file=sys.stderr)
 
   for csvname in csv_list:
       read_demographic_csv(e, csvname)
+      print(f"demographics file:{csvname}", file=sys.stderr)
   
 
 def draw_sample(e, loc, attribute):
@@ -199,6 +202,7 @@ def add_initial_refugees(e, d, loc):
   global __demographics
   # Only initialize demographics when first called.
   if len(__demographics) == 0:
+      print("Read demographics.", file=sys.stderr)
       read_demographics(e)
 
   if SimulationSettings.spawn_rules["EmptyCampsOnDay0"] is True:
