@@ -1,8 +1,8 @@
-#"name","region","country","lat","lon","location_type","conflict_date","population"
-"A","AB","ABC",1.0,1.0,"conflict_zone",0,200000000
-"B","AB","ABC",1.0,1.0,"conflict_zone",10,1000000000
-"C","C","ABC",1.0,1.0,"town",0,
-"C2","C","ABC",1.0,1.0,"town",0,
-"D","D","DEF",1.0,1.0,"camp",,30000
-"E","EF","DEF",1.0,1.0,"camp",,20000
-"F","EF","DEF",1.0,1.0,"camp",,10000
+#name,region,country,lat,lon,location_type,conflict_date,population,ethntypeA,ethntypeB
+A,AB,ABC,1.0,1.0,conflict_zone,0,20000,19000,1000
+B,AB,ABC,1.0,1.0,conflict_zone,10,10000,1000,9000
+C,C,ABC,1.0,1.0,town,10000,2000,8000
+C2,C,ABC,1.0,1.0,town,10000,5000,5000
+D,D,DEF,1.0,1.0,camp,,30000,30000,0
+E,EF,DEF,1.0,1.0,camp,,20000,10000,10000
+F,EF,DEF,1.0,1.0,camp,,10000,0,10000
