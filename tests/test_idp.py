@@ -37,7 +37,7 @@ def test_idp():
     camp_locations = ["D", "E", "F"]
     # TODO: Add Camps from CSV based on their location type.
 
-    e.test_prefix = "test_data/test_data_idp"
+    e.demographics_test_prefix = "test_data/test_data_idp"
 
     for camp_name in camp_locations:
         spawning.add_initial_refugees(e, d, lm[camp_name])

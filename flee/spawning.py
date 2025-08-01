@@ -128,10 +128,10 @@ def read_demographics(e):
   Returns:
       None.
   """
-  if not os.path.exists(f"{e.test_prefix}/input_csv"):
+  if not os.path.exists(f"{e.demographics_test_prefix}/input_csv"):
       return
 
-  csv_list = glob.glob(os.path.join(e.test_prefix, "input_csv","demographics_*.csv"))
+  csv_list = glob.glob(os.path.join(e.demographics_test_prefix, "input_csv","demographics_*.csv"))
 
   print("Reading demographics information", file=sys.stderr)
 
