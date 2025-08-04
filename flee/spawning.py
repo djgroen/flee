@@ -36,6 +36,10 @@ def getAttributeRatio(location, attr_name):
     if float(location.pop) < 1.0:
         pop = 100000000 #default to enormous pop to eliminate ethnicity bonus.
 
+    if attr_name not in location.attributes:
+        print(f"ERROR: Attribute name {attr_name} was missing for at least one location in the locations.csv file. Perhaps some of the CSV columns are misaligned or missing?", file=sys.stderr)
+        sys.exit()
+
     return float(location.attributes[attr_name]) / pop
 
 

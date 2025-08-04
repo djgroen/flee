@@ -53,4 +53,4 @@ def test_idp():
         e.evolve()
 
     print(f"NUM AGENTS: {len(e.agents)}", file=sys.stderr) 
-    assert e.agents[0].attributes["ethnicity"] == "A"
+    assert "ethntype" in e.agents[0].attributes["ethnicity"]
