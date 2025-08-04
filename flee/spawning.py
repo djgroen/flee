@@ -32,7 +32,11 @@ def getAttributeRatio(location, attr_name):
     Returns:
         float: Ratio of attribute value to maximum attribute value in the location.
     """
-    return location.attributes[attr_name] / float(location.pop)
+    pop = location.pop
+    if float(location.pop) < 1.0:
+        pop = 100000000 #default to enormous pop to eliminate ethnicity bonus.
+
+    return float(location.attributes[attr_name]) / pop
 
 
 def refresh_spawn_weights(e):
