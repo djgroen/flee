@@ -401,6 +401,7 @@ class Ecosystem(flee.Ecosystem):
         self.closures = []  # format [type, source, dest, start, end]
         self.time = 0
         self.print_location_output = False
+        self.demographics_test_prefix = "" # Should be empty unless testing demographics.
         self.mpi = MPIManager()
 
         if self.getRankN(0):
