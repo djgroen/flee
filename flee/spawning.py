@@ -98,7 +98,7 @@ def read_demographic_csv(e, csvname):
   Returns:
         None.
   """
-  attribute = (csvname.split(os.sep)[1].split('.')[0]).split('_')[1]
+  attribute = (csvname.split(os.sep)[-1].split('.')[0]).split('_')[1]
 
   if not os.path.exists(csvname):
       return
@@ -106,6 +106,7 @@ def read_demographic_csv(e, csvname):
   df = pd.read_csv(csvname)
 
   if SimulationSettings.log_levels["init"] > -1:
+    print(csvname, file=sys.stderr)
     print("INFO: ", attribute, " attributes loaded, with columns:", df.columns, file=sys.stderr)
   
   __demographics[attribute] = df
