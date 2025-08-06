@@ -5,6 +5,7 @@ import random
 from beartype.typing import List, Optional, Tuple
 from flee.SimulationSettings import SimulationSettings
 import flee.spawning as spawning
+import flee.demographics as demographics
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
@@ -137,15 +138,15 @@ def getEndPointScore(agent, endpoint, time) -> float:
 
     if endpoint.camp is True:
         if SimulationSettings.move_rules["MatchCampEthnicity"]:
-            base *= (spawning.getAttributeRatio(endpoint, agent.attributes["ethnicity"]) * 10.0)
+            base *= (demographics.get_attribute_ratio(endpoint, agent.attributes["ethnicity"]) * 10.0)
     elif endpoint.conflict > 0.0:
         if SimulationSettings.move_rules["MatchConflictEthnicity"]:
-            base *= (spawning.getAttributeRatio(endpoint, agent.attributes["ethnicity"]) * 10.0)
+            base *= (demographics.get_attribute_ratio(endpoint, agent.attributes["ethnicity"]) * 10.0)
         if SimulationSettings.move_rules["UsePopForLocWeight"]:
             base *= max(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
     else:
         if SimulationSettings.move_rules["MatchTownEthnicity"]:
-            base *= (spawning.getAttributeRatio(endpoint, agent.attributes["ethnicity"]) * 10.0)
+            base *= (demographics.get_attribute_ratio(endpoint, agent.attributes["ethnicity"]) * 10.0)
         if SimulationSettings.move_rules["UsePopForLocWeight"]:
             base *= max(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
 

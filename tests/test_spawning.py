@@ -1,4 +1,4 @@
-from flee import flee, spawning
+from flee import flee, spawning, demographics
 from flee.datamanager import handle_refugee_data
 
 
@@ -21,5 +21,5 @@ def test_get_attribute_ratio():
     l1.pop = 1000
     l1.attributes["british"] = 20
 
-    assert spawning.getAttributeRatio(l1, "british") == 0.02
+    assert demographics.get_attribute_ratio(l1, "british") == 0.02
 

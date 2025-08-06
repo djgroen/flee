@@ -1,4 +1,5 @@
 from flee.SimulationSettings import SimulationSettings
+import flee.demographics as demographics
 import numpy as np
 import sys
 import os
@@ -16,31 +17,6 @@ else:
 
 __refugees_raw = 0
 __refugee_debt = 0
-
-__demographics = {}
-
-
-def getAttributeRatio(location, attr_name):
-    """
-    Summary:
-        Returns the ratio of the attribute value to the maximum value of the attribute in the location.
-    
-    Args:
-        location (Location): Location object
-        attr_name (str): Attribute name
-    
-    Returns:
-        float: Ratio of attribute value to maximum attribute value in the location.
-    """
-    pop = location.pop
-    if float(location.pop) < 1.0:
-        pop = 100000000 #default to enormous pop to eliminate ethnicity bonus.
-
-    if attr_name not in location.attributes:
-        print(f"ERROR: Attribute name {attr_name} was missing for at least one location in the locations.csv file. Perhaps some of the CSV columns are misaligned or missing?", file=sys.stderr)
-        sys.exit()
-
-    return float(location.attributes[attr_name]) / pop
 
 
 def refresh_spawn_weights(e):
@@ -88,112 +64,6 @@ def refresh_spawn_weights(e):
     e.spawn_weight_total = sum(e.spawn_weights)
 
 
-def read_demographic_csv(e, csvname):
-  """
-  Summary:
-        Reads a CSV file containing demographic information for a location.
-        The CSV file should be named "demographics_<attribute>.csv".
-        The attribute name is extracted from the filename.
-        The CSV file should be located in the input_csv directory.
-        Attribute CSV files have the following format:
-        Value,Default,LocA,LocB,...
-        ValueA,weight for that value by Default, ...
-
-  Args:
-        e (Ecosystem): Ecosystem object
-        csvname (str): Name of the CSV file to read.
-
-  Returns:
-        None.
-  """
-  attribute = (csvname.split(os.sep)[-1].split('.')[0]).split('_')[1]
-
-  if not os.path.exists(csvname):
-      return
-
-  df = pd.read_csv(csvname)
-
-  if SimulationSettings.log_levels["init"] > -1:
-    print(csvname, file=sys.stderr)
-    print("INFO: ", attribute, " attributes loaded, with columns:", df.columns, file=sys.stderr)
-  
-  __demographics[attribute] = df
-
-
-def read_demographics(e):
-  """
-  Summary:
-      Reads all CSV files containing demographic information for a location.
-      The CSV files should be named "demographics_<attribute>.csv".
-      The attribute name is extracted from the filename.
-      The CSV files should be located in the input_csv directory.
-      Attribute CSV files have the following format:
-      Value,Default,LocA,LocB,...R
-      ValueA,weight for that value by Default, ...
-
-  Args:
-      e (Ecosystem): Ecosystem object
-
-  Returns:
-      None.
-  """
-  if not os.path.exists(f"{e.demographics_test_prefix}/input_csv"):
-      return
-
-  csv_list = glob.glob(os.path.join(e.demographics_test_prefix, "input_csv","demographics_*.csv"))
-
-  print("Reading demographics information", file=sys.stderr)
-
-  for csvname in csv_list:
-      read_demographic_csv(e, csvname)
-      print(f"demographics file:{csvname}", file=sys.stderr)
-  
-
-def draw_sample(e, loc, attribute):
-  """
-  Summary:
-      Draw a sample from the attribute distribution for a location.
-      If the attribute is not found, return -1.
-
-  Args:
-      e (Ecosystem): Ecosystem object
-      loc (Location): Location object
-      attribute (str): Attribute name
-
-  Returns:
-      float: Sample from the attribute distribution.
-  """
-  #print(__demographics[attribute], file=sys.stderr)
-  #print(__demographics[attribute].iloc[0]['Default'], file=sys.stderr)
-  if attribute in __demographics:
-    if loc.name in __demographics[attribute].columns:
-      a = __demographics[attribute].sample(n=1,weights=loc.name)
-    else:
-      a = __demographics[attribute].sample(n=1,weights='Default')
-  else:
-    return -1
-
-  return a.iloc[0][attribute]
-
-
-def draw_samples(e,loc):
-    """
-    Summary:
-        Draw samples from all optional attributes.
-    
-    Args:
-        e (Ecosystem): Ecosystem object
-        loc (Location): Location object
-    
-    Returns:
-        Dict: Dictionary of attribute names and values.
-    """
-    samples = {}
-    for a in __demographics.keys():
-        samples[a] = draw_sample(e, loc, a)
-    return samples
-
-
 def add_initial_refugees(e, d, loc):
   """
   Summary:
@@ -207,12 +77,8 @@ def add_initial_refugees(e, d, loc):
   Returns:
       None.
   """
-    
-  global __demographics
-  # Only initialize demographics when first called.
-  if len(__demographics) == 0:
-      print("Read demographics.", file=sys.stderr)
-      read_demographics(e)
+
+  demographics.init_demographics(e)
 
   if SimulationSettings.spawn_rules["EmptyCampsOnDay0"] is True:
       return
@@ -224,7 +90,7 @@ def add_initial_refugees(e, d, loc):
 
   num_refugees += int(loc.attributes.get("initial_idps",0))
   for i in range(0, num_refugees):
-      attributes = draw_samples(e, loc)
+      attributes = demographics.draw_samples(e, loc)
       attributes["connections"] = np.random.poisson(SimulationSettings.spawn_rules["AverageSocialConnectivity"])
       e.insertAgent(location=loc, attributes=attributes) # Parallelization is incorporated in the addAgent function.
 
@@ -273,7 +139,7 @@ def spawn_daily_displaced(e, t, d):
 
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):
-            attributes = draw_samples(e, e.locations[i])
+            attributes = demographics.draw_samples(e, e.locations[i])
             attributes["connections"] = np.random.poisson(SimulationSettings.spawn_rules["AverageSocialConnectivity"])
             e.addAgent(location=e.locations[i], attributes=attributes) # Parallelization is incorporated in the addAgent function.
 
@@ -301,7 +167,7 @@ def spawn_daily_displaced(e, t, d):
 
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):
-            attributes = draw_samples(e, e.locations[i])
+            attributes = demographics.draw_samples(e, e.locations[i])
             attributes["connections"] = np.random.poisson(SimulationSettings.spawn_rules["AverageSocialConnectivity"])
             e.addAgent(location=e.locations[i], attributes=attributes) # Parallelization is incorporated in the addAgent function.
 
@@ -336,7 +202,7 @@ def spawn_daily_displaced(e, t, d):
       #Insert refugee agents
       locs = e.pick_spawn_locations(new_refs)
       for i in range(0, new_refs):
-        attributes = draw_samples(e, locs[i])
+        attributes = demographics.draw_samples(e, locs[i])
         attributes["connections"] = np.random.poisson(SimulationSettings.spawn_rules["AverageSocialConnectivity"])
         e.addAgent(location=locs[i], attributes=attributes) 
 
@@ -358,7 +224,7 @@ def spawn_agents(e, number):
     #Insert refugee agents
     for i in range(0, number):
         loc = e.pick_spawn_location()
-        attributes = draw_samples(e, loc)
+        attributes = demographics.draw_samples(e, loc)
         attributes["connections"] = np.random.poisson(SimulationSettings.spawn_rules["AverageSocialConnectivity"])
         e.addAgent(location=loc, attributes=attributes) 
 
