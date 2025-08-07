@@ -409,6 +409,14 @@ class Ecosystem(flee.Ecosystem):
 
         self.cur_loc_id = 0
         self.scores_per_location = 2
+        if SimulationSettings.move_rules["MatchCampReligion"] is True:
+            num_religions = 3
+            self.scores_per_location += num_religions
+        if (SimulationSettings.move_rules["MatchCampEthnicity"] or 
+            SimulationSettings.move_rules["MatchTownEthnicity"] or 
+            SimulationSettings.move_rules["MatchConflictEthnicity"]) is True:
+            num_ethnicities = 2
+            self.scores_per_location += num_ethnicities
 
         # Bring conflict zone management into FLEE.
         self.spawn_weights = np.array([])

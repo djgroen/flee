@@ -1,6 +1,8 @@
 from flee import flee, spawning, demographics
 from flee.datamanager import handle_refugee_data
 
+#TODO: expand testing suite.
+
 
 def test_get_attribute_ratio():
     flee.SimulationSettings.ReadFromYML("empty.yml")

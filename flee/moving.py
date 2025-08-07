@@ -139,6 +139,8 @@ def getEndPointScore(agent, endpoint, time) -> float:
     if endpoint.camp is True:
         if SimulationSettings.move_rules["MatchCampEthnicity"]:
             base *= (demographics.get_attribute_ratio(endpoint, agent.attributes["ethnicity"]) * 10.0)
+        if SimulationSettings.move_rules["MatchCampReligion"]:
+            base *= (demographics.get_attribute_ratio(endpoint, agent.attributes["religion"]) * SimulationSettings.move_rules["ReligionBaseRate"])
     elif endpoint.conflict > 0.0:
         if SimulationSettings.move_rules["MatchConflictEthnicity"]:
             base *= (demographics.get_attribute_ratio(endpoint, agent.attributes["ethnicity"]) * 10.0)
