@@ -71,6 +71,9 @@ def _read_demographic_csv(e, csvname):
   __demographics[attribute] = df
 
 
+def get_attribute_values(attribute):
+    return __demographics[attribute][attribute].to_list()
+
 def read_demographics(e):
   """
   Summary:
