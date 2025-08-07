@@ -180,7 +180,6 @@ class InputGeography:
                     if len(row) > 8:
                         # First 8 columns have hard-coded names, other columns can be added to include custom (static) attributes
                         for i in range(8, len(row)):
-                            print("appending", file=sys.stderr)
                             columns.append(row[i])
                         self.columns = columns
                     print("header", columns, row, len(row), file=sys.stderr)
