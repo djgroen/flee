@@ -6,7 +6,7 @@ from functools import wraps
 from typing import List, Optional
 
 import numpy as np
-from flee import flee,scoring,spawning,crawling
+from flee import flee,scoring,spawning,crawling,demographics
 from flee.Diagnostics import write_agents_par,write_links_par
 from flee.SimulationSettings import SimulationSettings
 from mpi4py import MPI
@@ -403,6 +403,7 @@ class Ecosystem(flee.Ecosystem):
         self.print_location_output = False
         self.demographics_test_prefix = "" # Should be empty unless testing demographics.
         self.mpi = MPIManager()
+        self.demographics_list = []
 
         if self.getRankN(0):
             print("Creating Flee Ecosystem.", file=sys.stderr)
@@ -410,12 +411,14 @@ class Ecosystem(flee.Ecosystem):
         self.cur_loc_id = 0
         self.scores_per_location = 2
         if SimulationSettings.move_rules["MatchCampReligion"] is True:
-            num_religions = 3
+            num_religions = len(demographics.get_attribute_values("religion"))
+            self.demographics_list += "religion"
             self.scores_per_location += num_religions
         if (SimulationSettings.move_rules["MatchCampEthnicity"] or 
             SimulationSettings.move_rules["MatchTownEthnicity"] or 
             SimulationSettings.move_rules["MatchConflictEthnicity"]) is True:
-            num_ethnicities = 2
+            num_ethnicities = len(demographics.get_attribute_values("ethnicity"))
+            self.demographics_list += "ethnicity"
             self.scores_per_location += num_ethnicities
 
         # Bring conflict zone management into FLEE.
