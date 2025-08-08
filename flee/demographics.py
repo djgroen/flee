@@ -8,14 +8,6 @@ import glob
 __demographics = {}
 
 
-def init_demographics(e):
-    global __demographics
-    if len(__demographics) == 0:
-        print("Read demographics.", file=sys.stderr)
-        read_demographics(e)
-
-
-
 def get_attribute_ratio(location, attr_name):
     """
     Summary:
@@ -58,6 +50,7 @@ def _read_demographic_csv(e, csvname):
   Returns:
         None.
   """
+  global __demographics
   attribute = (csvname.split(os.sep)[-1].split('.')[0]).split('_')[1]
 
   if not os.path.exists(csvname):
@@ -73,13 +66,13 @@ def _read_demographic_csv(e, csvname):
 
 
 def get_attribute_values(attribute):
-    #print("DEMO: ", __demographics, file=sys.stderr)
-    #print("DEMO-ATTR: ", __demographics[attribute], file=sys.stderr)
-    #print("DEMO-ATTR2: ", __demographics[attribute][attribute].to_list(), file=sys.stderr)
+    print("DEMO: ", __demographics, file=sys.stderr)
+    print("DEMO-ATTR: ", __demographics[attribute], file=sys.stderr)
+    print("DEMO-ATTR2: ", __demographics[attribute][attribute].to_list(), file=sys.stderr)
     return __demographics[attribute][attribute].to_list()
 
 
-def read_demographics(e):
+def init_demographics(e):
   """
   Summary:
       Reads all CSV files containing demographic information for a location.
