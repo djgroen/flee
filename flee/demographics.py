@@ -73,7 +73,11 @@ def _read_demographic_csv(e, csvname):
 
 
 def get_attribute_values(attribute):
+    #print("DEMO: ", __demographics, file=sys.stderr)
+    #print("DEMO-ATTR: ", __demographics[attribute], file=sys.stderr)
+    #print("DEMO-ATTR2: ", __demographics[attribute][attribute].to_list(), file=sys.stderr)
     return __demographics[attribute][attribute].to_list()
+
 
 def read_demographics(e):
   """
@@ -93,11 +97,12 @@ def read_demographics(e):
       None.
   """
   if not os.path.exists(f"{e.demographics_test_prefix}/input_csv"):
+      print(f"WARNING: could not find the directory where input demographic files could reside. Path given is: {e.demographics_test_prefix}/input_csv", file=sys.stderr)
       return
 
   csv_list = glob.glob(os.path.join(e.demographics_test_prefix, "input_csv","demographics_*.csv"))
 
-  print("Reading demographics information", file=sys.stderr)
+  print(f"Reading demographics information from {csv_list}", file=sys.stderr)
 
   for csvname in csv_list:
       _read_demographic_csv(e, csvname)
@@ -153,8 +158,8 @@ def update_demographic_attributes(e, parallel_mode=False):
 
     # Reset the values of all the demographic attributes to 0.
     for l in e.locations:
-        for attribute_value_list in e.demographics_list:
-            for v in attribute_value_list:
+        for attr_name in e.demographics_list:
+            for v in e.demographics_list[attr_name]:
                 l.attributes[v] = 0
 
     # Collect all the attributes

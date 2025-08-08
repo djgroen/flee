@@ -14,7 +14,7 @@ def test_idp():
 
     flee.SimulationSettings.ReadFromYML("test_data/test_data_idp/simsetting.yml")
 
-    e = flee.Ecosystem()
+    e = flee.Ecosystem(demographics_test_prefix="test_data/test_data_idp")
 
     ig = InputGeography.InputGeography()
 
@@ -36,8 +36,6 @@ def test_idp():
 
     camp_locations = ["D", "E", "F"]
     # TODO: Add Camps from CSV based on their location type.
-
-    e.demographics_test_prefix = "test_data/test_data_idp"
 
     for camp_name in camp_locations:
         spawning.add_initial_refugees(e, d, lm[camp_name])

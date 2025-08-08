@@ -383,7 +383,7 @@ class Ecosystem(flee.Ecosystem):
     scores = np.array([1.0, 1.0])
 
     @check_args_type
-    def __init__(self):
+    def __init__(self, demographics_test_prefix=""):
         """
         Summary: 
             Initializes a new Ecosystem object.
@@ -401,7 +401,7 @@ class Ecosystem(flee.Ecosystem):
         self.closures = []  # format [type, source, dest, start, end]
         self.time = 0
         self.print_location_output = False
-        self.demographics_test_prefix = "" # Should be empty unless testing demographics.
+        self.demographics_test_prefix = demographics_test_prefix # Should be empty unless testing demographics.
         self.mpi = MPIManager()
         self.demographics_list = {}
 
@@ -410,6 +410,8 @@ class Ecosystem(flee.Ecosystem):
 
         self.cur_loc_id = 0
         self.scores_per_location = 1
+
+        demographics.init_demographics(self)
         if SimulationSettings.move_rules["MatchCampReligion"] is True:
             religions = demographics.get_attribute_values("religion")
             self.scores_per_location += len(religions)
@@ -434,6 +436,7 @@ class Ecosystem(flee.Ecosystem):
         if SimulationSettings.log_levels["camp"] > 0:
             self.num_arrivals = []  # one element per time step.
             self.travel_durations = []  # one element per time step.
+
 
 
     @check_args_type

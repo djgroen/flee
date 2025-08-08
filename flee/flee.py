@@ -841,7 +841,7 @@ class Ecosystem:
     """
 
     @check_args_type
-    def __init__(self):
+    def __init__(self, demographics_test_prefix=""):
         """
         Summary: 
             Initializes a new Simulation object.
@@ -858,9 +858,10 @@ class Ecosystem:
         self.closures = []  # format [type, source, dest, start, end]
         self.time = 0
         self.print_location_output = True  # print location output data
-        self.demographics_test_prefix = "" # Should be empty unless testing demographics.
+        self.demographics_test_prefix = demographics_test_prefix # Should be empty unless testing demographics.
         self.demographics_list = {} # Dict with all the demographic attributes
 
+        demographics.init_demographics(self)
         if SimulationSettings.move_rules["MatchCampReligion"] is True:
             religions = demographics.get_attribute_values("religion")
             self.demographics_list["religion"] = religions
@@ -876,6 +877,7 @@ class Ecosystem:
         if SimulationSettings.log_levels["camp"] > 0:
             self.num_arrivals = []  # one element per time step.
             self.travel_durations = []  # one element per time step.
+
 
 
     @check_args_type

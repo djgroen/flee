@@ -78,8 +78,6 @@ def add_initial_refugees(e, d, loc):
       None.
   """
 
-  demographics.init_demographics(e)
-
   if SimulationSettings.spawn_rules["EmptyCampsOnDay0"] is True:
       return
 
