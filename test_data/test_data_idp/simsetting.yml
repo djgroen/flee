@@ -2,6 +2,7 @@ move_rules:
   MatchCampEthnicity: True
   MatchTownEthnicity: True
   MatchConflictEthnicity: False
+  MatchCampReligion: True
 
 optimisations:
   hasten: 5

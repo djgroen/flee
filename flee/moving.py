@@ -31,7 +31,7 @@ def getEndPointScore(agent, endpoint, time) -> float:
         base (float): score for the endpoint
     """
     #print(endpoint.name, endpoint.scores)
-    base = endpoint.getScore(1)
+    base = endpoint.getScore(0)
 
     # The base score is derived from the perceived level of safety and security.
     # E.g. Conflict zones have lower scores, camps have higher scores.
@@ -148,6 +148,7 @@ def getEndPointScore(agent, endpoint, time) -> float:
             base *= max(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
     else:
         if SimulationSettings.move_rules["MatchTownEthnicity"]:
+            print(agent.attributes, file=sys.stderr) #TODO: CLEAR DBG
             base *= (demographics.get_attribute_ratio(endpoint, agent.attributes["ethnicity"]) * 10.0)
         if SimulationSettings.move_rules["UsePopForLocWeight"]:
             base *= max(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])

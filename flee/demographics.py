@@ -28,6 +28,7 @@ def get_attribute_ratio(location, attr_name):
     Returns:
         float: Ratio of attribute value to maximum attribute value in the location.
     """
+
     pop = location.pop
     if float(location.pop) < 1.0:
         pop = 100000000 #default to enormous pop to eliminate ethnicity bonus.
@@ -64,9 +65,9 @@ def _read_demographic_csv(e, csvname):
 
   df = pd.read_csv(csvname)
 
-  if SimulationSettings.log_levels["init"] > -1:
-    print(csvname, file=sys.stderr)
-    print("INFO: ", attribute, " attributes loaded, with columns:", df.columns, file=sys.stderr)
+  #if SimulationSettings.log_levels["init"] > -1:
+  print(csvname, file=sys.stderr)
+  print("INFO: ", attribute, " attributes loaded, with columns:", df.columns, file=sys.stderr)
 
   __demographics[attribute] = df
 
@@ -147,3 +148,37 @@ def draw_samples(e,loc):
         samples[a] = _draw_sample(e, loc, a)
     return samples
 
+
+def update_demographic_attributes(e, parallel_mode=False):
+
+    # Reset the values of all the demographic attributes to 0.
+    for l in e.locations:
+        for attribute_value_list in e.demographics_list:
+            for v in attribute_value_list:
+                l.attributes[v] = 0
+
+    # Collect all the attributes
+    if parallel_mode:
+        num_demographic_values = e.scores_per_location - 1
+        for l in e.locations:
+            for i in range(num_demographic_values):
+                Ecosystem.scores[self.id * self.e.scores_per_location + i] = 0
+
+        for a in e.agents:
+            attribute_offset = 0
+            for attribute_name in e.demographics_list.keys():
+                agent_attribute_value = a.attributes[attribute_name]
+                val_index = 0
+                for v in e.demographics_list[attribute_name]:
+                    if agent_attribute_value == v:
+                        break
+                    val_index += 1
+                Ecosystem.scores[self.id * self.e.scores_per_location + attribute_offset + val_index] += 1
+                attribute_offset += len(e.demographics_list[attribute_name])
+        
+        #TODO: Gather and sum all scores and copy them to location attribute values
+    else:
+        for a in e.agents:
+            for attribute_name in e.demographics_list.keys():
+                agent_attribute_value = a.attributes[attribute_name]
+                a.location.attributes[agent_attribute_value] += 1

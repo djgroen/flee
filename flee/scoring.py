@@ -120,8 +120,7 @@ def updateLocationScore(time: int, loc) -> None:
                     print("WARNING: flood_forecaster_timescale is not set in simsetting.yml", file=sys.stderr)
 
 
-    loc.setScore(0, 1.0)
-    loc.setScore(1, score)
+    loc.setScore(0, score)
     # print(time, loc.name,loc.camp,loc.foreign,loc.scores)
 
     if SimulationSettings.move_rules["FixedRoutes"] is True:

@@ -403,23 +403,23 @@ class Ecosystem(flee.Ecosystem):
         self.print_location_output = False
         self.demographics_test_prefix = "" # Should be empty unless testing demographics.
         self.mpi = MPIManager()
-        self.demographics_list = []
+        self.demographics_list = {}
 
         if self.getRankN(0):
             print("Creating Flee Ecosystem.", file=sys.stderr)
 
         self.cur_loc_id = 0
-        self.scores_per_location = 2
+        self.scores_per_location = 1
         if SimulationSettings.move_rules["MatchCampReligion"] is True:
-            num_religions = len(demographics.get_attribute_values("religion"))
-            self.demographics_list += "religion"
-            self.scores_per_location += num_religions
+            religions = demographics.get_attribute_values("religion")
+            self.scores_per_location += len(religions)
+            self.demographics_list["religion"] = religions
         if (SimulationSettings.move_rules["MatchCampEthnicity"] or 
             SimulationSettings.move_rules["MatchTownEthnicity"] or 
             SimulationSettings.move_rules["MatchConflictEthnicity"]) is True:
-            num_ethnicities = len(demographics.get_attribute_values("ethnicity"))
-            self.demographics_list += "ethnicity"
-            self.scores_per_location += num_ethnicities
+            ethnicities = demographics.get_attribute_values("ethnicity")
+            self.scores_per_location += len(ethnicities)
+            self.demographics_list["ethnicity"] = ethnicities
 
         # Bring conflict zone management into FLEE.
         self.spawn_weights = np.array([])
@@ -807,18 +807,17 @@ class Ecosystem(flee.Ecosystem):
 
             # Update all scores three times to ensure code starts with updated
             # scores.
-            for _ in range(0, 3):
-                for i, loc in enumerate(self.locations):
-                    if i % self.mpi.size == self.mpi.rank:
-                        loc.updateAllScores(time=self.time)
+            for i, loc in enumerate(self.locations):
+                if i % self.mpi.size == self.mpi.rank:
+                    loc.updateAllScores(time=self.time)
+            demographics.update_demographic_attributes(self)
 
         if self.parallel_mode == "classic":
-            # update level 1 location scores (2 and 3 are obsolete).
-            # Scores remain perfectly updated in classic mode.
             for loc in self.locations:
                 loc.time = self.time
                 loc.routes = {}
                 scoring.updateLocationScore(self.time, loc)
+                demographics.update_demographic_attributes(self)
 
         elif self.parallel_mode == "loc-par":
             # update scores in reverse order for efficiency.
@@ -835,6 +834,7 @@ class Ecosystem(flee.Ecosystem):
 
             for i in range(offset, offset + num_locs_on_this_rank):
                 self.locations[i].updateAllScores(time=self.time)
+            demographics.update_demographic_attributes(self)
 
             self.synchronize_locations(
                 start_loc_local=offset, end_loc_local=offset + num_locs_on_this_rank

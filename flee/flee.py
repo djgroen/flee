@@ -10,9 +10,7 @@ from typing import List, Optional, Tuple
 import numpy as np
 from flee.Diagnostics import write_agents, write_links
 from flee.SimulationSettings import SimulationSettings
-import flee.moving as moving
-import flee.spawning as spawning
-import flee.scoring as scoring
+from flee import moving, spawning, scoring, demographics
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
@@ -465,7 +463,7 @@ class Location:
             self.camp = True
             self.town = False
 
-        self.scores = np.array([1.0, 1.0, 1.0, 1.0])
+        self.scores = np.array([1.0])
 
         scoring.updateLocationScore(0,self)
 
@@ -778,7 +776,7 @@ class Link:
         Returns:
             float: Description
         """
-        return self.endpoint.scores[1]
+        return self.endpoint.scores[0]
 
 
     @check_args_type
@@ -861,6 +859,16 @@ class Ecosystem:
         self.time = 0
         self.print_location_output = True  # print location output data
         self.demographics_test_prefix = "" # Should be empty unless testing demographics.
+        self.demographics_list = {} # Dict with all the demographic attributes
+
+        if SimulationSettings.move_rules["MatchCampReligion"] is True:
+            religions = demographics.get_attribute_values("religion")
+            self.demographics_list["religion"] = religions
+        if (SimulationSettings.move_rules["MatchCampEthnicity"] or 
+            SimulationSettings.move_rules["MatchTownEthnicity"] or 
+            SimulationSettings.move_rules["MatchConflictEthnicity"]) is True:
+            ethnicities = demographics.get_attribute_values("ethnicity")
+            self.demographics_list["ethnicity"] = ethnicities
 
         # FLEE3 does not have a conflict zone list, and spawn weights cover all locations.
         self.spawn_weights = np.array([])
@@ -1717,6 +1725,7 @@ class Ecosystem:
         for loc in self.locations:
             loc.routes = {}
             scoring.updateLocationScore(self.time, loc)
+        demographics.update_demographic_attributes(self)
 
         # update agent locations
         for a in self.agents:
