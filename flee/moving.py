@@ -148,7 +148,6 @@ def getEndPointScore(agent, endpoint, time) -> float:
             base *= max(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])
     else:
         if SimulationSettings.move_rules["MatchTownEthnicity"]:
-            print(agent.attributes, file=sys.stderr) #TODO: CLEAR DBG
             base *= (demographics.get_attribute_ratio(endpoint, agent.attributes["ethnicity"]) * 10.0)
         if SimulationSettings.move_rules["UsePopForLocWeight"]:
             base *= max(1.0,endpoint.pop)**float(SimulationSettings.move_rules["PopPowerForLocWeight"])

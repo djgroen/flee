@@ -147,6 +147,21 @@ def draw_samples(e,loc):
     return samples
 
 
+def update_locations_demographic_attributes(e, parallel_mode=False):
+    #Gather and sum all scores and copy them to location attribute values
+
+    if parallel_mode:
+        for l in e.locations:
+            i = 0
+            for attr_name in e.demographics_list:
+                for v in e.demographics_list[attr_name]:
+                    l.attributes[v] = Ecosystem.scores[self.id * self.e.scores_per_location + i]
+                    i += 1
+
+    else:
+        return
+
+
 def update_demographic_attributes(e, parallel_mode=False):
 
     # Reset the values of all the demographic attributes to 0.
@@ -174,7 +189,6 @@ def update_demographic_attributes(e, parallel_mode=False):
                 Ecosystem.scores[self.id * self.e.scores_per_location + attribute_offset + val_index] += 1
                 attribute_offset += len(e.demographics_list[attribute_name])
         
-        #TODO: Gather and sum all scores and copy them to location attribute values
     else:
         for a in e.agents:
             for attribute_name in e.demographics_list.keys():

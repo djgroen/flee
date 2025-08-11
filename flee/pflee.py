@@ -691,8 +691,6 @@ class Ecosystem(flee.Ecosystem):
             Remove all agents from a list of locations by name.
             Useful for couplings to other simulation codes.
 
-            TODO : REWRITE!!
-
         Args:
             location_names (List[str]): A list of location names to remove agents from.
 
@@ -787,6 +785,8 @@ class Ecosystem(flee.Ecosystem):
             print("start of synchronize_locations MPI call.", file=sys.stderr)
             # print(self.mpi.rank, local_scores, scores, sizes, offsets)
         self.mpi.comm.Allgatherv(local_scores, [Ecosystem.scores, sizes, offsets, MPI.DOUBLE])
+
+        demographics.update_locations_demographic_attributes(self, parallel_mode=True)
 
         if Debug and self.mpi.rank == 0:
             print("end of synchronize_locations", file=sys.stderr)
