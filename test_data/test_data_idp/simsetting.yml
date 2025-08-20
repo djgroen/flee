@@ -2,7 +2,8 @@ move_rules:
   MatchCampEthnicity: True
   MatchTownEthnicity: True
   MatchConflictEthnicity: False
-  MatchCampReligion: True    
+  MatchCampReligion: True 
+  harvest_months: [6,11]   
 
 optimisations:
   hasten: 5

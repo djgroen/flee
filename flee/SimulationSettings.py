@@ -286,7 +286,7 @@ class SimulationSettings:
         SimulationSettings.move_rules["PruningThreshold"] = float(fetchss(dpr,"pruning_threshold",1.0))
 
 
-        # Flee 3.0 Prototyping conditionals (see design focument)
+        # Flee 3.0 Prototyping conditionals (see design document)
         # TODO: embed these in a more flexible/powerful framework of conditionals
         for a in ["ChildrenAvoidHazards", "BoysTakeRisk", "MatchCampReligion", "MatchCampEthnicity", "MatchTownEthnicity", "MatchConflictEthnicity"]:
             SimulationSettings.move_rules[a] = bool(fetchss(dpr,a,False))
@@ -301,6 +301,8 @@ class SimulationSettings:
         # Enable / Disable System 2 logic
         SimulationSettings.move_rules["TwoSystemDecisionMaking"] = float(fetchss(dpr,"two_system_decision_making", False))
 
+        # Enable Farmer harvesting
+        SimulationSettings.move_rules["HarvestMonths"] = fetchss(dpr, "harvest_months", []) 
 
         # DFlee Flood Location Move rules
         dpf = fetchss(dpr, "flood_rules", None)
