@@ -302,7 +302,12 @@ class SimulationSettings:
         SimulationSettings.move_rules["TwoSystemDecisionMaking"] = float(fetchss(dpr,"two_system_decision_making", False))
 
         # Enable Farmer harvesting
-        SimulationSettings.move_rules["HarvestMonths"] = fetchss(dpr, "harvest_months", []) 
+        SimulationSettings.move_rules["HarvestMonths"] = fetchss(dpr, "harvest_months", [])
+        if len(SimulationSettings.move_rules["HarvestMonths"]) > 0:
+            SimulationSettings.farming = True
+        else:
+            SimulationSettings.farming = False
+        
 
         # DFlee Flood Location Move rules
         dpf = fetchss(dpr, "flood_rules", None)

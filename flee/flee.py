@@ -7,6 +7,8 @@ import math
 import sys
 from typing import List, Optional, Tuple
 
+from datetime import datetime, timedelta
+
 import numpy as np
 from flee.Diagnostics import write_agents, write_links
 from flee.SimulationSettings import SimulationSettings
@@ -87,6 +89,13 @@ class Person:
         # Only increment location count if location is not None
         if self.location is not None:
             self.location.IncrementNumAgents(self)
+
+            if "farmer_fraction" in self.location.attributes:
+                if random.random() < float(self.location.attributes["farmer_fraction"]):
+                    self.attributes["farmer"] = 1
+                else:
+                    self.attributes["farmer"] = 0
+
 
 
     # Add social connectivity
@@ -234,11 +243,13 @@ class Person:
         # Update social connectivity at the start of each time step
         self.update_social_connectivity(self.location, time)
         
-        # Increment days in current location for System 2 tracking
         if not self.travelling:
+            # Increment days in current location for System 2 tracking
             self.days_in_current_location += 1
+
+            #if SimulationSettings.farming:
+
         
-        if self.travelling is False:
             # Calculate the agent's move chance with System 1/System 2 logic
             movechance, system2_active = moving.calculateMoveChance(self, ForceTownMove, time)
     
@@ -841,7 +852,7 @@ class Ecosystem:
     """
 
     @check_args_type
-    def __init__(self, demographics_test_prefix=""):
+    def __init__(self, start_date="2099-01-01", demographics_test_prefix=""):
         """
         Summary: 
             Initializes a new Simulation object.
@@ -860,6 +871,9 @@ class Ecosystem:
         self.print_location_output = True  # print location output data
         self.demographics_test_prefix = demographics_test_prefix # Should be empty unless testing demographics.
         self.demographics_list = {} # Dict with all the demographic attributes
+        self.start_date_string = start_date
+        self.date = datetime.strptime(self.start_date_string, "%Y-%m-%d") + timedelta(days=self.time)
+        self.date_string = self.date.strftime("%Y-%m-%d")
 
         demographics.init_demographics(self)
         if SimulationSettings.move_rules["MatchCampReligion"] is True:
@@ -1770,6 +1784,8 @@ class Ecosystem:
                                 a.location = None
 
         self.time += 1
+        self.date = datetime.strptime(self.start_date_string, "%Y-%m-%d") + timedelta(days=self.time)
+        self.date_string = self.date.strftime("%Y-%m-%d")
 
 
     @check_args_type

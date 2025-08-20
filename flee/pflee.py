@@ -5,6 +5,8 @@ import sys
 from functools import wraps
 from typing import List, Optional
 
+from datetime import datetime, timedelta
+
 import numpy as np
 from flee import flee,scoring,spawning,crawling,demographics
 from flee.Diagnostics import write_agents_par,write_links_par
@@ -383,7 +385,7 @@ class Ecosystem(flee.Ecosystem):
     scores = np.array([1.0, 1.0])
 
     @check_args_type
-    def __init__(self, demographics_test_prefix=""):
+    def __init__(self, start_date="2099-01-01", demographics_test_prefix=""):
         """
         Summary: 
             Initializes a new Ecosystem object.
@@ -400,6 +402,10 @@ class Ecosystem(flee.Ecosystem):
         self.total_agents = 0
         self.closures = []  # format [type, source, dest, start, end]
         self.time = 0
+        self.start_date_string = start_date
+        self.date = datetime.strptime(self.start_date_string, "%Y-%m-%d") + timedelta(days=self.time)
+        self.date_string = self.date.strftime("%Y-%m-%d")
+
         self.print_location_output = False
         self.demographics_test_prefix = demographics_test_prefix # Should be empty unless testing demographics.
         self.mpi = MPIManager()
@@ -906,6 +912,9 @@ class Ecosystem(flee.Ecosystem):
                             a.location = None
 
         self.time += 1
+        self.date = datetime.strptime(self.start_date_string, "%Y-%m-%d") + timedelta(days=self.time)
+        self.date_string = self.date.strftime("%Y-%m-%d")
+
 
 
     @check_args_type

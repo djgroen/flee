@@ -36,7 +36,7 @@ if __name__ == "__main__":
     flee.SimulationSettings.ConflictInputFile = "%s/conflicts.csv" % (
         input_csv_directory)
 
-    e = flee.Ecosystem()
+    e = flee.Ecosystem(start_date)
 
     ig = InputGeography.InputGeography()
 
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
             j += 1
 
-        output = "%s" % t
+        output = f"{t},{e.date_string}"
 
         for i in range(0, len(errors)):
             output += ",%s,%s,%s" % (lm[camp_locations[i]

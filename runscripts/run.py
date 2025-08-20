@@ -7,8 +7,6 @@ import flee.postprocessing.analysis as a
 import sys
 from flee.SimulationSettings import SimulationSettings
 
-from datetime import datetime, timedelta
-
 if __name__ == "__main__":
 
   start_date,end_time = read_period.read_sim_period("{}/sim_period.csv".format(sys.argv[1]))
@@ -31,7 +29,7 @@ if __name__ == "__main__":
   # Flood file will be read if modelling flood-driven displacement. Ignored otherwise.
   flee.SimulationSettings.FloodLevelInputFile = "%s/flood_level.csv" % input_csv_directory
 
-  e = flee.Ecosystem()
+  e = flee.Ecosystem(start_date)
 
   ig = InputGeography.InputGeography()
 
@@ -102,9 +100,7 @@ if __name__ == "__main__":
 
       j += 1
 
-
-    date = datetime.strptime(start_date, "%Y-%m-%d") + timedelta(days=t)
-    output = "%s,%s" % (t, date.strftime("%Y-%m-%d"))
+    output = "%s,%s" % (t, e.date_string)
 
     for i in range(0,len(errors)):
       output += ",%s,%s,%s" % (lm[camp_locations[i]].numAgents, loc_data[i], errors[i])
