@@ -35,6 +35,7 @@ class Person:
         "recent_travel_distance",
         "distance_moved_this_timestep",
         "travelling",
+        "harvesting",
         "distance_travelled_on_link",
         "attributes",
         "locations_visited",
@@ -67,6 +68,8 @@ class Person:
     
         # Set to true when an agent resides on a link.
         self.travelling = False
+        #Initializing harvesting parameter.
+        self.harvesting = False
     
         # Tracks how much distance a Person has been able to travel on the
         # current link.
@@ -85,7 +88,7 @@ class Person:
             self.distance_travelled = 0 
         if SimulationSettings.log_levels["agent"] > 1:
             self.locations_visited = [] 
-    
+
         # Only increment location count if location is not None
         if self.location is not None:
             self.location.IncrementNumAgents(self)
@@ -95,6 +98,8 @@ class Person:
                     self.attributes["farmer"] = 1
                 else:
                     self.attributes["farmer"] = 0
+
+
 
 
 
@@ -247,8 +252,19 @@ class Person:
             # Increment days in current location for System 2 tracking
             self.days_in_current_location += 1
 
-            #if SimulationSettings.farming:
-
+            # Set harvesting behaviour.
+            if SimulationSettings.farming:
+                if e.date.month in SimulationSettings.move_rules["HarvestMonths"]:
+                    if not self.harvesting:
+                        self.location.DecrementNumAgents()
+                        self.home_location.IncrementNumAgents(self)
+                    self.harvesting = True
+                    return #harvesting agents do not move.
+                else:
+                    if self.harvesting:
+                        self.location.IncrementNumAgents(self)
+                        self.home_location.DecrementNumAgents()
+                    self.harvesting = False
         
             # Calculate the agent's move chance with System 1/System 2 logic
             movechance, system2_active = moving.calculateMoveChance(self, ForceTownMove, time)
