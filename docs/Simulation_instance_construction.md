@@ -282,3 +282,18 @@ As of Flee 3.0, it is possible to define demographic attributes to newly spawned
 
 In this example, agents spawned in loc1 are 50% likely to have the value V1 for attribute AAA, and 50% likely to have the value V2. All agents spawned in loc2 will have the value V2, while agents spawned in all other locations are 90% likely to have V1, and 10% likely to have V2.
 
+## **Incorporating farmer harvesting trips**
+
+In a range of settings, it is common for farmers in refugee camps to return to their original location during harvesting seasons. Within Flee 3, this behavior can be easily incorporated by adding the following attribute to `locations.csv`: `farmer_fraction`. This attribute will contain the population fraction for each location that consists of farmers. E.g. a value of `0.1` would indicate that `10%` of persons spawned in that location are farmers.
+
+### Harvest time
+
+To trigger the harvesting behaviors, you need to add the following entry to the `move_rules` setting of `simsetting.yml`:
+
+* `harvest_months: [m1,m2,etc.]`
+
+For instance, if harvest takes place in June and November, then the entry would look like this:
+
+* `harvest_months: [6,11]`
+
+At time of writing, **all** farmers return to their source location for harvesting. If you wish this to be different, then please raise a GitHub issue detailing your proposed mechanism.
