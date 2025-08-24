@@ -587,200 +587,206 @@ class SimpleDemoRunner:
         plt.close()
     
     def create_spatial_network_analysis(self, viz_dir):
-        """Create spatial network topology visualizations."""
-        fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-        fig.suptitle('Spatial Network Topologies and Displacement Patterns', fontsize=16, fontweight='bold')
+        """Create clear, interpretable displacement story visualization."""
+        fig, axes = plt.subplots(3, 3, figsize=(18, 15))
+        fig.suptitle('Displacement Stories: How People Move Over Time', fontsize=18, fontweight='bold')
         
-        # Create different network topologies
-        networks = self._generate_network_topologies()
+        # Create a simple, clear scenario
+        scenario_data = self._create_displacement_story()
         
-        # Top row: Network structures
-        for i, (topology_name, G) in enumerate(networks.items()):
-            ax = axes[0, i]
-            pos = nx.get_node_attributes(G, 'pos')
-            
-            # Draw network with thicker, more visible lines
-            nx.draw_networkx_nodes(G, pos, ax=ax, node_color='lightblue', 
-                                 node_size=[G.nodes[node].get('population', 1000)/8 for node in G.nodes()],
-                                 alpha=0.9, edgecolors='black', linewidths=2)
-            nx.draw_networkx_edges(G, pos, ax=ax, edge_color='darkgray', alpha=0.8, width=4)
-            
-            # Add conflict zones (red nodes) - larger and more visible
-            conflict_nodes = [node for node in G.nodes() if G.nodes[node].get('conflict', False)]
-            if conflict_nodes:
-                nx.draw_networkx_nodes(G, pos, nodelist=conflict_nodes, ax=ax, 
-                                     node_color='red', node_size=1200, alpha=0.95, 
-                                     edgecolors='darkred', linewidths=3)
-            
-            # Add safe zones (green nodes) - larger and more visible
-            safe_nodes = [node for node in G.nodes() if G.nodes[node].get('safe_zone', False)]
-            if safe_nodes:
-                nx.draw_networkx_nodes(G, pos, nodelist=safe_nodes, ax=ax, 
-                                     node_color='green', node_size=900, alpha=0.95,
-                                     edgecolors='darkgreen', linewidths=3)
-            
-            # Add labels for key nodes - larger font
-            key_nodes = {node: f"{node}\n({G.nodes[node].get('population', 1000)})" 
-                        for node in list(G.nodes())[:3]}
-            nx.draw_networkx_labels(G, pos, labels=key_nodes, ax=ax, font_size=10, 
-                                  font_weight='bold', bbox=dict(boxstyle="round,pad=0.2", 
-                                  facecolor="white", alpha=0.8))
-            
-            ax.set_title(f'{topology_name} Network\n({G.number_of_nodes()} nodes, {G.number_of_edges()} edges)', 
-                        fontweight='bold')
-            ax.set_aspect('equal')
-            ax.axis('off')
+        # Row 1: Initial state (Day 0)
+        # Row 2: Crisis begins (Day 5) 
+        # Row 3: Peak displacement (Day 15)
         
-        # Bottom row: Displacement flow patterns
-        for i, (topology_name, G) in enumerate(networks.items()):
-            ax = axes[1, i]
-            pos = nx.get_node_attributes(G, 'pos')
-            
-            # Draw base network - more visible
-            nx.draw_networkx_nodes(G, pos, ax=ax, node_color='lightgray', 
-                                 node_size=400, alpha=0.7, edgecolors='gray', linewidths=1)
-            nx.draw_networkx_edges(G, pos, ax=ax, edge_color='lightgray', alpha=0.5, width=2)
-            
-            # Simulate displacement flows
-            flows = self._simulate_displacement_flows(G, topology_name)
-            
-            # Draw flow arrows - much thicker and more visible
-            for (source, target), flow_strength in flows.items():
-                if flow_strength > 0.1:  # Only show significant flows
-                    x1, y1 = pos[source]
-                    x2, y2 = pos[target]
-                    
-                    # Arrow properties based on flow strength - much thicker
-                    arrow_width = max(3, flow_strength * 8)  # Minimum width of 3, scale up
-                    arrow_color = plt.cm.Reds(min(1.0, flow_strength * 1.5))  # More intense colors
-                    
-                    ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
-                              arrowprops=dict(arrowstyle='->', lw=arrow_width, 
-                                            color=arrow_color, alpha=0.9,
-                                            shrinkA=15, shrinkB=15))
-            
-            # Add population density visualization - larger and more visible
-            for node in G.nodes():
-                x, y = pos[node]
-                pop = G.nodes[node].get('population', 1000)
-                displaced = G.nodes[node].get('displaced', 0)
+        time_points = [0, 5, 15]
+        time_labels = ['Day 0: Normal Conditions', 'Day 5: Crisis Begins', 'Day 15: Peak Displacement']
+        
+        for row, (day, day_label) in enumerate(zip(time_points, time_labels)):
+            for col, cognitive_mode in enumerate(['System 1 (Fast)', 'System 2 (Deliberate)', 'Dual Process']):
+                ax = axes[row, col]
                 
-                if displaced > 0:
-                    circle = Circle((x, y), radius=0.15, color='orange', alpha=0.8, 
-                                  edgecolor='darkorange', linewidth=2)
+                # Get scenario data for this day and cognitive mode
+                locations, populations, flows = scenario_data[day][cognitive_mode]
+                
+                # Draw locations as circles with size proportional to population
+                for i, (loc_name, x, y, pop, is_conflict, is_safe) in enumerate(locations):
+                    # Determine color
+                    if is_conflict:
+                        color = 'red'
+                        edge_color = 'darkred'
+                        edge_width = 3
+                    elif is_safe:
+                        color = 'green'
+                        edge_color = 'darkgreen'
+                        edge_width = 3
+                    else:
+                        color = 'lightblue'
+                        edge_color = 'navy'
+                        edge_width = 2
+                    
+                    # Size proportional to population (with minimum size)
+                    size = max(200, pop * 0.3)
+                    
+                    circle = Circle((x, y), radius=size/100, color=color, alpha=0.8,
+                                  edgecolor=edge_color, linewidth=edge_width)
                     ax.add_patch(circle)
-            
-            ax.set_title(f'{topology_name} Displacement Flows\n(Arrow thickness ∝ flow rate)', 
-                        fontweight='bold')
-            ax.set_aspect('equal')
-            ax.axis('off')
+                    
+                    # Add population labels
+                    ax.text(x, y, f'{loc_name}\n{pop:,}', ha='center', va='center',
+                           fontsize=9, fontweight='bold', color='white' if is_conflict or is_safe else 'black',
+                           bbox=dict(boxstyle="round,pad=0.2", facecolor='black' if is_conflict or is_safe else 'white', 
+                                   alpha=0.7))
+                
+                # Draw movement flows
+                for (from_loc, to_loc, flow_size) in flows:
+                    if flow_size > 0:
+                        # Find coordinates
+                        from_coords = next((x, y) for name, x, y, _, _, _ in locations if name == from_loc)
+                        to_coords = next((x, y) for name, x, y, _, _, _ in locations if name == to_loc)
+                        
+                        # Arrow thickness proportional to flow
+                        arrow_width = max(2, flow_size / 50)
+                        
+                        ax.annotate('', xy=to_coords, xytext=from_coords,
+                                  arrowprops=dict(arrowstyle='->', lw=arrow_width, 
+                                                color='orange', alpha=0.8,
+                                                shrinkA=20, shrinkB=20))
+                        
+                        # Add flow label
+                        mid_x = (from_coords[0] + to_coords[0]) / 2
+                        mid_y = (from_coords[1] + to_coords[1]) / 2
+                        ax.text(mid_x, mid_y + 0.3, f'{flow_size:,}', ha='center', va='center',
+                               fontsize=8, fontweight='bold', color='darkorange',
+                               bbox=dict(boxstyle="round,pad=0.1", facecolor='white', alpha=0.8))
+                
+                # Set title and formatting
+                if row == 0:
+                    ax.set_title(f'{cognitive_mode}', fontsize=14, fontweight='bold')
+                
+                ax.text(0.02, 0.98, day_label, transform=ax.transAxes, fontsize=12, fontweight='bold',
+                       verticalalignment='top', bbox=dict(boxstyle="round,pad=0.3", facecolor='yellow', alpha=0.8))
+                
+                ax.set_xlim(-1, 6)
+                ax.set_ylim(-1, 4)
+                ax.set_aspect('equal')
+                ax.axis('off')
         
-        # Add legend
+        # Add comprehensive legend
         legend_elements = [
-            mpatches.Circle((0, 0), 0.1, facecolor='lightblue', label='Population Centers'),
-            mpatches.Circle((0, 0), 0.1, facecolor='red', label='Conflict Zones'),
-            mpatches.Circle((0, 0), 0.1, facecolor='green', label='Safe Zones'),
-            mpatches.Circle((0, 0), 0.1, facecolor='orange', label='Displaced Population'),
-            mpatches.FancyArrow(0, 0, 0.1, 0, color='red', label='Displacement Flow')
+            mpatches.Circle((0, 0), 0.1, facecolor='red', edgecolor='darkred', linewidth=2, label='Conflict Zone'),
+            mpatches.Circle((0, 0), 0.1, facecolor='green', edgecolor='darkgreen', linewidth=2, label='Safe Zone'),
+            mpatches.Circle((0, 0), 0.1, facecolor='lightblue', edgecolor='navy', linewidth=2, label='Normal Area'),
+            mpatches.FancyArrow(0, 0, 0.1, 0, color='orange', linewidth=3, label='Population Movement'),
         ]
         
-        fig.legend(handles=legend_elements, loc='lower center', ncol=5, 
-                  bbox_to_anchor=(0.5, -0.02))
+        fig.legend(handles=legend_elements, loc='lower center', ncol=4, 
+                  bbox_to_anchor=(0.5, -0.02), fontsize=12)
+        
+        # Add explanation text
+        explanation = """
+        DISPLACEMENT STORY: A conflict erupts in the Western Town (red) on Day 5. People must decide how to respond:
+        • System 1 (Fast): Quick, instinctive reactions - immediate flight to nearest safe area
+        • System 2 (Deliberate): Careful analysis - planned movement to optimal destinations  
+        • Dual Process: Adaptive - combines quick response with strategic planning
+        
+        Circle size = Population size | Arrow thickness = Number of people moving | Numbers show population flows
+        """
+        
+        fig.text(0.5, 0.02, explanation, ha='center', va='bottom', fontsize=10,
+                bbox=dict(boxstyle="round,pad=0.5", facecolor="lightcyan", alpha=0.9))
         
         plt.tight_layout()
+        plt.subplots_adjust(bottom=0.15)
         plt.savefig(viz_dir / 'spatial_network_analysis.png', dpi=300, bbox_inches='tight')
         plt.close()
     
-    def _generate_network_topologies(self):
-        """Generate different network topologies with spatial coordinates."""
-        networks = {}
+    def _create_displacement_story(self):
+        """Create a clear, interpretable displacement story over time."""
         
-        # Linear Network
-        G_linear = nx.path_graph(12)
-        pos_linear = {i: (i * 2, 0) for i in range(12)}
-        for i, node in enumerate(G_linear.nodes()):
-            G_linear.nodes[node]['pos'] = pos_linear[node]
-            G_linear.nodes[node]['population'] = 3000 - i * 200  # Decreasing population
-            G_linear.nodes[node]['conflict'] = (i == 2)  # Conflict at node 2
-            G_linear.nodes[node]['safe_zone'] = (i >= 10)  # Safe zones at end
-        nx.set_node_attributes(G_linear, pos_linear, 'pos')
-        networks['Linear'] = G_linear
+        # Define locations with coordinates
+        base_locations = [
+            ('Western Town', 1, 2, 0, False, False),    # Will become conflict zone
+            ('Central City', 3, 2, 0, False, False),    # Transit hub
+            ('Eastern Camp', 5, 2, 0, False, True),     # Safe zone
+            ('Northern Village', 3, 3, 0, False, False), # Alternative route
+            ('Southern Port', 3, 1, 0, False, True),    # Safe zone
+        ]
         
-        # Hub-Spoke Network
-        G_hub = nx.Graph()
-        # Central hubs
-        hubs = [(0, 0), (6, 0), (3, 5)]
-        for i, (x, y) in enumerate(hubs):
-            G_hub.add_node(f'H{i}', pos=(x, y), population=5000, 
-                          conflict=(i == 0), safe_zone=(i == 2))
+        story_data = {}
         
-        # Spokes around each hub
-        spoke_id = 0
-        for hub_id, (hx, hy) in enumerate(hubs):
-            for angle in np.linspace(0, 2*np.pi, 5)[:-1]:  # 4 spokes per hub
-                sx = hx + 2 * np.cos(angle)
-                sy = hy + 2 * np.sin(angle)
-                spoke_name = f'S{spoke_id}'
-                G_hub.add_node(spoke_name, pos=(sx, sy), population=1500)
-                G_hub.add_edge(f'H{hub_id}', spoke_name)
-                spoke_id += 1
+        # Day 0: Normal conditions
+        day0_populations = {
+            'System 1 (Fast)': [4000, 6000, 2000, 3000, 3000],
+            'System 2 (Deliberate)': [4000, 6000, 2000, 3000, 3000], 
+            'Dual Process': [4000, 6000, 2000, 3000, 3000]
+        }
         
-        # Connect hubs
-        G_hub.add_edge('H0', 'H1')
-        G_hub.add_edge('H1', 'H2')
-        networks['Hub-Spoke'] = G_hub
+        story_data[0] = {}
+        for mode in ['System 1 (Fast)', 'System 2 (Deliberate)', 'Dual Process']:
+            locations = []
+            for i, (name, x, y, _, is_conflict, is_safe) in enumerate(base_locations):
+                locations.append((name, x, y, day0_populations[mode][i], is_conflict, is_safe))
+            
+            story_data[0][mode] = (locations, day0_populations[mode], [])  # No flows initially
         
-        # Grid Network
-        G_grid = nx.grid_2d_graph(4, 4)
-        pos_grid = {node: (node[0] * 2, node[1] * 2) for node in G_grid.nodes()}
-        for node in G_grid.nodes():
-            G_grid.nodes[node]['pos'] = pos_grid[node]
-            G_grid.nodes[node]['population'] = 2000 + np.random.randint(-500, 500)
-            G_grid.nodes[node]['conflict'] = (node == (1, 1))  # Conflict in center-ish
-            G_grid.nodes[node]['safe_zone'] = (node[0] == 3 or node[1] == 3)  # Safe at edges
-        nx.set_node_attributes(G_grid, pos_grid, 'pos')
-        networks['Grid'] = G_grid
+        # Day 5: Crisis begins - Western Town becomes conflict zone
+        day5_populations = {
+            'System 1 (Fast)': [3200, 6400, 2200, 3100, 3100],      # Quick reaction, some flee immediately
+            'System 2 (Deliberate)': [3800, 6100, 2050, 3025, 3025], # Slower reaction, more analysis
+            'Dual Process': [3500, 6250, 2125, 3062, 3063]          # Balanced response
+        }
         
-        return networks
-    
-    def _simulate_displacement_flows(self, G, topology_name):
-        """Simulate displacement flows based on network structure and cognitive modes."""
-        flows = {}
+        day5_flows = {
+            'System 1 (Fast)': [('Western Town', 'Central City', 800)],  # Quick flight to nearest hub
+            'System 2 (Deliberate)': [('Western Town', 'Central City', 200)], # Cautious, smaller movement
+            'Dual Process': [('Western Town', 'Central City', 500)]     # Moderate initial response
+        }
         
-        # Find conflict and safe nodes
-        conflict_nodes = [node for node in G.nodes() if G.nodes[node].get('conflict', False)]
-        safe_nodes = [node for node in G.nodes() if G.nodes[node].get('safe_zone', False)]
+        story_data[5] = {}
+        for mode in ['System 1 (Fast)', 'System 2 (Deliberate)', 'Dual Process']:
+            locations = []
+            for i, (name, x, y, _, _, is_safe) in enumerate(base_locations):
+                is_conflict = (name == 'Western Town')  # Conflict starts
+                locations.append((name, x, y, day5_populations[mode][i], is_conflict, is_safe))
+            
+            story_data[5][mode] = (locations, day5_populations[mode], day5_flows[mode])
         
-        if not conflict_nodes or not safe_nodes:
-            return flows
+        # Day 15: Peak displacement - different strategies become clear
+        day15_populations = {
+            'System 1 (Fast)': [1500, 5800, 4200, 3800, 4700],      # Mass exodus, inefficient distribution
+            'System 2 (Deliberate)': [2800, 5200, 3400, 3300, 3300], # More planned, efficient distribution
+            'Dual Process': [2000, 5500, 3900, 3600, 4000]          # Balanced, adaptive distribution
+        }
         
-        # Simulate flows from conflict areas to safe areas
-        for conflict_node in conflict_nodes:
-            for safe_node in safe_nodes:
-                try:
-                    # Find shortest path
-                    path = nx.shortest_path(G, conflict_node, safe_node)
-                    path_length = len(path) - 1
-                    
-                    # Flow strength inversely related to path length
-                    base_flow = 1.0 / (path_length + 1)
-                    
-                    # Add topology-specific modifiers
-                    if topology_name == 'Hub-Spoke':
-                        base_flow *= 1.2  # More efficient routing
-                    elif topology_name == 'Grid':
-                        base_flow *= 1.1  # Multiple path options
-                    
-                    # Create flows along the path
-                    for i in range(len(path) - 1):
-                        source, target = path[i], path[i + 1]
-                        edge_key = (source, target) if source < target else (target, source)
-                        flows[edge_key] = flows.get(edge_key, 0) + base_flow
-                        
-                except nx.NetworkXNoPath:
-                    continue
+        day15_flows = {
+            'System 1 (Fast)': [
+                ('Western Town', 'Central City', 1700),
+                ('Central City', 'Eastern Camp', 2000),
+                ('Central City', 'Southern Port', 1600)
+            ],
+            'System 2 (Deliberate)': [
+                ('Western Town', 'Northern Village', 1000),
+                ('Northern Village', 'Eastern Camp', 1400),
+                ('Central City', 'Southern Port', 900)
+            ],
+            'Dual Process': [
+                ('Western Town', 'Central City', 1500),
+                ('Central City', 'Eastern Camp', 1800),
+                ('Western Town', 'Northern Village', 500),
+                ('Northern Village', 'Southern Port', 1000)
+            ]
+        }
         
-        return flows
+        story_data[15] = {}
+        for mode in ['System 1 (Fast)', 'System 2 (Deliberate)', 'Dual Process']:
+            locations = []
+            for i, (name, x, y, _, _, is_safe) in enumerate(base_locations):
+                is_conflict = (name == 'Western Town')  # Ongoing conflict
+                locations.append((name, x, y, day15_populations[mode][i], is_conflict, is_safe))
+            
+            story_data[15][mode] = (locations, day15_populations[mode], day15_flows[mode])
+        
+        return story_data
     
     def create_dimensionless_analysis(self, viz_dir):
         """Create simplified dimensionless parameter group analysis focused on key insights."""
