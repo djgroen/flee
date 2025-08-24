@@ -589,7 +589,7 @@ class SimpleDemoRunner:
     def create_spatial_network_analysis(self, viz_dir):
         """Create clear, interpretable displacement story visualization."""
         fig, axes = plt.subplots(3, 3, figsize=(18, 15))
-        fig.suptitle('Displacement Stories: How People Move Over Time', fontsize=18, fontweight='bold')
+        fig.suptitle('Cognitive Decision-Making in Displacement: Three Behavioral Models', fontsize=16, fontweight='bold', y=0.98)
         
         # Create a simple, clear scenario
         scenario_data = self._create_displacement_story()
@@ -601,27 +601,40 @@ class SimpleDemoRunner:
         time_points = [0, 5, 15]
         time_labels = ['Day 0: Normal Conditions', 'Day 5: Crisis Begins', 'Day 15: Peak Displacement']
         
+        cognitive_modes = [
+            'System 1: Fast/Intuitive',
+            'System 2: Slow/Analytical', 
+            'Dual Process: Adaptive'
+        ]
+        
         for row, (day, day_label) in enumerate(zip(time_points, time_labels)):
-            for col, cognitive_mode in enumerate(['System 1 (Fast)', 'System 2 (Deliberate)', 'Dual Process']):
+            for col, cognitive_mode in enumerate(cognitive_modes):
                 ax = axes[row, col]
                 
+                # Map display names to data keys
+                mode_key_map = {
+                    'System 1: Fast/Intuitive': 'System 1 (Fast)',
+                    'System 2: Slow/Analytical': 'System 2 (Deliberate)',
+                    'Dual Process: Adaptive': 'Dual Process'
+                }
+                
                 # Get scenario data for this day and cognitive mode
-                locations, populations, flows = scenario_data[day][cognitive_mode]
+                locations, populations, flows = scenario_data[day][mode_key_map[cognitive_mode]]
                 
                 # Draw locations as circles with size proportional to population
                 for i, (loc_name, x, y, pop, is_conflict, is_safe) in enumerate(locations):
-                    # Determine color
+                    # Determine color - publication-friendly palette
                     if is_conflict:
-                        color = 'red'
-                        edge_color = 'darkred'
+                        color = '#d62728'  # Red
+                        edge_color = '#8b0000'  # Dark red
                         edge_width = 3
                     elif is_safe:
-                        color = 'green'
-                        edge_color = 'darkgreen'
+                        color = '#2ca02c'  # Green
+                        edge_color = '#006400'  # Dark green  
                         edge_width = 3
                     else:
-                        color = 'lightblue'
-                        edge_color = 'navy'
+                        color = '#1f77b4'  # Blue
+                        edge_color = '#000080'  # Navy
                         edge_width = 2
                     
                     # Size proportional to population (with minimum size)
@@ -661,42 +674,48 @@ class SimpleDemoRunner:
                 
                 # Set title and formatting
                 if row == 0:
-                    ax.set_title(f'{cognitive_mode}', fontsize=14, fontweight='bold')
+                    ax.set_title(f'{cognitive_mode}', fontsize=13, fontweight='bold', pad=10)
                 
-                ax.text(0.02, 0.98, day_label, transform=ax.transAxes, fontsize=12, fontweight='bold',
-                       verticalalignment='top', bbox=dict(boxstyle="round,pad=0.3", facecolor='yellow', alpha=0.8))
+                # Add day label with publication-friendly styling
+                ax.text(0.02, 0.98, day_label, transform=ax.transAxes, fontsize=11, fontweight='bold',
+                       verticalalignment='top', bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.9))
                 
                 ax.set_xlim(-1, 6)
                 ax.set_ylim(-1, 4)
                 ax.set_aspect('equal')
                 ax.axis('off')
         
-        # Add comprehensive legend
+        # Add comprehensive legend with publication-friendly colors
         legend_elements = [
-            mpatches.Circle((0, 0), 0.1, facecolor='red', edgecolor='darkred', linewidth=2, label='Conflict Zone'),
-            mpatches.Circle((0, 0), 0.1, facecolor='green', edgecolor='darkgreen', linewidth=2, label='Safe Zone'),
-            mpatches.Circle((0, 0), 0.1, facecolor='lightblue', edgecolor='navy', linewidth=2, label='Normal Area'),
+            mpatches.Circle((0, 0), 0.1, facecolor='#d62728', edgecolor='#8b0000', linewidth=2, label='Conflict Zone'),
+            mpatches.Circle((0, 0), 0.1, facecolor='#2ca02c', edgecolor='#006400', linewidth=2, label='Safe Zone'),
+            mpatches.Circle((0, 0), 0.1, facecolor='#1f77b4', edgecolor='#000080', linewidth=2, label='Normal Area'),
             mpatches.FancyArrow(0, 0, 0.1, 0, color='orange', linewidth=3, label='Population Movement'),
         ]
         
         fig.legend(handles=legend_elements, loc='lower center', ncol=4, 
                   bbox_to_anchor=(0.5, -0.02), fontsize=12)
         
-        # Add explanation text
-        explanation = """
-        DISPLACEMENT STORY: A conflict erupts in the Western Town (red) on Day 5. People must decide how to respond:
-        • System 1 (Fast): Quick, instinctive reactions - immediate flight to nearest safe area
-        • System 2 (Deliberate): Careful analysis - planned movement to optimal destinations  
-        • Dual Process: Adaptive - combines quick response with strategic planning
+        # Add explanation text with better academic styling
+        explanation = """COGNITIVE DECISION-MAKING MODELS IN DISPLACEMENT:
+
+• System 1 (Fast/Intuitive): Automatic, emotion-driven responses. Quick evacuation decisions based on immediate threat perception.
+  Results in rapid but potentially inefficient movement patterns.
+
+• System 2 (Slow/Analytical): Deliberate, rational analysis. Careful evaluation of options, costs, and benefits before moving.
+  Results in slower but more efficient and planned displacement patterns.
+
+• Dual Process (Adaptive): Dynamic switching between System 1 and System 2 based on context and available information.
+  Combines rapid response capability with strategic planning when time permits.
+
+SCENARIO: Conflict erupts in Western Town (red) on Day 5. Safe zones (green) available at Eastern Camp and Southern Port.
+Circle size ∝ Population | Arrow thickness ∝ Flow volume | Numbers show exact population movements"""
         
-        Circle size = Population size | Arrow thickness = Number of people moving | Numbers show population flows
-        """
-        
-        fig.text(0.5, 0.02, explanation, ha='center', va='bottom', fontsize=10,
-                bbox=dict(boxstyle="round,pad=0.5", facecolor="lightcyan", alpha=0.9))
+        fig.text(0.5, 0.01, explanation, ha='center', va='bottom', fontsize=9,
+                bbox=dict(boxstyle="round,pad=0.4", facecolor="white", edgecolor="gray", alpha=0.95))
         
         plt.tight_layout()
-        plt.subplots_adjust(bottom=0.15)
+        plt.subplots_adjust(top=0.93, bottom=0.20)  # More space for titles and explanation
         plt.savefig(viz_dir / 'spatial_network_analysis.png', dpi=300, bbox_inches='tight')
         plt.close()
     
