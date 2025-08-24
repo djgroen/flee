@@ -15,6 +15,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import networkx as nx
+from matplotlib.patches import Circle
+import matplotlib.patches as mpatches
 
 # Set style for publication-quality plots
 plt.style.use('seaborn-v0_8')
@@ -36,6 +39,15 @@ class SimpleDemoRunner:
         self.cognitive_modes = ['System 1', 'System 2', 'Dual Process']
         self.topology_types = ['Linear', 'Hub-Spoke', 'Grid']
         self.scenario_types = ['Spike', 'Gradual', 'Oscillating']
+        
+        # Dimensionless parameter groups for generalization
+        self.dimensionless_groups = {
+            'Cognitive_Efficiency': 'awareness_level / (conflict_threshold * recovery_period)',
+            'Social_Coupling': 'social_connectivity / sqrt(network_size)',
+            'Temporal_Scale': 'conflict_duration / decision_response_time',
+            'Spatial_Scale': 'network_diameter / average_link_distance',
+            'Information_Flow': 'awareness_level * social_connectivity / network_density'
+        }
         
     def generate_synthetic_data(self):
         """Generate synthetic experiment data for demonstration."""
@@ -574,6 +586,305 @@ class SimpleDemoRunner:
         plt.savefig(viz_dir / 'parameter_sensitivity.png', dpi=300, bbox_inches='tight')
         plt.close()
     
+    def create_spatial_network_analysis(self, viz_dir):
+        """Create spatial network topology visualizations."""
+        fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+        fig.suptitle('Spatial Network Topologies and Displacement Patterns', fontsize=16, fontweight='bold')
+        
+        # Create different network topologies
+        networks = self._generate_network_topologies()
+        
+        # Top row: Network structures
+        for i, (topology_name, G) in enumerate(networks.items()):
+            ax = axes[0, i]
+            pos = nx.get_node_attributes(G, 'pos')
+            
+            # Draw network
+            nx.draw_networkx_nodes(G, pos, ax=ax, node_color='lightblue', 
+                                 node_size=[G.nodes[node].get('population', 1000)/10 for node in G.nodes()],
+                                 alpha=0.8)
+            nx.draw_networkx_edges(G, pos, ax=ax, edge_color='gray', alpha=0.6, width=2)
+            
+            # Add conflict zones (red nodes)
+            conflict_nodes = [node for node in G.nodes() if G.nodes[node].get('conflict', False)]
+            if conflict_nodes:
+                nx.draw_networkx_nodes(G, pos, nodelist=conflict_nodes, ax=ax, 
+                                     node_color='red', node_size=800, alpha=0.9)
+            
+            # Add safe zones (green nodes)
+            safe_nodes = [node for node in G.nodes() if G.nodes[node].get('safe_zone', False)]
+            if safe_nodes:
+                nx.draw_networkx_nodes(G, pos, nodelist=safe_nodes, ax=ax, 
+                                     node_color='green', node_size=600, alpha=0.9)
+            
+            # Add labels for key nodes
+            key_nodes = {node: f"{node}\n({G.nodes[node].get('population', 1000)})" 
+                        for node in list(G.nodes())[:3]}
+            nx.draw_networkx_labels(G, pos, labels=key_nodes, ax=ax, font_size=8)
+            
+            ax.set_title(f'{topology_name} Network\n({G.number_of_nodes()} nodes, {G.number_of_edges()} edges)', 
+                        fontweight='bold')
+            ax.set_aspect('equal')
+            ax.axis('off')
+        
+        # Bottom row: Displacement flow patterns
+        for i, (topology_name, G) in enumerate(networks.items()):
+            ax = axes[1, i]
+            pos = nx.get_node_attributes(G, 'pos')
+            
+            # Draw base network
+            nx.draw_networkx_nodes(G, pos, ax=ax, node_color='lightgray', 
+                                 node_size=300, alpha=0.5)
+            nx.draw_networkx_edges(G, pos, ax=ax, edge_color='lightgray', alpha=0.3)
+            
+            # Simulate displacement flows
+            flows = self._simulate_displacement_flows(G, topology_name)
+            
+            # Draw flow arrows
+            for (source, target), flow_strength in flows.items():
+                if flow_strength > 0.1:  # Only show significant flows
+                    x1, y1 = pos[source]
+                    x2, y2 = pos[target]
+                    
+                    # Arrow properties based on flow strength
+                    arrow_width = flow_strength * 0.01
+                    arrow_color = plt.cm.Reds(flow_strength)
+                    
+                    ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
+                              arrowprops=dict(arrowstyle='->', lw=arrow_width*100, 
+                                            color=arrow_color, alpha=0.8))
+            
+            # Add population density visualization
+            for node in G.nodes():
+                x, y = pos[node]
+                pop = G.nodes[node].get('population', 1000)
+                displaced = G.nodes[node].get('displaced', 0)
+                
+                if displaced > 0:
+                    circle = Circle((x, y), radius=0.05, color='orange', alpha=0.7)
+                    ax.add_patch(circle)
+            
+            ax.set_title(f'{topology_name} Displacement Flows\n(Arrow thickness ∝ flow rate)', 
+                        fontweight='bold')
+            ax.set_aspect('equal')
+            ax.axis('off')
+        
+        # Add legend
+        legend_elements = [
+            mpatches.Circle((0, 0), 0.1, facecolor='lightblue', label='Population Centers'),
+            mpatches.Circle((0, 0), 0.1, facecolor='red', label='Conflict Zones'),
+            mpatches.Circle((0, 0), 0.1, facecolor='green', label='Safe Zones'),
+            mpatches.Circle((0, 0), 0.1, facecolor='orange', label='Displaced Population'),
+            mpatches.FancyArrow(0, 0, 0.1, 0, color='red', label='Displacement Flow')
+        ]
+        
+        fig.legend(handles=legend_elements, loc='lower center', ncol=5, 
+                  bbox_to_anchor=(0.5, -0.02))
+        
+        plt.tight_layout()
+        plt.savefig(viz_dir / 'spatial_network_analysis.png', dpi=300, bbox_inches='tight')
+        plt.close()
+    
+    def _generate_network_topologies(self):
+        """Generate different network topologies with spatial coordinates."""
+        networks = {}
+        
+        # Linear Network
+        G_linear = nx.path_graph(12)
+        pos_linear = {i: (i * 2, 0) for i in range(12)}
+        for i, node in enumerate(G_linear.nodes()):
+            G_linear.nodes[node]['pos'] = pos_linear[node]
+            G_linear.nodes[node]['population'] = 3000 - i * 200  # Decreasing population
+            G_linear.nodes[node]['conflict'] = (i == 2)  # Conflict at node 2
+            G_linear.nodes[node]['safe_zone'] = (i >= 10)  # Safe zones at end
+        nx.set_node_attributes(G_linear, pos_linear, 'pos')
+        networks['Linear'] = G_linear
+        
+        # Hub-Spoke Network
+        G_hub = nx.Graph()
+        # Central hubs
+        hubs = [(0, 0), (6, 0), (3, 5)]
+        for i, (x, y) in enumerate(hubs):
+            G_hub.add_node(f'H{i}', pos=(x, y), population=5000, 
+                          conflict=(i == 0), safe_zone=(i == 2))
+        
+        # Spokes around each hub
+        spoke_id = 0
+        for hub_id, (hx, hy) in enumerate(hubs):
+            for angle in np.linspace(0, 2*np.pi, 5)[:-1]:  # 4 spokes per hub
+                sx = hx + 2 * np.cos(angle)
+                sy = hy + 2 * np.sin(angle)
+                spoke_name = f'S{spoke_id}'
+                G_hub.add_node(spoke_name, pos=(sx, sy), population=1500)
+                G_hub.add_edge(f'H{hub_id}', spoke_name)
+                spoke_id += 1
+        
+        # Connect hubs
+        G_hub.add_edge('H0', 'H1')
+        G_hub.add_edge('H1', 'H2')
+        networks['Hub-Spoke'] = G_hub
+        
+        # Grid Network
+        G_grid = nx.grid_2d_graph(4, 4)
+        pos_grid = {node: (node[0] * 2, node[1] * 2) for node in G_grid.nodes()}
+        for node in G_grid.nodes():
+            G_grid.nodes[node]['pos'] = pos_grid[node]
+            G_grid.nodes[node]['population'] = 2000 + np.random.randint(-500, 500)
+            G_grid.nodes[node]['conflict'] = (node == (1, 1))  # Conflict in center-ish
+            G_grid.nodes[node]['safe_zone'] = (node[0] == 3 or node[1] == 3)  # Safe at edges
+        nx.set_node_attributes(G_grid, pos_grid, 'pos')
+        networks['Grid'] = G_grid
+        
+        return networks
+    
+    def _simulate_displacement_flows(self, G, topology_name):
+        """Simulate displacement flows based on network structure and cognitive modes."""
+        flows = {}
+        
+        # Find conflict and safe nodes
+        conflict_nodes = [node for node in G.nodes() if G.nodes[node].get('conflict', False)]
+        safe_nodes = [node for node in G.nodes() if G.nodes[node].get('safe_zone', False)]
+        
+        if not conflict_nodes or not safe_nodes:
+            return flows
+        
+        # Simulate flows from conflict areas to safe areas
+        for conflict_node in conflict_nodes:
+            for safe_node in safe_nodes:
+                try:
+                    # Find shortest path
+                    path = nx.shortest_path(G, conflict_node, safe_node)
+                    path_length = len(path) - 1
+                    
+                    # Flow strength inversely related to path length
+                    base_flow = 1.0 / (path_length + 1)
+                    
+                    # Add topology-specific modifiers
+                    if topology_name == 'Hub-Spoke':
+                        base_flow *= 1.2  # More efficient routing
+                    elif topology_name == 'Grid':
+                        base_flow *= 1.1  # Multiple path options
+                    
+                    # Create flows along the path
+                    for i in range(len(path) - 1):
+                        source, target = path[i], path[i + 1]
+                        edge_key = (source, target) if source < target else (target, source)
+                        flows[edge_key] = flows.get(edge_key, 0) + base_flow
+                        
+                except nx.NetworkXNoPath:
+                    continue
+        
+        return flows
+    
+    def create_dimensionless_analysis(self, viz_dir):
+        """Create dimensionless parameter group analysis."""
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        fig.suptitle('Dimensionless Parameter Groups for Generalized Analysis', fontsize=16, fontweight='bold')
+        
+        # Generate synthetic data for dimensionless groups
+        n_experiments = 50
+        
+        # Cognitive Efficiency vs Performance
+        cognitive_eff = np.random.lognormal(0, 0.5, n_experiments)
+        performance = 0.8 * (1 - np.exp(-cognitive_eff)) + np.random.normal(0, 0.05, n_experiments)
+        performance = np.clip(performance, 0, 1)
+        
+        axes[0, 0].scatter(cognitive_eff, performance, alpha=0.7, s=60, c=performance, cmap='viridis')
+        axes[0, 0].set_xlabel('Cognitive Efficiency\n(Awareness / (Threshold × Recovery))')
+        axes[0, 0].set_ylabel('System Performance')
+        axes[0, 0].set_title('Cognitive Efficiency Scaling', fontweight='bold')
+        axes[0, 0].grid(True, alpha=0.3)
+        
+        # Add trend line
+        z = np.polyfit(cognitive_eff, performance, 2)
+        p = np.poly1d(z)
+        x_trend = np.linspace(min(cognitive_eff), max(cognitive_eff), 100)
+        axes[0, 0].plot(x_trend, p(x_trend), 'r--', linewidth=2, alpha=0.8, label='Trend')
+        axes[0, 0].legend()
+        
+        # Social Coupling vs Response Time
+        social_coupling = np.random.uniform(0.1, 2.0, n_experiments)
+        response_time = 10 / (1 + social_coupling) + np.random.normal(0, 0.5, n_experiments)
+        response_time = np.clip(response_time, 1, 15)
+        
+        axes[0, 1].scatter(social_coupling, response_time, alpha=0.7, s=60, c=social_coupling, cmap='plasma')
+        axes[0, 1].set_xlabel('Social Coupling\n(Connectivity / √Network_Size)')
+        axes[0, 1].set_ylabel('Response Time (normalized)')
+        axes[0, 1].set_title('Social Coupling Effect', fontweight='bold')
+        axes[0, 1].grid(True, alpha=0.3)
+        
+        # Add power law fit
+        valid_idx = (social_coupling > 0) & (response_time > 0)
+        if np.sum(valid_idx) > 5:
+            log_coupling = np.log(social_coupling[valid_idx])
+            log_response = np.log(response_time[valid_idx])
+            slope, intercept = np.polyfit(log_coupling, log_response, 1)
+            
+            x_fit = np.linspace(min(social_coupling), max(social_coupling), 100)
+            y_fit = np.exp(intercept) * x_fit**slope
+            axes[0, 1].plot(x_fit, y_fit, 'r--', linewidth=2, alpha=0.8, 
+                           label=f'Power law: t ∝ S^{slope:.2f}')
+            axes[0, 1].legend()
+        
+        # Temporal Scale vs Adaptation
+        temporal_scale = np.random.uniform(0.5, 5.0, n_experiments)
+        adaptation_rate = 1 - np.exp(-temporal_scale/2) + np.random.normal(0, 0.05, n_experiments)
+        adaptation_rate = np.clip(adaptation_rate, 0, 1)
+        
+        axes[1, 0].scatter(temporal_scale, adaptation_rate, alpha=0.7, s=60, c=temporal_scale, cmap='coolwarm')
+        axes[1, 0].set_xlabel('Temporal Scale\n(Conflict_Duration / Response_Time)')
+        axes[1, 0].set_ylabel('Adaptation Rate')
+        axes[1, 0].set_title('Temporal Scaling Effects', fontweight='bold')
+        axes[1, 0].grid(True, alpha=0.3)
+        
+        # Add exponential fit
+        popt = np.polyfit(temporal_scale, np.log(1 - adaptation_rate + 0.01), 1)
+        x_fit = np.linspace(min(temporal_scale), max(temporal_scale), 100)
+        y_fit = 1 - np.exp(popt[1] + popt[0] * x_fit)
+        axes[1, 0].plot(x_fit, y_fit, 'r--', linewidth=2, alpha=0.8, 
+                       label='Exponential saturation')
+        axes[1, 0].legend()
+        
+        # Multi-dimensional parameter space
+        # Create a 2D parameter space showing regime boundaries
+        x = np.linspace(0, 3, 50)
+        y = np.linspace(0, 2, 50)
+        X, Y = np.meshgrid(x, y)
+        
+        # Define performance regimes based on dimensionless groups
+        Z = np.zeros_like(X)
+        for i in range(len(x)):
+            for j in range(len(y)):
+                cognitive_eff = X[j, i]
+                social_coupling = Y[j, i]
+                
+                # Performance model based on both parameters
+                Z[j, i] = (0.7 * (1 - np.exp(-cognitive_eff)) + 
+                          0.3 * (1 - np.exp(-social_coupling))) * \
+                         (1 + 0.2 * cognitive_eff * social_coupling)
+        
+        contour = axes[1, 1].contourf(X, Y, Z, levels=20, cmap='viridis', alpha=0.8)
+        contour_lines = axes[1, 1].contour(X, Y, Z, levels=10, colors='white', alpha=0.6, linewidths=1)
+        axes[1, 1].clabel(contour_lines, inline=True, fontsize=8, fmt='%.2f')
+        
+        axes[1, 1].set_xlabel('Cognitive Efficiency')
+        axes[1, 1].set_ylabel('Social Coupling')
+        axes[1, 1].set_title('Performance Regime Map', fontweight='bold')
+        
+        # Add regime labels
+        axes[1, 1].text(0.5, 0.3, 'Low Performance\nRegime', fontsize=10, 
+                       bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
+        axes[1, 1].text(2.0, 1.5, 'High Performance\nRegime', fontsize=10,
+                       bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
+        
+        # Add colorbar
+        cbar = plt.colorbar(contour, ax=axes[1, 1])
+        cbar.set_label('Normalized Performance')
+        
+        plt.tight_layout()
+        plt.savefig(viz_dir / 'dimensionless_analysis.png', dpi=300, bbox_inches='tight')
+        plt.close()
+    
     def generate_summary_report(self, df):
         """Generate comprehensive summary report."""
         report_file = self.output_dir / "comprehensive_demo_report.md"
@@ -772,6 +1083,14 @@ For questions about this framework or collaboration opportunities:
         self.create_performance_dashboard(df, viz_dir)
         print("   ✓ Performance dashboard complete")
         
+        print("\n🗺️ Creating spatial network analysis...")
+        self.create_spatial_network_analysis(viz_dir)
+        print("   ✓ Spatial network visualization complete")
+        
+        print("\n🔢 Creating dimensionless parameter analysis...")
+        self.create_dimensionless_analysis(viz_dir)
+        print("   ✓ Dimensionless analysis complete")
+        
         print("\n📝 Generating comprehensive report...")
         report_file = self.generate_summary_report(df)
         print(f"   ✓ Report saved to: {report_file}")
@@ -791,6 +1110,8 @@ For questions about this framework or collaboration opportunities:
         print("   • topology_analysis.png")
         print("   • parameter_sensitivity.png")
         print("   • performance_dashboard.png")
+        print("   • spatial_network_analysis.png")
+        print("   • dimensionless_analysis.png")
         print()
         print("✅ Ready to share with Derek!")
         print("   GitHub: https://github.com/mjpuma/flee/tree/feature/dual-process-experiments")
