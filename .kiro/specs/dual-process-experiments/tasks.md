@@ -289,3 +289,245 @@
     - Finalize configuration templates and default parameter values
     - Create deployment package with installation instructions and dependencies
     - _Requirements: 8.1, 8.2, 8.6_
+
+## Phase 2: Real FLEE Scenario Implementation
+
+- [ ] 12. Implement H1: Speed vs Optimality Testing Scenarios
+
+  - [ ] 12.1 Create H1.1: Multi-Destination Choice scenario
+
+    - Create flee_dual_process/scenarios/h1_speed_optimality/h1_1_multi_destination/ directory structure
+    - Implement locations.csv with Origin-Hub-Camp_A/B/C network (different safety/capacity trade-offs)
+    - Create routes.csv with 50km/75km/100km distances to test route optimization
+    - Implement conflict.csv with escalating conflict at Origin (day 0→30→180)
+    - Add h1_1_metrics.py with decision quality measurements (time_to_move, camp_efficiency, avg_safety_achieved)
+    - _Requirements: New H1 scenario testing requirements_
+
+  - [ ] 12.2 Create H1.2: Time Pressure Cascade scenario
+
+    - Implement cascading conflict schedule across Town_A→B→C→D with 5-day intervals
+    - Create network topology with sequential towns and evacuation routes
+    - Add temporal pressure measurements for S1 (immediate) vs S2 (anticipatory) responses
+    - Implement metrics for evacuation timing and destination choice quality
+    - _Requirements: New H1 temporal pressure testing requirements_
+
+- [ ] 13. Implement H2: Social Connectivity Impact Scenarios
+
+  - [ ] 13.1 Create H2.1: Hidden Information scenario
+
+    - Implement Origin→Obvious_Camp (visible, limited) vs Origin→Hidden_Camp (better, requires social knowledge)
+    - Create agent_config.py with s2_connected, s2_isolated, s1_baseline agent types
+    - Add visibility and information access parameters to location definitions
+    - Implement information sharing mechanics for connected vs isolated agents
+    - Add metrics for destination discovery and information propagation
+    - _Requirements: New H2 connectivity testing requirements_
+
+  - [ ] 13.2 Create H2.2: Dynamic Information Sharing scenario
+
+    - Implement real-time camp capacity updates with information lag
+    - Create connected agent networks with information sharing protocols
+    - Add dynamic capacity tracking and information propagation simulation
+    - Implement metrics for information accuracy and decision timing
+    - _Requirements: New H2 dynamic information requirements_
+
+- [ ] 14. Implement H3: Dimensionless Parameter Testing
+
+  - [ ] 14.1 Create H3.1: Parameter Grid Search scenario
+
+    - Implement systematic parameter grid: conflict_intensity × recovery_period × connectivity_rate
+    - Create cognitive_pressure calculation: (conflict × connectivity) / (recovery/30.0)
+    - Generate experiment matrix with 175 parameter combinations
+    - Add phase transition detection algorithms for S2 activation threshold
+    - Implement statistical analysis for critical point identification
+    - _Requirements: New H3 scaling law testing requirements_
+
+  - [ ] 14.2 Create H3.2: Phase Transition Identification scenario
+
+    - Generate 50 scenarios with cognitive_pressure from 0 to 2
+    - Implement parameter combination generator for fixed pressure values
+    - Add critical point detection with sigmoid fitting
+    - Create phase diagram visualization and analysis tools
+    - _Requirements: New H3 phase transition requirements_
+
+- [ ] 15. Implement H4: Population Diversity Scenarios
+
+  - [ ] 15.1 Create H4.1: Adaptive Shock Response scenario
+
+    - Implement dynamic event timeline: conflict→route_closure→camp_full→new_camp
+    - Create population composition configurations: pure_s1, pure_s2, balanced, realistic
+    - Add adaptive response measurement for unexpected changes
+    - Implement resilience metrics for different population compositions
+    - _Requirements: New H4 diversity testing requirements_
+
+  - [ ] 15.2 Create H4.2: Information Cascade Test scenario
+
+    - Implement S1 "scout" and S2 "follower" behavior tracking
+    - Create information flow measurement between agent types
+    - Add destination correlation analysis between S1 and S2 choices
+    - Implement time lag analysis for information cascade effects
+    - _Requirements: New H4 information cascade requirements_
+
+- [ ] 16. Create Scenario Infrastructure
+
+  - [ ] 16.1 Implement ScenarioGenerator class
+
+    - Create base class with generate_network, generate_conflict_schedule, generate_population methods
+    - Add hypothesis-specific scenario generation for H1, H2, H3, H4
+    - Implement validation methods for scenario completeness and consistency
+    - Add CSV output generation for all FLEE input files
+    - _Requirements: Scenario generation infrastructure_
+
+  - [ ] 16.2 Create scenario validation framework
+
+    - Implement validate_scenario function with hypothesis-specific checks
+    - Add check_multiple_destinations_exist for H1 scenarios
+    - Add check_information_asymmetry for H2 scenarios
+    - Add check_parameter_range_sufficient for H3 scenarios
+    - Add check_population_diversity for H4 scenarios
+    - _Requirements: Scenario validation requirements_
+
+- [ ] 17. Implement Real FLEE Integration
+
+  - [ ] 17.1 Enhance FLEE Person class for cognitive modeling
+
+    - Add cognitive_state, system2_capable, connection_count attributes
+    - Implement cognitive decision-making logic in selectRoute method
+    - Add information sharing mechanics for connected agents
+    - Integrate cognitive pressure calculation with conflict intensity
+    - _Requirements: Real cognitive agent implementation_
+
+  - [ ] 17.2 Create cognitive tracking and output system
+
+    - Implement cognitive_tracking.csv output with agent states over time
+    - Create decision_log.csv with decision factors and reasoning
+    - Add metrics_summary.json with hypothesis-specific measurements
+    - Implement hypothesis_specific_analysis.pkl for detailed results
+    - _Requirements: Comprehensive cognitive tracking_
+
+- [ ] 18. Create Hypothesis Testing Pipeline
+
+  - [ ] 18.1 Implement automated scenario execution
+
+    - Create run_hypothesis_scenarios script for systematic testing
+    - Add parallel execution for multiple scenario runs
+    - Implement result aggregation across multiple runs
+    - Add statistical significance testing for hypothesis validation
+    - _Requirements: Automated hypothesis testing_
+
+  - [ ] 18.2 Create hypothesis-specific analysis tools
+
+    - Implement H1 decision quality analysis (speed vs optimality trade-offs)
+    - Create H2 connectivity impact analysis (information sharing effects)
+    - Add H3 phase transition analysis (critical point identification)
+    - Implement H4 diversity advantage analysis (mixed population benefits)
+    - _Requirements: Hypothesis-specific analysis capabilities_
+
+- [ ] 19. Implement Dimensionless Parameter Analysis
+
+  - [ ] 19.1 Create dimensionless parameter identification system
+
+    - Implement dimensionless parameter calculator for cognitive_pressure = (conflict_intensity × connectivity) / recovery_time
+    - Add automatic identification of other dimensionless combinations from experimental parameters
+    - Create parameter scaling validation to ensure dimensional consistency
+    - Implement universal scaling relationship detection algorithms
+    - _Requirements: 15.1, 15.2, 15.3_
+
+  - [ ] 19.2 Create dimensionless visualization framework
+
+    - Implement dimensionless parameter space plots with data collapse visualization
+    - Create universal scaling curve fitting and validation tools
+    - Add dimensionless parameter sensitivity analysis
+    - Implement publication-ready dimensionless parameter tables and figures
+    - _Requirements: 15.3, 15.4, 15.6_
+
+- [ ] 20. Implement Spatial Movement Visualization
+
+  - [ ] 20.1 Create network spatial layout system
+
+    - Implement automatic network layout algorithms for clear spatial visualization
+    - Create agent movement flow visualization with cognitive mode color coding
+    - Add temporal animation capabilities for movement evolution over time
+    - Implement interactive spatial exploration with zoom and filtering
+    - _Requirements: 16.1, 16.2, 16.3, 16.5_
+
+  - [ ] 20.2 Create spatial pattern analysis tools
+
+    - Implement location occupancy heatmaps and transition frequency analysis
+    - Create spatial clustering algorithms for movement pattern identification
+    - Add cognitive mode spatial comparison visualizations
+    - Implement spatial statistics for movement pattern quantification
+    - _Requirements: 16.4, 16.6_
+
+- [ ] 21. Implement Individual Agent Tracking
+
+  - [ ] 21.1 Create configurable agent tracking system
+
+    - Implement multi-level tracking: summary, detailed, full individual tracking
+    - Create efficient storage formats (HDF5, Parquet) for large agent datasets
+    - Add configurable sampling and compression options for output management
+    - Implement agent trajectory data validation and integrity checking
+    - _Requirements: 17.1, 17.3, 17.4, 17.5_
+
+  - [ ] 21.2 Create individual agent analysis tools
+
+    - Implement complete movement history tracking and decision factor logging
+    - Create agent-level trajectory analysis and clustering methods
+    - Add individual decision-making pattern identification algorithms
+    - Implement comparative analysis between individual and aggregate patterns
+    - _Requirements: 17.2, 17.6_
+
+## Phase 3: Real-World Case Study and Model Evaluation
+
+- [ ] 22. Implement South Sudan Conflict Case Study
+
+  - [ ] 22.1 Create South Sudan scenario from UNHCR data
+
+    - Obtain and process real UNHCR refugee data for South Sudan → Northern Uganda displacement
+    - Create authentic network topology based on actual displacement routes and camp locations
+    - Implement real conflict timeline using ACLED or similar conflict event data
+    - Add actual camp capacities, distances, and geographic constraints from UNHCR reports
+    - _Requirements: Real-world case study requirements_
+
+  - [ ] 22.2 Calibrate cognitive model parameters using real data
+
+    - Fit dual-process model parameters to match observed displacement patterns
+    - Assess cognitive pressure scaling using real conflict intensity and displacement timing
+    - Calibrate social connectivity parameters based on actual refugee network data
+    - Implement parameter uncertainty quantification and sensitivity analysis
+    - _Requirements: Model calibration and assessment_
+
+- [ ] 23. Evaluate Dual-Process Theory Predictions
+
+  - [ ] 23.1 Compare model predictions with observed refugee behavior
+
+    - Assess H1 predictions: Do faster vs more deliberate decision-makers show different destination choices?
+    - Evaluate H2 predictions: Do connected refugees discover better destinations than isolated ones?
+    - Test H3 predictions: Does cognitive pressure scaling predict S1/S2 activation patterns?
+    - Examine H4 predictions: Do mixed populations achieve better collective outcomes?
+    - _Requirements: Theory evaluation against real-world data_
+
+  - [ ] 23.2 Create real-world case study analysis
+
+    - Implement statistical comparison between model predictions and UNHCR observations
+    - Create assessment metrics for displacement timing, route choice, and destination selection
+    - Add model performance evaluation and goodness-of-fit measures
+    - Generate case study report with model limitations and future research directions
+    - _Requirements: Comprehensive real-world case study analysis_
+
+- [ ] 24. Create Publication-Ready Case Study
+
+  - [ ] 24.1 Generate South Sudan case study results
+
+    - Create comprehensive analysis of South Sudan displacement using dual-process framework
+    - Generate publication-quality figures comparing model vs observed displacement patterns
+    - Implement policy-relevant analysis of intervention scenarios (information campaigns, camp capacity)
+    - Add discussion of model insights for humanitarian response planning
+    - _Requirements: Publication-ready case study_
+
+  - [ ] 24.2 Create reproducible research package
+
+    - Package complete South Sudan case study with data, code, and analysis scripts
+    - Create detailed methodology documentation for real-world application
+    - Add replication instructions and data sources for other conflict scenarios
+    - Generate final publication manuscript with stylized scenarios + real-world validation
+    - _Requirements: Reproducible research and publication_
