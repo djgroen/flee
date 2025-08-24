@@ -14,6 +14,13 @@ from flee.Diagnostics import write_agents, write_links
 from flee.SimulationSettings import SimulationSettings
 from flee import moving, spawning, scoring, demographics
 
+# Optional import for cognitive logging (dual-process experiments)
+try:
+    from flee_dual_process.cognitive_logger import CognitiveStateLogger, DecisionLogger, SocialNetworkLogger
+    COGNITIVE_LOGGING_AVAILABLE = True
+except ImportError:
+    COGNITIVE_LOGGING_AVAILABLE = False
+
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
 else:
@@ -41,7 +48,10 @@ class Person:
         "locations_visited",
         "route",
         "days_in_current_location",   
-        "last_connection_update", 
+        "last_connection_update",
+        "cognitive_state",
+        "decision_history",
+        "system2_activations",
     ]
 
     @check_args_type
@@ -83,6 +93,11 @@ class Person:
         # System 1/System 2 tracking attributes
         self.days_in_current_location = 0      # Track time in current location
         self.last_connection_update = 0        # Track when connections were last updated
+        
+        # Cognitive state tracking attributes
+        self.cognitive_state = "S1"            # Current cognitive mode (S1 or S2)
+        self.decision_history = []             # Log of decision-making processes
+        self.system2_activations = 0           # Count of System 2 activations
     
         if SimulationSettings.log_levels["agent"] > 0:
             self.distance_travelled = 0 
@@ -99,9 +114,33 @@ class Person:
                 else:
                     self.attributes["farmer"] = 0
 
-
-
-
+    @check_args_type
+    def log_decision(self, decision_type: str, factors: dict, time: int) -> None:
+        """
+        Log decision-making process for cognitive state analysis.
+        
+        Args:
+            decision_type: Type of decision (e.g., 'move', 'stay', 'route_selection')
+            factors: Dictionary of factors that influenced the decision
+            time: Current simulation time
+            
+        Returns:
+            None
+        """
+        decision_entry = {
+            'time': time,
+            'type': decision_type,
+            'cognitive_state': self.cognitive_state,
+            'factors': factors.copy(),  # Make a copy to avoid reference issues
+            'location': self.location.name if self.location and hasattr(self.location, 'name') else None,
+            'connections': self.attributes.get("connections", 0)
+        }
+        
+        self.decision_history.append(decision_entry)
+        
+        # Limit decision history size to prevent memory issues
+        if len(self.decision_history) > 1000:
+            self.decision_history = self.decision_history[-500:]  # Keep last 500 entries
 
     # Add social connectivity
     def update_social_connectivity(self, new_location, time):
@@ -268,21 +307,53 @@ class Person:
         
             # Calculate the agent's move chance with System 1/System 2 logic
             movechance, system2_active = moving.calculateMoveChance(self, ForceTownMove, time)
+            
+            # Update cognitive state based on system2_active
+            previous_state = self.cognitive_state
+            if system2_active:
+                self.cognitive_state = "S2"
+                if previous_state == "S1":
+                    self.system2_activations += 1
+            else:
+                self.cognitive_state = "S1"
     
             # Generate a random number and compare it to the move chance
             outcome = random.random()
+            
+            # Log the movement decision
+            decision_factors = {
+                'movechance': movechance,
+                'outcome': outcome,
+                'system2_active': system2_active,
+                'force_town_move': ForceTownMove,
+                'conflict_level': getattr(self.location, 'conflict', 0) if self.location else 0,
+                'days_in_location': self.days_in_current_location
+            }
     
             # If the outcome is less than the move chance, then the agent moves
             if outcome < movechance:
+                # Log the decision to move
+                self.log_decision('move', decision_factors, time)
+                
                 # If the agent does not have an existing route, then plan a new route
                 if len(self.route) == 0:
                     # System 2 route planning: use pre-calculated route if available
                     if system2_active and "_temp_route" in self.attributes:
                         self.route = self.attributes["_temp_route"]
                         del self.attributes["_temp_route"]
+                        # Log route selection decision
+                        self.log_decision('route_selection', {
+                            'method': 'system2_precalculated',
+                            'route_length': len(self.route)
+                        }, time)
                     else:
                         # System 1 route planning: calculate route on the fly
                         self.route = moving.selectRoute(self, time=time)
+                        # Log route selection decision
+                        self.log_decision('route_selection', {
+                            'method': 'system1_immediate',
+                            'route_length': len(self.route)
+                        }, time)
     
                 # Attempt to follow route. Return None if fail.  
                 chosenDest = self.take_next_step(e)
@@ -291,6 +362,9 @@ class Person:
                 if chosenDest:
                     # update location to link endpoint
                     self.handle_travel(chosenDest, travelling=True)
+            else:
+                # Log the decision to stay
+                self.log_decision('stay', decision_factors, time)
 
 
     @check_args_type
@@ -907,6 +981,13 @@ class Ecosystem:
         if SimulationSettings.log_levels["camp"] > 0:
             self.num_arrivals = []  # one element per time step.
             self.travel_durations = []  # one element per time step.
+            
+        # Initialize cognitive loggers if available and enabled
+        self.cognitive_loggers = {}
+        if COGNITIVE_LOGGING_AVAILABLE and SimulationSettings.log_levels.get("cognitive", 0) > 0:
+            self.cognitive_loggers['state'] = CognitiveStateLogger()
+            self.cognitive_loggers['decision'] = DecisionLogger()
+            self.cognitive_loggers['social'] = SocialNetworkLogger()
 
 
 
@@ -1777,6 +1858,15 @@ class Ecosystem:
 
         if SimulationSettings.log_levels["link"] > 0:
             write_links(locations=self.locations, time=self.time)
+            
+        # Write cognitive state logs if enabled
+        if self.cognitive_loggers:
+            if 'state' in self.cognitive_loggers:
+                self.cognitive_loggers['state'].write_cognitive_states_csv(self.agents, self.time)
+            if 'decision' in self.cognitive_loggers:
+                self.cognitive_loggers['decision'].write_decision_log_csv(self.agents, self.time)
+            if 'social' in self.cognitive_loggers:
+                self.cognitive_loggers['social'].write_social_network_csv(self.agents, self.time)
 
         for a in self.agents:
             a.recent_travel_distance = (
@@ -2129,3 +2219,18 @@ class Ecosystem:
 
         """
         return True
+    @check_args_type
+    def close_cognitive_loggers(self) -> None:
+        """
+        Summary:
+            Close all cognitive loggers to ensure data is properly written.
+            
+        Args:
+            None.
+            
+        Returns:
+            None.
+        """
+        if hasattr(self, 'cognitive_loggers') and self.cognitive_loggers:
+            for logger in self.cognitive_loggers.values():
+                logger.close()
