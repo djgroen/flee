@@ -1,0 +1,31 @@
+log_levels:
+  agent: 0
+  camp: 0
+  conflict: 0
+  granularity: location
+  init: 0
+  link: 0
+move_rules:
+  average_social_connectivity: 0.0
+  avoid_short_stints: false
+  awareness_level: 1
+  camp_movechance: 0.001
+  camp_weight: 1.0
+  capacity_scaling: 1.0
+  conflict_movechance: 1.0
+  conflict_threshold: 0.6
+  conflict_weight: 0.25
+  default_movechance: 0.3
+  foreign_weight: 1.0
+  max_move_speed: 360.0
+  max_walk_speed: 35.0
+  recovery_period_max: 30
+  start_on_foot: false
+  two_system_decision_making: true
+  weight_power: 1.0
+  weight_softening: 0.3
+optimisations:
+  hasten: 1
+spawn_rules:
+  insert_day0: true
+  take_from_population: false

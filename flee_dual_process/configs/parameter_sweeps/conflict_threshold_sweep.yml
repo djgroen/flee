@@ -1,0 +1,8 @@
+# Parameter Sweep: Conflict Threshold
+# Tests the effect of different conflict thresholds on System 2 activation
+
+sweep_type: single_parameter
+parameter: move_rules.conflict_threshold
+values: [0.2, 0.4, 0.6, 0.8]
+base_cognitive_mode: dual_process
+description: "Sweep conflict threshold to test when System 2 thinking is triggered"
