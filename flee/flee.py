@@ -307,7 +307,8 @@ class Person:
         Returns:
             None.
         """
-        if self.travelling:
+        # Use a loop to avoid recursive calls that cause stack overflow
+        while self.travelling:
 
             todays_travel_speed = float(self.location.attributes.get("max_move_speed", SimulationSettings.move_rules["MaxMoveSpeed"]))
 
@@ -340,6 +341,7 @@ class Person:
                 # destination and return.
                 if self.location.closed is True:
                     self.handle_travel(self.location.startpoint, travelling=False)
+                    break  # Exit the loop as travel is finished
                 else:
                     # if the person has moved less than the MaxMoveSpeed, it
                     # should go through another evolve() step in the new
@@ -376,7 +378,12 @@ class Person:
                             ) / 2.0 < 0.5:
                                 ForceTownMove = True
                         self.evolve(e, time=time, ForceTownMove=ForceTownMove)
-                        self.finish_travel(e, time=time)
+                        # Continue the loop to process any new travel
+                        # This replaces the recursive call that caused stack overflow
+                    else:
+                        break  # Exit the loop as no more travel is needed
+            else:
+                break  # Exit the loop as destination not yet reached
 
 
 class Location:

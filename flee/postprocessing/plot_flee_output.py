@@ -125,28 +125,41 @@ def plot_camps(data: pd.DataFrame, config: str, output: str) -> None:
 
     for i in range(len(cols)):
 
-        name = cols[i].split()
-
-        if name[0]=="Date": #Date is not a camp field.
-            continue
-
-        y1 = data_filtered["%s sim" % name[0]]
-        y2 = data_filtered["%s data" % name[0]]
+        # Fix for camp cluster names - extract camp name from columns like "Kubwa (Camp Cluster) sim"
+        if cols[i].endswith(" sim"):
+            camp_name = cols[i][:-4]  # Remove " sim" suffix
+            sim_col = cols[i]
+            data_col = camp_name + " data"
+            
+            # Extract display name (first word for title)
+            name = cols[i].split()
+            display_name = name[0]
+            
+            if display_name == "Date":  # Date is not a camp field.
+                continue
+                
+            if data_col not in data_filtered.columns:
+                continue  # Skip if corresponding data column doesn't exist
+                
+            y1 = data_filtered[sim_col]
+            y2 = data_filtered[data_col]
+        else:
+            continue  # Skip non-simulation columns
           
         fig = matplotlib.pyplot.gcf()
         fig.set_size_inches(10, 8)
 
         plt.xlabel("Days elapsed", fontsize=14)
         plt.ylabel("Number of asylum seekers / unrecognised refugees", fontsize=14)
-        plt.title("{}".format(name[0]), fontsize=18)
+        plt.title("{}".format(display_name), fontsize=18)
 
-        (label1,) = plt.plot(data_filtered.index, y1, "r", linewidth=5, label="{} simulation".format(name[0]))
+        (label1,) = plt.plot(data_filtered.index, y1, "r", linewidth=5, label="{} simulation".format(display_name))
         
-        (label2,) = plt.plot(data_filtered.index, y2, "b", linewidth=5, label="{} UNHCR data".format(name[0]))
+        (label2,) = plt.plot(data_filtered.index, y2, "b", linewidth=5, label="{} UNHCR data".format(display_name))
 
         plt.legend(handles=[label1, label2], loc=0, prop={"size": 14})
 
-        plt.savefig("{}/{}.png".format(output, name[0]), bbox_inches = 'tight')
+        plt.savefig("{}/{}.png".format(output, display_name), bbox_inches = 'tight')
 
         plt.clf()
 
