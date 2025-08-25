@@ -376,7 +376,13 @@ class Person:
                             ) / 2.0 < 0.5:
                                 ForceTownMove = True
                         self.evolve(e, time=time, ForceTownMove=ForceTownMove)
-                        self.finish_travel(e, time=time)
+                        try:
+                            self.finish_travel(e, time=time)
+                        except RecursionError:
+                            print("ERROR: Python recursion limit exceeded in finish_travel, due to excessive location hopping of an agent on a single day.", file=sys.stderr)
+                            print("This most likely means that your move speed is extremely high, and/or your link lengths extremely short.", file=sys.stderr)
+                            print("(Flee is not designed to handle such cases, as it can lead to an explosion in logging output and a degradation of the decision-making algorithm.)", file=sys.stderr)
+                            sys.exit()
 
 
 class Location:
