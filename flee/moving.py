@@ -24,7 +24,7 @@ def getEndPointScore(agent, endpoint, time) -> float:
 
     Args:
         agent (Person): agent making the decision
-        link (Link): link to the endpoint
+        endpoint (Location): endpoint location to score
         time (int): current time step
 
     Returns:
@@ -32,6 +32,28 @@ def getEndPointScore(agent, endpoint, time) -> float:
     """
     #print(endpoint.name, endpoint.scores)
     base = endpoint.getScore(0)
+    
+    # Consider shared safety information if available
+    if "_safety_info" in agent.attributes:
+        safety_info = agent.attributes["_safety_info"]
+        if endpoint.name in safety_info:
+            location_info = safety_info[endpoint.name]
+            
+            # Adjust score based on shared conflict information
+            shared_conflict = location_info.get('conflict_level', 0)
+            if shared_conflict > 0.5:
+                base *= 0.5  # Reduce attractiveness of high-conflict areas
+            
+            # Adjust score based on shared capacity information
+            capacity_ratio = location_info.get('capacity_ratio', 0)
+            if capacity_ratio > 0.9:
+                base *= 0.3  # Heavily penalize overcrowded locations
+            elif capacity_ratio > 0.7:
+                base *= 0.7  # Moderately penalize crowded locations
+            
+            # Boost score for camps if they're not overcrowded
+            if location_info.get('camp_status', False) and capacity_ratio < 0.8:
+                base *= 1.5  # Camps are generally safer destinations
 
     # The base score is derived from the perceived level of safety and security.
     # E.g. Conflict zones have lower scores, camps have higher scores.
@@ -345,24 +367,33 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
     system2_active = False
 
     if SimulationSettings.move_rules["TwoSystemDecisionMaking"] is True:
-        # System 2 Activation Logic
-        conflict_triggered = a.location.conflict > 0.6
-        in_recovery = a.location.time_of_conflict >= 0 and \
-                  time >= a.location.time_of_conflict + 10
-        connected = a.attributes.get("connections", 0) >= 3
-   
-        if conflict_triggered and in_recovery and connected:
+        # Enhanced System 2 Activation Logic with cognitive pressure
+        cognitive_pressure = a.calculate_cognitive_pressure(time)
+        system2_capable = a.get_system2_capable()
+        
+        # System 2 activation threshold based on cognitive pressure
+        activation_threshold = SimulationSettings.move_rules.get("conflict_threshold", 0.5)
+        if cognitive_pressure > activation_threshold and system2_capable:
             system2_active = True
         
             # Safe access to location name for debugging
             location_name = getattr(a.location, 'name', 'UnknownLocation')
-            print(f"System 2 activated: Agent at {location_name} (connections: {a.attributes.get('connections', 0)}) at time {time}", file=sys.stderr)
+            print(f"System 2 activated: Agent at {location_name} (pressure: {cognitive_pressure:.2f}, connections: {a.attributes.get('connections', 0)}) at time {time}", file=sys.stderr)
 
-            provisional_route = selectRoute(a, time)
+            # Pre-calculate route for System 2 decision-making
+            provisional_route = selectRoute(a, time, system2_active=True)
             if len(provisional_route) == 0:
                 return 0.0, True  # suppress move if no viable route
             else:
                 a.attributes["_temp_route"] = provisional_route
+                
+                # Share route information with connected agents
+                if a.attributes.get("connections", 0) > 0:
+                    import flee
+                    # We need to pass the ecosystem, but it's not available here
+                    # This will be handled in the evolve method
+                    a.attributes["_share_route_info"] = True
+                    
             # For System 2, always return 1.0 (100% chance to initiate movement decision)
             return 1.0, system2_active
 

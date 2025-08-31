@@ -16,7 +16,7 @@ from flee import moving, spawning, scoring, demographics
 
 # Optional import for cognitive logging (dual-process experiments)
 try:
-    from flee_dual_process.cognitive_logger import CognitiveStateLogger, DecisionLogger, SocialNetworkLogger
+    from flee_dual_process.cognitive_logger import CognitiveStateLogger, DecisionLogger, SocialNetworkLogger, MetricsSummaryLogger
     COGNITIVE_LOGGING_AVAILABLE = True
 except ImportError:
     COGNITIVE_LOGGING_AVAILABLE = False
@@ -141,6 +141,90 @@ class Person:
         # Limit decision history size to prevent memory issues
         if len(self.decision_history) > 1000:
             self.decision_history = self.decision_history[-500:]  # Keep last 500 entries
+
+    @check_args_type
+    def calculate_cognitive_pressure(self, time: int) -> float:
+        """
+        Calculate cognitive pressure based on conflict intensity, connectivity, and recovery period.
+        
+        Args:
+            time: Current simulation time
+            
+        Returns:
+            Cognitive pressure value (dimensionless parameter)
+        """
+        if self.location is None:
+            return 0.0
+            
+        # Get conflict intensity (0.0 to 1.0)
+        conflict_intensity = max(0.0, getattr(self.location, 'conflict', 0.0))
+        
+        # Get connectivity (0 to 10, normalized to 0.0 to 1.0)
+        connectivity = min(1.0, self.attributes.get("connections", 0) / 10.0)
+        
+        # Calculate recovery period (days since last major conflict)
+        recovery_period = 30.0  # Default recovery period
+        if hasattr(self.location, 'time_of_conflict') and self.location.time_of_conflict >= 0:
+            recovery_period = max(1.0, time - self.location.time_of_conflict)
+        
+        # Cognitive pressure formula: (conflict × connectivity) / (recovery/30.0)
+        cognitive_pressure = (conflict_intensity * connectivity) / (recovery_period / 30.0)
+        
+        return cognitive_pressure
+
+    @check_args_type
+    def share_information_with_connected_agents(self, ecosystem, information: dict) -> None:
+        """
+        Share information with connected agents in the same location.
+        
+        Args:
+            ecosystem: The simulation ecosystem
+            information: Dictionary of information to share
+        """
+        if self.location is None or self.attributes.get("connections", 0) == 0:
+            return
+            
+        # Find other agents in the same location
+        connected_agents = []
+        for agent in ecosystem.agents:
+            if (agent != self and 
+                agent.location == self.location and 
+                agent.attributes.get("connections", 0) > 0):
+                connected_agents.append(agent)
+        
+        # Share information with a subset based on connection strength
+        max_shares = min(len(connected_agents), self.attributes.get("connections", 0))
+        if max_shares > 0:
+            import random
+            agents_to_share = random.sample(connected_agents, max_shares)
+            
+            for agent in agents_to_share:
+                # Share route information
+                if "route_info" in information and "_temp_route" not in agent.attributes:
+                    agent.attributes["_shared_route"] = information["route_info"].copy()
+                
+                # Share location safety information
+                if "location_safety" in information:
+                    if "_safety_info" not in agent.attributes:
+                        agent.attributes["_safety_info"] = {}
+                    agent.attributes["_safety_info"].update(information["location_safety"])
+
+    @check_args_type
+    def get_system2_capable(self) -> bool:
+        """
+        Determine if agent is capable of System 2 thinking.
+        
+        Returns:
+            True if agent can use System 2 thinking
+        """
+        # System 2 capability based on connections and experience
+        min_connections = 2
+        min_travel_experience = 5  # days since departure
+        
+        has_connections = self.attributes.get("connections", 0) >= min_connections
+        has_experience = self.timesteps_since_departure >= min_travel_experience
+        
+        return has_connections or has_experience
 
     # Add social connectivity
     def update_social_connectivity(self, new_location, time):
@@ -316,6 +400,31 @@ class Person:
                     self.system2_activations += 1
             else:
                 self.cognitive_state = "S1"
+            
+            # Handle information sharing if System 2 is active and agent has connections
+            if system2_active and self.attributes.get("_share_route_info", False):
+                route_info = self.attributes.get("_temp_route", [])
+                if route_info:
+                    safety_info = {}
+                    # Collect safety information about potential destinations
+                    for location_name in route_info:
+                        for loc in e.locations:
+                            if loc.name == location_name:
+                                safety_info[location_name] = {
+                                    'conflict_level': getattr(loc, 'conflict', 0),
+                                    'capacity_ratio': loc.numAgents / max(1, loc.capacity) if loc.capacity > 0 else 0,
+                                    'camp_status': loc.camp or loc.idpcamp
+                                }
+                                break
+                    
+                    # Share information with connected agents
+                    self.share_information_with_connected_agents(e, {
+                        'route_info': route_info,
+                        'location_safety': safety_info
+                    })
+                
+                # Clean up the sharing flag
+                del self.attributes["_share_route_info"]
     
             # Generate a random number and compare it to the move chance
             outcome = random.random()
@@ -344,15 +453,32 @@ class Person:
                         # Log route selection decision
                         self.log_decision('route_selection', {
                             'method': 'system2_precalculated',
-                            'route_length': len(self.route)
+                            'route_length': len(self.route),
+                            'cognitive_pressure': self.calculate_cognitive_pressure(time)
+                        }, time)
+                    # Check for shared route information from connected agents
+                    elif "_shared_route" in self.attributes:
+                        self.route = self.attributes["_shared_route"]
+                        del self.attributes["_shared_route"]
+                        # Log route selection decision
+                        self.log_decision('route_selection', {
+                            'method': 'shared_information',
+                            'route_length': len(self.route),
+                            'connections': self.attributes.get("connections", 0)
                         }, time)
                     else:
                         # System 1 route planning: calculate route on the fly
-                        self.route = moving.selectRoute(self, time=time)
+                        # But consider shared safety information if available
+                        route_selection_method = 'system1_immediate'
+                        if "_safety_info" in self.attributes:
+                            route_selection_method = 'system1_with_shared_info'
+                        
+                        self.route = moving.selectRoute(self, time=time, system2_active=system2_active)
                         # Log route selection decision
                         self.log_decision('route_selection', {
-                            'method': 'system1_immediate',
-                            'route_length': len(self.route)
+                            'method': route_selection_method,
+                            'route_length': len(self.route),
+                            'has_safety_info': "_safety_info" in self.attributes
                         }, time)
     
                 # Attempt to follow route. Return None if fail.  
@@ -988,6 +1114,7 @@ class Ecosystem:
             self.cognitive_loggers['state'] = CognitiveStateLogger()
             self.cognitive_loggers['decision'] = DecisionLogger()
             self.cognitive_loggers['social'] = SocialNetworkLogger()
+            self.cognitive_loggers['metrics'] = MetricsSummaryLogger()
 
 
 
@@ -1867,6 +1994,8 @@ class Ecosystem:
                 self.cognitive_loggers['decision'].write_decision_log_csv(self.agents, self.time)
             if 'social' in self.cognitive_loggers:
                 self.cognitive_loggers['social'].write_social_network_csv(self.agents, self.time)
+            if 'metrics' in self.cognitive_loggers:
+                self.cognitive_loggers['metrics'].collect_timestep_metrics(self.agents, self.time)
 
         for a in self.agents:
             a.recent_travel_distance = (
@@ -1892,6 +2021,23 @@ class Ecosystem:
         self.time += 1
         self.date = datetime.strptime(self.start_date_string, "%Y-%m-%d") + timedelta(days=self.time)
         self.date_string = self.date.strftime("%Y-%m-%d")
+
+    @check_args_type
+    def finalize_cognitive_logging(self) -> None:
+        """
+        Finalize cognitive logging by writing summary files and closing loggers.
+        Should be called at the end of simulation.
+        """
+        if self.cognitive_loggers:
+            # Write summary files
+            if 'metrics' in self.cognitive_loggers:
+                self.cognitive_loggers['metrics'].write_metrics_summary_json()
+                self.cognitive_loggers['metrics'].write_hypothesis_specific_analysis_pkl()
+            
+            # Close all loggers
+            for logger_name, logger in self.cognitive_loggers.items():
+                if hasattr(logger, 'close'):
+                    logger.close()
 
 
     @check_args_type

@@ -300,6 +300,9 @@ class SimulationSettings:
 
         # Enable / Disable System 2 logic
         SimulationSettings.move_rules["TwoSystemDecisionMaking"] = float(fetchss(dpr,"two_system_decision_making", False))
+        
+        # System 2 activation threshold for cognitive pressure
+        SimulationSettings.move_rules["conflict_threshold"] = float(fetchss(dpr,"conflict_threshold", 0.5))
 
         # Enable Farmer harvesting
         SimulationSettings.move_rules["HarvestMonths"] = fetchss(dpr, "harvest_months", [])
