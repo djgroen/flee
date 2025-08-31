@@ -1,5 +1,0 @@
-name,region,country,lat,lon,location_type,conflict_date,population
-Origin,TestRegion,TestCountry,0.0,0.0,conflict,2023-01-01,5000
-Close_Safe,TestRegion,TestCountry,0.0,80.0,camp,,0
-Medium_Balanced,TestRegion,TestCountry,150.0,0.0,camp,,0
-Far_Excellent,TestRegion,TestCountry,100.0,-200.0,camp,,0

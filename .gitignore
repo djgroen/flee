@@ -113,3 +113,6 @@ ENV/
 #Mac files 
 
 .DS_Store
+
+# Large archive directories (too big for GitHub)
+archive/

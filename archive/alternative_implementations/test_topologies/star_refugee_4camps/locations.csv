@@ -1,7 +1,0 @@
-name,region,country,lat,lon,location_type,conflict_date,population
-Origin,TestRegion,TestCountry,0.0,0.0,conflict,2023-01-01,10000
-Hub,TestRegion,TestCountry,0.0,100.0,town,,2000
-Camp_North,TestRegion,TestCountry,0.0,250.0,camp,,0
-Camp_East,TestRegion,TestCountry,150.0,100.00000000000001,camp,,0
-Camp_South,TestRegion,TestCountry,1.8369701987210297e-14,-50.0,camp,,0
-Camp_West,TestRegion,TestCountry,-150.0,99.99999999999997,camp,,0

@@ -1,5 +1,0 @@
-#name,region,country,lat,lon,location_type,conflict_date,population/capacity,gps,visibility,info_source,safety_level
-Origin,Central,TestCountry,0.0,0.0,town,0,8000,,1.0,false,0.3
-Information_Hub,Central,TestCountry,0.3,0.2,town,,1000,,1.0,true,0.5
-Obvious_Camp,North,TestCountry,0.6,0.4,camp,,2000,,1.0,false,0.6
-Hidden_Camp,South,TestCountry,-0.4,0.6,camp,,4000,,0.0,false,0.9

@@ -1,6 +1,0 @@
-#name1,name2,distance [km],forced_redirection
-Origin,Information_Hub,20,
-Origin,Obvious_Camp,40,
-Information_Hub,Obvious_Camp,25,
-Information_Hub,Hidden_Camp,45,
-Origin,Hidden_Camp,60,
