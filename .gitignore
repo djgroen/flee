@@ -116,3 +116,11 @@ ENV/
 
 # Large archive directories (too big for GitHub)
 archive/
+
+# Image files (can be large and cause push failures)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
