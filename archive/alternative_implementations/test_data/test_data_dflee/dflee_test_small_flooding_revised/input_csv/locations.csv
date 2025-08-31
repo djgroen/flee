@@ -1,0 +1,7 @@
+#name,region,country,lat,lon,location_type,conflict_date,population
+Top_Left,A,ABC,1,1,town,0,2000
+Top_Centre,A,ABC,1,1,town,0,2000
+Top_Right,A,ABC,1,1,town,0,2000
+Down_Right,A,ABC,1,1,town,0,2000
+Down_Centre,A,ABC,1,1,town,0,2000
+Down_Left,A,ABC,1,1,town,0,1000

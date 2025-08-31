@@ -1,0 +1,6 @@
+#name,region,country,lat,lon,location_type,conflict_date,population/capacity,gps,info_sharing_hub,capacity_dynamic
+Origin,Central,TestCountry,0.0,0.0,town,0,6000,,false,false
+Info_Station,Central,TestCountry,0.2,0.3,town,,500,,true,false
+Camp_Alpha,North,TestCountry,0.8,0.2,camp,,4000,,false,true
+Camp_Beta,East,TestCountry,0.4,0.8,camp,,2500,,false,true
+Camp_Gamma,South,TestCountry,-0.3,0.6,camp,,1500,,false,false

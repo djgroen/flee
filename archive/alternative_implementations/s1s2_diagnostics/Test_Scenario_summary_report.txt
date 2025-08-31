@@ -1,0 +1,34 @@
+S1/S2 REFUGEE SIMULATION DIAGNOSTIC REPORT
+==================================================
+
+Scenario: Test_Scenario
+Generated: 2025-08-31T01:58:44.304856
+
+SCENARIO OVERVIEW
+--------------------
+Type: Linear Chain
+Forcing: Oscillating
+Duration: 10 days
+Agents: 20
+Locations: 3
+
+COGNITIVE PATTERNS
+--------------------
+S1 Decisions: 10
+S2 Decisions: 10
+S2 Activation Rate: 50.0%
+
+PERFORMANCE SUMMARY
+--------------------
+S1 Avg Evacuation Time: 2.0 days
+S2 Avg Evacuation Time: 7.0 days
+S1 Avg Safety Score: 0.70
+S2 Avg Safety Score: 0.70
+
+FILES GENERATED
+--------------------
+• Test_Scenario_panel1_scenario_context.png
+• Test_Scenario_panel2_agent_dynamics.png
+• Test_Scenario_panel3_system_performance.png
+• Test_Scenario_panel4_comparative_analysis.png
+• Test_Scenario_summary_report.txt

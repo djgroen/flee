@@ -1,0 +1,6 @@
+#name,region,country,lat,lon,location_type,conflict_date,population/capacity,gps
+Origin,Central,TestCountry,0.0,0.0,town,0,10000,
+Hub,Central,TestCountry,0.5,0.0,town,,5000,
+Camp_A,North,TestCountry,1.0,-0.5,camp,,3000,
+Camp_B,East,TestCountry,1.0,0.5,camp,,5000,
+Camp_C,South,TestCountry,0.0,-1.0,camp,,8000,

@@ -1,0 +1,5 @@
+name,region,country,lat,lon,location_type,conflict_date,population
+Origin,TestRegion,TestCountry,0.0,0.0,conflict,2023-01-01,4000
+Bottleneck,TestRegion,TestCountry,0.0,100.0,town,,200
+Camp_A_Close,TestRegion,TestCountry,50.0,150.0,camp,,0
+Camp_B_Better,TestRegion,TestCountry,-50.0,300.0,camp,,0

@@ -1,0 +1,1543 @@
+{
+  "scenario_config": {
+    "conflict_escalation_days": 30,
+    "max_conflict_level": 1.0,
+    "origin_population": 8000,
+    "camp_capacity": 5000,
+    "s1_agent_ratio": 0.5,
+    "connectivity_range": [
+      1,
+      8
+    ]
+  },
+  "topology_name": "linear_evacuation_1towns",
+  "agents": [
+    {
+      "agent_id": 0,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 11,
+      "evacuation_trigger": 0.4737191312466611,
+      "conflict_at_evacuation": 0.42999999999999994
+    },
+    {
+      "agent_id": 1,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 12,
+      "evacuation_trigger": 0.38448781306524626,
+      "conflict_at_evacuation": 0.4600000000000001
+    },
+    {
+      "agent_id": 2,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 19,
+      "evacuation_trigger": 0.870811967814467,
+      "conflict_at_evacuation": 0.6699999999999999
+    },
+    {
+      "agent_id": 3,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 10,
+      "evacuation_trigger": 0.4777228182246059,
+      "conflict_at_evacuation": 0.4
+    },
+    {
+      "agent_id": 4,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.4803921417724505,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 5,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 25,
+      "evacuation_trigger": 0.8379998577541063,
+      "conflict_at_evacuation": 0.85
+    },
+    {
+      "agent_id": 6,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 10,
+      "evacuation_trigger": 0.4110331712396637,
+      "conflict_at_evacuation": 0.4
+    },
+    {
+      "agent_id": 7,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 19,
+      "evacuation_trigger": 0.7255037734136672,
+      "conflict_at_evacuation": 0.6699999999999999
+    },
+    {
+      "agent_id": 8,
+      "connections": 8,
+      "system2_capable": true,
+      "evacuation_day": 8,
+      "evacuation_trigger": 0.4454468210284471,
+      "conflict_at_evacuation": 0.33999999999999997
+    },
+    {
+      "agent_id": 9,
+      "connections": 6,
+      "system2_capable": true,
+      "evacuation_day": 8,
+      "evacuation_trigger": 0.47856408419827795,
+      "conflict_at_evacuation": 0.33999999999999997
+    },
+    {
+      "agent_id": 10,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 6,
+      "evacuation_trigger": 0.41779159393211507,
+      "conflict_at_evacuation": 0.28
+    },
+    {
+      "agent_id": 11,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 24,
+      "evacuation_trigger": 0.7581702033323874,
+      "conflict_at_evacuation": 0.8200000000000001
+    },
+    {
+      "agent_id": 12,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 25,
+      "evacuation_trigger": 0.8455098517064569,
+      "conflict_at_evacuation": 0.85
+    },
+    {
+      "agent_id": 13,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 25,
+      "evacuation_trigger": 0.7254318261209157,
+      "conflict_at_evacuation": 0.85
+    },
+    {
+      "agent_id": 14,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 22,
+      "evacuation_trigger": 0.8483525283138518,
+      "conflict_at_evacuation": 0.7599999999999999
+    },
+    {
+      "agent_id": 15,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 17,
+      "evacuation_trigger": 0.7046314455632103,
+      "conflict_at_evacuation": 0.61
+    },
+    {
+      "agent_id": 16,
+      "connections": 6,
+      "system2_capable": true,
+      "evacuation_day": 10,
+      "evacuation_trigger": 0.3316410956319021,
+      "conflict_at_evacuation": 0.4
+    },
+    {
+      "agent_id": 17,
+      "connections": 7,
+      "system2_capable": true,
+      "evacuation_day": 8,
+      "evacuation_trigger": 0.42228901885707126,
+      "conflict_at_evacuation": 0.33999999999999997
+    },
+    {
+      "agent_id": 18,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 21,
+      "evacuation_trigger": 0.8026048928603877,
+      "conflict_at_evacuation": 0.73
+    },
+    {
+      "agent_id": 19,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 11,
+      "evacuation_trigger": 0.3346610298993451,
+      "conflict_at_evacuation": 0.42999999999999994
+    },
+    {
+      "agent_id": 20,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.33912759057627956,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 21,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 19,
+      "evacuation_trigger": 0.78118953244597,
+      "conflict_at_evacuation": 0.6699999999999999
+    },
+    {
+      "agent_id": 22,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 6,
+      "evacuation_trigger": 0.37079471567934147,
+      "conflict_at_evacuation": 0.28
+    },
+    {
+      "agent_id": 23,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 8,
+      "evacuation_trigger": 0.37994856710298613,
+      "conflict_at_evacuation": 0.33999999999999997
+    },
+    {
+      "agent_id": 24,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 25,
+      "evacuation_trigger": 0.8207640273086141,
+      "conflict_at_evacuation": 0.85
+    },
+    {
+      "agent_id": 25,
+      "connections": 6,
+      "system2_capable": true,
+      "evacuation_day": 10,
+      "evacuation_trigger": 0.32763557477986033,
+      "conflict_at_evacuation": 0.4
+    },
+    {
+      "agent_id": 26,
+      "connections": 7,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.3738634989431657,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 27,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 17,
+      "evacuation_trigger": 0.7932967993031413,
+      "conflict_at_evacuation": 0.61
+    },
+    {
+      "agent_id": 28,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 23,
+      "evacuation_trigger": 0.8830575613790663,
+      "conflict_at_evacuation": 0.79
+    },
+    {
+      "agent_id": 29,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 12,
+      "evacuation_trigger": 0.3748606258263007,
+      "conflict_at_evacuation": 0.4600000000000001
+    },
+    {
+      "agent_id": 30,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 19,
+      "evacuation_trigger": 0.8552600608619383,
+      "conflict_at_evacuation": 0.6699999999999999
+    },
+    {
+      "agent_id": 31,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 18,
+      "evacuation_trigger": 0.8595569523793903,
+      "conflict_at_evacuation": 0.64
+    },
+    {
+      "agent_id": 32,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 20,
+      "evacuation_trigger": 0.8274771127928878,
+      "conflict_at_evacuation": 0.7
+    },
+    {
+      "agent_id": 33,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 12,
+      "evacuation_trigger": 0.42133128731626285,
+      "conflict_at_evacuation": 0.4600000000000001
+    },
+    {
+      "agent_id": 34,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 22,
+      "evacuation_trigger": 0.7631212696114841,
+      "conflict_at_evacuation": 0.7599999999999999
+    },
+    {
+      "agent_id": 35,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 24,
+      "evacuation_trigger": 0.8643142925244763,
+      "conflict_at_evacuation": 0.8200000000000001
+    },
+    {
+      "agent_id": 36,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 10,
+      "evacuation_trigger": 0.32313542285221836,
+      "conflict_at_evacuation": 0.4
+    },
+    {
+      "agent_id": 37,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 16,
+      "evacuation_trigger": 0.738165282716681,
+      "conflict_at_evacuation": 0.58
+    },
+    {
+      "agent_id": 38,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 8,
+      "evacuation_trigger": 0.44582667822317357,
+      "conflict_at_evacuation": 0.33999999999999997
+    },
+    {
+      "agent_id": 39,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.3794141628836429,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 40,
+      "connections": 7,
+      "system2_capable": true,
+      "evacuation_day": 9,
+      "evacuation_trigger": 0.3092964616862394,
+      "conflict_at_evacuation": 0.37
+    },
+    {
+      "agent_id": 41,
+      "connections": 6,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.4717680173660196,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 42,
+      "connections": 8,
+      "system2_capable": true,
+      "evacuation_day": 9,
+      "evacuation_trigger": 0.31461088763000644,
+      "conflict_at_evacuation": 0.37
+    },
+    {
+      "agent_id": 43,
+      "connections": 8,
+      "system2_capable": true,
+      "evacuation_day": 6,
+      "evacuation_trigger": 0.3882178555070205,
+      "conflict_at_evacuation": 0.28
+    },
+    {
+      "agent_id": 44,
+      "connections": 8,
+      "system2_capable": true,
+      "evacuation_day": 11,
+      "evacuation_trigger": 0.4172913832472065,
+      "conflict_at_evacuation": 0.42999999999999994
+    },
+    {
+      "agent_id": 45,
+      "connections": 6,
+      "system2_capable": true,
+      "evacuation_day": 11,
+      "evacuation_trigger": 0.3564185965293931,
+      "conflict_at_evacuation": 0.42999999999999994
+    },
+    {
+      "agent_id": 46,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 23,
+      "evacuation_trigger": 0.858570000329355,
+      "conflict_at_evacuation": 0.79
+    },
+    {
+      "agent_id": 47,
+      "connections": 7,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.36406558834493175,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 48,
+      "connections": 7,
+      "system2_capable": true,
+      "evacuation_day": 6,
+      "evacuation_trigger": 0.46907586227107867,
+      "conflict_at_evacuation": 0.28
+    },
+    {
+      "agent_id": 49,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 22,
+      "evacuation_trigger": 0.8324735867083567,
+      "conflict_at_evacuation": 0.7599999999999999
+    },
+    {
+      "agent_id": 50,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 24,
+      "evacuation_trigger": 0.7242561960687661,
+      "conflict_at_evacuation": 0.8200000000000001
+    },
+    {
+      "agent_id": 51,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 6,
+      "evacuation_trigger": 0.4017203753798666,
+      "conflict_at_evacuation": 0.28
+    },
+    {
+      "agent_id": 52,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 15,
+      "evacuation_trigger": 0.89269566536612,
+      "conflict_at_evacuation": 0.55
+    },
+    {
+      "agent_id": 53,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 12,
+      "evacuation_trigger": 0.45560824188137417,
+      "conflict_at_evacuation": 0.4600000000000001
+    },
+    {
+      "agent_id": 54,
+      "connections": 8,
+      "system2_capable": true,
+      "evacuation_day": 11,
+      "evacuation_trigger": 0.43861320128425907,
+      "conflict_at_evacuation": 0.42999999999999994
+    },
+    {
+      "agent_id": 55,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.3474729997249356,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 56,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 24,
+      "evacuation_trigger": 0.8490766778766279,
+      "conflict_at_evacuation": 0.8200000000000001
+    },
+    {
+      "agent_id": 57,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 8,
+      "evacuation_trigger": 0.4135587312319423,
+      "conflict_at_evacuation": 0.33999999999999997
+    },
+    {
+      "agent_id": 58,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.42252787155615185,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 59,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 15,
+      "evacuation_trigger": 0.8376654261884322,
+      "conflict_at_evacuation": 0.55
+    },
+    {
+      "agent_id": 60,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 17,
+      "evacuation_trigger": 0.8605305376143563,
+      "conflict_at_evacuation": 0.61
+    },
+    {
+      "agent_id": 61,
+      "connections": 7,
+      "system2_capable": true,
+      "evacuation_day": 10,
+      "evacuation_trigger": 0.33010066080740014,
+      "conflict_at_evacuation": 0.4
+    },
+    {
+      "agent_id": 62,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 23,
+      "evacuation_trigger": 0.7687747876213882,
+      "conflict_at_evacuation": 0.79
+    },
+    {
+      "agent_id": 63,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 19,
+      "evacuation_trigger": 0.8679794906862601,
+      "conflict_at_evacuation": 0.6699999999999999
+    },
+    {
+      "agent_id": 64,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 22,
+      "evacuation_trigger": 0.8734051854107165,
+      "conflict_at_evacuation": 0.7599999999999999
+    },
+    {
+      "agent_id": 65,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 10,
+      "evacuation_trigger": 0.48246538775038317,
+      "conflict_at_evacuation": 0.4
+    },
+    {
+      "agent_id": 66,
+      "connections": 8,
+      "system2_capable": true,
+      "evacuation_day": 9,
+      "evacuation_trigger": 0.3265075347553874,
+      "conflict_at_evacuation": 0.37
+    },
+    {
+      "agent_id": 67,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 21,
+      "evacuation_trigger": 0.8877868747254817,
+      "conflict_at_evacuation": 0.73
+    },
+    {
+      "agent_id": 68,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 18,
+      "evacuation_trigger": 0.7965624057818519,
+      "conflict_at_evacuation": 0.64
+    },
+    {
+      "agent_id": 69,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 17,
+      "evacuation_trigger": 0.8806346839222308,
+      "conflict_at_evacuation": 0.61
+    },
+    {
+      "agent_id": 70,
+      "connections": 8,
+      "system2_capable": true,
+      "evacuation_day": 5,
+      "evacuation_trigger": 0.32274925228217566,
+      "conflict_at_evacuation": 0.25
+    },
+    {
+      "agent_id": 71,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 18,
+      "evacuation_trigger": 0.8061620436358149,
+      "conflict_at_evacuation": 0.64
+    },
+    {
+      "agent_id": 72,
+      "connections": 7,
+      "system2_capable": true,
+      "evacuation_day": 11,
+      "evacuation_trigger": 0.33300735388922087,
+      "conflict_at_evacuation": 0.42999999999999994
+    },
+    {
+      "agent_id": 73,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 23,
+      "evacuation_trigger": 0.8380202541311319,
+      "conflict_at_evacuation": 0.79
+    },
+    {
+      "agent_id": 74,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 10,
+      "evacuation_trigger": 0.3253114808485515,
+      "conflict_at_evacuation": 0.4
+    },
+    {
+      "agent_id": 75,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 23,
+      "evacuation_trigger": 0.8524098432839372,
+      "conflict_at_evacuation": 0.79
+    },
+    {
+      "agent_id": 76,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 5,
+      "evacuation_trigger": 0.40593960751070546,
+      "conflict_at_evacuation": 0.25
+    },
+    {
+      "agent_id": 77,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 21,
+      "evacuation_trigger": 0.770421353704468,
+      "conflict_at_evacuation": 0.73
+    },
+    {
+      "agent_id": 78,
+      "connections": 6,
+      "system2_capable": true,
+      "evacuation_day": 12,
+      "evacuation_trigger": 0.4743161354377373,
+      "conflict_at_evacuation": 0.4600000000000001
+    },
+    {
+      "agent_id": 79,
+      "connections": 1,
+      "system2_capable": false,
+      "evacuation_day": 23,
+      "evacuation_trigger": 0.7757147431145757,
+      "conflict_at_evacuation": 0.79
+    },
+    {
+      "agent_id": 80,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.4982830907468842,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 81,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.44364121879779017,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 82,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 12,
+      "evacuation_trigger": 0.4365914516748171,
+      "conflict_at_evacuation": 0.4600000000000001
+    },
+    {
+      "agent_id": 83,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 16,
+      "evacuation_trigger": 0.887455341765121,
+      "conflict_at_evacuation": 0.58
+    },
+    {
+      "agent_id": 84,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 16,
+      "evacuation_trigger": 0.7218952934305418,
+      "conflict_at_evacuation": 0.58
+    },
+    {
+      "agent_id": 85,
+      "connections": 8,
+      "system2_capable": true,
+      "evacuation_day": 9,
+      "evacuation_trigger": 0.4546329413650762,
+      "conflict_at_evacuation": 0.37
+    },
+    {
+      "agent_id": 86,
+      "connections": 6,
+      "system2_capable": true,
+      "evacuation_day": 11,
+      "evacuation_trigger": 0.34513735965808356,
+      "conflict_at_evacuation": 0.42999999999999994
+    },
+    {
+      "agent_id": 87,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 23,
+      "evacuation_trigger": 0.8940539684043014,
+      "conflict_at_evacuation": 0.79
+    },
+    {
+      "agent_id": 88,
+      "connections": 8,
+      "system2_capable": true,
+      "evacuation_day": 11,
+      "evacuation_trigger": 0.41717672141547557,
+      "conflict_at_evacuation": 0.42999999999999994
+    },
+    {
+      "agent_id": 89,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.34048988680890774,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 90,
+      "connections": 8,
+      "system2_capable": true,
+      "evacuation_day": 8,
+      "evacuation_trigger": 0.36802441358536275,
+      "conflict_at_evacuation": 0.33999999999999997
+    },
+    {
+      "agent_id": 91,
+      "connections": 2,
+      "system2_capable": false,
+      "evacuation_day": 21,
+      "evacuation_trigger": 0.7585973975788391,
+      "conflict_at_evacuation": 0.73
+    },
+    {
+      "agent_id": 92,
+      "connections": 7,
+      "system2_capable": true,
+      "evacuation_day": 8,
+      "evacuation_trigger": 0.32024241211962495,
+      "conflict_at_evacuation": 0.33999999999999997
+    },
+    {
+      "agent_id": 93,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 19,
+      "evacuation_trigger": 0.7024569325132698,
+      "conflict_at_evacuation": 0.6699999999999999
+    },
+    {
+      "agent_id": 94,
+      "connections": 5,
+      "system2_capable": true,
+      "evacuation_day": 5,
+      "evacuation_trigger": 0.3071292420148435,
+      "conflict_at_evacuation": 0.25
+    },
+    {
+      "agent_id": 95,
+      "connections": 4,
+      "system2_capable": true,
+      "evacuation_day": 10,
+      "evacuation_trigger": 0.3060362012941719,
+      "conflict_at_evacuation": 0.4
+    },
+    {
+      "agent_id": 96,
+      "connections": 8,
+      "system2_capable": true,
+      "evacuation_day": 11,
+      "evacuation_trigger": 0.4346573225495117,
+      "conflict_at_evacuation": 0.42999999999999994
+    },
+    {
+      "agent_id": 97,
+      "connections": 7,
+      "system2_capable": true,
+      "evacuation_day": 7,
+      "evacuation_trigger": 0.30972914877707364,
+      "conflict_at_evacuation": 0.31000000000000005
+    },
+    {
+      "agent_id": 98,
+      "connections": 3,
+      "system2_capable": false,
+      "evacuation_day": 25,
+      "evacuation_trigger": 0.8669287704650603,
+      "conflict_at_evacuation": 0.85
+    },
+    {
+      "agent_id": 99,
+      "connections": 7,
+      "system2_capable": true,
+      "evacuation_day": 12,
+      "evacuation_trigger": 0.45867947929144104,
+      "conflict_at_evacuation": 0.4600000000000001
+    }
+  ],
+  "evacuation_events": [
+    {
+      "day": 11,
+      "agent_id": 0,
+      "system2_active": true,
+      "conflict_level": 0.42999999999999994,
+      "connections": 5
+    },
+    {
+      "day": 12,
+      "agent_id": 1,
+      "system2_active": true,
+      "conflict_level": 0.4600000000000001,
+      "connections": 4
+    },
+    {
+      "day": 19,
+      "agent_id": 2,
+      "system2_active": false,
+      "conflict_level": 0.6699999999999999,
+      "connections": 3
+    },
+    {
+      "day": 10,
+      "agent_id": 3,
+      "system2_active": true,
+      "conflict_level": 0.4,
+      "connections": 5
+    },
+    {
+      "day": 7,
+      "agent_id": 4,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 5
+    },
+    {
+      "day": 25,
+      "agent_id": 5,
+      "system2_active": false,
+      "conflict_level": 0.85,
+      "connections": 1
+    },
+    {
+      "day": 10,
+      "agent_id": 6,
+      "system2_active": true,
+      "conflict_level": 0.4,
+      "connections": 5
+    },
+    {
+      "day": 19,
+      "agent_id": 7,
+      "system2_active": false,
+      "conflict_level": 0.6699999999999999,
+      "connections": 2
+    },
+    {
+      "day": 8,
+      "agent_id": 8,
+      "system2_active": true,
+      "conflict_level": 0.33999999999999997,
+      "connections": 8
+    },
+    {
+      "day": 8,
+      "agent_id": 9,
+      "system2_active": true,
+      "conflict_level": 0.33999999999999997,
+      "connections": 6
+    },
+    {
+      "day": 6,
+      "agent_id": 10,
+      "system2_active": true,
+      "conflict_level": 0.28,
+      "connections": 5
+    },
+    {
+      "day": 24,
+      "agent_id": 11,
+      "system2_active": false,
+      "conflict_level": 0.8200000000000001,
+      "connections": 3
+    },
+    {
+      "day": 25,
+      "agent_id": 12,
+      "system2_active": false,
+      "conflict_level": 0.85,
+      "connections": 1
+    },
+    {
+      "day": 25,
+      "agent_id": 13,
+      "system2_active": false,
+      "conflict_level": 0.85,
+      "connections": 1
+    },
+    {
+      "day": 22,
+      "agent_id": 14,
+      "system2_active": false,
+      "conflict_level": 0.7599999999999999,
+      "connections": 1
+    },
+    {
+      "day": 17,
+      "agent_id": 15,
+      "system2_active": false,
+      "conflict_level": 0.61,
+      "connections": 1
+    },
+    {
+      "day": 10,
+      "agent_id": 16,
+      "system2_active": true,
+      "conflict_level": 0.4,
+      "connections": 6
+    },
+    {
+      "day": 8,
+      "agent_id": 17,
+      "system2_active": true,
+      "conflict_level": 0.33999999999999997,
+      "connections": 7
+    },
+    {
+      "day": 21,
+      "agent_id": 18,
+      "system2_active": false,
+      "conflict_level": 0.73,
+      "connections": 2
+    },
+    {
+      "day": 11,
+      "agent_id": 19,
+      "system2_active": true,
+      "conflict_level": 0.42999999999999994,
+      "connections": 5
+    },
+    {
+      "day": 7,
+      "agent_id": 20,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 4
+    },
+    {
+      "day": 19,
+      "agent_id": 21,
+      "system2_active": false,
+      "conflict_level": 0.6699999999999999,
+      "connections": 1
+    },
+    {
+      "day": 6,
+      "agent_id": 22,
+      "system2_active": true,
+      "conflict_level": 0.28,
+      "connections": 5
+    },
+    {
+      "day": 8,
+      "agent_id": 23,
+      "system2_active": true,
+      "conflict_level": 0.33999999999999997,
+      "connections": 4
+    },
+    {
+      "day": 25,
+      "agent_id": 24,
+      "system2_active": false,
+      "conflict_level": 0.85,
+      "connections": 3
+    },
+    {
+      "day": 10,
+      "agent_id": 25,
+      "system2_active": true,
+      "conflict_level": 0.4,
+      "connections": 6
+    },
+    {
+      "day": 7,
+      "agent_id": 26,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 7
+    },
+    {
+      "day": 17,
+      "agent_id": 27,
+      "system2_active": false,
+      "conflict_level": 0.61,
+      "connections": 1
+    },
+    {
+      "day": 23,
+      "agent_id": 28,
+      "system2_active": false,
+      "conflict_level": 0.79,
+      "connections": 3
+    },
+    {
+      "day": 12,
+      "agent_id": 29,
+      "system2_active": true,
+      "conflict_level": 0.4600000000000001,
+      "connections": 5
+    },
+    {
+      "day": 19,
+      "agent_id": 30,
+      "system2_active": false,
+      "conflict_level": 0.6699999999999999,
+      "connections": 2
+    },
+    {
+      "day": 18,
+      "agent_id": 31,
+      "system2_active": false,
+      "conflict_level": 0.64,
+      "connections": 2
+    },
+    {
+      "day": 20,
+      "agent_id": 32,
+      "system2_active": false,
+      "conflict_level": 0.7,
+      "connections": 2
+    },
+    {
+      "day": 12,
+      "agent_id": 33,
+      "system2_active": true,
+      "conflict_level": 0.4600000000000001,
+      "connections": 4
+    },
+    {
+      "day": 22,
+      "agent_id": 34,
+      "system2_active": false,
+      "conflict_level": 0.7599999999999999,
+      "connections": 3
+    },
+    {
+      "day": 24,
+      "agent_id": 35,
+      "system2_active": false,
+      "conflict_level": 0.8200000000000001,
+      "connections": 1
+    },
+    {
+      "day": 10,
+      "agent_id": 36,
+      "system2_active": true,
+      "conflict_level": 0.4,
+      "connections": 4
+    },
+    {
+      "day": 16,
+      "agent_id": 37,
+      "system2_active": false,
+      "conflict_level": 0.58,
+      "connections": 1
+    },
+    {
+      "day": 8,
+      "agent_id": 38,
+      "system2_active": true,
+      "conflict_level": 0.33999999999999997,
+      "connections": 5
+    },
+    {
+      "day": 7,
+      "agent_id": 39,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 4
+    },
+    {
+      "day": 9,
+      "agent_id": 40,
+      "system2_active": true,
+      "conflict_level": 0.37,
+      "connections": 7
+    },
+    {
+      "day": 7,
+      "agent_id": 41,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 6
+    },
+    {
+      "day": 9,
+      "agent_id": 42,
+      "system2_active": true,
+      "conflict_level": 0.37,
+      "connections": 8
+    },
+    {
+      "day": 6,
+      "agent_id": 43,
+      "system2_active": true,
+      "conflict_level": 0.28,
+      "connections": 8
+    },
+    {
+      "day": 11,
+      "agent_id": 44,
+      "system2_active": true,
+      "conflict_level": 0.42999999999999994,
+      "connections": 8
+    },
+    {
+      "day": 11,
+      "agent_id": 45,
+      "system2_active": true,
+      "conflict_level": 0.42999999999999994,
+      "connections": 6
+    },
+    {
+      "day": 23,
+      "agent_id": 46,
+      "system2_active": false,
+      "conflict_level": 0.79,
+      "connections": 3
+    },
+    {
+      "day": 7,
+      "agent_id": 47,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 7
+    },
+    {
+      "day": 6,
+      "agent_id": 48,
+      "system2_active": true,
+      "conflict_level": 0.28,
+      "connections": 7
+    },
+    {
+      "day": 22,
+      "agent_id": 49,
+      "system2_active": false,
+      "conflict_level": 0.7599999999999999,
+      "connections": 3
+    },
+    {
+      "day": 24,
+      "agent_id": 50,
+      "system2_active": false,
+      "conflict_level": 0.8200000000000001,
+      "connections": 1
+    },
+    {
+      "day": 6,
+      "agent_id": 51,
+      "system2_active": true,
+      "conflict_level": 0.28,
+      "connections": 4
+    },
+    {
+      "day": 15,
+      "agent_id": 52,
+      "system2_active": false,
+      "conflict_level": 0.55,
+      "connections": 2
+    },
+    {
+      "day": 12,
+      "agent_id": 53,
+      "system2_active": true,
+      "conflict_level": 0.4600000000000001,
+      "connections": 4
+    },
+    {
+      "day": 11,
+      "agent_id": 54,
+      "system2_active": true,
+      "conflict_level": 0.42999999999999994,
+      "connections": 8
+    },
+    {
+      "day": 7,
+      "agent_id": 55,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 4
+    },
+    {
+      "day": 24,
+      "agent_id": 56,
+      "system2_active": false,
+      "conflict_level": 0.8200000000000001,
+      "connections": 2
+    },
+    {
+      "day": 8,
+      "agent_id": 57,
+      "system2_active": true,
+      "conflict_level": 0.33999999999999997,
+      "connections": 5
+    },
+    {
+      "day": 7,
+      "agent_id": 58,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 5
+    },
+    {
+      "day": 15,
+      "agent_id": 59,
+      "system2_active": false,
+      "conflict_level": 0.55,
+      "connections": 1
+    },
+    {
+      "day": 17,
+      "agent_id": 60,
+      "system2_active": false,
+      "conflict_level": 0.61,
+      "connections": 3
+    },
+    {
+      "day": 10,
+      "agent_id": 61,
+      "system2_active": true,
+      "conflict_level": 0.4,
+      "connections": 7
+    },
+    {
+      "day": 23,
+      "agent_id": 62,
+      "system2_active": false,
+      "conflict_level": 0.79,
+      "connections": 2
+    },
+    {
+      "day": 19,
+      "agent_id": 63,
+      "system2_active": false,
+      "conflict_level": 0.6699999999999999,
+      "connections": 1
+    },
+    {
+      "day": 22,
+      "agent_id": 64,
+      "system2_active": false,
+      "conflict_level": 0.7599999999999999,
+      "connections": 2
+    },
+    {
+      "day": 10,
+      "agent_id": 65,
+      "system2_active": true,
+      "conflict_level": 0.4,
+      "connections": 4
+    },
+    {
+      "day": 9,
+      "agent_id": 66,
+      "system2_active": true,
+      "conflict_level": 0.37,
+      "connections": 8
+    },
+    {
+      "day": 21,
+      "agent_id": 67,
+      "system2_active": false,
+      "conflict_level": 0.73,
+      "connections": 3
+    },
+    {
+      "day": 18,
+      "agent_id": 68,
+      "system2_active": false,
+      "conflict_level": 0.64,
+      "connections": 2
+    },
+    {
+      "day": 17,
+      "agent_id": 69,
+      "system2_active": false,
+      "conflict_level": 0.61,
+      "connections": 1
+    },
+    {
+      "day": 5,
+      "agent_id": 70,
+      "system2_active": true,
+      "conflict_level": 0.25,
+      "connections": 8
+    },
+    {
+      "day": 18,
+      "agent_id": 71,
+      "system2_active": false,
+      "conflict_level": 0.64,
+      "connections": 3
+    },
+    {
+      "day": 11,
+      "agent_id": 72,
+      "system2_active": true,
+      "conflict_level": 0.42999999999999994,
+      "connections": 7
+    },
+    {
+      "day": 23,
+      "agent_id": 73,
+      "system2_active": false,
+      "conflict_level": 0.79,
+      "connections": 3
+    },
+    {
+      "day": 10,
+      "agent_id": 74,
+      "system2_active": true,
+      "conflict_level": 0.4,
+      "connections": 5
+    },
+    {
+      "day": 23,
+      "agent_id": 75,
+      "system2_active": false,
+      "conflict_level": 0.79,
+      "connections": 1
+    },
+    {
+      "day": 5,
+      "agent_id": 76,
+      "system2_active": true,
+      "conflict_level": 0.25,
+      "connections": 5
+    },
+    {
+      "day": 21,
+      "agent_id": 77,
+      "system2_active": false,
+      "conflict_level": 0.73,
+      "connections": 3
+    },
+    {
+      "day": 12,
+      "agent_id": 78,
+      "system2_active": true,
+      "conflict_level": 0.4600000000000001,
+      "connections": 6
+    },
+    {
+      "day": 23,
+      "agent_id": 79,
+      "system2_active": false,
+      "conflict_level": 0.79,
+      "connections": 1
+    },
+    {
+      "day": 7,
+      "agent_id": 80,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 5
+    },
+    {
+      "day": 7,
+      "agent_id": 81,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 5
+    },
+    {
+      "day": 12,
+      "agent_id": 82,
+      "system2_active": true,
+      "conflict_level": 0.4600000000000001,
+      "connections": 4
+    },
+    {
+      "day": 16,
+      "agent_id": 83,
+      "system2_active": false,
+      "conflict_level": 0.58,
+      "connections": 3
+    },
+    {
+      "day": 16,
+      "agent_id": 84,
+      "system2_active": false,
+      "conflict_level": 0.58,
+      "connections": 2
+    },
+    {
+      "day": 9,
+      "agent_id": 85,
+      "system2_active": true,
+      "conflict_level": 0.37,
+      "connections": 8
+    },
+    {
+      "day": 11,
+      "agent_id": 86,
+      "system2_active": true,
+      "conflict_level": 0.42999999999999994,
+      "connections": 6
+    },
+    {
+      "day": 23,
+      "agent_id": 87,
+      "system2_active": false,
+      "conflict_level": 0.79,
+      "connections": 3
+    },
+    {
+      "day": 11,
+      "agent_id": 88,
+      "system2_active": true,
+      "conflict_level": 0.42999999999999994,
+      "connections": 8
+    },
+    {
+      "day": 7,
+      "agent_id": 89,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 5
+    },
+    {
+      "day": 8,
+      "agent_id": 90,
+      "system2_active": true,
+      "conflict_level": 0.33999999999999997,
+      "connections": 8
+    },
+    {
+      "day": 21,
+      "agent_id": 91,
+      "system2_active": false,
+      "conflict_level": 0.73,
+      "connections": 2
+    },
+    {
+      "day": 8,
+      "agent_id": 92,
+      "system2_active": true,
+      "conflict_level": 0.33999999999999997,
+      "connections": 7
+    },
+    {
+      "day": 19,
+      "agent_id": 93,
+      "system2_active": false,
+      "conflict_level": 0.6699999999999999,
+      "connections": 3
+    },
+    {
+      "day": 5,
+      "agent_id": 94,
+      "system2_active": true,
+      "conflict_level": 0.25,
+      "connections": 5
+    },
+    {
+      "day": 10,
+      "agent_id": 95,
+      "system2_active": true,
+      "conflict_level": 0.4,
+      "connections": 4
+    },
+    {
+      "day": 11,
+      "agent_id": 96,
+      "system2_active": true,
+      "conflict_level": 0.42999999999999994,
+      "connections": 8
+    },
+    {
+      "day": 7,
+      "agent_id": 97,
+      "system2_active": true,
+      "conflict_level": 0.31000000000000005,
+      "connections": 7
+    },
+    {
+      "day": 25,
+      "agent_id": 98,
+      "system2_active": false,
+      "conflict_level": 0.85,
+      "connections": 3
+    },
+    {
+      "day": 12,
+      "agent_id": 99,
+      "system2_active": true,
+      "conflict_level": 0.4600000000000001,
+      "connections": 7
+    }
+  ],
+  "analysis": {
+    "s1_stats": {
+      "count": 43,
+      "mean_evacuation_day": 20.651162790697676,
+      "std_evacuation_day": 3.0718808792480687,
+      "mean_conflict_at_evacuation": 0.7195348837209302,
+      "std_conflict_at_evacuation": 0.09215642637744206
+    },
+    "s2_stats": {
+      "count": 57,
+      "mean_evacuation_day": 8.807017543859649,
+      "std_evacuation_day": 2.1145991822202617,
+      "mean_conflict_at_evacuation": 0.3642105263157895,
+      "std_conflict_at_evacuation": 0.06343797546660784
+    },
+    "differences": {
+      "evacuation_day_difference": 11.844145246838027,
+      "conflict_level_difference": 0.35532435740514073
+    },
+    "predictions_validated": {
+      "s1_evacuates_later": "True",
+      "s2_evacuates_at_lower_conflict": "True",
+      "effect_size_meaningful": "True"
+    }
+  }
+}

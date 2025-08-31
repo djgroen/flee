@@ -1,0 +1,4 @@
+name,region,country,lat,lon,location_type,conflict_date,population
+Origin,TestRegion,TestCountry,0.0,0.0,conflict,2023-01-01,8000
+Town_1,TestRegion,TestCountry,0.0,100.0,town,,2247
+Camp,TestRegion,TestCountry,0.0,200.0,camp,,0

@@ -1,0 +1,5 @@
+name,safety_score,livelihood_score,capacity
+Origin,0.1,0.2,
+Town_1,0.4,0.3,
+Town_2,0.5,0.4,
+Camp,0.8,0.4,4000

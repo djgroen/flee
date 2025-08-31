@@ -1,0 +1,57 @@
+{
+  "evacuation_timing": {
+    "s1_mean_timing": 0,
+    "s1_median_timing": 0.0,
+    "s1_std_timing": 0.0,
+    "s2_mean_timing": 0,
+    "s2_median_timing": 0.0,
+    "s2_std_timing": 0.0,
+    "s1_sample_size": 10,
+    "s2_sample_size": 10,
+    "timing_difference": 0,
+    "effect_size": 0.0
+  },
+  "cognitive_activation": {
+    "total_decisions": 300,
+    "s2_activation_rate": 0.5,
+    "activation_by_pressure": {
+      "0.1": {
+        "s1": 150,
+        "s2": 0,
+        "total": 150
+      },
+      "0.7": {
+        "s1": 0,
+        "s2": 150,
+        "total": 150
+      }
+    },
+    "activation_rates_by_pressure": {
+      "0.1": 0.0,
+      "0.7": 1.0
+    },
+    "pressure_threshold_analysis": {
+      "s1_mean_pressure": 0.09000000000000001,
+      "s1_max_pressure": 0.09000000000000001,
+      "s2_mean_pressure": 0.7200000000000001,
+      "s2_min_pressure": 0.7200000000000001,
+      "pressure_separation": 0.6300000000000001
+    }
+  },
+  "route_planning": {
+    "error": "Insufficient route data",
+    "s1_count": 0,
+    "s2_count": 0
+  },
+  "summary_statistics": {
+    "total_decisions": 300,
+    "s1_decisions": 150,
+    "s2_decisions": 150,
+    "s2_activation_rate": 0.5,
+    "unique_agents": 20,
+    "time_span": {
+      "start": 0,
+      "end": 14
+    }
+  }
+}

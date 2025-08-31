@@ -1,0 +1,7 @@
+#Day,Location,Capacity,Change_Reason
+0,Camp_Alpha,4000,Initial capacity
+0,Camp_Beta,2500,Initial capacity
+0,Camp_Gamma,1500,Initial capacity
+30,Camp_Alpha,2000,Resource constraints
+60,Camp_Beta,4000,Expansion completed
+90,Camp_Alpha,3000,Partial recovery

@@ -1,0 +1,4 @@
+name1,name2,distance,forced_redirection
+Origin,Bottleneck,100.0,0
+Bottleneck,Camp_A_Close,50.0,0
+Bottleneck,Camp_B_Better,200.0,0

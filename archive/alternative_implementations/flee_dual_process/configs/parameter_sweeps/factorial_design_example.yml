@@ -1,0 +1,9 @@
+# Factorial Design: Awareness Level x Social Connectivity
+# Tests interaction effects between awareness and social connectivity
+
+sweep_type: factorial_design
+factors:
+  move_rules.awareness_level: [1, 2, 3]
+  move_rules.average_social_connectivity: [0.0, 3.0, 8.0]
+base_cognitive_mode: dual_process
+description: "2x3 factorial design testing awareness level and social connectivity interactions"

@@ -1,0 +1,5 @@
+name1,name2,distance,forced_redirection
+Origin,Close_Safe_Camp,30,0
+Origin,Far_Excellent_Camp,100,0
+Origin,Medium_Good_Camp,60,0
+Origin,Risky_Nearby_Camp,25,0

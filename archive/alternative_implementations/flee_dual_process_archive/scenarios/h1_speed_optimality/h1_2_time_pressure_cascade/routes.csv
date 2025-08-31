@@ -1,0 +1,12 @@
+#name1,name2,distance [km],forced_redirection
+Town_A,Town_B,50,
+Town_B,Town_C,50,
+Town_C,Town_D,50,
+Town_A,Safe_Camp_North,75,
+Town_A,Safe_Camp_South,75,
+Town_B,Safe_Camp_North,60,
+Town_B,Safe_Camp_South,60,
+Town_C,Safe_Camp_North,45,
+Town_C,Safe_Camp_South,45,
+Town_D,Safe_Camp_North,60,
+Town_D,Safe_Camp_South,60,

@@ -1,0 +1,9 @@
+#conflict_date,conflict_location,conflict_intensity
+0,Town_A,0.8
+5,Town_B,0.8
+10,Town_C,0.8
+15,Town_D,0.8
+20,Town_A,1.0
+25,Town_B,1.0
+30,Town_C,1.0
+35,Town_D,1.0

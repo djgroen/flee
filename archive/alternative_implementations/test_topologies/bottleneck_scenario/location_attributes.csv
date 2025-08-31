@@ -1,0 +1,5 @@
+name,safety_score,livelihood_score,capacity
+Origin,0.1,0.2,
+Bottleneck,0.5,0.3,150
+Camp_A_Close,0.6,0.3,2000
+Camp_B_Better,0.8,0.6,5000

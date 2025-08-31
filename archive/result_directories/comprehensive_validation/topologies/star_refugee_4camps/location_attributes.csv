@@ -1,0 +1,7 @@
+name,safety_score,livelihood_score,capacity
+Origin,0.1,0.2,
+Hub,0.5,0.4,
+Camp_North,0.7,0.4,3000
+Camp_East,0.8,0.6,4000
+Camp_South,0.6,0.3,2000
+Camp_West,0.9,0.5,5000

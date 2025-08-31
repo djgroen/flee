@@ -1,0 +1,13 @@
+#name1,name2,distance,forced_redirection
+Top_Left,Middle_Left,10,
+Top_Right,Middle_Right,10,
+Top_Centre,Middle_Centre,10,
+Down_Left,Down_Centre,20,
+Down_Right,Down_Centre,20,
+Top_Left,Top_Centre,20,
+Top_Right,Top_Centre,20,
+Down_Left,Middle_Left,10,
+Down_Centre,Middle_Centre,10,
+Down_Right,Middle_Right,10,
+Middle_Left,Middle_Centre,20,
+Middle_Right,Middle_Centre,20,

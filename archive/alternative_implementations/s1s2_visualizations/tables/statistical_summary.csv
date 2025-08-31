@@ -1,0 +1,6 @@
+Metric,System 1 (Reactive),System 2 (Preemptive),Difference,Effect Size
+,,,,
+Sample Size,37,63,-,-
+Evacuation Timing (days),N/A,N/A,11.8,Large
+Conflict Tolerance,N/A,N/A,0.35,Large
+Information Utilization,Local only,Network + Local,100%,Large
