@@ -14,7 +14,7 @@ def test_idp():
 
     flee.SimulationSettings.ReadFromYML("test_data/test_data_idp/simsetting.yml")
 
-    e = flee.Ecosystem(demographics_test_prefix="test_data/test_data_idp")
+    e = flee.Ecosystem(demographics_test_prefix="test_data/test_data_idp/")
 
     ig = InputGeography.InputGeography()
 
