@@ -89,11 +89,11 @@ def init_demographics(e):
   Returns:
       None.
   """
-  if not os.path.exists(f"{e.demographics_test_prefix}input_csv"):
-      print(f"WARNING: could not find the directory where input demographic files could reside. Path given is: {e.demographics_test_prefix}input_csv", file=sys.stderr)
+  if not os.path.exists(f"{e.demographics_test_prefix}"):
+      print(f"WARNING: could not find the directory where input demographic files could reside. Path given is: {e.demographics_test_prefix}", file=sys.stderr)
       return
 
-  csv_list = glob.glob(os.path.join(e.demographics_test_prefix, "input_csv","demographics_*.csv"))
+  csv_list = glob.glob(os.path.join(e.demographics_test_prefix, "demographics_*.csv"))
 
   print(f"Reading demographics information from {csv_list}", file=sys.stderr)
 

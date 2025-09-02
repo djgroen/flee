@@ -29,7 +29,7 @@ if __name__ == "__main__":
   # Flood file will be read if modelling flood-driven displacement. Ignored otherwise.
   flee.SimulationSettings.FloodLevelInputFile = "%s/flood_level.csv" % input_csv_directory
 
-  e = flee.Ecosystem(start_date)
+  e = flee.Ecosystem(start_date, demographics_test_prefix=input_csv_directory)
 
   ig = InputGeography.InputGeography()
 
