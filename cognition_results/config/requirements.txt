@@ -1,0 +1,7 @@
+# Requirements for Cognition Results Framework
+numpy>=1.21.0
+matplotlib>=3.5.0
+seaborn>=0.11.0
+networkx>=2.6.0
+pandas>=1.3.0
+scipy>=1.7.0
