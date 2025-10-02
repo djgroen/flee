@@ -146,7 +146,16 @@ def plot_camps(data: pd.DataFrame, config: str, output: str) -> None:
 
         plt.legend(handles=[label1, label2], loc=0, prop={"size": 14})
 
-        plt.savefig("{}/{}.png".format(output, name[0]), bbox_inches = 'tight')
+        # Defensive plotting - handle LaTeX dependency gracefully (fix for issue #35)
+        try:
+            plt.savefig("{}/{}.png".format(output, name[0]), bbox_inches='tight')
+        except RuntimeError as e:
+            if "latex could not be found" in str(e).lower():
+                print(f"Warning: LaTeX not available, using standard layout for {name[0]}")
+                # Fallback without bbox_inches='tight' to avoid LaTeX dependency
+                plt.savefig("{}/{}.png".format(output, name[0]))
+            else:
+                raise  # Re-raise if it's a different error
 
         plt.clf()
 
@@ -209,7 +218,14 @@ def plot_numagents(data: pd.DataFrame, config: str, output: str) -> None:
 
     set_margins()
 
-    plt.savefig("{}/numagents.png".format(output), bbox_inches = 'tight')
+    try:
+        plt.savefig("{}/numagents.png".format(output), bbox_inches='tight')
+    except RuntimeError as e:
+        if "LaTeX" in str(e):
+            print("Warning: LaTeX not available for tight bounding box, using standard layout")
+            plt.savefig("{}/numagents.png".format(output), bbox_inches=None)
+        else:
+            raise
 
     plt.clf()
 
@@ -292,7 +308,14 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
 
     set_margins()
 
-    plt.savefig("{}/error.png".format(output), bbox_inches = 'tight')
+    try:
+        plt.savefig("{}/error.png".format(output), bbox_inches='tight')
+    except RuntimeError as e:
+        if "LaTeX" in str(e):
+            print("Warning: LaTeX not available for tight bounding box, using standard layout")
+            plt.savefig("{}/error.png".format(output), bbox_inches=None)
+        else:
+            raise
 
     ###############################################
     #               ERROR COMPARISON              #
@@ -306,7 +329,14 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
 
     set_margins()
 
-    plt.savefig("{}/error_comparison.png".format(output), bbox_inches = 'tight')
+    try:
+        plt.savefig("{}/error_comparison.png".format(output), bbox_inches='tight')
+    except RuntimeError as e:
+        if "LaTeX" in str(e):
+            print("Warning: LaTeX not available for tight bounding box, using standard layout")
+            plt.savefig("{}/error_comparison.png".format(output), bbox_inches=None)
+        else:
+            raise
 
     plt.clf()
 
