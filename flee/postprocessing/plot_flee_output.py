@@ -9,11 +9,15 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
 from flee.postprocessing import analysis as a
 
 matplotlib.use("Pdf")
 
-if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
+if (
+    os.getenv("FLEE_TYPE_CHECK") is not None
+    and os.environ["FLEE_TYPE_CHECK"].lower() == "true"
+):
     from beartype import beartype as check_args_type
 else:
 
@@ -82,7 +86,10 @@ class SimulationErrors:
         """
         # Here err_type is the string name of the error that needs to be aggregated.
 
-        self.tmp = self.location_errors[0].errors[err_type] * self.location_errors[0].errors["N"]
+        self.tmp = (
+            self.location_errors[0].errors[err_type]
+            * self.location_errors[0].errors["N"]
+        )
         N = self.location_errors[0].errors["N"]
 
         for lerr in self.location_errors[1:]:
@@ -125,27 +132,27 @@ def plot_camps(data: pd.DataFrame, config: str, output: str) -> None:
 
     for i in range(len(cols)):
 
-        # Fix for camp cluster names - extract camp name from columns like "Kubwa (Camp Cluster) sim"
+        # Fix for camp cluster names - extract camp name from columns like camp cluster sim
         if cols[i].endswith(" sim"):
             camp_name = cols[i][:-4]  # Remove " sim" suffix
             sim_col = cols[i]
             data_col = camp_name + " data"
-            
+
             # Extract display name (first word for title)
             name = cols[i].split()
             display_name = name[0]
-            
+
             if display_name == "Date":  # Date is not a camp field.
                 continue
-                
+
             if data_col not in data_filtered.columns:
                 continue  # Skip if corresponding data column doesn't exist
-                
+
             y1 = data_filtered[sim_col]
             y2 = data_filtered[data_col]
         else:
             continue  # Skip non-simulation columns
-          
+
         fig = matplotlib.pyplot.gcf()
         fig.set_size_inches(10, 8)
 
@@ -153,13 +160,36 @@ def plot_camps(data: pd.DataFrame, config: str, output: str) -> None:
         plt.ylabel("Number of asylum seekers / unrecognised refugees", fontsize=14)
         plt.title("{}".format(display_name), fontsize=18)
 
-        (label1,) = plt.plot(data_filtered.index, y1, "r", linewidth=5, label="{} simulation".format(display_name))
-        
-        (label2,) = plt.plot(data_filtered.index, y2, "b", linewidth=5, label="{} UNHCR data".format(display_name))
+        (label1,) = plt.plot(
+            data_filtered.index,
+            y1,
+            "r",
+            linewidth=5,
+            label="{} simulation".format(display_name),
+        )
+
+        (label2,) = plt.plot(
+            data_filtered.index,
+            y2,
+            "b",
+            linewidth=5,
+            label="{} UNHCR data".format(display_name),
+        )
 
         plt.legend(handles=[label1, label2], loc=0, prop={"size": 14})
 
-        plt.savefig("{}/{}.png".format(output, display_name), bbox_inches = 'tight')
+        # Defensive plotting - handle LaTeX dependency gracefully (fix for issue #35)
+        try:
+            plt.savefig("{}/{}.png".format(output, display_name), bbox_inches="tight")
+        except RuntimeError as e:
+            if "latex could not be found" in str(e).lower():
+                print(
+                    f"Warning: LaTeX not available, using standard layout for {display_name}"
+                )
+                # Fallback without bbox_inches='tight' to avoid LaTeX dependency
+                plt.savefig("{}/{}.png".format(output, display_name))
+            else:
+                raise  # Re-raise if it's a different error
 
         plt.clf()
 
@@ -200,7 +230,11 @@ def plot_numagents(data: pd.DataFrame, config: str, output: str) -> None:
     else:
         data.loc[
             :,
-            ["total refugees (simulation)", "refugees in camps (UNHCR)", "raw UNHCR refugee count"],
+            [
+                "total refugees (simulation)",
+                "refugees in camps (UNHCR)",
+                "raw UNHCR refugee count",
+            ],
         ].plot(linewidth=5)
 
         """
@@ -222,7 +256,16 @@ def plot_numagents(data: pd.DataFrame, config: str, output: str) -> None:
 
     set_margins()
 
-    plt.savefig("{}/numagents.png".format(output), bbox_inches = 'tight')
+    try:
+        plt.savefig("{}/numagents.png".format(output), bbox_inches="tight")
+    except RuntimeError as e:
+        if "LaTeX" in str(e):
+            print(
+                "Warning: LaTeX not available for tight bounding box, using standard layout"
+            )
+            plt.savefig("{}/numagents.png".format(output), bbox_inches=None)
+        else:
+            raise
 
     plt.clf()
 
@@ -279,14 +322,18 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
 
     plt.ylabel("Averaged relative difference")
     plt.xlabel("Days elapsed")
-    #plt.title("{}".format(config))
+    # plt.title("{}".format(config))
 
-    diffdata = sim_errors.abs_diff(rescaled=False) / np.maximum(un_refs, np.ones(len(un_refs)))
-    diffdata_rescaled = sim_errors.abs_diff(rescaled=True) / np.maximum(un_refs, np.ones(len(un_refs)))
+    diffdata = sim_errors.abs_diff(rescaled=False) / np.maximum(
+        un_refs, np.ones(len(un_refs))
+    )
+    diffdata_rescaled = sim_errors.abs_diff(rescaled=True) / np.maximum(
+        un_refs, np.ones(len(un_refs))
+    )
 
-    #print(sim_errors.location_errors)
-    #print(diffdata)
-    #print(diffdata_rescaled)
+    # print(sim_errors.location_errors)
+    # print(diffdata)
+    # print(diffdata_rescaled)
 
     print(
         "%s - %s model: Averaged error normal: " % (config, model),
@@ -298,14 +345,26 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
     )
 
     (labeldiff_rescaled,) = plt.plot(
-        np.arange(len(diffdata_rescaled)), diffdata_rescaled, linewidth=5, label="Error (rescaled)"
+        np.arange(len(diffdata_rescaled)),
+        diffdata_rescaled,
+        linewidth=5,
+        label="Error (rescaled)",
     )
 
     plt.legend(handles=[labeldiff_rescaled], loc=7, prop={"size": 14})
 
     set_margins()
 
-    plt.savefig("{}/error.png".format(output), bbox_inches = 'tight')
+    try:
+        plt.savefig("{}/error.png".format(output), bbox_inches="tight")
+    except RuntimeError as e:
+        if "LaTeX" in str(e):
+            print(
+                "Warning: LaTeX not available for tight bounding box, using standard layout"
+            )
+            plt.savefig("{}/error.png".format(output), bbox_inches=None)
+        else:
+            raise
 
     ###############################################
     #               ERROR COMPARISON              #
@@ -319,7 +378,16 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
 
     set_margins()
 
-    plt.savefig("{}/error_comparison.png".format(output), bbox_inches = 'tight')
+    try:
+        plt.savefig("{}/error_comparison.png".format(output), bbox_inches="tight")
+    except RuntimeError as e:
+        if "LaTeX" in str(e):
+            print(
+                "Warning: LaTeX not available for tight bounding box, using standard layout"
+            )
+            plt.savefig("{}/error_comparison.png".format(output), bbox_inches=None)
+        else:
+            raise
 
     plt.clf()
 
@@ -438,33 +506,48 @@ def plot_flee_output(input_dir: str, output_dir: str, mscale: bool = False) -> N
     #################################################################
 
     if isfile(whole_df_PATH):
-        whole_df = pd.read_csv(whole_df_PATH, sep=",", encoding="latin1", index_col="Day")
+        whole_df = pd.read_csv(
+            whole_df_PATH, sep=",", encoding="latin1", index_col="Day"
+        )
         plot_camps(whole_df, config, output_dir)
         plot_numagents(whole_df, config, output_dir)
         plot_errors(whole_df, config, output_dir, model="single-scale")
-        print("The results of Serial mode simulation are stored in %s directory." % (output_dir))
+        print(
+            "The results of Serial mode simulation are stored in %s directory."
+            % (output_dir)
+        )
 
     #####################################################
     #   Plotting micro Multiscale simulation results    #
     #####################################################
     if isfile(micro_df_PATH):
-        micro_df = pd.read_csv(micro_df_PATH, sep=",", encoding="latin1", index_col="Day")
+        micro_df = pd.read_csv(
+            micro_df_PATH, sep=",", encoding="latin1", index_col="Day"
+        )
         plot_camps(micro_df, config, micro_output_dir)
         # RAW UNHCR Counts need to be addressed
         plot_numagents(micro_df, config, micro_output_dir)
         plot_errors(micro_df, config, micro_output_dir, model="micro")
-        print("The results of micro simulation are stored in %s directory." % (micro_output_dir))
+        print(
+            "The results of micro simulation are stored in %s directory."
+            % (micro_output_dir)
+        )
 
     #####################################################
     #   Plotting macro Multiscale simulation results    #
     #####################################################
     if isfile(macro_df_PATH):
-        macro_df = pd.read_csv(macro_df_PATH, sep=",", encoding="latin1", index_col="Day")
+        macro_df = pd.read_csv(
+            macro_df_PATH, sep=",", encoding="latin1", index_col="Day"
+        )
         plot_camps(macro_df, config, macro_output_dir)
         # RAW UNHCR Counts need to be addressed
         plot_numagents(macro_df, config, macro_output_dir)
         plot_errors(macro_df, config, macro_output_dir)
-        print("The results of macro simulation are stored in %s directory." % (macro_output_dir))
+        print(
+            "The results of macro simulation are stored in %s directory."
+            % (macro_output_dir)
+        )
 
 
 if __name__ == "__main__":
