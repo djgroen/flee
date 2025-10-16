@@ -222,14 +222,18 @@ def plotme(
         LocationErrors: Description
     """
     plt.clf()
-
-    y1 = data.groupby(["Day"]).mean()["%s sim" % name].to_numpy()
-    y2 = data.groupby(["Day"]).mean()["%s data" % name].to_numpy()
-
+    # TODO: Add figure plotting individual lines for each run.
+    # print("plot me data",data[["Day","run_id" ,"%s sim" % name,"%s data" % name]])
+    # print("plot me data columns",data.columns)
+    # print("plot me data filtered",data["%s sim" % name])
+    # y_sim = data["%s sim" % name].to_numpy()
+    y1 = data.groupby(["Day"]).mean(numeric_only=True)["%s sim" % name].to_numpy()
+    y2 = data.groupby(["Day"]).mean(numeric_only=True)["%s data" % name].to_numpy()
+    print("y1",y1)
     # calculate error bar based on the standard deviation
     # as the height of our error bars
-    y1err = data.groupby(["Day"]).std()["%s sim" % name].to_numpy() * 2.0
-    y2err = data.groupby(["Day"]).std()["%s data" % name].to_numpy() * 2.0
+    y1err = data.groupby(["Day"]).std(numeric_only=True)["%s sim" % name].to_numpy() * 2.0
+    y2err = data.groupby(["Day"]).std(numeric_only=True)["%s data" % name].to_numpy() * 2.0
 
     days = np.arange(len(y1))
 
@@ -322,6 +326,26 @@ def plotme(
     else:
         fig.savefig("%s/%s-offset-%s_V2.png" % (out_dir, name, offset))
 
+    # Plot ensemble members
+    plt.clf()
+    for run, run_group in data.groupby("run_id"):
+        plt.plot(run_group["Day"], 
+                 run_group["%s sim" % name], 
+                #  alpha=0.3, 
+                 linewidth=3, 
+                 label=f"Run {run}")
+        
+    plt.legend(bbox_to_anchor=(1.1, 1.05))
+    plt.title("%s simulation" % name.title())
+    fig = matplotlib.pyplot.gcf()
+    fig.set_size_inches(20, 15)
+    # adjust margins
+    set_margins()
+    plt.tight_layout()
+    fig.savefig("%s/%s_ensemble.png" % (out_dir, name))
+    
+    # breakpoint()
+    
     # Rescaled values
     plt.clf()
 
@@ -329,9 +353,9 @@ def plotme(
     plt.ylabel("Number of refugees")
     handles_set = []
 
-    untot = data.groupby(["Day"]).mean()["refugees in camps (UNHCR)"].to_numpy().flatten()
-    y1_rescaled = data.groupby(["Day"]).mean()["%s sim rescaled" % name].to_numpy()
-    y1_rescalederr = data.groupby(["Day"]).std()["%s sim rescaled" % name].to_numpy() * 2.0
+    untot = data.groupby(["Day"]).mean(numeric_only=True)["refugees in camps (UNHCR)"].to_numpy().flatten()
+    y1_rescaled = data.groupby(["Day"]).mean(numeric_only=True)["%s sim rescaled" % name].to_numpy()
+    y1_rescalederr = data.groupby(["Day"]).std(numeric_only=True)["%s sim rescaled" % name].to_numpy() * 2.0
 
     if Filled is False:
         labelsim = plt.errorbar(
@@ -555,16 +579,20 @@ def plot_flee_uq_output(in_dir: str, out_dir: str) -> None:
         for file in f:
             if file == "out.csv":
                 csv_file_address.append(os.path.join(r, file))
+    
     csv_file_address.sort()
-
+    
     li = []
     for filename in csv_file_address:
         df = pd.read_csv(filename, index_col=None, header=0, sep=",", encoding="latin1")
-
+        print("file",filename)
+        run_id = filename.split("/")[-2]
+        print("run_id",run_id)
+        df["run_id"] = run_id
         li.append(df)
 
     refugee_data = pd.concat(li, axis=0, ignore_index=True)
-
+    
     # Identifying location names for graphs
     rd_cols = list(refugee_data.columns.values)
 
@@ -576,7 +604,7 @@ def plot_flee_uq_output(in_dir: str, out_dir: str) -> None:
 
     for name in location_names:
         refugee_data["%s sim rescaled" % name] = refugee_data["%s sim" % name]
-
+    
     end_ch = "\r"
     for i in range(0, len(refugee_data)):
         if i == len(refugee_data) - 1:
@@ -598,18 +626,19 @@ def plot_flee_uq_output(in_dir: str, out_dir: str) -> None:
                     refugee_data["refugees in camps (UNHCR)"][i] / \
                     refugee_data["refugees in camps (simulation)"][i]
                 """
-
+    
     # Plotting and saving numagents (total refugee numbers) graph
     # TODO: These labels need to be more flexible/modifiable.
     plt.xlabel("Days elapsed")
 
     matplotlib.rcParams.update({"font.size": 20})
-
+    # print("Here info",refugee_data.info())
+    # print("Here info",refugee_data.describe())
     # my model
     if "refugee_debt" in refugee_data.columns:
         numagents_data = (
             refugee_data.groupby(["Day"])
-            .mean()
+            .mean(numeric_only=True)
             .loc[
                 :,
                 [
@@ -623,7 +652,7 @@ def plot_flee_uq_output(in_dir: str, out_dir: str) -> None:
     else:
         numagents_data = (
             refugee_data.groupby(["Day"])
-            .mean()
+            .mean(numeric_only=True)
             .loc[
                 :,
                 [
@@ -693,7 +722,7 @@ def plot_flee_uq_output(in_dir: str, out_dir: str) -> None:
 
     un_refs = (
         refugee_data.groupby(["Day"])
-        .mean()
+        .mean(numeric_only=True)
         .loc[:, ["refugees in camps (UNHCR)"]]
         .to_numpy()
         .flatten()
