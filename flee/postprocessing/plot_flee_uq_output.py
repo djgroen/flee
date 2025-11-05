@@ -229,7 +229,7 @@ def plotme(
     # y_sim = data["%s sim" % name].to_numpy()
     y1 = data.groupby(["Day"]).mean(numeric_only=True)["%s sim" % name].to_numpy()
     y2 = data.groupby(["Day"]).mean(numeric_only=True)["%s data" % name].to_numpy()
-    print("y1",y1)
+
     # calculate error bar based on the standard deviation
     # as the height of our error bars
     y1err = data.groupby(["Day"]).std(numeric_only=True)["%s sim" % name].to_numpy() * 2.0
@@ -329,14 +329,26 @@ def plotme(
     # Plot ensemble members
     plt.clf()
     for run, run_group in data.groupby("run_id"):
-        plt.plot(run_group["Day"], 
-                 run_group["%s sim" % name], 
-                #  alpha=0.3, 
-                 linewidth=3, 
-                 label=f"Run {run}")
+        if run == "observations":
+            plt.plot(run_group["Day"], 
+                    run_group["%s sim" % name], 
+                    #  alpha=0.3, 
+                    linewidth=0, 
+                    marker="*", 
+                    markersize=50,
+                    color="black",
+                    label=f"Run {run}")
+        else:
+            plt.plot(run_group["Day"], 
+                    run_group["%s sim" % name], 
+                    #  alpha=0.3, 
+                    linewidth=3, 
+                    label=f"Run {run}")
         
     plt.legend(bbox_to_anchor=(1.1, 1.05))
     plt.title("%s simulation" % name.title())
+    plt.xlabel("Days")
+    plt.ylabel("Population")
     fig = matplotlib.pyplot.gcf()
     fig.set_size_inches(20, 15)
     # adjust margins

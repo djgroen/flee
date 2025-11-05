@@ -5,20 +5,16 @@ from flee import InputGeography
 import numpy as np
 import flee.postprocessing.analysis as a
 import sys
-import os
 from flee.SimulationSettings import SimulationSettings
 
 from datetime import datetime, timedelta
-import pickle
-import json
 
 if __name__ == "__main__":
-  print(os.getcwd())
-  print(sys.argv)
+
   start_date,end_time = read_period.read_sim_period("{}/sim_period.csv".format(sys.argv[1]))
 
   if len(sys.argv)<4:
-    print("Please run using: python3 run.py <your_csv_directory> <your_refugee_data_directory> <duration in days> <optional: simsettings.yml> > <output_directory>/<output_csv_filename>")
+    print("Please run using: python3 run_pf.py <your_csv_directory> <your_refugee_data_directory> <duration in days> <optional: simsettings.yml> > <output_directory>/<output_csv_filename>")
 
   input_csv_directory = sys.argv[1]
   validation_data_directory = sys.argv[2]
@@ -34,6 +30,11 @@ if __name__ == "__main__":
   flee.SimulationSettings.ConflictInputFile = "%s/conflicts.csv" % input_csv_directory
   # Flood file will be read if modelling flood-driven displacement. Ignored otherwise.
   flee.SimulationSettings.FloodLevelInputFile = "%s/flood_level.csv" % input_csv_directory
+  # Observation file will be read if data assimilation is enabled.
+  if SimulationSettings.spawn_rules["data_assimilation_enabled"] is True:
+    SimulationSettings.ObservationsFile = "%s/observations.csv" % input_csv_directory
+    # TODO: set number of particles in simsettings.yml and simsetting.py
+    particles_num = SimulationSettings.data_assimilation_settings["number_of_particles"]
 
   e = flee.Ecosystem()
 
@@ -66,6 +67,7 @@ if __name__ == "__main__":
 
   if SimulationSettings.log_levels["idp_totals"] > 0:
     output_header_string += ",total IDPs"
+
   print(output_header_string)
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
@@ -121,20 +123,3 @@ if __name__ == "__main__":
       output += ",{}".format(e.numIDPs())
 
     print(output)
-  # Save
-  with open("particle_001_ecosystem.pkl", "wb") as f_e:
-      pickle.dump(e, f_e)
-  with open("particle_001_location_map.pkl", "wb") as f_lm:
-      pickle.dump(lm, f_lm)
-  with open("particle_001_data_table.pkl", "wb") as f_t:
-      pickle.dump(d, f_t)
-  # print(SimulationSettings.__dict__)
-  # print("--------------------- e dict ---------------------")
-  # print(e.__dict__)
-  # print("--------------------------------------------------")
-  # print("--------------------- lm dict ---------------------")
-  # print(lm)
-  # print("--------------------------------------------------")
-  # print("--------------------- d datatable ---------------------")
-  # print(d.__dict__)
-  # print("--------------------------------------------------")

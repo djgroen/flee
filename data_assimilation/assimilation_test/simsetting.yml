@@ -20,6 +20,7 @@ spawn_rules:
 
 move_rules:
   default_movechance: 0.3
+  MaxMoveSpeed: 300
   awareness_level: 1
   start_on_foot: True
   flood_rules:

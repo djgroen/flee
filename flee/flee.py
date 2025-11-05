@@ -511,6 +511,7 @@ class Location:
             None.
 
         Returns:
+                new_agents += self.agents[i]  # agent is preserved in ecosystem
             None.
         """
         self.numAgents -= 1
@@ -1688,6 +1689,9 @@ class Ecosystem:
                             outcome = random.random()
                             if outcome < a.location.attributes.get("deactivation_probability", 0.0):
                                 a.location = None
+
+
+
 
         self.time += 1
 

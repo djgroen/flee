@@ -132,7 +132,9 @@ class SimulationSettings:
         # Advanced settings
         SimulationSettings.spawn_rules["InsertDayZeroRefugeesInCamps"] = bool(fetchss(dps, "insert_day0", True))
         SimulationSettings.spawn_rules["EmptyCampsOnDay0"] = bool(fetchss(dps, "empty_camps_on_day0", False))
-
+        SimulationSettings.spawn_rules["data_assimilation_enabled"] = bool(fetchss(dps, "data_assimilation_enabled", False)) # Enable data assimilation.
+        if SimulationSettings.spawn_rules["data_assimilation_enabled"] is True:
+           SimulationSettings.ObservationsFile = fetchss(dp,"observations_input_file","")
 
         SimulationSettings.spawn_rules["conflict_zone_spawning_only"] = bool(fetchss(dps, "conflict_zone_spawning_only", True)) # Only spawn agents from conflict zones.
         SimulationSettings.spawn_rules["flood_zone_spawning_only"] = bool(fetchss(dps, "flood_zone_spawning_only", False)) # Only spawn agents from flood zones.
