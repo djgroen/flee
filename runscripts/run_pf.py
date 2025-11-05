@@ -5,39 +5,37 @@ from flee import InputGeography
 import numpy as np
 import flee.postprocessing.analysis as a
 import sys
+import pickle
 from flee.SimulationSettings import SimulationSettings
 
 from datetime import datetime, timedelta
 
 if __name__ == "__main__":
-
-  start_date,end_time = read_period.read_sim_period("{}/sim_period.csv".format(sys.argv[1]))
-
-  if len(sys.argv)<4:
-    print("Please run using: python3 run_pf.py <your_csv_directory> <your_refugee_data_directory> <duration in days> <optional: simsettings.yml> > <output_directory>/<output_csv_filename>")
-
-  input_csv_directory = sys.argv[1]
-  validation_data_directory = sys.argv[2]
-  if int(sys.argv[3]) > 0:
-    end_time = int(sys.argv[3])
-
-  if len(sys.argv)==5:
-    flee.SimulationSettings.ReadFromYML(sys.argv[4])
-  else:
-    flee.SimulationSettings.ReadFromYML("simsetting.yml")
+  assimilation_directory = "data_assimilation/assimilation_test"
+  input_csv_directory = "data_assimilation/assimilation_test/input_csv"
+  start_date,end_time = read_period.read_sim_period("{}/sim_period.csv".format(input_csv_directory)) 
+  validation_data_directory = "data_assimilation/assimilation_test/source_data"
+  flee.SimulationSettings.ReadFromYML("data_assimilation/assimilation_test/simsetting.yml")
 
   # Conflict file will be read if modelling conflict-driven displacement. Ignored otherwise.
   flee.SimulationSettings.ConflictInputFile = "%s/conflicts.csv" % input_csv_directory
   # Flood file will be read if modelling flood-driven displacement. Ignored otherwise.
   flee.SimulationSettings.FloodLevelInputFile = "%s/flood_level.csv" % input_csv_directory
+  
+  # Probably in the wrong file
   # Observation file will be read if data assimilation is enabled.
   if SimulationSettings.spawn_rules["data_assimilation_enabled"] is True:
     SimulationSettings.ObservationsFile = "%s/observations.csv" % input_csv_directory
-    # TODO: set number of particles in simsettings.yml and simsetting.py
-    particles_num = SimulationSettings.data_assimilation_settings["number_of_particles"]
+  # TODO: set number of particles in simsettings.yml and simsetting.py
+  # particles_num = SimulationSettings.data_assimilation_settings["number_of_particles"]
 
-  e = flee.Ecosystem()
+  # Read in saved particle
+  with open("%s/particle_001_ecosystem.pkl" % assimilation_directory, "rb") as f:
+    e = pickle.load(f)
 
+  # Start time is next timestep after saved ecosystem
+  start_time = e.time
+  end_time = start_time + 6 # TODO: read in from observations file or simsettings.yml
   ig = InputGeography.InputGeography()
 
   ig.ReadLocationsFromCSV("%s/locations.csv" % input_csv_directory)
@@ -51,9 +49,8 @@ if __name__ == "__main__":
   if SimulationSettings.spawn_rules["read_from_agents_csv_file"] == True:
       ig.ReadAgentsFromCSV(e, "%s/agents.csv" % input_csv_directory)
 
-  d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv", population_scaledown_factor=SimulationSettings.optimisations["PopulationScaleDownFactor"], start_empty=SimulationSettings.spawn_rules["EmptyCampsOnDay0"])
-
-  d.ReadL1Corrections("%s/registration_corrections.csv" % input_csv_directory)
+  with open("%s/particle_001_data_table.pkl" % assimilation_directory, "rb") as f:
+    d = pickle.load(f)
 
   output_header_string = "Day,Date,"
 
@@ -71,9 +68,9 @@ if __name__ == "__main__":
   print(output_header_string)
   refugee_debt = 0
   refugees_raw = 0 #raw (interpolated) data from TOTAL UNHCR refugee count only.
-
-  for t in range(0,end_time):
-
+  
+  for t in range(start_time, end_time):
+    
     #if t>0:
     ig.AddNewConflictZones(e,t)
 
