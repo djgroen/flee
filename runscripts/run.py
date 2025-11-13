@@ -10,7 +10,6 @@ from flee.SimulationSettings import SimulationSettings
 
 from datetime import datetime, timedelta
 import pickle
-import json
 
 if __name__ == "__main__":
   print(os.getcwd())
@@ -123,11 +122,11 @@ if __name__ == "__main__":
     print(output)
     
   # Save
-  with open("particle_001_ecosystem.pkl", "wb") as f_e:
+  with open("particle_ecosystem.pkl", "wb") as f_e:
       pickle.dump(e, f_e)
-  # with open("particle_001_location_map.pkl", "wb") as f_lm:
-  #     pickle.dump(lm, f_lm)
-  with open("particle_001_data_table.pkl", "wb") as f_t:
+  with open("particle_location_map.pkl", "wb") as f_lm:
+      pickle.dump(lm, f_lm)
+  with open("particle_data_table.pkl", "wb") as f_t:
       pickle.dump(d, f_t)
   # print(SimulationSettings.__dict__)
   # print("--------------------- e dict ---------------------")
