@@ -11,8 +11,8 @@ from flee.SimulationSettings import SimulationSettings
 from datetime import datetime, timedelta
 
 if __name__ == "__main__":
-  assimilation_directory = "data_assimilation/assimilation_test"
-  input_csv_directory = "data_assimilation/assimilation_test/input_csv"
+  assimilation_directory = "data_assimilation/assimilation_test/iteration_1/100_v2" # example
+  input_csv_directory = assimilation_directory + "/input_csv"
   start_date,end_time = read_period.read_sim_period("{}/sim_period.csv".format(input_csv_directory)) 
   validation_data_directory = "data_assimilation/assimilation_test/source_data"
   flee.SimulationSettings.ReadFromYML("data_assimilation/assimilation_test/simsetting.yml")
@@ -120,3 +120,10 @@ if __name__ == "__main__":
       output += ",{}".format(e.numIDPs())
 
     print(output)
+    # Save
+    # with open("particle_ecosystem.pkl", "wb") as f_e:
+    #     pickle.dump(e, f_e)
+    # with open("particle_location_map.pkl", "wb") as f_lm:
+    #     pickle.dump(lm, f_lm)
+    # with open("particle_data_table.pkl", "wb") as f_t:
+    #     pickle.dump(d, f_t)

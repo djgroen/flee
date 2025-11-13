@@ -20,7 +20,7 @@ class ParticleFilter:
         self.observations_file = self.assimilation_directory + "/observations.csv"
         self.current_iteration_folder = None
         self.next_iteration_folder = None
-        self.observation_time = 5 # Example time, should be set according to simulation
+        self.observation_time = None
 
     def select_iteration(self):
         """
@@ -74,7 +74,11 @@ class ParticleFilter:
                 particles_dict[key]["e"] = pickle.load(f)
             with open(filepath["file_lm"], "rb") as f:
                 particles_dict[key]["lm"] = pickle.load(f)
-        
+
+        # Read in observation time from one of the particles        
+        self.observation_time = particles_dict[key]["e"].time
+
+        # Load existing weights if available
         try:
             with open(self.assimilation_directory + "/particle_weights.json", "r") as f:
                 weights_data = json.load(f)
@@ -104,18 +108,16 @@ class ParticleFilter:
                 if camp not in camp_populations:
                     camp_populations[camp] = {}
                 camp_populations[camp][particle_id] = num_agents
-        camp_populations = self.add_observations_to_camp_populations(camp_populations, 
-                                                                     self.observation_time, 
-                                                                     obs_csv_path=self.observations_file)
+        camp_populations = self.add_observations_to_camp_populations(camp_populations)
         
         return camp_populations
 
-    def add_observations_to_camp_populations(self, camp_populations:dict, observation_time:int, obs_csv_path:str) -> dict:
+    def add_observations_to_camp_populations(self, camp_populations:dict) -> dict:
         """
         Add observation data from CSV to camp populations dictionary.
         """
-        obs_df = pd.read_csv(obs_csv_path)
-        row = obs_df[obs_df["Day"] == observation_time]
+        obs_df = pd.read_csv(self.observations_file)
+        row = obs_df[obs_df["Day"] == self.observation_time]
         if not row.empty:
             obs_data = row.iloc[0].to_dict()
             obs_data.pop("Day", None)
@@ -125,7 +127,7 @@ class ParticleFilter:
                     camp_populations[camp] = {}
                 camp_populations[camp]["observation"] = value
         else:
-            print(f"No observation data for Day == {observation_time}")
+            print(f"No observation data for Day == {self.observation_time}")
         # print(camp_populations)
         return camp_populations
 
