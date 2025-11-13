@@ -17,17 +17,48 @@ class ParticleFilter:
 
     def __init__(self):
         self.assimilation_directory = "data_assimilation/assimilation_test"
-        self.input_csv_directory = "data_assimilation/assimilation_test/input_csv"
         self.observations_file = self.assimilation_directory + "/observations.csv"
+        self.current_iteration_folder = None
+        self.next_iteration_folder = None
         self.observation_time = 5 # Example time, should be set according to simulation
+
+    def select_iteration(self):
+        """
+        Select the subfolder with the highest iteration suffix.
+        Returns the path to that subfolder.
+        """
+        pattern = re.compile(r"iteration*_(\d+)$")  # matches folders ending with _number
+
+        max_suffix = -1
+        selected_folder = None
+
+        for name in os.listdir(self.assimilation_directory):
+            full_path = os.path.join(self.assimilation_directory, name)
+            if os.path.isdir(full_path):
+                match = pattern.match(name)
+                if match:
+                    suffix = int(match.group(1))
+                    if suffix > max_suffix:
+                        max_suffix = suffix
+                        selected_folder = full_path
+
+        # Increment the suffix for the next iteration
+        # Create new folder for next iteration
+        self.next_iteration_folder = re.sub(r"(iteration_)(\d+)$", lambda m: f"{m.group(1)}{int(m.group(2))+1}", 
+                                            selected_folder)
+        os.makedirs(self.next_iteration_folder, exist_ok=True)
+
+        print("Subfolder with highest suffix:", selected_folder)
+        return selected_folder
 
     def load_particles(self) -> dict:
         """
         Load particle ecosystems and location maps from pickle files.
         Returns a dictionary of particles with their ecosystems and location maps.
         """
+        self.current_iteration_folder = self.select_iteration()
         particles_dict = {}
-        for root, dirs, files in os.walk(self.assimilation_directory):
+        for root, dirs, files in os.walk(self.current_iteration_folder):
             for filename in files:
                 if filename.startswith("particle_") and filename.endswith("_ecosystem.pkl"):
                     full_path_e = os.path.join(root, filename)
@@ -299,8 +330,8 @@ class ParticleFilter:
                         particles_dict[new_particle][key] = particles_dict[new_particle][key].replace(particle, new_particle)
                     
                     # Copy existing files to new particle folder
-                    root_folder_particle = particles_dict[particle]['file_e'].split("/particle_")[0]
-                    root_folder_new_particle = particles_dict[new_particle]['file_e'].split("/particle_")[0]
+                    root_folder_particle = os.path.join(self.current_iteration_folder, particle)
+                    root_folder_new_particle = os.path.join(self.next_iteration_folder, new_particle)
                     os.makedirs(root_folder_new_particle, exist_ok=True)
                     shutil.copytree(root_folder_particle, root_folder_new_particle, dirs_exist_ok=True)
                     
@@ -320,6 +351,11 @@ class ParticleFilter:
             
             if particle in swapped_new_camp_populations:
                 print(f"\nCopying particle {particle} for next iteration.\n")
+                # Copy existing files to new particle folder
+                root_folder_particle = os.path.join(self.current_iteration_folder, particle)
+                root_folder_new_particle = os.path.join(self.next_iteration_folder, particle)
+                os.makedirs(root_folder_new_particle, exist_ok=True)
+                shutil.copytree(root_folder_particle, root_folder_new_particle, dirs_exist_ok=True)
                 continue  # keep as is        
             
             if not found_suffix:
@@ -437,8 +473,6 @@ class ParticleFilter:
             resampled_ids = self.systematic_resample(weights=weights)
             print("Resampled particle IDs:", resampled_ids)
 
-            
-            
             new_camp_populations = self.resample_with_jitter(camp_populations, resampled_ids, sigma=10.0)
             # print("New camp populations after resampling with jitter:\n", new_camp_populations)
 
@@ -464,24 +498,17 @@ class ParticleFilter:
                 json.dump(weights_dict, f, indent=2)  
             print("example particle (no resampling):" , particles_dict["100"])
             print("No resampling needed (ESS sufficient).")
-        # Save Ecosystem state per particle in dict {particle_id: Ecosystem_state}
-        # Compare each particles locations with observed data
-        # Update weights of particles based on comparison
-        # Resample particles based on weights
-        # Run next iteration until end of simulation
 
-        # If time is in day column of SimulationSettings.ObservationsFile (might want to do the reading of csv in input geography)
-        # For location in locations:
-            # Update location agent numbers based on observed data using
-            # ParticleFilter()
-        
-
-
+            root_folder_particles = os.path.join(self.current_iteration_folder)
+            root_folder_new_particles = os.path.join(self.next_iteration_folder)
+            os.makedirs(root_folder_new_particles, exist_ok=True)
+            shutil.copytree(root_folder_particles, root_folder_new_particles, dirs_exist_ok=True)
 
 if __name__ == "__main__":
     np.random.seed(1)
-    flee.SimulationSettings.ReadFromYML("data_assimilation/assimilation_test/100/simsetting.yml")
+    flee.SimulationSettings.ReadFromYML("data_assimilation/assimilation_test/simsetting.yml")
     pf = ParticleFilter()
     pf.filter()
     
+        
             
