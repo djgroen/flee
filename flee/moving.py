@@ -7,6 +7,23 @@ from flee.SimulationSettings import SimulationSettings
 import flee.spawning as spawning
 import flee.demographics as demographics
 
+# Import refactored S1/S2 system
+try:
+    from flee.s1s2_refactored import S1S2Config, calculate_s1s2_move_probability
+except ImportError:
+    # Fallback if refactored system not available
+    S1S2Config = None
+    calculate_s1s2_move_probability = None
+
+# Import new 5-parameter S1/S2 model
+try:
+    from flee.s1s2_model import calculate_move_probability_s1s2, load_s1s2_parameters, validate_parameters
+except ImportError:
+    # Fallback if 5-parameter model not available
+    calculate_move_probability_s1s2 = None
+    load_s1s2_parameters = None
+    validate_parameters = None
+
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
 else:
@@ -349,37 +366,111 @@ def chooseFromWeights(weights, routes):
   return result[0]
 
 
-@check_args_type
-def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
-    """
-    Summary:
-        Calculates the probability that an agent will move this step.
 
-    Args:
-        a: Agent to calculate move chance for.
-        ForceTownMove: Whether to force agents to move through regular town. If True, agents will always move.
-        time (int): Current time step.
-
-    Returns:
-        movechance (float): Probability that agent will move this step. 
-        system2_active: Whether System 2 thinking is active.
+def calculate_systematic_s2_activation(agent, pressure, base_threshold, time):
     """
+    Calculate systematic S2 activation using bounded mathematical model.
+    
+    NOTE: This is the OLD system. The aligned model uses experience_index
+    via calculate_experience_index() and P_S2 = Ψ × Ω.
+    
+    This function is kept for backward compatibility with the original
+    S1/S2 system that doesn't use the parsimonious model.
+    """
+    import math
+    import random
+    
+    # Base sigmoid activation curve with proper steepness
+    k = 6.0  # Steepness parameter (more realistic than 8.0)
+    base_prob = 1.0 / (1.0 + math.exp(-k * (pressure - base_threshold)))
+    
+    # Individual difference modifiers (bounded and realistic)
+    # NOTE: Using experience-based factors instead of direct education
+    # Education is only a small component (5%) of experience index
+    try:
+        from flee.s1s2_model import calculate_experience_index
+        experience_index = calculate_experience_index(
+            prior_displacement=agent.timesteps_since_departure / 30.0,
+            local_knowledge=agent.attributes.get('local_knowledge', 0.0),
+            conflict_exposure=agent.attributes.get('conflict_exposure', 0.0),
+            connections=agent.attributes.get('connections', 0),
+            age_factor=agent.attributes.get('age_factor', 0.5),
+            education_level=agent.attributes.get('education_level', 0.5)
+        )
+        # Use experience index for boost (normalized to [0, 1] range)
+        experience_boost = min(experience_index / 5.0, 0.05)  # Max 5% boost
+    except ImportError:
+        # Fallback if experience index not available
+        experience_boost = 0.0
+    
+    stress_tolerance = agent.attributes.get('stress_tolerance', 0.5)
+    stress_modifier = stress_tolerance * 0.03  # Max 3% boost
+    
+    # Social support modifier (bounded)
+    connections = agent.attributes.get('connections', 0)  # Start from 0, not 5
+    social_support = min(connections * 0.01, 0.05)  # Max 5% boost
+    
+    # Time-based modifiers (bounded)
+    fatigue_penalty = min(time * 0.001, 0.03)  # Max 3% penalty, bounded
+    learning_boost = min(time * 0.002, 0.05)   # Max 5% boost, bounded
+    
+    # Combine all modifiers
+    final_prob = base_prob + experience_boost + social_support - fatigue_penalty + learning_boost + stress_modifier
+    
+    # Ensure probability stays in valid range
+    final_prob = max(0.0, min(1.0, final_prob))
+    
+    # Random activation based on probability
+    return random.random() < final_prob
+
+
+def calculate_s1_move_chance(a, ForceTownMove: bool, time) -> float:
+    """Calculate S1 move chance (original logic)."""
+    if a.location.town and ForceTownMove:  # called through evolve
+        return 1.0
+    elif len(a.route) > 0: #If a route with destination is known, the agent will continue to follow it.
+        return 1.0
+    else:  # called first time in loop
+        movechance = a.location.movechance
+        movechance *= (float(max(a.location.pop, a.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
+        return movechance
+
+
+def calculate_move_chance_original(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
+    """Original S1/S2 move chance calculation (fallback)."""
     system2_active = False
-
-    if SimulationSettings.move_rules["TwoSystemDecisionMaking"] is True:
-        # Enhanced System 2 Activation Logic with cognitive pressure
-        cognitive_pressure = a.calculate_cognitive_pressure(time)
-        system2_capable = a.get_system2_capable()
+    
+    # Enhanced System 2 Activation Logic with cognitive pressure
+    cognitive_pressure = a.calculate_cognitive_pressure(time)
+    system2_capable = a.get_system2_capable()
+    
+    # Systematic S2 activation with continuous probability
+    if system2_capable:
+        # Get agent's cognitive profile
+        profile = a.attributes.get('cognitive_profile', 'balanced')
+        base_threshold = a.attributes.get('s2_threshold', 0.5)
         
-        # System 2 activation threshold based on cognitive pressure
-        activation_threshold = SimulationSettings.move_rules.get("conflict_threshold", 0.5)
-        if cognitive_pressure > activation_threshold and system2_capable:
-            system2_active = True
-        
+        # Use systematic continuous activation
+        system2_active = calculate_systematic_s2_activation(
+            a, cognitive_pressure, base_threshold, time
+        )
+    
+        # Log S2 activation decision
+        if system2_active:
+            a.log_decision("S2", {
+                "cognitive_pressure": cognitive_pressure,
+                "threshold": base_threshold,
+                "connections": a.attributes.get('connections', 0),
+                "location": getattr(a.location, 'name', 'UnknownLocation')
+            }, time)
+            
             # Safe access to location name for debugging
             location_name = getattr(a.location, 'name', 'UnknownLocation')
             print(f"System 2 activated: Agent at {location_name} (pressure: {cognitive_pressure:.2f}, connections: {a.attributes.get('connections', 0)}) at time {time}", file=sys.stderr)
+            print(f"DEBUG: Decision history length: {len(a.decision_history)}", file=sys.stderr)
 
+        # Only pre-calculate route if System 2 is actually activated
+        if system2_active:
             # Pre-calculate route for System 2 decision-making
             provisional_route = selectRoute(a, time, system2_active=True)
             if len(provisional_route) == 0:
@@ -398,6 +489,226 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
             return 1.0, system2_active
 
     # If System 2 is not active, calculate standard System 1 move chance
+    if a.location.town and ForceTownMove:  # called through evolve
+        return 1.0, system2_active
+    elif len(a.route) > 0: #If a route with destination is known, the agent will continue to follow it.
+        return 1.0, system2_active
+    else:  # called first time in loop
+        movechance = a.location.movechance
+        movechance *= (float(max(a.location.pop, a.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
+        return movechance, system2_active
+
+
+@check_args_type
+def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
+    """
+    Summary:
+        Calculates the probability that an agent will move this step.
+
+    Args:
+        a: Agent to calculate move chance for.
+        ForceTownMove: Whether to force agents to move through regular town. If True, agents will always move.
+        time (int): Current time step.
+
+    Returns:
+        movechance (float): Probability that agent will move this step. 
+        system2_active: Whether System 2 thinking is active.
+    """
+    system2_active = False
+
+    if SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False):
+        # CRITICAL: Camps have very low movechance (0.001) - respect it regardless of S1/S2
+        # This prevents agents from leaving safe zones too frequently
+        if a.location.camp or a.location.idpcamp:
+            # Preserve current cognitive state, but use camp_movechance (agents don't move)
+            # This maintains behavioral continuity: S2 agents stay S2, S1 agents stay S1
+            current_s2 = getattr(a, 'cognitive_state', 'S1') == 'S2'
+            return a.location.movechance, current_s2
+        
+        # CRITICAL: High-conflict zones have high movechance (1.0) - respect it regardless of S1/S2
+        # This ensures agents always try to leave extreme danger zones (panic response)
+        conflict = max(0.0, getattr(a.location, 'conflict', 0.0))
+        if conflict > 0.5:  # High conflict threshold
+            # Preserve current cognitive state, but use conflict_movechance (agents always try to leave)
+            # This maintains behavioral continuity while respecting urgency
+            current_s2 = getattr(a, 'cognitive_state', 'S1') == 'S2'
+            return a.location.movechance, current_s2
+        
+        # NEW: Use parsimonious dual-process S1/S2 model if available and enabled
+        if calculate_move_probability_s1s2 is not None:
+            # Import experience index calculation
+            from flee.s1s2_model import calculate_experience_index
+            
+            # Check if S1/S2 model is enabled in config
+            s1s2_params = SimulationSettings.move_rules.get('s1s2_model_params', None)
+            if s1s2_params and s1s2_params.get('enabled', False):
+                # Calculate experience-based capacity index (as per presentation)
+                experience_index = calculate_experience_index(
+                    prior_displacement=a.timesteps_since_departure / 30.0,  # Normalize to ~[0, 1]
+                    local_knowledge=a.attributes.get('local_knowledge', 0.0),
+                    conflict_exposure=a.attributes.get('conflict_exposure', 0.0),
+                    connections=a.attributes.get('connections', 0),
+                    age_factor=a.attributes.get('age_factor', 0.5),
+                    education_level=a.attributes.get('education_level', getattr(a, 'education', 0.5))
+                )
+                
+                # Conflict already calculated above for high-conflict check
+                # Reuse it here for consistency (conflict is in scope from line 530)
+                movechance = a.location.movechance
+                
+                # Get parameters from config (only α and β are free; p_s2 is fixed)
+                alpha = s1s2_params.get('alpha', 2.0)
+                beta = s1s2_params.get('beta', 2.0)
+                p_s2 = s1s2_params.get('p_s2', 0.8)
+                
+                # Calculate move probability using parsimonious model (P_S2 = Ψ × Ω)
+                p_move, p_s2_active = calculate_move_probability_s1s2(
+                    experience_index, conflict, movechance,
+                    alpha, beta, p_s2
+                )
+                
+                # Store S2 activation probability for route selection
+                a.s2_activation_prob = p_s2_active
+                
+                # Determine if S2 is active (lower threshold to allow more S2 activation)
+                system2_active = p_s2_active > 0.3  # Reduced from 0.5 to 0.3 for easier S2 activation
+                
+                # Log S2 activation decision
+                if system2_active:
+                    a.log_decision("S2", {
+                        "experience_index": experience_index,
+                        "conflict": conflict,
+                        "s2_activation_prob": p_s2_active,
+                        "location": getattr(a.location, 'name', 'UnknownLocation')
+                    }, time)
+                    
+                    # Pre-calculate route if System 2 is active
+                    provisional_route = selectRoute(a, time, system2_active=True)
+                    if len(provisional_route) == 0:
+                        return 0.0, True  # suppress move if no viable route
+                    else:
+                        a.attributes["_temp_route"] = provisional_route
+                        
+                        # Share route information with connected agents
+                        if a.attributes.get("connections", 0) > 0:
+                            a.attributes["_share_route_info"] = True
+                
+                return p_move, system2_active
+        
+        # Fallback: Use refactored S1/S2 system if available
+        elif calculate_s1s2_move_probability is not None:
+            # NOTE: This fallback system still uses education directly
+            # For consistency with aligned model, we should calculate experience_index
+            # but the refactored system signature requires education parameter
+            # This is a legacy fallback - the aligned model (above) is preferred
+            
+            # Calculate experience index for consistency (even though refactored system uses education)
+            try:
+                from flee.s1s2_model import calculate_experience_index
+                experience_index = calculate_experience_index(
+                    prior_displacement=a.timesteps_since_departure / 30.0,
+                    local_knowledge=a.attributes.get('local_knowledge', 0.0),
+                    conflict_exposure=a.attributes.get('conflict_exposure', 0.0),
+                    connections=a.attributes.get('connections', 0),
+                    age_factor=a.attributes.get('age_factor', 0.5),
+                    education_level=a.attributes.get('education_level', 0.5)
+                )
+                # Map experience_index back to education-equivalent for refactored system
+                # (This is a workaround - ideally refactored system would use experience_index)
+                education_equivalent = min(experience_index / 3.0, 1.0)  # Normalize experience to [0,1]
+            except ImportError:
+                education_equivalent = a.attributes.get('education_level', 0.5)
+            
+            # Get S1/S2 configuration
+            s1s2_config = S1S2Config({
+                "connectivity_mode": SimulationSettings.move_rules.get("connectivity_mode", "baseline"),
+                "soft_capability": SimulationSettings.move_rules.get("soft_capability", False),
+                "pmove_s2_mode": SimulationSettings.move_rules.get("pmove_s2_mode", "scaled"),
+                "pmove_s2_constant": SimulationSettings.move_rules.get("pmove_s2_constant", 0.9),
+                "eta": SimulationSettings.move_rules.get("eta", 0.5),
+                "steepness": SimulationSettings.move_rules.get("steepness", 6.0),
+                "soft_gate_steepness": SimulationSettings.move_rules.get("soft_gate_steepness", 8.0),
+            })
+            
+            # Calculate S1/S2 move probability
+            move_prob, s2_activation_prob, s2_active = calculate_s1s2_move_probability(
+                time=time,
+                conflict_intensity=max(0.0, getattr(a.location, 'conflict', 0.0)),
+                connections=a.attributes.get("connections", 0),
+                timesteps_since_departure=a.timesteps_since_departure,
+                education=education_equivalent,  # Use experience-based value
+                stress_tolerance=a.attributes.get('stress_tolerance', 0.5),
+                threshold=a.attributes.get('s2_threshold', 0.5),
+                location_movechance=a.location.movechance,
+                s1_move_prob=0.0,  # Will be calculated below
+                config=s1s2_config,
+                conflict_start_time=getattr(a.location, 'time_of_conflict', 0)
+            )
+            
+            # Calculate S1 move chance for the combined probability
+            s1_move_chance = calculate_s1_move_chance(a, ForceTownMove, time)
+            
+            # Recalculate with proper S1 move chance
+            move_prob, s2_activation_prob, s2_active = calculate_s1s2_move_probability(
+                time=time,
+                conflict_intensity=max(0.0, getattr(a.location, 'conflict', 0.0)),
+                connections=a.attributes.get("connections", 0),
+                timesteps_since_departure=a.timesteps_since_departure,
+                education=education_equivalent,  # Use experience-based value
+                stress_tolerance=a.attributes.get('stress_tolerance', 0.5),
+                threshold=a.attributes.get('s2_threshold', 0.5),
+                location_movechance=a.location.movechance,
+                s1_move_prob=s1_move_chance,
+                config=s1s2_config,
+                conflict_start_time=getattr(a.location, 'time_of_conflict', 0)
+            )
+            
+            # Log S2 activation decision
+            if s2_active:
+                a.log_decision("S2", {
+                    "cognitive_pressure": a.calculate_cognitive_pressure(time),
+                    "threshold": a.attributes.get('s2_threshold', 0.5),
+                    "connections": a.attributes.get('connections', 0),
+                    "location": getattr(a.location, 'name', 'UnknownLocation')
+                }, time)
+                
+                # Safe access to location name for debugging
+                location_name = getattr(a.location, 'name', 'UnknownLocation')
+                print(f"System 2 activated: Agent at {location_name} (pressure: {a.calculate_cognitive_pressure(time):.2f}, connections: {a.attributes.get('connections', 0)}) at time {time}", file=sys.stderr)
+                print(f"DEBUG: Decision history length: {len(a.decision_history)}", file=sys.stderr)
+            
+            # Pre-calculate route if System 2 is active
+            if s2_active:
+                provisional_route = selectRoute(a, time, system2_active=True)
+                if len(provisional_route) == 0:
+                    return 0.0, True  # suppress move if no viable route
+                else:
+                    a.attributes["_temp_route"] = provisional_route
+                    
+                    # Share route information with connected agents
+                    if a.attributes.get("connections", 0) > 0:
+                        a.attributes["_share_route_info"] = True
+            
+            return move_prob, s2_active
+        else:
+            # Fallback to original S1/S2 logic
+            return calculate_move_chance_original(a, ForceTownMove, time)
+
+    # If System 2 is not active, calculate standard System 1 move chance
+    # CRITICAL: Camps have very low movechance - respect it even if agent has a route
+    if a.location.camp or a.location.idpcamp:
+        # Preserve current cognitive state, but use camp_movechance (agents don't move)
+        current_s2 = getattr(a, 'cognitive_state', 'S1') == 'S2'
+        return a.location.movechance, current_s2
+    
+    # CRITICAL: High-conflict zones have high movechance (1.0) - respect it even if agent has a route
+    # This ensures agents always try to leave extreme danger zones (panic response)
+    conflict = max(0.0, getattr(a.location, 'conflict', 0.0))
+    if conflict > 0.5:  # High conflict threshold
+        # Preserve current cognitive state, but use conflict_movechance (agents always try to leave)
+        current_s2 = getattr(a, 'cognitive_state', 'S1') == 'S2'
+        return a.location.movechance, current_s2
+    
     if a.location.town and ForceTownMove:  # called through evolve
         return 1.0, system2_active
     elif len(a.route) > 0: #If a route with destination is known, the agent will continue to follow it.
