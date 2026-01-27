@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import random
+import flee.lib_math as lm
 from beartype.typing import List, Optional, Tuple
 from flee.SimulationSettings import SimulationSettings
 import flee.spawning as spawning
@@ -55,11 +56,11 @@ def getEndPointScore(agent, endpoint, time) -> float:
     # DFlee Flood Location Weight implementation
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         #Get the current flood level of the endpoint, if flood level not set in flood_level.csv then default to zero
-        flood_level = endpoint.attributes.get("flood_level",0)
+        flood_level = endpoint.attributes.get("flood_level", 0.0)
         #print("Link:", endpoint.name, endpoint.attributes, file=sys.stderr)
-        if flood_level > 0:
+        if flood_level > 0.0:
             #set the base equal to the flood location weight
-            base *= float(SimulationSettings.move_rules["FloodLocWeights"][flood_level])
+            base *= lm.interp(SimulationSettings.move_rules["FloodLocWeights"], flood_level)
             #otherwise base score is unaffected by flooding
 
 
@@ -106,7 +107,7 @@ def getEndPointScore(agent, endpoint, time) -> float:
                       # if it's not zero, then we need to modify the base forecast value, otherwise leave the base as it will zero.
                       if forecast_flood_level > 0.0: 
                         #get the endpoint locations current flood level weight based on that flood level.
-                        forecast_flood_level_weight = float(SimulationSettings.move_rules["FloodLocWeights"][forecast_flood_level]) 
+                        forecast_flood_level_weight = lm.interp(SimulationSettings.move_rules["FloodLocWeights"], flood_level)
                         
                         #get the current flood forecaster weight e.g. how important the current day is in the forecast
                         flood_forecaster_weight = float(SimulationSettings.move_rules["FloodForecasterWeights"][forecast_day])
@@ -380,11 +381,11 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
     # DFlee Flood Location Movechance implementation:
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         #Get the current flood level of the agents location, if flood level not set in flood_level.csv then default to zero
-        flood_level = a.location.attributes.get("flood_level",0)
+        flood_level = a.location.attributes.get("flood_level", 0.0)
         
         if flood_level > 0.0:
             #set the base equal to the flood location weight
-            movechance = float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
+            movechance = lm.interp(SimulationSettings.move_rules["FloodMovechances"], flood_level)
             #otherwise base movechance is unaffected by flooding
             #print(f"flood_level: {flood_level}, movechance: {movechance}")
 
@@ -441,7 +442,7 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
                     # if it's not zero, then we need to modify the base forecast value, otherwise leave the base as it will zero.
                     if forecast_flood_level > 0.0: 
                         #get the endpoint locations current flood level weight based on that flood level.
-                        forecast_flood_level_weight = float(SimulationSettings.move_rules["FloodLocWeights"][forecast_flood_level]) 
+                        forecast_flood_level_weight = lm.interp(SimulationSettings.move_rules["FloodLocWeights"], forecast_flood_level) 
                       
                         #get the current flood forecaster weight e.g. how important the current day is in the forecast
                         flood_forecaster_weight = float(SimulationSettings.move_rules["FloodForecasterWeights"][forecast_day])

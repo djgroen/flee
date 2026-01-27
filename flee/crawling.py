@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import random
+import flee.lib_math as lm
 from beartype.typing import List, Optional, Tuple
 from flee.SimulationSettings import SimulationSettings
 
@@ -40,11 +41,11 @@ def getLocationCrawlEndPointScore(link, time) -> float:
     # DFlee Flood Location Weight implementation
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         #Get the current flood level of the endpoint, if flood level not set in flood_level.csv then default to zero
-        flood_level = link.endpoint.attributes.get("flood_level",0)
+        flood_level = link.endpoint.attributes.get("flood_level",0.0)
         #print("Link:", link.endpoint.name, link.endpoint.attributes, file=sys.stderr)
-        if flood_level > 0:
+        if flood_level > 0.0:
             #set the base equal to the flood location weight
-            base *= float(SimulationSettings.move_rules["FloodLocWeights"][flood_level])
+            base *= lm.interp(SimulationSettings.move_rules["FloodLocWeights"], flood_level)
             #otherwise base score is unaffected by flooding
 
     return base
