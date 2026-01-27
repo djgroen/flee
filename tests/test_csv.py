@@ -94,6 +94,7 @@ def test_csv(end_time=30, last_physical_day=30):
     assert ig.conflicts["A"][0] == 1
     assert ig.conflicts["C2"][94] == 0
 
+    assert "region_IPC_level" in ig.attributes.keys()
 
     ig.ReadLinksFromCSV(csv_name=os.path.join("test_data", "test_input_csv/routes.csv"))
 
