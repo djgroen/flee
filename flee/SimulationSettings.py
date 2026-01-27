@@ -96,8 +96,9 @@ class SimulationSettings:
 
         number_of_steps = float(fetchss(dp,"number_of_steps",-1))
         #Defined in run.py
-        SimulationSettings.ConflictInputFile = fetchss(dp,"conflict_input_file","")
-        SimulationSettings.FloodLevelInputFile = fetchss(dp,"flood_level_input_file","")
+        SimulationSettings.ConflictInputFile = fetchss(dp,"conflict_input_file", "")
+        SimulationSettings.FloodLevelInputFile = fetchss(dp,"flood_level_input_file", "")
+        SimulationSettings.DefaultConflictIntensity = int(fetchss(dp,"default_conflict_intensity", 1.0))
 
         print("YAML:", dp, file=sys.stderr)
 
