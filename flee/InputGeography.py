@@ -161,6 +161,7 @@ class InputGeography:
         # Read in regional IPC (food security) values if the file is available.
         region_IPC_file_loc = f"{os.path.dirname(csv_name)}/region_attributes_IPC.csv"
         if os.path.exists(region_IPC_file_loc):
+            print("Region IPC values read from: ", region_IPC_file_loc)
             self.ReadAttributeInputCSV("region_IPC_level","float", region_IPC_file_loc)
               
 
@@ -662,7 +663,8 @@ class InputGeography:
                 e.change_location_type(change[0],change[1])
 
 
-        self.UpdateLocationAttributes(e, "region_IPC_level", time)
+        if "region_IPC_level" in self.attributes:
+            self.UpdateLocationAttributes(e, "region_IPC_level", time)
 
         #Add New Flood Zones
         if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
