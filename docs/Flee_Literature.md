@@ -3,7 +3,18 @@
 This page serves to provide definitive references for key aspects of the Flee code.
 
 ## Flee 3 paper
-Accepted for publication at the Journal Of Computational Science. Please find a preprint at: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4710692
+Ghorbani, M., Suleimenova, D., Jahani, A., Saha, A., Xue, Y., Mintram, K., Anagnostou, A., Tas, A., Low, W., Taylor, S.J. and Groen, D., 2024. Flee 3: Flexible agent-based simulation for forced migration. Journal of Computational Science, 81, p.102371.
+```
+@article{ghorbani2024flee,
+  title={Flee 3: Flexible agent-based simulation for forced migration},
+  author={Ghorbani, Maziar and Suleimenova, Diana and Jahani, Alireza and Saha, Arindam and Xue, Yani and Mintram, Kate and Anagnostou, Anastasia and Tas, Auke and Low, William and Taylor, Simon JE and others},
+  journal={Journal of Computational Science},
+  volume={81},
+  pages={102371},
+  year={2024},
+  publisher={Elsevier}
+}
+```
 
 ## Parallelized Flee (2) paper
 Groen, D., Papadopoulou, N., Anastasiadis, P., Lawenda, M., Szustak, L., Gogolenko, S., Arabnejad, H. and Jahani, A., 2023. Large-Scale Parallelization of Human Migration Simulation. IEEE Transactions on Computational Social Systems.

@@ -220,10 +220,11 @@ nav:
     - Literature / cite us : Flee_Literature.md
 
   - Advanced:
-    - Multiscale Simulation instance construction : Multiscale_Simulation_instance_construction.md  
     - Simulation settings configuration (advanced): Simulation_settings_advanced.md
+    - Incorporating Food Security using IPC data : Food_Security_Mechanisms.md
     - FLEE Ensemble Simulations – SWEEP Method Overview: Flee_Ensemble.md
     - Sensitivity analysis of parameters using EasyVVUQ : Sensitivity_analysis_of_parameters_using_EasyVVUQ.md
+    - Multiscale Simulation instance construction : Multiscale_Simulation_instance_construction.md  
 
   - Code Reference:
     - FLEE:
