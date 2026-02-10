@@ -15,7 +15,7 @@ def dict_interp(data, key, index_col, index_val):
     values = data[key]
 
     if index_val < indices[0] or index_val > indices[-1]:
-        raise ValueError("dict_interp failed: Index_val outside interpolation range of dict_interp.")
+        raise ValueError(f"dict_interp failed: Index_val {index_val} outside interpolation range of dict_interp {indices}.")
 
     for i in range(len(indices) - 1):
         if indices[i] <= index_val <= indices[i + 1]:

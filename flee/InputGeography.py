@@ -160,8 +160,9 @@ class InputGeography:
 
         # Read in regional IPC (food security) values if the file is available.
         region_IPC_file_loc = f"{os.path.dirname(csv_name)}/region_attributes_IPC.csv"
+        print(f"Region IPC values are at: {region_IPC_file_loc}, CSV name is {csv_name}. Working directory is {os.getcwd()}", file=sys.stderr)
         if os.path.exists(region_IPC_file_loc):
-            print("Region IPC values read from: ", region_IPC_file_loc)
+            print("Region IPC values read from: ", region_IPC_file_loc, file=sys.stderr)
             self.ReadAttributeInputCSV("region_IPC_level","float", region_IPC_file_loc)
               
 

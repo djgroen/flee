@@ -20,7 +20,7 @@ NOTE:: It is essential to include all regions in this file, although not all day
 
 ## Applying Food-related rules
 
-Food-related rule sets can be enabled in `simulationsetting.yml`. 
+Food-related rule sets can be enabled in `simsetting.yml`. 
 
 These include the following rules inside the `move_rules` section:
 
