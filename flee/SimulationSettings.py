@@ -294,7 +294,6 @@ class SimulationSettings:
 
         SimulationSettings.move_rules["ReligionBaseRate"] = 1.0 / float(fetchss(dpr,"avg_religion_fraction", 0.25))
 
-
         # Flee 3+ Fixed Location Routes
         SimulationSettings.move_rules["FixedRoutes"] = bool(fetchss(dpr,"fixed_routes",False))
         print(f"INFO: Fixed Route Generation for Locations: {SimulationSettings.move_rules['FixedRoutes']}", file=sys.stderr)
@@ -308,7 +307,11 @@ class SimulationSettings:
             SimulationSettings.farming = True
         else:
             SimulationSettings.farming = False
-        
+       
+        # FoodFlee Rules
+        SimulationSettings.move_rules["FleeWhenStarving"] = bool(fetchss(dpr,"flee_when_starving",False))
+
+
 
         # DFlee Flood Location Move rules
         dpf = fetchss(dpr, "flood_rules", None)

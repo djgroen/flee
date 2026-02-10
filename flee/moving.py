@@ -345,6 +345,8 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
     """
     system2_active = False
 
+    #### MOVECHANCE CALCULATIONS THAT OVERRIDE BASE CALCULATIONS (MUST GIVE A RETURN STATEMENT IF APPLIED)
+
     if SimulationSettings.move_rules["TwoSystemDecisionMaking"] is True:
         # System 2 Activation Logic
         conflict_triggered = a.location.conflict > 0.6
@@ -367,7 +369,11 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
             # For System 2, always return 1.0 (100% chance to initiate movement decision)
             return 1.0, system2_active
 
+
+    #### BASE CALCULATIONS
+
     # If System 2 is not active, calculate standard System 1 move chance
+    # (This is also the DEFAULT Flee move chance calculation)
     if a.location.town and ForceTownMove:  # called through evolve
         return 1.0, system2_active
     elif len(a.route) > 0: #If a route with destination is known, the agent will continue to follow it.
@@ -377,8 +383,19 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
 
         movechance *= (float(max(a.location.pop, a.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
 
-    # flood
-    # DFlee Flood Location Movechance implementation:
+        if SimulationSettings.move_rules["FleeWhenStarving"] is True:
+            if "region_IPC_level" not in a.location.attributes.keys():
+                print("ERROR: move_rules.FleeWhenStarving is set in simulationsetting.yml, but no IPC input data (region_attributes_IPC.csv) has been loaded.", file=sys.stderr)
+                sys.exit()
+            loc_ipc_modifier = a.location.attributes["region_IPC_level"] / 100.0
+            movechance = loc_ipc_modifier + ((1.0 - loc_ipc_modifier) * movechance)
+
+
+    #### BELOW: RULES THAT MODIFY EXISTING MOVE CHANCES
+    #### (All DFlee rules are grouped here for easier code interpretation)
+
+
+    # DFlee Flood Location Movechance implementation: Overrides but sometimes modifies existing movechances calculated with the regular rules.
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
         #Get the current flood level of the agents location, if flood level not set in flood_level.csv then default to zero
         flood_level = a.location.attributes.get("flood_level", 0.0)
