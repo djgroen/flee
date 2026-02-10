@@ -154,6 +154,9 @@ class SimulationSettings:
         SimulationSettings.spawn_rules["conflict_driven_spawning"] = False # Conflicts provide a direct push factor.
         SimulationSettings.spawn_rules["flood_driven_spawning"] = False # Flood provide a direct push factor.
 
+        # Food security (IPC) setting for spawning displacement
+        SimulationSettings.spawn_rules["starvation_driven_spawning"] = bool(fetchss(dps, "starvation_driven_spawning", False)) # Starvation leads to displacement.
+
         spawn_type = "conflict"
         if SimulationSettings.spawn_rules["flood_zone_spawning_only"] is True:
             spawn_type = "flood"
