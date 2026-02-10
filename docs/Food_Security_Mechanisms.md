@@ -22,6 +22,11 @@ NOTE:: It is essential to include all regions in this file, although not all day
 
 Food-related rule sets can be enabled in `simsetting.yml`. 
 
-These include the following rules inside the `move_rules` section:
+These include the following rules inside the `spawn_rules` section:
 
-* `flee_when_starving`: will linearly increase the Movechance according to the percentage of persons with critical food deprivation. Max is 1.0 in cases where everybody has critical food deprivation in that region.
+* `starvation_driven_spawning`: will increase spawn rate by `IPC_score * location_population / 100.0`, to a maximum value of `location_population`. [Vanhille Campos et al. 2019](https://doi.org/10.1007/978-3-030-22750-0_71)
+  * Note that setting `conflict_zone_spawning_only` to True will disable this mechanism for non-conflict locations, and nullify this mechanism for conflict zones that have a conflict score of 1.0.
+
+And these include the following rules inside the `move_rules` section:
+
+* `flee_when_starving`: will linearly increase the Movechance according to the percentage of persons with critical food deprivation. Max is 1.0 in cases where everybody has critical food deprivation in that region. [Vanhille Campos et al. 2019](https://doi.org/10.1007/978-3-030-22750-0_71)
