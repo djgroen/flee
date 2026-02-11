@@ -579,7 +579,8 @@ class InputGeography:
             )
 
         # Add location type changes
-        self.UpdateLocationAttributes(e, "region_IPC_level", 0) # Read in dynamic attributes for time = 0.
+        if "region_IPC_level" in self.attributes.keys():
+            self.UpdateLocationAttributes(e, "region_IPC_level", 0) # Read in dynamic attributes for time = 0.
         self.ReadLocationChangesFromCSV("location_changes.csv")
 
         return e, lm
@@ -665,7 +666,7 @@ class InputGeography:
                 e.change_location_type(change[0],change[1])
 
 
-        if "region_IPC_level" in self.attributes:
+        if "region_IPC_level" in self.attributes.keys():
             self.UpdateLocationAttributes(e, "region_IPC_level", time)
 
         #Add New Flood Zones
