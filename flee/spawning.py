@@ -62,12 +62,14 @@ def refresh_spawn_weights(e):
                 e.spawn_weights[i] = e.locations[i].pop * conflict_pop_weight * multiplier
 
             if SimulationSettings.spawn_rules["starvation_driven_spawning"] is True:
-                if "region_IPC_level" not in e.locations[i].attributes.keys():
-                    print("ERROR: spawn_rules.starvation_driven_spawning is set in simulationsetting.yml, but no IPC input data (region_attributes_IPC.csv) has been loaded.", file=sys.stderr)
-                    print(f"INFO: Error occurred for Location {a.location.name}, region {a.location.region}.", file=sys.stderr)
-                    sys.exit()
+                if e.time > 0:
+                    if "region_IPC_level" not in e.locations[i].attributes.keys():
+                        print("ERROR: spawn_rules.starvation_driven_spawning is set in simulationsetting.yml, but no IPC input data (region_attributes_IPC.csv) has been loaded.", file=sys.stderr)
+                        print(f"Location attributes: {e.locations[i].attributes}", file=sys.stderr)
+                        print(f"INFO: Error occurred for Location {e.locations[i].name}, region {e.locations[i].region}.", file=sys.stderr)
+                        sys.exit()
 
-                e.spawn_weights[i] = min(e.locations[i].pop, e.spawn_weights[i] + (e.locations[i].pop * e.locations[i].attributes["region_IPC_level"] / 100.0))
+                    e.spawn_weights[i] = min(e.locations[i].pop, e.spawn_weights[i] + (e.locations[i].pop * e.locations[i].attributes["region_IPC_level"] / 100.0))
 
 
     e.spawn_weight_total = sum(e.spawn_weights)

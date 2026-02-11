@@ -579,6 +579,7 @@ class InputGeography:
             )
 
         # Add location type changes
+        self.UpdateLocationAttributes(e, "region_IPC_level", 0) # Read in dynamic attributes for time = 0.
         self.ReadLocationChangesFromCSV("location_changes.csv")
 
         return e, lm
