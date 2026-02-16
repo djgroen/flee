@@ -69,7 +69,7 @@ def refresh_spawn_weights(e):
                         print(f"INFO: Error occurred for Location {e.locations[i].name}, region {e.locations[i].region}.", file=sys.stderr)
                         sys.exit()
 
-                    e.spawn_weights[i] = min(e.locations[i].pop, e.spawn_weights[i] + (e.locations[i].pop * e.locations[i].attributes["region_IPC_level"] / 100.0))
+                    e.spawn_weights[i] += e.locations[i].pop * e.locations[i].attributes["region_IPC_level"] / 100.0
 
 
     e.spawn_weight_total = sum(e.spawn_weights)
