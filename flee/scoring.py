@@ -34,6 +34,8 @@ def updateLocationScore(time: int, loc) -> None:
     #score multiplier for foreign
     if loc.foreign is True:
         score *= SimulationSettings.move_rules["ForeignWeight"] 
+    elif SimulationSettings.move_rules["AvoidFoodDeprivedLocations"]:
+        score *= 1.0 - (loc.attributes["region_IPC_level"] / 100.0)**2
    
     #score multiplier for camps
     if loc.camp or loc.idpcamp is True:

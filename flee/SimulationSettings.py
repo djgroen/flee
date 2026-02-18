@@ -313,6 +313,7 @@ class SimulationSettings:
        
         # FoodFlee Rules
         SimulationSettings.move_rules["FleeWhenStarving"] = bool(fetchss(dpr,"flee_when_starving",False))
+        SimulationSettings.move_rules["AvoidFoodDeprivedLocations"] = bool(fetchss(dpr,"avoid_food_deprived_locations",False))
 
 
 

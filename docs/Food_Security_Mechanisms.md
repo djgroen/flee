@@ -30,3 +30,4 @@ These include the following rules inside the `spawn_rules` section:
 And these include the following rules inside the `move_rules` section:
 
 * `flee_when_starving`: will linearly increase the Movechance according to the percentage of persons with critical food deprivation. Max is 1.0 in cases where everybody has critical food deprivation in that region. [Vanhille Campos et al. 2019](https://doi.org/10.1007/978-3-030-22750-0_71)
+* `avoid_food_deprived_locations`: will quadratically decrease the Location Weight score (attractiveness of a location) depending on the fraction of the population with critical food deprivation.
