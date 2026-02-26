@@ -229,6 +229,10 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
             movechance *= flood_forecast_movechance
 
     if SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False):
+        # Camps/safe zones: respect camp_movechance regardless of S1/S2 state.
+        # Without this, S2-active agents at camps get p_move ≈ p_s2 (e.g. 0.8) instead of 0.001.
+        if getattr(a.location, 'camp', False) or getattr(a.location, 'idpcamp', False):
+            return a.location.movechance, False
         conflict = max(0.0, getattr(a.location, 'conflict', 0.0))
         
         # Get S1/S2 parameters from config
