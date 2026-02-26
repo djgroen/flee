@@ -299,10 +299,41 @@ class SimulationSettings:
         print(f"INFO: Fixed Route Generation for Locations: {SimulationSettings.move_rules['FixedRoutes']}", file=sys.stderr)
 
         # Enable / Disable System 2 logic
-        SimulationSettings.move_rules["TwoSystemDecisionMaking"] = float(fetchss(dpr,"two_system_decision_making", False))
+        SimulationSettings.move_rules["TwoSystemDecisionMaking"] = bool(fetchss(dpr,"two_system_decision_making", False))
         
         # System 2 activation threshold for cognitive pressure
         SimulationSettings.move_rules["conflict_threshold"] = float(fetchss(dpr,"conflict_threshold", 0.5))
+
+        # S1/S2 System Configuration
+        SimulationSettings.move_rules["connectivity_mode"] = fetchss(dpr, "connectivity_mode", "baseline")
+        SimulationSettings.move_rules["soft_capability"] = bool(fetchss(dpr, "soft_capability", False))
+        SimulationSettings.move_rules["pmove_s2_mode"] = fetchss(dpr, "pmove_s2_mode", "scaled")
+        SimulationSettings.move_rules["pmove_s2_constant"] = float(fetchss(dpr, "pmove_s2_constant", 0.9))
+        SimulationSettings.move_rules["eta"] = float(fetchss(dpr, "eta", 0.5))
+        SimulationSettings.move_rules["steepness"] = float(fetchss(dpr, "steepness", 6.0))
+        SimulationSettings.move_rules["soft_gate_steepness"] = float(fetchss(dpr, "soft_gate_steepness", 8.0))
+
+        # NEW: 5-Parameter S1/S2 Model Configuration
+        s1s2_model_config = fetchss(dpr, "s1s2_model", {})
+        if isinstance(s1s2_model_config, dict):
+            SimulationSettings.move_rules["s1s2_model_params"] = {
+                "enabled": bool(s1s2_model_config.get("enabled", False)),
+                "alpha": float(s1s2_model_config.get("alpha", 2.0)),
+                "beta": float(s1s2_model_config.get("beta", 2.0)),
+                "eta": float(s1s2_model_config.get("eta", 4.0)),
+                "theta": float(s1s2_model_config.get("theta", 0.5)),
+                "p_s2": float(s1s2_model_config.get("p_s2", 0.8))
+            }
+        else:
+            # Default values if config is not a dict (e.g., null or invalid type)
+            SimulationSettings.move_rules["s1s2_model_params"] = {
+                "enabled": False,
+                "alpha": 2.0,
+                "beta": 2.0,
+                "eta": 4.0,
+                "theta": 0.5,
+                "p_s2": 0.8
+            }
 
         # Enable Farmer harvesting
         SimulationSettings.move_rules["HarvestMonths"] = fetchss(dpr, "harvest_months", [])
