@@ -1,0 +1,20 @@
+# Cognition Results Configuration
+
+## Network Topology Testing Configuration
+base_nodes: 5
+scaling_factor: 1.5
+max_nodes: 25
+topology_types: ['linear', 'star', 'tree', 'grid']
+
+## S2 Parameter Configuration  
+s2_target_range: [0.20, 0.30]
+base_threshold: 0.45
+profile_adjustments:
+  analytical: -0.15
+  balanced: 0.0
+  reactive: 0.15
+
+## Output Configuration
+results_dir: "cognition_results"
+figures_dir: "cognition_results/figures"
+analysis_dir: "cognition_results/analysis"

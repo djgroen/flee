@@ -1,0 +1,6 @@
+name,region,country,lat,lon,location_type,conflict_date,population
+Origin,Region1,Country1,0.000000,0.000000,conflict_zone,2023-01-01,0
+Bottleneck,Region1,Country1,0.000000,0.900901,town,,0
+Camp_A,Region1,Country1,-0.270270,1.351351,camp,,0
+Camp_B,Region1,Country1,0.270270,1.351351,camp,,0
+Alternative_Route,Region1,Country1,0.540541,0.450450,town,,0

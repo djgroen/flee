@@ -1,0 +1,4 @@
+# EasyVVUQ for S1/S2 sensitivity analysis
+# Install: pip install -r requirements_easyvvuq.txt
+easyvvuq>=0.8
+chaospy>=4.0

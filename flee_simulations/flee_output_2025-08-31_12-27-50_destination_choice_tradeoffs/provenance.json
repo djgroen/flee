@@ -1,0 +1,26 @@
+{
+  "simulation_metadata": {
+    "timestamp": "2025-08-31T12:27:50.020713",
+    "scenario_name": "Destination Choice",
+    "total_days": 12,
+    "authenticity_verified": true,
+    "ecosystem_evolve_calls": 12
+  },
+  "flee_integration": {
+    "ecosystem_evolve_called": true,
+    "total_evolve_calls": 20,
+    "standard_output_generated": true,
+    "simulation_engine": "Authentic Flee"
+  },
+  "data_sources": {
+    "agent_movements": "Real Flee ecosystem.evolve()",
+    "population_counts": "Real Flee location.numAgents",
+    "decision_tracking": "Real agent cognitive calculations",
+    "fake_data_used": false
+  },
+  "output_files": {
+    "standard_flee_output": "standard_flee/out.csv",
+    "s1s2_diagnostics": "s1s2_diagnostics/",
+    "provenance_record": "provenance.json"
+  }
+}
