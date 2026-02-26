@@ -5,7 +5,7 @@ import flee.postprocessing.analysis as a
 from flee import InputGeography, flee, spawning
 from flee.datamanager import DataTable  # DataTable.subtract_dates()
 from flee.datamanager import handle_refugee_data
-
+import flee.lib_math as lib_math
 
 def AddInitialRefugees(e, d, loc):
     """
@@ -94,6 +94,11 @@ def test_csv(end_time=30, last_physical_day=30):
     assert ig.conflicts["A"][0] == 1
     assert ig.conflicts["C2"][94] == 0
 
+    assert "region_IPC_level" in ig.attributes.keys()
+
+    assert abs(lib_math.dict_interp(ig.attributes["region_IPC_level"],"AB","#Day",5.0)) - 7.0 < 0.00001 
+
+    print(ig.attributes)
 
     ig.ReadLinksFromCSV(csv_name=os.path.join("test_data", "test_input_csv/routes.csv"))
 
@@ -139,6 +144,13 @@ def test_csv(end_time=30, last_physical_day=30):
         e.enact_border_closures(time=t)
         e.evolve()
 
+        # Check land attribute for IPC
+        if t == 5:
+            #print(f"Attributes of location A: ", lm["A"].attributes)
+            assert abs(lm["A"].attributes["region_IPC_level"] - 7.0) < 0.0001
+            assert abs(lm["F"].attributes["region_IPC_level"] - 8.0) < 0.0001
+
+       
         # Calculation of error terms
         errors = []
         abs_errors = []

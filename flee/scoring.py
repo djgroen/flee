@@ -1,5 +1,6 @@
 from flee.SimulationSettings import SimulationSettings
 from flee import crawling
+import flee.lib_math as lm
 import numpy as np
 import os
 
@@ -50,7 +51,7 @@ def updateLocationScore(time: int, loc) -> None:
         flood_level = loc.attributes.get("flood_level")
         
         if flood_level is not None:
-            score *= float(SimulationSettings.move_rules["FloodLocWeights"][flood_level])
+            score *= lm.interp(SimulationSettings.move_rules["FloodLocWeights"], flood_level)
         
             #Flooding Forecaster Location Score Implementation:
             if SimulationSettings.move_rules["FloodForecaster"] is True:
@@ -84,7 +85,7 @@ def updateLocationScore(time: int, loc) -> None:
                                     forecast_day = forecast_end_time  # same as time + x
 
                                 #Get the forecast flood level for the location on the day we're considering in the for loop
-                                forecast_flood_level = loc.attributes.get("forecast_flood_level",0)
+                                forecast_flood_level = loc.attributes.get("forecast_flood_level",0.0)
                         
                                 # print("forecast_flood_level",forecast_flood_level, file=sys.stderr)
                                 # print("forecast_day",forecast_day, file=sys.stderr)
@@ -95,7 +96,7 @@ def updateLocationScore(time: int, loc) -> None:
                                 # if it's not zero, then we need to modify the base forecast value, otherwise leave the base as it will zero.
                                 if forecast_flood_level > 0.0: 
                                     #get the endpoint locations current flood level weight based on that flood level.
-                                    forecast_flood_level_weight = float(SimulationSettings.move_rules["FloodLocWeights"][forecast_flood_level]) 
+                                    forecast_flood_level_weight = lm.interp(SimulationSettings.move_rules["FloodLocWeights"], forecast_flood_level) 
                                     
                                     #get the current flood forecaster weight e.g. how important the current day is in the forecast
                                     flood_forecaster_weight = float(SimulationSettings.move_rules["FloodForecasterWeights"][forecast_day])

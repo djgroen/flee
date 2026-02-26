@@ -146,7 +146,7 @@ def plot_camps(data: pd.DataFrame, config: str, output: str) -> None:
 
         plt.legend(handles=[label1, label2], loc=0, prop={"size": 14})
 
-        plt.savefig("{}/{}.png".format(output, name[0]), bbox_inches = 'tight')
+        plt.savefig("{}/{}.png".format(output, name[0]))
 
         plt.clf()
 
@@ -209,7 +209,7 @@ def plot_numagents(data: pd.DataFrame, config: str, output: str) -> None:
 
     set_margins()
 
-    plt.savefig("{}/numagents.png".format(output), bbox_inches = 'tight')
+    plt.savefig("{}/numagents.png".format(output))
 
     plt.clf()
 
@@ -292,7 +292,7 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
 
     set_margins()
 
-    plt.savefig("{}/error.png".format(output), bbox_inches = 'tight')
+    plt.savefig("{}/error.png".format(output))
 
     ###############################################
     #               ERROR COMPARISON              #
@@ -306,7 +306,7 @@ def plot_errors(data, config: str, output: str, model: str = "macro") -> None:
 
     set_margins()
 
-    plt.savefig("{}/error_comparison.png".format(output), bbox_inches = 'tight')
+    plt.savefig("{}/error_comparison.png".format(output))
 
     plt.clf()
 

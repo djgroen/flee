@@ -1,6 +1,7 @@
 from flee.SimulationSettings import SimulationSettings
 import flee.demographics as demographics
 import numpy as np
+import flee.lib_math as lm
 import sys
 import os
 import pandas as pd
@@ -59,6 +60,16 @@ def refresh_spawn_weights(e):
 
                 # Pop+conflict weight
                 e.spawn_weights[i] = e.locations[i].pop * conflict_pop_weight * multiplier
+
+            if SimulationSettings.spawn_rules["starvation_driven_spawning"] is True:
+                if e.time > 0:
+                    if "region_IPC_level" not in e.locations[i].attributes.keys():
+                        print("ERROR: spawn_rules.starvation_driven_spawning is set in simulationsetting.yml, but no IPC input data (region_attributes_IPC.csv) has been loaded.", file=sys.stderr)
+                        print(f"Location attributes: {e.locations[i].attributes}", file=sys.stderr)
+                        print(f"INFO: Error occurred for Location {e.locations[i].name}, region {e.locations[i].region}.", file=sys.stderr)
+                        sys.exit()
+
+                    e.spawn_weights[i] = min(e.locations[i].pop, e.spawn_weights[i] + (e.locations[i].pop * e.locations[i].attributes["region_IPC_level"] / 100.0))
 
 
     e.spawn_weight_total = sum(e.spawn_weights)
@@ -149,19 +160,19 @@ def spawn_daily_displaced(e, t, d):
       for i in range(0, len(e.locations)):
 
         num_spawned = 0
-        flood_level = e.locations[i].attributes.get("flood_level",0)
+        flood_level = e.locations[i].attributes.get("flood_level",0.0)
         #print(e.time, e.locations[i].name, e.locations[i].attributes, file=sys.stderr)
-        if flood_level > 0:
-            print(e.time, e.locations[i].name, e.locations[i].attributes, int(SimulationSettings.spawn_rules["displaced_per_flood_day"][flood_level]),  file=sys.stderr)
+        if flood_level > 0.0:
+            print(e.time, e.locations[i].name, e.locations[i].attributes, lm.interp(SimulationSettings.spawn_rules["displaced_per_flood_day"], flood_level), file=sys.stderr)
             ## BASE RATES  
             if SimulationSettings.spawn_rules["flood_spawn_mode"] == "constant":
-                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_flood_day"][flood_level]) 
+                num_spawned = int(lm.interp(SimulationSettings.spawn_rules["displaced_per_flood_day"], flood_level)) 
 
             elif SimulationSettings.spawn_rules["flood_spawn_mode"] == "pop_ratio":
-                num_spawned = int(SimulationSettings.spawn_rules["displaced_per_flood_day"][flood_level] * e.locations[i].pop)
+                num_spawned = int(lm.interp(SimulationSettings.spawn_rules["displaced_per_flood_day"], flood_level) * e.locations[i].pop)
     
             elif SimulationSettings.spawn_rules["flood_spawn_mode"].lower() == "poisson":
-                num_spawned = np.random.poisson(int(SimulationSettings.spawn_rules["displaced_per_flood_day"][flood_level]))
+                num_spawned = np.random.poisson(int(lm.interp(SimulationSettings.spawn_rules["displaced_per_flood_day"], flood_level)))
 
         ## Doing the actual spawning here.
         for j in range(0, num_spawned):

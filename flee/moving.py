@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import random
+import flee.lib_math as lm
 from beartype.typing import List, Optional, Tuple
 from flee.SimulationSettings import SimulationSettings
 import flee.spawning as spawning
@@ -73,9 +74,13 @@ def getEndPointScore(agent, endpoint, time) -> float:
         base *= 1.0/(max(1.0,endpoint.calculateDistance(agent.location))**power_factor)
 
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
-        flood_level = endpoint.attributes.get("flood_level",0)
-        if flood_level > 0:
-            base *= float(SimulationSettings.move_rules["FloodLocWeights"][flood_level])
+        #Get the current flood level of the endpoint, if flood level not set in flood_level.csv then default to zero
+        flood_level = endpoint.attributes.get("flood_level", 0.0)
+        #print("Link:", endpoint.name, endpoint.attributes, file=sys.stderr)
+        if flood_level > 0.0:
+            #set the base equal to the flood location weight
+            base *= lm.interp(SimulationSettings.move_rules["FloodLocWeights"], flood_level)
+            #otherwise base score is unaffected by flooding
 
         if SimulationSettings.move_rules["FloodForecaster"] is True:
             forecast_timescale = SimulationSettings.move_rules["FloodForecasterTimescale"]
@@ -89,8 +94,10 @@ def getEndPointScore(agent, endpoint, time) -> float:
                       if forecast_day >= forecast_end_time:
                           forecast_day = forecast_end_time
                       forecast_flood_level = endpoint.attributes.get("forecast_flood_levels",0)[forecast_day]
-                      if forecast_flood_level > 0.0: 
-                        forecast_flood_level_weight = float(SimulationSettings.move_rules["FloodLocWeights"][forecast_flood_level]) 
+                      if forecast_flood_level > 0.0:
+                        #get the endpoint locations current flood level weight based on that flood level.
+                        forecast_flood_level_weight = lm.interp(SimulationSettings.move_rules["FloodLocWeights"], forecast_flood_level)
+                        #get the current flood forecaster weight e.g. how important the current day is in the forecast
                         flood_forecaster_weight = float(SimulationSettings.move_rules["FloodForecasterWeights"][forecast_day])
                         flood_forecast_base += forecast_flood_level_weight * flood_forecaster_weight
                       if forecast_day == forecast_end_time:
@@ -187,11 +194,39 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
     # Standard FLEE: Population/Capacity scaling
     movechance *= (float(max(a.location.pop, a.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
 
-    # Standard FLEE: Flood Rules
-    if SimulationSettings.move_rules.get("FloodRulesEnabled", False):
-        flood_level = a.location.attributes.get("flood_level", 0)
+    if SimulationSettings.move_rules.get("FleeWhenStarving", False) is True:
+        if "region_IPC_level" not in a.location.attributes.keys():
+            print("ERROR: move_rules.FleeWhenStarving is set in simulationsetting.yml, but no IPC input data (region_attributes_IPC.csv) has been loaded.", file=sys.stderr)
+            print(f"INFO: Error occurred for Location {a.location.name}, region {a.location.region}.", file=sys.stderr)
+            sys.exit()
+        loc_ipc_modifier = a.location.attributes["region_IPC_level"] / 100.0
+        movechance = loc_ipc_modifier + ((1.0 - loc_ipc_modifier) * movechance)
+
+    # DFlee Flood Location Movechance implementation
+    if SimulationSettings.move_rules.get("FloodRulesEnabled", False) is True:
+        flood_level = a.location.attributes.get("flood_level", 0.0)
         if flood_level > 0.0:
-            movechance = float(SimulationSettings.move_rules["FloodMovechances"][flood_level])
+            movechance = lm.interp(SimulationSettings.move_rules["FloodMovechances"], flood_level)
+        if SimulationSettings.move_rules.get("FloodForecaster", False) is True:
+            forecast_timescale = SimulationSettings.move_rules["FloodForecasterTimescale"]
+            forecast_end_time = SimulationSettings.move_rules["FloodForecasterEndTime"]
+            flood_forecast_base = 0.0
+            flood_forecast_movechance = 0.0
+            agent_awareness_weight = float(SimulationSettings.move_rules["FloodAwarenessWeights"][int(a.attributes["floodawareness"])])
+            for x in range(1, forecast_timescale + 1):
+                forecast_day = time + x
+                if forecast_day >= forecast_end_time:
+                    forecast_day = forecast_end_time
+                forecast_flood_level = int(a.location.attributes.get("forecast_flood_levels", 0)[forecast_day])
+                if forecast_flood_level > 0.0:
+                    forecast_flood_level_weight = lm.interp(SimulationSettings.move_rules["FloodLocWeights"], forecast_flood_level)
+                    flood_forecaster_weight = float(SimulationSettings.move_rules["FloodForecasterWeights"][forecast_day])
+                    flood_forecast_base += forecast_flood_level_weight * flood_forecaster_weight
+                if forecast_day == forecast_end_time:
+                    break
+            flood_forecast_movechance = float(flood_forecast_base / forecast_timescale)
+            flood_forecast_movechance *= float(agent_awareness_weight)
+            movechance *= flood_forecast_movechance
 
     if SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False):
         conflict = max(0.0, getattr(a.location, 'conflict', 0.0))

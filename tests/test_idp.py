@@ -14,7 +14,7 @@ def test_idp():
 
     flee.SimulationSettings.ReadFromYML("test_data/test_data_idp/simsetting.yml")
 
-    e = flee.Ecosystem(demographics_test_prefix="test_data/test_data_idp")
+    e = flee.Ecosystem(demographics_test_prefix="test_data/test_data_idp/input_csv")
 
     ig = InputGeography.InputGeography()
 
@@ -52,3 +52,6 @@ def test_idp():
 
     print(f"NUM AGENTS: {len(e.agents)}", file=sys.stderr) 
     assert "ethntype" in e.agents[0].attributes["ethnicity"]
+    assert len(e.agents[0].attributes["religion"]) > 0
+    assert e.agents[0].attributes["farmer"] >= 0
+    assert 0.49 < float(e.locations[0].attributes["farmer_fraction"]) < 0.51

@@ -660,7 +660,13 @@ class Person:
                             ) / 2.0 < 0.5:
                                 ForceTownMove = True
                         self.evolve(e, time=time, ForceTownMove=ForceTownMove)
-                        self.finish_travel(e, time=time)
+                        try:
+                            self.finish_travel(e, time=time)
+                        except RecursionError:
+                            print("ERROR: Python recursion limit exceeded in finish_travel, due to excessive location hopping of an agent on a single day.", file=sys.stderr)
+                            print("This most likely means that your move speed is extremely high, and/or your link lengths extremely short.", file=sys.stderr)
+                            print("(Flee is not designed to handle such cases, as it can lead to an explosion in logging output and a degradation of the decision-making algorithm.)", file=sys.stderr)
+                            sys.exit()
 
 
 class Location:
@@ -776,7 +782,7 @@ class Location:
 
         self.scores = np.array([1.0])
 
-        scoring.updateLocationScore(0,self)
+        scoring.updateLocationScore(0, self)
 
         if SimulationSettings.log_levels["camp"] > 0:
             # reinitializes every time step. Contains individual journey
@@ -1811,7 +1817,7 @@ class Ecosystem:
                     l.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
         elif "conflict" in location_type.lower():
             l.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
-            l.conflict = float(self.attributes.get("conflict_intensity",1.0))
+            l.conflict = SimulationSettings.DefaultConflictIntensity
         elif "forward" in location_type.lower():
             l.movechance = 1.0
             l.forward = True
@@ -2267,23 +2273,6 @@ class Ecosystem:
                 # drops by one.
                 self.agents[i].location.DecrementNumAgents()
         self.agents = new_agents
-
-
-    @check_args_type
-    def setAttribute(self, name: str, value) -> None:
-        """
-        Summary: 
-            Sets the value of an attribute for the simulation.
-
-        Args:
-            name (str): The name of the attribute.
-            value: The value of the attribute.
-
-        Returns:
-            None.
-        """
-        self.attributes[name] = value
-        
 
 
     @check_args_type

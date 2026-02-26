@@ -4,6 +4,7 @@ import sys
 from typing import List
 
 from flee.SimulationSettings import SimulationSettings
+import flee.lib_math as lib_math
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
@@ -93,12 +94,12 @@ class InputGeography:
                 # print(row)
                 if row_count == 0:
                     headers = row
-                    for i in range(1, len(headers)):  # field 0 is day.
+                    for i in range(0, len(headers)):  # field 0 is "#Day".
                         headers[i] = headers[i].strip()
                         if len(headers[i]) > 0:
                             self.attributes[attribute_name][headers[i]] = []
                 else:
-                    for i in range(1, len(row)):  # field 0 is day.
+                    for i in range(0, len(row)):  # field 0 is "#Day".
                         # print("RAICSV", row[0], row[i], file=sys.stderr)
                         if attribute_type == "int":
                             self.attributes[attribute_name][headers[i]].append(int(row[i].strip()))
@@ -148,13 +149,22 @@ class InputGeography:
         if "flood_driven_spawning" in SimulationSettings.spawn_rules.keys():
             # Read flood location attributes.
             if SimulationSettings.spawn_rules["flood_driven_spawning"] is True:
-                self.ReadAttributeInputCSV("flood_level","int",SimulationSettings.FloodLevelInputFile)
-                self.ReadAttributeInputCSV("forecast_flood_levels","int",SimulationSettings.FloodLevelInputFile)
+                self.ReadAttributeInputCSV("flood_level","float",SimulationSettings.FloodLevelInputFile)
+                self.ReadAttributeInputCSV("forecast_flood_levels","float",SimulationSettings.FloodLevelInputFile)
 
             elif SimulationSettings.move_rules["FloodRulesEnabled"] is False:
                 #if SimulationSettings.spawn_rules["conflict_driven_spawning"] is True:
                 if len(SimulationSettings.ConflictInputFile) > 0:
                     self.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
+
+
+        # Read in regional IPC (food security) values if the file is available.
+        region_IPC_file_loc = f"{os.path.dirname(csv_name)}/region_attributes_IPC.csv"
+        print(f"Region IPC values are at: {region_IPC_file_loc}, CSV name is {csv_name}. Working directory is {os.getcwd()}", file=sys.stderr)
+        if os.path.exists(region_IPC_file_loc):
+            print("Region IPC values read from: ", region_IPC_file_loc, file=sys.stderr)
+            self.ReadAttributeInputCSV("region_IPC_level","float", region_IPC_file_loc)
+              
 
         self.locations = []
 
@@ -569,6 +579,8 @@ class InputGeography:
             )
 
         # Add location type changes
+        if "region_IPC_level" in self.attributes.keys():
+            self.UpdateLocationAttributes(e, "region_IPC_level", 0) # Read in dynamic attributes for time = 0.
         self.ReadLocationChangesFromCSV("location_changes.csv")
 
         return e, lm
@@ -600,15 +612,22 @@ class InputGeography:
         #Iterate through the locations and update their attributes
         for i in range(0, len(e.locations)):
             loc_name = e.locations[i].name
+            region_name = e.locations[i].region
             
             #If the attibute has been specified by the input file: 
             if loc_name in attrlist:
                 if attribute_name == "forecast_flood_levels":
                     #Set forecast_flood_levels attribute for flood_zones
                     e.locations[i].attributes[attribute_name] = attrlist[loc_name]
-                else:
+                elif attribute_name.startswith("region_") is False:
                     #Set flood_levels attribute for flood zones
-                    e.locations[i].attributes[attribute_name] =int(attrlist[loc_name][time])
+                    e.locations[i].attributes[attribute_name] = int(attrlist[loc_name][time])
+
+            # Support for dynamic regional attributes.
+            elif attribute_name.startswith("region_"):
+                if region_name in attrlist:
+                    e.locations[i].attributes[attribute_name] = lib_math.dict_interp(attrlist, region_name, "#Day", time)
+
             else: 
                 #If the location name is not in the attribute list, then set the attribute to default value of zero
                 if attribute_name == "forecast_flood_levels":
@@ -646,6 +665,9 @@ class InputGeography:
             if int(change[2]) == time:
                 e.change_location_type(change[0],change[1])
 
+
+        if "region_IPC_level" in self.attributes.keys():
+            self.UpdateLocationAttributes(e, "region_IPC_level", time)
 
         #Add New Flood Zones
         if SimulationSettings.move_rules["FloodRulesEnabled"] is True:

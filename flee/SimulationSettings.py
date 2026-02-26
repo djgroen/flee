@@ -96,8 +96,9 @@ class SimulationSettings:
 
         number_of_steps = float(fetchss(dp,"number_of_steps",-1))
         #Defined in run.py
-        SimulationSettings.ConflictInputFile = fetchss(dp,"conflict_input_file","")
-        SimulationSettings.FloodLevelInputFile = fetchss(dp,"flood_level_input_file","")
+        SimulationSettings.ConflictInputFile = fetchss(dp,"conflict_input_file", "")
+        SimulationSettings.FloodLevelInputFile = fetchss(dp,"flood_level_input_file", "")
+        SimulationSettings.DefaultConflictIntensity = int(fetchss(dp,"default_conflict_intensity", 1.0))
 
         print("YAML:", dp, file=sys.stderr)
 
@@ -152,6 +153,9 @@ class SimulationSettings:
         # Setting defaults, to be overwritten right below when needed.
         SimulationSettings.spawn_rules["conflict_driven_spawning"] = False # Conflicts provide a direct push factor.
         SimulationSettings.spawn_rules["flood_driven_spawning"] = False # Flood provide a direct push factor.
+
+        # Food security (IPC) setting for spawning displacement
+        SimulationSettings.spawn_rules["starvation_driven_spawning"] = bool(fetchss(dps, "starvation_driven_spawning", False)) # Starvation leads to displacement.
 
         spawn_type = "conflict"
         if SimulationSettings.spawn_rules["flood_zone_spawning_only"] is True:
@@ -293,7 +297,6 @@ class SimulationSettings:
 
         SimulationSettings.move_rules["ReligionBaseRate"] = 1.0 / float(fetchss(dpr,"avg_religion_fraction", 0.25))
 
-
         # Flee 3+ Fixed Location Routes
         SimulationSettings.move_rules["FixedRoutes"] = bool(fetchss(dpr,"fixed_routes",False))
         print(f"INFO: Fixed Route Generation for Locations: {SimulationSettings.move_rules['FixedRoutes']}", file=sys.stderr)
@@ -341,7 +344,11 @@ class SimulationSettings:
             SimulationSettings.farming = True
         else:
             SimulationSettings.farming = False
-        
+       
+        # FoodFlee Rules
+        SimulationSettings.move_rules["FleeWhenStarving"] = bool(fetchss(dpr,"flee_when_starving",False))
+
+
 
         # DFlee Flood Location Move rules
         dpf = fetchss(dpr, "flood_rules", None)
