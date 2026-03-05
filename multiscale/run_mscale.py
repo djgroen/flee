@@ -5,7 +5,7 @@ import sys
 
 import numpy as np
 import pandas as pd
-from flee import coupling  # coupling interface for multiscale models
+from flee import pflee, coupling, spawning, InputGeography
 from flee.datamanager import handle_refugee_data, read_period
 import flee.postprocessing.analysis as a
 from flee.SimulationSettings import SimulationSettings
@@ -40,44 +40,23 @@ def run_micro_macro_model(e, c, submodel, ig, d, camp_locations, end_time):
             # if t>0:
             ig.AddNewConflictZones(e=e, time=t)
 
-            # Determine number of new refugees to insert into the system.
-            new_refs = (
-                d.get_daily_difference(day=t, FullInterpolation=True, SumFromCamps=False)
-                - refugee_debt
-            )
-
-            refugees_raw += d.get_daily_difference(
-                day=t, FullInterpolation=True, SumFromCamps=False
-            )
-
-            if log_exchange_data is True:
-                c.logNewAgents(t=t, new_refs=new_refs)
-
-            if new_refs < 0:
-                refugee_debt = -new_refs
-                new_refs = 0
-            elif refugee_debt > 0:
-                refugee_debt = 0
-
-            # Insert refugee agents
-
             if submodel == "macro":
+            # Insert refugee agents
+                new_refs,refugees_raw,refugee_debt = spawning.spawn_daily_displaced(e,t,d)
                 print("t={}, inserting {} new agents".format(t, new_refs), file=sys.stderr)
-                # e.add_agents_to_conflict_zones(number=new_refs)
-                for _ in range(0, new_refs):
-                    e.addAgent(location=e.pick_conflict_location())
-                e.updateNumAgents(log=False)
+                if log_exchange_data is True:
+                    c.logNewAgents(t=t, new_refs=new_refs)
 
-            # e.printInfo()
+            e.updateNumAgents(log=False)
 
             # exchange data with other code.
             # immediately after agent insertion to ensure ghost locations
             # work correctly.
             c.Couple(time=t)
 
-            e.refresh_conflict_weights()
+            spawning.refresh_spawn_weights(e)
 
-            # e.enact_border_closures(time=t)
+            e.enact_border_closures(t)
             e.evolve()
 
             # Calculation of error terms
@@ -228,9 +207,6 @@ if __name__ == "__main__":
         submodel_id = 1
 
     if submodel in ["macro", "macro_manager", "micro", "micro_manager"]:
-        from flee import InputGeography
-        from flee import pflee as flee
-
         validation_data_directory = os.path.join(data_dir, f"source_data-{submodel_id}")
         if submodel in ["macro", "micro"]:
             out_csv_file = os.path.join(
@@ -241,9 +217,9 @@ if __name__ == "__main__":
 
     outputdir = os.path.join(work_dir, "out")
 
-    flee.SimulationSettings.ReadFromYML("simsetting.yml")
+    SimulationSettings.ReadFromYML("simsetting.yml")
 
-    e = flee.Ecosystem()
+    e = pflee.Ecosystem()
 
     c = coupling.CouplingInterface(
         e=e,
