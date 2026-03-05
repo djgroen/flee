@@ -45,7 +45,6 @@ class CouplingInterface:
         instance_index: int = None,
         num_instances: int = None,
         coupling_type: str = "file",
-        weather_coupling: bool = False,
         outputdir: str = "out",
         log_exchange_data: bool = True,
     ) -> None:
@@ -66,7 +65,6 @@ class CouplingInterface:
             instance_index (int, optional): index of the instance
             num_instances (int, optional): number of instances
             coupling_type (str, optional): type of coupling
-            weather_coupling (bool, optional): weather coupling. Default is False.
             outputdir (str, optional): output directory
             log_exchange_data (bool, optional): log exchanged data. Default is True.
         

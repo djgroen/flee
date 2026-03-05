@@ -7,19 +7,11 @@ import numpy as np
 import pandas as pd
 from flee import coupling  # coupling interface for multiscale models
 from flee.datamanager import handle_refugee_data, read_period
-from flee.postprocessing import analysis as a
+import flee.postprocessing.analysis as a
+from flee.SimulationSettings import SimulationSettings
 
 work_dir = os.path.dirname(os.path.abspath(__file__))
 insert_day0_refugees_in_camps = False
-
-
-def AddInitialRefugees(e, d, loc):
-    """
-    Add the initial refugees to a location, using the location name
-    """
-    num_refugees = int(d.get_field(name=loc.name, day=0, FullInterpolation=True))
-    for _ in range(0, num_refugees):
-        e.addAgent(location=loc)
 
 
 def read_coupled_locations(csv_inputfile):
@@ -106,7 +98,7 @@ def run_micro_macro_model(e, c, submodel, ig, d, camp_locations, end_time):
                 refugees_in_camps_sim += camp.numAgents
 
             if e.getRankN(t):
-                output = "{}".format(t)
+                output = "%s,%s" % (t, e.date_string)
 
                 j = 0
                 for i in camp_locations:
@@ -114,8 +106,6 @@ def run_micro_macro_model(e, c, submodel, ig, d, camp_locations, end_time):
                     abs_errors += [a.abs_error(val=lm[i].numAgents, correct_val=loc_data[j])]
 
                     j += 1
-
-                output = "{}".format(t)
 
                 for i in range(0, len(errors)):
                     output += ",{},{},{}".format(
@@ -204,14 +194,6 @@ if __name__ == "__main__":
         help="boolean flag to enable/disable logging exchanged data between macro and micro models",
     )
 
-    parser.add_argument(
-        "--weather_coupling",
-        action="store",
-        type=str,
-        default="False",
-        help="boolean flag to enable/disable weather coupling",
-    )
-
     args, unknown = parser.parse_known_args()
 
     print("args: {}".format(args), file=sys.stderr)
@@ -229,12 +211,6 @@ if __name__ == "__main__":
     instance_index = int(args.instance_index)
     num_instances = int(args.num_instances)
 
-    # if args.weather_coupling.lower() == "true":
-    #     weather_coupling = True
-    # else:
-    #     weather_coupling = False
-    weather_coupling = bool(args.weather_coupling.lower() == "true")
-
     if args.end_time is not None:
         end_time = int(args.end_time)
     last_physical_day = end_time
@@ -247,93 +223,25 @@ if __name__ == "__main__":
 
     SumFromCamps = False  # Set to TRUE for production runs.
 
-    if submodel in ["macro", "macro_manager"]:
+    submodel_id = 0
+    if submodel == "micro":
+        submodel_id = 1
+
+    if submodel in ["macro", "macro_manager", "micro", "micro_manager"]:
         from flee import InputGeography
         from flee import pflee as flee
 
-        submodel_id = 0
-        validation_data_directory = os.path.join(data_dir, "source_data-0")
-        if submodel == "macro":
-            if weather_coupling is True:
-                out_csv_file = os.path.join(
-                    work_dir,
-                    "out",
-                    "weather",
-                    coupling_type,
-                    "macro",
-                    "out[{}].csv".format(instance_index),
-                )
-            else:
-                out_csv_file = os.path.join(
-                    work_dir, "out", coupling_type, "macro", "out[{}].csv".format(instance_index)
-                )
-
-    elif submodel in ["micro", "micro_manager"]:
-        from flee import micro_InputGeography as InputGeography
-        from flee import pmicro_flee as flee
-
-        submodel_id = 1
-        validation_data_directory = os.path.join(data_dir, "source_data-1")
-        if submodel == "micro":
-            if weather_coupling is True:
-                out_csv_file = os.path.join(
-                    work_dir,
-                    "out",
-                    "weather",
-                    coupling_type,
-                    "micro",
-                    "out[{}].csv".format(instance_index),
-                )
-            else:
-                out_csv_file = os.path.join(
-                    work_dir, "out", coupling_type, "micro", "out[{}].csv".format(instance_index)
-                )
-
-    print("This is submodel {}".format(submodel_id), file=sys.stderr)
-
-    if submodel == "micro" and weather_coupling is True:
-        weather_source_files = {}
-
-        weather_source_files["precipitation"] = pd.read_csv(
-            os.path.join(data_dir, "weather_data", "precipitation.csv")
-        )
-
-        weather_source_files["river_discharge"] = pd.read_csv(
-            os.path.join(data_dir, "weather_data", "river_discharge.csv")
-        )
-
-        weather_source_files["40yrs_total_precipitation"] = pd.read_csv(
-            os.path.join(data_dir, "weather_data", "40yrs_tp.csv")
-        )
-
-        weather_source_files["conflict_start_date"], _ = read_period.read_sim_period(
-            fname=os.path.join(data_dir, "sim_period.csv")
-        )
-
-        weather_source_files["output_log"] = os.path.join(
-            work_dir,
-            "out",
-            "weather",
-            coupling_type,
-            submodel,
-            "weather_log[{}].csv".format(instance_index),
-        )
-        prec_len = len(weather_source_files["precipitation"].index)
-
-        if prec_len < end_time:
-            print(
-                "The lenght of precipitation.csv ({}) is lower than "
-                "the simulation end_time ({})!".format(prec_len, end_time)
+        validation_data_directory = os.path.join(data_dir, f"source_data-{submodel_id}")
+        if submodel in ["macro", "micro"]:
+            out_csv_file = os.path.join(
+                work_dir, "out", coupling_type, submodel, "out[{}].csv".format(instance_index)
             )
-            sys.exit()
 
-        flee.Link = flee.Link_weather_coupling
-        flee.weather_source_files = weather_source_files
+    print(f"This is submodel {submodel_id} of type {submodel}", file=sys.stderr)
 
-    if weather_coupling is True:
-        outputdir = os.path.join(work_dir, "out", "weather")
-    else:
-        outputdir = os.path.join(work_dir, "out")
+    outputdir = os.path.join(work_dir, "out")
+
+    flee.SimulationSettings.ReadFromYML("simsetting.yml")
 
     e = flee.Ecosystem()
 
@@ -343,7 +251,6 @@ if __name__ == "__main__":
         instance_index=instance_index,
         num_instances=num_instances,
         coupling_type=coupling_type,
-        weather_coupling=weather_coupling,
         outputdir=outputdir,
         log_exchange_data=log_exchange_data,
     )
@@ -363,7 +270,7 @@ if __name__ == "__main__":
 
     ig = InputGeography.InputGeography()
 
-    ig.ReadFlareConflictInputCSV(
+    ig.ReadConflictInputCSV(
         csv_name=os.path.join(data_dir, "conflicts-{}.csv".format(submodel_id))
     )
 
@@ -380,44 +287,27 @@ if __name__ == "__main__":
         file=sys.stderr,
     )
 
-    d = handle_refugee_data.RefugeeTable(
-        csvformat="generic",
-        data_directory=validation_data_directory,
-        start_date=start_date,
-        data_layout="data_layout.csv",
-    )
+    d = handle_refugee_data.RefugeeTable(csvformat="generic", data_directory=validation_data_directory, start_date=start_date, data_layout="data_layout.csv", population_scaledown_factor=SimulationSettings.optimisations["PopulationScaleDownFactor"], start_empty=SimulationSettings.spawn_rules["EmptyCampsOnDay0"])
 
     d.ReadL1Corrections(
         csvname=os.path.join(data_dir, "registration_corrections-{}.csv".format(submodel_id))
     )
-    # d.dump(day=0, length=5)
 
-    output_header_string = "Day,"
+    output_header_string = "Day,Date,"
 
     camp_locations = e.get_camp_names()
 
-    for i in camp_locations:
+    for l in camp_locations:
         # Add initial refugees to camps is currently not supported in
         # coupled mode, because the totals are not added up correctly across
         # the submodels.
         # All agents therefore have to start in conflict zones.
 
         if insert_day0_refugees_in_camps:
-            AddInitialRefugees(e, d, lm[i])
-        output_header_string += "{} sim,{} data,{} error,".format(
-            lm[i].name, lm[i].name, lm[i].name
-        )
+            spawning.add_initial_refugees(e,d,lm[l])
+        output_header_string += "%s sim,%s data,%s error," % (lm[l].name, lm[l].name, lm[l].name)
 
-    output_header_string += ",".join(
-        [
-            "Total error",
-            "refugees in camps (UNHCR)",
-            "total refugees (simulation)",
-            "raw UNHCR refugee count",
-            "refugees in camps (simulation)",
-            "refugee_debt",
-        ]
-    )
+    output_header_string += "Total error,refugees in camps (UNHCR),total refugees (simulation),raw UNHCR refugee count,refugees in camps (simulation),refugee_debt"
 
     for loc_name in coupled_locations:
         c.addCoupledLocation(location=lm[loc_name], name=loc_name)
@@ -430,7 +320,7 @@ if __name__ == "__main__":
         c.addMicroConflictLocations(ig=ig)
 
     if submodel in ["macro", "micro"]:
-        # DO NOT generate output file for the micro/macro mangers
+        # DO NOT generate output file for the micro/macro managers
         if e.getRankN(0):
             # output_header_string += "num agents,num agents in camps"
             print(output_header_string)
