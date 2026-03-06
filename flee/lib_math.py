@@ -1,6 +1,8 @@
 import sys
+import math
 
-def interp(a, i):
+
+def interp(a: list, i: float) -> float:
     # a: python list
     # i: index value to be interpolated (float).
     if i < 0 or i >= len(a) - 1:
@@ -9,7 +11,8 @@ def interp(a, i):
     frac = i - i0
     return a[i0] + frac * (a[i0 + 1] - a[i0])
 
-def dict_interp(data, key, index_col, index_val):
+
+def dict_interp(data, key, index_col, index_val) -> float:
     # d: dict to look into.
     # k: key containing values to be interpolated.
     # index_col: key of (time) value col, so support interpolation.
@@ -32,3 +35,34 @@ def dict_interp(data, key, index_col, index_val):
             return y0 + (y1 - y0) * (index_val - x0) / (x1 - x0)
 
     raise RuntimeError("dict_interp failed: Interpolation failed due to input in invalid format.")
+
+
+def calc_loc_dist(location1, location2) -> float:
+    """
+    Summary: 
+        Calculates the distance between this location and another one.
+        This assumes distance as the crow flies.
+
+    Args:
+        other_location: The other location to calculate the distance to.
+
+    Returns:
+        The distance between this location and the other location in kilometers.
+
+    """
+    # Approximate radius of earth in km
+    R = 6371.0
+
+    lat1 = math.radians(location1.y)
+    lon1 = math.radians(location1.x)
+    lat2 = math.radians(location2.y)
+    lon2 = math.radians(location2.x)
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    return R * c
+

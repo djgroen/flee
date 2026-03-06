@@ -51,7 +51,7 @@ def getEndPointScore(agent, endpoint, time) -> float:
 
     if SimulationSettings.move_rules["StayCloseToHome"]:
         power_factor = SimulationSettings.move_rules["HomeDistancePower"]
-        base *= 1.0/(max(1.0,endpoint.calculateDistance(agent.location))**power_factor)
+        base *= 1.0/(max(1.0, lm.calc_loc_dist(endpoint, agent.location))**power_factor)
 
     # DFlee Flood Location Weight implementation
     if SimulationSettings.move_rules["FloodRulesEnabled"] is True:

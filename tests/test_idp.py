@@ -7,9 +7,6 @@ from flee.datamanager import DataTable  # DataTable.subtract_dates()
 from flee.datamanager import handle_refugee_data
 
 
-def date_to_sim_days(date):
-    return DataTable.subtract_dates(date1=date, date2="2010-01-01")
-
 def test_idp():
 
     flee.SimulationSettings.ReadFromYML("test_data/test_data_idp/simsetting.yml")
