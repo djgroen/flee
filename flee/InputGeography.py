@@ -586,8 +586,9 @@ class InputGeography:
             )
 
         # Add location type changes
-        if "region_IPC" in self.attributes.keys():
-            self.UpdateLocationAttributes(e, "region_IPC", 0) # Read in dynamic attributes for time = 0.
+        for k in self.attributes.keys():
+            if "region_" in k:
+                self.UpdateLocationAttributes(e, k, 0) # Read in dynamic attributes for time = 0.
         self.ReadLocationChangesFromCSV("location_changes.csv")
 
         return e, lm
@@ -672,9 +673,9 @@ class InputGeography:
             if int(change[2]) == time:
                 e.change_location_type(change[0],change[1])
 
-
-        if "region_IPC" in self.attributes.keys():
-            self.UpdateLocationAttributes(e, "region_IPC", time)
+        for k in self.attributes.keys():
+            if "region_" in k:
+                self.UpdateLocationAttributes(e, k, time) # Read in dynamic attributes for time = 0.
 
         #Add New Flood Zones
         if SimulationSettings.move_rules["FloodRulesEnabled"] is True:

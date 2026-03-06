@@ -144,11 +144,15 @@ def test_csv(end_time=30, last_physical_day=30):
         e.enact_border_closures(time=t)
         e.evolve()
 
-        # Check land attribute for IPC
+        # Check land attribute for IPC, and a nonsense custom regional attribute.
         if t == 5:
             #print(f"Attributes of location A: ", lm["A"].attributes)
             assert abs(lm["A"].attributes["region_IPC"] - 7.0) < 0.0001
             assert abs(lm["F"].attributes["region_IPC"] - 8.0) < 0.0001
+
+            print(lm["A"].attributes, file=sys.stderr)
+
+            assert abs(lm["A"].attributes["region_nonsense"] - 1.5) < 0.0001
 
        
         # Calculation of error terms
