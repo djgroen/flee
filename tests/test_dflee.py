@@ -252,9 +252,6 @@ def test_agent_flood_awareness():
     flee.SimulationSettings.spawn_rules["flood_spawn_mode"] = "pop_ratio"
     flee.SimulationSettings.spawn_rules["displaced_per_flood_day"] = [0.0,0.1,0.2,0.5,0.9]
 
-    #Define flood level file location for ReadAttributeInputCSV called in AddNewConflictZones
-    flee.SimulationSettings.FloodLevelInputFile = os.path.join("test_data/test_data_dflee","test_input_csv/flood_level.csv")
-
     # Set simulation ecosystem and input geography
     e = flee.Ecosystem()
     ig = InputGeography.InputGeography()

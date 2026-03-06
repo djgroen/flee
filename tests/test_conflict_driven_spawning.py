@@ -1,4 +1,4 @@
-from flee import flee, datamanager
+from flee import flee
 
 """
 Generation 1 code. Incorporates only distance, travel always takes one day.

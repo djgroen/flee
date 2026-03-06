@@ -674,38 +674,6 @@ class Location:
 
 
     @check_args_type
-    def SetConflictMoveChance(self) -> None: 
-
-        """
-        Summary:
-            Sets the move chance to the default value set for conflict regions.
-
-        Args:
-            None.
-
-        Returns:
-            None.
-        """
-        self.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
-
-
-    @check_args_type
-    def SetCampMoveChance(self) -> None:
-        """
-        Summary: 
-            Modify move chance to the default value set for camps.
-
-        Args:
-            None.
-
-        Returns:
-            None.
-
-        """
-        self.movechance = SimulationSettings.CampMoveChance
-
-
-    @check_args_type
     def getScore(self, index: int) -> float:
         """
         Summary: 

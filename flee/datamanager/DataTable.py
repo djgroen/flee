@@ -39,24 +39,6 @@ def subtract_dates(date1: str, date2: str) -> int:
 
 
 @check_args_type
-def steps_to_date(steps: int, start_date: str):
-    """
-    Summary
-
-    Args:
-        steps (int): Description
-        start_date (str): Description
-
-    Returns:
-        TYPE: Description
-    """
-    # date_format = "%Y-%m-%d"
-    date_1 = datetime.strptime(start_date, "%Y-%m-%d")
-    new_date = (date_1 + timedelta(days=steps)).date()
-    return new_date
-
-
-@check_args_type
 def _processEntry(
     row: list,
     table: np.ndarray,
@@ -281,26 +263,6 @@ class DataTable:
 
         # print(self.header, self.data_table)
 
-    @check_args_type
-    def override_input(self, data_file_name: str) -> None:
-        """
-        Do not use the total refugee count data as the input value, but instead take values
-        from a separate file.
-
-        Args:
-            data_file_name (str): Description
-        """
-        self.override_refugee_input_file = data_file_name
-        self.override_refugee_input = True
-
-        self.header.append("total (modified input)")
-        self.data_table.append(
-            ConvertCsvFileToNumPyTable(
-                csv_name=data_file_name,
-                start_date=self.start_date,
-                population_scaledown_factor=self.population_scaledown_factor,
-            )
-        )
 
     @check_args_type
     def get_daily_difference(
@@ -390,18 +352,6 @@ class DataTable:
 
         return int(new_refugees)
 
-    @check_args_type
-    def dump(self, day: int, length: int) -> None:
-        """
-        Summary
-
-        Args:
-            day (int): Description
-            length (int): Description
-        """
-        print("Agent count data table DUMP:")
-        for i in range(0, length):
-            print(self.get_daily_difference(day=day + i))
 
     @check_args_type
     def get_interpolated_data(self, column: int, day: int) -> int:

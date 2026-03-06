@@ -77,8 +77,6 @@ class CouplingInterface:
         self.e = e
         self.location_ids = []
         self.location_names = []
-        self.ghost_location_ids = []
-        self.ghost_location_names = []
         self.names = []
         self.directions = []
         self.intervals = []

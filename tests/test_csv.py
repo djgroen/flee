@@ -16,10 +16,6 @@ def AddInitialRefugees(e, d, loc):
         e.addAgent(location=loc, attributes={})
 
 
-def date_to_sim_days(date):
-    return DataTable.subtract_dates(date1=date, date2="2010-01-01")
-
-
 def test_location_changes():
 
     flee.SimulationSettings.ReadFromYML("empty.yml")
