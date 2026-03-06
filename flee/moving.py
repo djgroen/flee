@@ -384,11 +384,11 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
         movechance *= (float(max(a.location.pop, a.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
 
         if SimulationSettings.move_rules["FleeWhenStarving"] is True:
-            if "region_IPC_level" not in a.location.attributes.keys():
+            if "region_IPC" not in a.location.attributes.keys():
                 print("ERROR: move_rules.FleeWhenStarving is set in simulationsetting.yml, but no IPC input data (region_attributes_IPC.csv) has been loaded.", file=sys.stderr)
                 print(f"INFO: Error occurred for Location {a.location.name}, region {a.location.region}.", file=sys.stderr)
                 sys.exit()
-            loc_ipc_modifier = a.location.attributes["region_IPC_level"] / 100.0
+            loc_ipc_modifier = a.location.attributes["region_IPC"] / 100.0
             movechance = loc_ipc_modifier + ((1.0 - loc_ipc_modifier) * movechance)
 
 

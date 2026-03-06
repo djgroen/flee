@@ -1,6 +1,7 @@
 import csv
 import os
 import sys
+import glob
 from typing import List
 
 from flee.SimulationSettings import SimulationSettings
@@ -159,13 +160,19 @@ class InputGeography:
 
 
         # Read in regional IPC (food security) values if the file is available.
-        region_IPC_file_loc = f"{os.path.dirname(csv_name)}/region_attributes_IPC.csv"
-        print(f"Region IPC values are at: {region_IPC_file_loc}, CSV name is {csv_name}. Working directory is {os.getcwd()}", file=sys.stderr)
-        if os.path.exists(region_IPC_file_loc):
-            print("Region IPC values read from: ", region_IPC_file_loc, file=sys.stderr)
-            self.ReadAttributeInputCSV("region_IPC_level","float", region_IPC_file_loc)
-              
-
+        #region_IPC_file_loc = f"{os.path.dirname(csv_name)}/region_attributes_IPC.csv"
+        #print(f"Region IPC values are at: {region_IPC_file_loc}, CSV name is {csv_name}. Working directory is {os.getcwd()}", file=sys.stderr)
+        #if os.path.exists(region_IPC_file_loc):
+        #    print("Region IPC values read from: ", region_IPC_file_loc, file=sys.stderr)
+        #    self.ReadAttributeInputCSV("region_IPC_level","float", region_IPC_file_loc)
+        
+        region_attributes_files = glob.glob(f"{os.path.dirname(csv_name)}/region_attributes_*.csv")
+        attribute_name_offset = len(f"{os.path.dirname(csv_name)}/region_attributes_")
+        for f in region_attributes_files:
+            attribute_name = f[attribute_name_offset:-4]
+            self.ReadAttributeInputCSV(f"region_{attribute_name}","float", f)
+            print(f"Region {attribute_name} values are at: {f}. CSV name is {csv_name}.  Working directory is {os.getcwd()}", file=sys.stderr)
+        
         self.locations = []
 
         c = {}  # column map
@@ -579,8 +586,8 @@ class InputGeography:
             )
 
         # Add location type changes
-        if "region_IPC_level" in self.attributes.keys():
-            self.UpdateLocationAttributes(e, "region_IPC_level", 0) # Read in dynamic attributes for time = 0.
+        if "region_IPC" in self.attributes.keys():
+            self.UpdateLocationAttributes(e, "region_IPC", 0) # Read in dynamic attributes for time = 0.
         self.ReadLocationChangesFromCSV("location_changes.csv")
 
         return e, lm
@@ -666,8 +673,8 @@ class InputGeography:
                 e.change_location_type(change[0],change[1])
 
 
-        if "region_IPC_level" in self.attributes.keys():
-            self.UpdateLocationAttributes(e, "region_IPC_level", time)
+        if "region_IPC" in self.attributes.keys():
+            self.UpdateLocationAttributes(e, "region_IPC", time)
 
         #Add New Flood Zones
         if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
