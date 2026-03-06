@@ -8,16 +8,8 @@ from flee.SimulationSettings import SimulationSettings
 import flee.spawning as spawning
 import flee.demographics as demographics
 
-if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
-    from beartype import beartype as check_args_type
-else:
-    def check_args_type(func):
-        return func
 
-
-
-@check_args_type
-def getEndPointScore(agent, endpoint, time) -> float:
+def getEndPointScore(agent, endpoint, time: int) -> float:
     """
     Summary:
         Calculates the score for a given endpoint.
@@ -156,7 +148,6 @@ def getEndPointScore(agent, endpoint, time) -> float:
     return base
 
 
-@check_args_type
 def getCapMultiplier(location, numOnLink: int) -> float:
     """
     Summary:
@@ -202,7 +193,6 @@ def getCapMultiplier(location, numOnLink: int) -> float:
     return weight
 
 
-@check_args_type
 def calculateLinkWeight(
   agent,
   link,
@@ -283,7 +273,7 @@ def calculateLinkWeight(
 # Add origin steps, next to origin names to check like for like correctly?
 # Or make origin_names data structure encapsulated in recursion.
 
-@check_args_type
+
 def normalizeWeights(weights: List[float]) -> List[float]:
   """
   Summary:
@@ -306,8 +296,6 @@ def normalizeWeights(weights: List[float]) -> List[float]:
   return weights
 
 
-
-@check_args_type
 def chooseFromWeights(weights, routes):
   """
   Summary:
@@ -328,7 +316,6 @@ def chooseFromWeights(weights, routes):
   return result[0]
 
 
-@check_args_type
 def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
     """
     Summary:
@@ -497,7 +484,6 @@ def check_routes(weights, routes, label):
 
 
 def pruneRoutes(weights, routes):
-
     #check_routes(weights, routes, "START")
 
     threshold = SimulationSettings.move_rules["PruningThreshold"]
@@ -518,7 +504,6 @@ def pruneRoutes(weights, routes):
     return weights, routes
 
 
-@check_args_type
 def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = False, system2_active: bool = False):
   """
   Summary:

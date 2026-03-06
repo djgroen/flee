@@ -4,15 +4,7 @@ import os
 
 # pylint: skip-file
 
-if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
-    from beartype import beartype as check_args_type
-else:
-    def check_args_type(func):
-        return func
-
-
-@check_args_type
-def fetchss(dataset,name: str,default):
+def fetchss(dataset, name: str, default):
 
     if dataset is None:
         return default

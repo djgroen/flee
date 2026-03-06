@@ -9,12 +9,6 @@ import glob
 
 from typing import List, Optional, Tuple
 
-if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
-    from beartype import beartype as check_args_type
-else:
-    def check_args_type(func):
-        return func
-
 
 __refugees_raw = 0
 __refugee_debt = 0
@@ -104,7 +98,6 @@ def add_initial_refugees(e, d, loc):
       e.insertAgent(location=loc, attributes=attributes) # Parallelization is incorporated in the addAgent function.
 
 
-@check_args_type
 def spawn_daily_displaced(e, t, d):
     """
     Summary:

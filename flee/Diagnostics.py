@@ -3,12 +3,6 @@ from __future__ import annotations, print_function
 import os
 from flee.SimulationSettings import SimulationSettings
 
-if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
-    from beartype import beartype as check_args_type
-else:
-    def check_args_type(func):
-        return func
-
 
 def print_attribute_keys(a):
     """
@@ -46,7 +40,6 @@ def print_attribute_values(a):
     return out
 
 
-@check_args_type
 def write_agents_par(
     rank: int, agents, time: int, max_written: int = -1, timestep_interval: int = 1
 ) -> None:
@@ -182,7 +175,6 @@ def write_agents_par(
                         )
 
 
-@check_args_type
 def write_agents(agents, time: int, max_written: int = -1, timestep_interval: int = 1) -> None:
     """
     Summary:
@@ -202,7 +194,6 @@ def write_agents(agents, time: int, max_written: int = -1, timestep_interval: in
     write_agents_par(rank=0, agents=agents, time=time, max_written=-1, timestep_interval=1)
 
 
-@check_args_type
 def write_links_par(
     rank: int, locations, time: int, timestep_interval: int = 1
 ) -> None:
@@ -293,7 +284,6 @@ def write_links_par(
                                 )
 
 
-@check_args_type
 def write_links(locations, time: int, timestep_interval: int = 1) -> None:
     """
     Summary:
