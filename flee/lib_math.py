@@ -1,3 +1,5 @@
+import sys
+
 def interp(a, i):
     # a: python list
     # i: index value to be interpolated (float).
@@ -11,7 +13,13 @@ def dict_interp(data, key, index_col, index_val):
     # d: dict to look into.
     # k: key containing values to be interpolated.
     # index_col: key of (time) value col, so support interpolation.
-    indices = data[index_col]
+    try:
+        indices = data[index_col]
+    except KeyError:
+        print(f"KeyError in dict_interp for column {index_col}", file=sys.stderr)
+        print(f"{data}", file=sys.stderr)
+        raise KeyError
+
     values = data[key]
 
     if index_val < indices[0] or index_val > indices[-1]:

@@ -149,11 +149,11 @@ class InputGeography:
 
         if "flood_driven_spawning" in SimulationSettings.spawn_rules.keys():
             # Read flood location attributes.
-            if SimulationSettings.spawn_rules["flood_driven_spawning"] is True:
-                self.ReadAttributeInputCSV("flood_level","float",SimulationSettings.FloodLevelInputFile)
-                self.ReadAttributeInputCSV("forecast_flood_levels","float",SimulationSettings.FloodLevelInputFile)
+            #if SimulationSettings.spawn_rules["flood_driven_spawning"] is True:
+            #    self.ReadAttributeInputCSV("flood_level","float",SimulationSettings.FloodLevelInputFile)
+            #    self.ReadAttributeInputCSV("forecast_flood_levels","float",SimulationSettings.FloodLevelInputFile)
 
-            elif SimulationSettings.move_rules["FloodRulesEnabled"] is False:
+            if SimulationSettings.move_rules["FloodRulesEnabled"] is False:
                 #if SimulationSettings.spawn_rules["conflict_driven_spawning"] is True:
                 if len(SimulationSettings.ConflictInputFile) > 0:
                     self.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
@@ -168,10 +168,10 @@ class InputGeography:
         
         location_attributes_files = glob.glob(f"{os.path.dirname(csv_name)}/location_attributes_*.csv")
         attribute_name_offset = len(f"{os.path.dirname(csv_name)}/location_attributes_")
-        for f in location_attributes_files:
-            attribute_name = f[attribute_name_offset:-4]
-            self.ReadAttributeInputCSV(f"{attribute_name}","float", f)
-            print(f"Location-level {attribute_name} values are at: {f}. CSV name is {csv_name}.  Working directory is {os.getcwd()}", file=sys.stderr)
+        for laf in location_attributes_files:
+            attribute_name = f"location_{laf[attribute_name_offset:-4]}"
+            self.ReadAttributeInputCSV(f"{attribute_name}","float", laf)
+            print(f"Location-level {attribute_name} values are at: {laf}. CSV name is {csv_name}.  Working directory is {os.getcwd()}", file=sys.stderr)
         
         self.locations = []
 
@@ -626,7 +626,7 @@ class InputGeography:
                 if attribute_name == "forecast_flood_levels":
                     #Set forecast_flood_levels attribute for flood_zones
                     e.locations[i].attributes[attribute_name] = attrlist[loc_name]
-                elif attribute_name.startswith("region_") is False:
+                elif attribute_name.startswith("location_") is True:
                     e.locations[i].attributes[attribute_name] = lib_math.dict_interp(attrlist, loc_name, "#Day", time) 
 
             # Support for dynamic regional attributes.
@@ -672,7 +672,10 @@ class InputGeography:
                 e.change_location_type(change[0],change[1])
 
         for k in self.attributes.keys():
-            self.UpdateLocationAttributes(e, k, time) # Read in dynamic attributes for current time step.
+            if k.startswith("location_"):
+                self.UpdateLocationAttributes(e, k, time) # Read in dynamic attributes for current time step.
+            elif k.startswith("region_"):
+                self.UpdateLocationAttributes(e, k, time) # Read in dynamic attributes for current time step.
 
         #Add New Flood Zones
         #if SimulationSettings.move_rules["FloodRulesEnabled"] is True:

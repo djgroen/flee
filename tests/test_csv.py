@@ -153,7 +153,7 @@ def test_csv(end_time=30, last_physical_day=30):
             print(lm["A"].attributes, file=sys.stderr)
 
             assert abs(lm["B"].attributes["region_nonsense"] - 1.5) < 0.0001
-            assert abs(lm["A"].attributes["nonsense"] - 1.5) < 0.0001
+            assert abs(lm["A"].attributes["location_nonsense"] - 1.5) < 0.0001
 
        
         # Calculation of error terms

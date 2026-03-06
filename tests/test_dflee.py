@@ -34,18 +34,16 @@ def test_read_flood_csv():
 
     ig.ReadClosuresFromCSV(csv_name=os.path.join("test_data/test_data_dflee", "test_input_csv/closures.csv"))
 
-    ig.ReadAttributeInputCSV("flood_level", "int", os.path.join("test_data/test_data_dflee","test_input_csv","flood_level.csv"))
-
-    print(ig.attributes["flood_level"])
+    print(f"Location flood levels in InputGeography: {ig.attributes['location_flood_level']}", file=sys.stderr)
 
     #ig.attributes["flood_level"] = {'A': [0, 0, 1, 1, 2, 1, 1, 1, 1, 1, 1], 'B': [1, 1, 1, 3, 1, 1, 0, 0, 0, 0, 1]}
 
     #Check the flood levels at locations A and B at t=0-10
-    assert ig.attributes["flood_level"]['A'][10] == 1
-    assert ig.attributes["flood_level"]['A'][4] == 2
-    assert ig.attributes["flood_level"]['B'][10] == 1
-    assert ig.attributes["flood_level"]['B'][0] == 1
-    assert ig.attributes["flood_level"]['B'][9] == 0
+    assert ig.attributes["location_flood_level"]['A'][10] == 1
+    assert ig.attributes["location_flood_level"]['A'][4] == 2
+    assert ig.attributes["location_flood_level"]['B'][10] == 1
+    assert ig.attributes["location_flood_level"]['B'][0] == 1
+    assert ig.attributes["location_flood_level"]['B'][9] == 0
 
     print("Test successful!! Flood levels CSV correctly read.")
 
@@ -77,9 +75,7 @@ def test_flood_level_location_attribute():
 
     ig.ReadClosuresFromCSV(csv_name=os.path.join("test_data/test_data_dflee", "test_input_csv/closures.csv"))
 
-    ig.ReadAttributeInputCSV("flood_level", "int", os.path.join("test_data/test_data_dflee","test_input_csv/flood_level.csv"))
-
-    ig.ReadAttributeInputCSV("forecast_flood_levels", "int", os.path.join("test_data/test_data_dflee","test_input_csv/flood_level.csv"))
+    ig.ReadAttributeInputCSV("forecast_flood_levels", "float", os.path.join("test_data/test_data_dflee","test_input_csv/location_attributes_flood_level.csv"))
 
     ig.ReadAttributeInputCSV("floodawareness", "float", os.path.join("test_data/test_data_dflee","test_input_csv/demographics_floodawareness.csv"))
 
@@ -99,31 +95,31 @@ def test_flood_level_location_attribute():
 
         # Check the flood levels at t=0
         if t == 0:
-            assert lm["A"].attributes["flood_level"] == 0
-            assert e.locations[1].attributes["flood_level"] == 1
+            assert lm["A"].attributes["location_flood_level"] == 0
+            assert e.locations[1].attributes["location_flood_level"] == 1
             #Check the flood levels at locations C a town and E a camp are 0 
-            assert lm["C"].attributes["flood_level"] == 0
-            assert lm["E"].attributes["flood_level"] == 0
+            assert lm["C"].attributes["location_flood_level"] == 0
+            assert lm["E"].attributes["location_flood_level"] == 0
 
         # Propagate the model by one time step.
         e.evolve()
 
         #Print the flood levels at each time step
         print("timestep(t)", t)
-        print("Flood Level of Location A:",lm["A"].attributes["flood_level"])
-        print("Flood Level of Location B:", e.locations[1].attributes["flood_level"])
+        print("Flood Level of Location A:",lm["A"].attributes["location_flood_level"])
+        print("Flood Level of Location B:", e.locations[1].attributes["location_flood_level"])
 
         #Check the flood levels at t=3
         if t == 3:
-            assert lm["A"].attributes["flood_level"] == 1
-            assert e.locations[1].attributes["flood_level"] == 3
+            assert lm["A"].attributes["location_flood_level"] == 1
+            assert e.locations[1].attributes["location_flood_level"] == 3
             #Check the flood levels at locations C a town and E a camp are 0 
-            assert lm["C"].attributes["flood_level"] == 0
-            assert lm["E"].attributes["flood_level"] == 0
+            assert lm["C"].attributes["location_flood_level"] == 0
+            assert lm["E"].attributes["location_flood_level"] == 0
     
     #Check the flood levels at the final time step
-    assert lm["A"].attributes["flood_level"] == 1
-    assert e.locations[1].attributes["flood_level"] == 1
+    assert lm["A"].attributes["location_flood_level"] == 1
+    assert e.locations[1].attributes["location_flood_level"] == 1
 
     print("Test successful!! Flood level attribute correctly set.")
 
@@ -161,9 +157,7 @@ def test_flood_forecaster():
 
     ig.ReadClosuresFromCSV(csv_name=os.path.join("test_data/test_data_dflee", "test_input_csv/closures.csv"))
 
-    ig.ReadAttributeInputCSV("flood_level", "int", os.path.join("test_data/test_data_dflee","test_input_csv/flood_level.csv"))
-
-    ig.ReadAttributeInputCSV("forecast_flood_levels", "int", os.path.join("test_data/test_data_dflee","test_input_csv/flood_level.csv"))
+    ig.ReadAttributeInputCSV("forecast_flood_levels", "int", os.path.join("test_data/test_data_dflee","test_input_csv/location_attributes_flood_level.csv"))
 
     e, lm = ig.StoreInputGeographyInEcosystem(e=e)
 
@@ -176,11 +170,11 @@ def test_flood_forecaster():
         # Check the flood levels at t=0
         if t == 0:
             #Check the flood levels at locations A and B, the flood zones are non-zero
-            assert lm["A"].attributes["flood_level"] == 0
-            assert e.locations[1].attributes["flood_level"] == 1
+            assert lm["A"].attributes["location_flood_level"] == 0
+            assert e.locations[1].attributes["location_flood_level"] == 1
             #Check the flood levels at locations C a town and E a camp are 0 
-            assert lm["C"].attributes["flood_level"] == 0
-            assert lm["E"].attributes["flood_level"] == 0
+            assert lm["C"].attributes["location_flood_level"] == 0
+            assert lm["E"].attributes["location_flood_level"] == 0
             #Check the flood forecast at locations A and B, the flood zones are non-zero
             assert lm["A"].attributes["forecast_flood_levels"] == [0.0,0.0,1.0,1.0,2.0,1.0,1.0,1.0,1.0,1.0,1.0]
             assert e.locations[1].attributes["forecast_flood_levels"] == [1.0,1.0,1.0,3.0,1.0,1.0,0.0,0.0,0.0,0.0,1.0]
@@ -193,17 +187,17 @@ def test_flood_forecaster():
 
         #Print the flood levels at each time step
         print("timestep(t)", t)
-        print("Flood Level of Location A:",lm["A"].attributes["flood_level"])
-        print("Flood Level of Location B:", e.locations[1].attributes["flood_level"])
+        print("Flood Level of Location A:",lm["A"].attributes["location_flood_level"])
+        print("Flood Level of Location B:", e.locations[1].attributes["location_flood_level"])
 
         #Check the flood levels at t=3
         if t == 3:
             #Check the flood levels at locations A and B, the flood zones are non-zero
-            assert lm["A"].attributes["flood_level"] == 1
-            assert e.locations[1].attributes["flood_level"] == 3
+            assert lm["A"].attributes["location_flood_level"] == 1
+            assert e.locations[1].attributes["location_flood_level"] == 3
             #Check the flood levels at locations C a town and E a camp are 0 
-            assert lm["C"].attributes["flood_level"] == 0
-            assert lm["E"].attributes["flood_level"] == 0
+            assert lm["C"].attributes["location_flood_level"] == 0
+            assert lm["E"].attributes["location_flood_level"] == 0
             #Check the flood forecast at locations A and B, the flood zones are non-zero
             assert lm["A"].attributes["forecast_flood_levels"] == [0.0,0.0,1.0,1.0,2.0,1.0,1.0,1.0,1.0,1.0,1.0]
             assert e.locations[1].attributes["forecast_flood_levels"] == [1.0,1.0,1.0,3.0,1.0,1.0,0.0,0.0,0.0,0.0,1.0]
@@ -213,8 +207,8 @@ def test_flood_forecaster():
 
     
     #Check the flood levels at the final time step
-    assert lm["A"].attributes["flood_level"] == 1
-    assert e.locations[1].attributes["flood_level"] == 1
+    assert lm["A"].attributes["location_flood_level"] == 1
+    assert e.locations[1].attributes["location_flood_level"] == 1
 
     print("flood forecast len", len(lm["A"].attributes["forecast_flood_levels"]))
     #Check the flood forecast at the final time step
@@ -272,16 +266,14 @@ def test_agent_flood_awareness():
 
     ig.ReadClosuresFromCSV(csv_name=os.path.join("test_data/test_data_dflee", "test_input_csv/closures.csv"))
     
-    ig.ReadAttributeInputCSV("flood_level", "int", os.path.join("test_data/test_data_dflee","test_input_csv/flood_level.csv"))
-
-    ig.ReadAttributeInputCSV("forecast_flood_levels", "int",os.path.join("test_data/test_data_dflee","test_input_csv/flood_level.csv"))
+    ig.ReadAttributeInputCSV("forecast_flood_levels", "int",os.path.join("test_data/test_data_dflee","test_input_csv/location_attributes_flood_level.csv"))
 
     ig.ReadAttributeInputCSV("age", "float", os.path.join("test_data/test_data_dflee","test_input_csv/demographics_age.csv")) 
    
     ig.ReadAttributeInputCSV("floodawareness", "float", os.path.join("test_data/test_data_dflee","test_input_csv/demographics_floodawareness.csv"))
 
     print("locations", ig.locations)
-    print(ig.attributes["flood_level"])
+    print(ig.attributes["location_flood_level"])
     print(ig.attributes["forecast_flood_levels"])
     #Set the simulation length
     end_time = 11
@@ -321,8 +313,8 @@ def test_agent_flood_awareness():
         #Check the flood level attributes at t=0
         if t == 0:
             #Check the flood level at flood zones A and B
-            assert lm["A"].attributes["flood_level"] == 0.0
-            assert lm["B"].attributes["flood_level"] == 1.0
+            assert lm["A"].attributes["location_flood_level"] == 0.0
+            assert lm["B"].attributes["location_flood_level"] == 1.0
             #Check the forecast flood levels at flood zone B on days 0,1,3
             assert lm["B"].attributes["forecast_flood_levels"][0] == 1.0
             assert lm["B"].attributes["forecast_flood_levels"][1] == 1.0
@@ -362,7 +354,7 @@ def test_agent_flood_awareness():
     if t == 4:
         forecast_day = 4
         #Check the flood level at flood zones A 
-        assert lm["A"].attributes["flood_level"] == 1.0
+        assert lm["A"].attributes["location_flood_level"] == 1.0
 
         #Check the movechance for flood level 1 
         assert float(flee.SimulationSettings.move_rules["FloodMovechances"][1.0]) == 0.5
