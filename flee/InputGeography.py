@@ -159,19 +159,19 @@ class InputGeography:
                     self.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
 
 
-        # Read in regional IPC (food security) values if the file is available.
-        #region_IPC_file_loc = f"{os.path.dirname(csv_name)}/region_attributes_IPC.csv"
-        #print(f"Region IPC values are at: {region_IPC_file_loc}, CSV name is {csv_name}. Working directory is {os.getcwd()}", file=sys.stderr)
-        #if os.path.exists(region_IPC_file_loc):
-        #    print("Region IPC values read from: ", region_IPC_file_loc, file=sys.stderr)
-        #    self.ReadAttributeInputCSV("region_IPC_level","float", region_IPC_file_loc)
-        
         region_attributes_files = glob.glob(f"{os.path.dirname(csv_name)}/region_attributes_*.csv")
         attribute_name_offset = len(f"{os.path.dirname(csv_name)}/region_attributes_")
         for f in region_attributes_files:
             attribute_name = f[attribute_name_offset:-4]
             self.ReadAttributeInputCSV(f"region_{attribute_name}","float", f)
             print(f"Region {attribute_name} values are at: {f}. CSV name is {csv_name}.  Working directory is {os.getcwd()}", file=sys.stderr)
+        
+        location_attributes_files = glob.glob(f"{os.path.dirname(csv_name)}/location_attributes_*.csv")
+        attribute_name_offset = len(f"{os.path.dirname(csv_name)}/location_attributes_")
+        for f in location_attributes_files:
+            attribute_name = f[attribute_name_offset:-4]
+            self.ReadAttributeInputCSV(f"{attribute_name}","float", f)
+            print(f"Location-level {attribute_name} values are at: {f}. CSV name is {csv_name}.  Working directory is {os.getcwd()}", file=sys.stderr)
         
         self.locations = []
 
@@ -587,8 +587,7 @@ class InputGeography:
 
         # Add location type changes
         for k in self.attributes.keys():
-            if "region_" in k:
-                self.UpdateLocationAttributes(e, k, 0) # Read in dynamic attributes for time = 0.
+            self.UpdateLocationAttributes(e, k, 0) # Read in dynamic attributes for time = 0.
         self.ReadLocationChangesFromCSV("location_changes.csv")
 
         return e, lm
@@ -628,8 +627,7 @@ class InputGeography:
                     #Set forecast_flood_levels attribute for flood_zones
                     e.locations[i].attributes[attribute_name] = attrlist[loc_name]
                 elif attribute_name.startswith("region_") is False:
-                    #Set flood_levels attribute for flood zones
-                    e.locations[i].attributes[attribute_name] = int(attrlist[loc_name][time])
+                    e.locations[i].attributes[attribute_name] = lib_math.dict_interp(attrlist, loc_name, "#Day", time) 
 
             # Support for dynamic regional attributes.
             elif attribute_name.startswith("region_"):
@@ -674,18 +672,17 @@ class InputGeography:
                 e.change_location_type(change[0],change[1])
 
         for k in self.attributes.keys():
-            if "region_" in k:
-                self.UpdateLocationAttributes(e, k, time) # Read in dynamic attributes for time = 0.
+            self.UpdateLocationAttributes(e, k, time) # Read in dynamic attributes for current time step.
 
         #Add New Flood Zones
-        if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
-            #Current flood_level attribute is set to the flood level at the current time step specified in flood_level.csv. Default value is zero.
-            self.UpdateLocationAttributes(e, "flood_level", time)
-            if SimulationSettings.move_rules["FloodForecaster"] is True:
-                #Store future flood levels in the forecast_flood_levels attribute. Default value is array of zeros.
-                self.UpdateLocationAttributes(e, "forecast_flood_levels", time) 
+        #if SimulationSettings.move_rules["FloodRulesEnabled"] is True:
+        #    #Current flood_level attribute is set to the flood level at the current time step specified in flood_level.csv. Default value is zero.
+        #    self.UpdateLocationAttributes(e, "flood_level", time)
+        #    if SimulationSettings.move_rules["FloodForecaster"] is True:
+        #        #Store future flood levels in the forecast_flood_levels attribute. Default value is array of zeros.
+        #        self.UpdateLocationAttributes(e, "forecast_flood_levels", time) 
 
-        elif len(SimulationSettings.ConflictInputFile) == 0:
+        if len(SimulationSettings.ConflictInputFile) == 0:
             for loc in self.locations:
                 if "conflict" in loc[4].lower() and int(loc[5]) == time:
                     conflict_intensity = 1.0
