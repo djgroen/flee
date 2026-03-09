@@ -7,17 +7,6 @@ from typing import List
 from flee.SimulationSettings import SimulationSettings
 import flee.lib_math as lib_math
 
-if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
-    from beartype import beartype as check_args_type
-else:
-    def check_args_type(func):
-        #Commented out because it introduces 10% slowdown.
-        #@wraps(func)
-        #def wrapper(*args, **kwargs):
-        #    return func(*args, **kwargs)
-        #return wrapper
-        return func
-
 
 class InputGeography:
     """
@@ -32,7 +21,6 @@ class InputGeography:
         self.attributes = {}
 
 
-    @check_args_type
     def ReadConflictInputCSV(self, csv_name: str) -> None:
         """
         Reads a Conflict input file, to set conflict information.
@@ -69,7 +57,6 @@ class InputGeography:
         # TODO: make test verifying this in test_csv.py
 
 
-    @check_args_type
     def ReadAttributeInputCSV(self, attribute_name: str, attribute_type: str, csv_name: str) -> None:
         """
         Summary:
@@ -111,7 +98,6 @@ class InputGeography:
         #print(self.attributes, file=sys.stderr)
 
 
-    @check_args_type
     def getConflictLocationNames(self) -> List[str]:
         """
         Summary:
@@ -134,7 +120,6 @@ class InputGeography:
         return list(self.conflicts.keys())
 
 
-    @check_args_type
     def ReadLocationsFromCSV(self, csv_name: str) -> None:
         """
         Summary:
@@ -200,7 +185,6 @@ class InputGeography:
                     self.locations.append(row)
 
 
-    @check_args_type
     def MakeLocationList(self) -> dict:
         """
         Summary:
@@ -218,7 +202,6 @@ class InputGeography:
         return loc_list
 
 
-    @check_args_type
     def MakeLocationColorsList(self) -> dict:
         """
         Summary:
@@ -252,14 +235,12 @@ class InputGeography:
         return loc_list
 
 
-    @check_args_type
     def _convert_to_major(self, csv_name: str) -> str:
         pathlist = csv_name.split(os.sep)
         pathlist[-1] = "major_" + pathlist[-1]
         return os.sep.join(pathlist)
 
 
-    @check_args_type
     def _ReadMajorLinksFromCSV(self, csv_name: str) -> None:
         """
         Summary:
@@ -284,7 +265,6 @@ class InputGeography:
                 self.major_routes.append(row)
 
 
-    @check_args_type
     def ReadLinksFromCSV(self, csv_name: str) -> None:
         """
         Summary:
@@ -316,7 +296,6 @@ class InputGeography:
                     self.links.append(row)
         self._ReadMajorLinksFromCSV(self._convert_to_major(csv_name))
 
-    @check_args_type
     def ReadClosuresFromCSV(self, csv_name: str) -> None:
         """
         Summary:
@@ -342,7 +321,6 @@ class InputGeography:
                     self.closures.append(row)
 
 
-    @check_args_type
     def ReadLocationChangesFromCSV(self, csv_name: str) -> None:
         """
         Summary:
@@ -588,7 +566,6 @@ class InputGeography:
         return e, lm
 
 
-    @check_args_type
     def UpdateLocationAttributes(self, e, attribute_name: str, time: int) -> None:
         """
         Summary: 
@@ -641,7 +618,6 @@ class InputGeography:
             # print(e.time, loc_name, e.locations[i].attributes, file=sys.stderr)
 
 
-    @check_args_type
     def AddNewConflictZones(self, e, time: int, Debug: bool = False) -> None:
         """
         Summary:

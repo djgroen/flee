@@ -14,12 +14,6 @@ from flee.Diagnostics import write_agents, write_links
 from flee.SimulationSettings import SimulationSettings
 from flee import moving, spawning, scoring, demographics
 
-if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
-    from beartype import beartype as check_args_type
-else:
-    def check_args_type(func):
-        return func
-
 
 class Person:
     """
@@ -44,7 +38,6 @@ class Person:
         "last_connection_update", 
     ]
 
-    @check_args_type
     def __init__(self, location, attributes):
         """
         Summary: 
@@ -156,7 +149,7 @@ class Person:
         
         self.last_connection_update = time
 
-    @check_args_type
+    
     def handle_travel(self, location, travelling) -> None:
         """
         Summary:
@@ -232,7 +225,6 @@ class Person:
         return None
 
 
-    @check_args_type
     def evolve(self, e, time: int, ForceTownMove: bool = False) -> None:
         """
         Summary:
@@ -294,7 +286,6 @@ class Person:
                     self.handle_travel(chosenDest, travelling=True)
 
 
-    @check_args_type
     def finish_travel(self, e, time: int) -> None:
         """
         Summary:
@@ -391,7 +382,6 @@ class Location:
     The Location class
     """
 
-    @check_args_type
     def __init__(
         self,
         name: str,
@@ -509,7 +499,6 @@ class Location:
         self.print()
 
 
-    @check_args_type
     def open_camp(self, IDP=False) -> None:
         """
         Summary:
@@ -533,7 +522,6 @@ class Location:
             self.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
 
 
-    @check_args_type
     def setAttribute(self, name: str, value) -> None:
         """
         Summary:
@@ -549,7 +537,6 @@ class Location:
         self.attributes[name] = value
 
 
-    @check_args_type
     def close_camp(self, IDP=False) -> None:
         """
         Summary:
@@ -571,7 +558,6 @@ class Location:
         self.flood_zone = False
 
 
-    @check_args_type
     def DecrementNumAgents(self) -> None:
         """
         Summary:
@@ -586,7 +572,6 @@ class Location:
         self.numAgents -= 1
 
 
-    @check_args_type
     def IncrementNumAgents(self, agent) -> None:
         """
         Summary: 
@@ -603,7 +588,6 @@ class Location:
         self.numAgents += 1
 
 
-    @check_args_type
     def print(self) -> None:
         """
         Summary: 
@@ -642,7 +626,6 @@ class Location:
             )
 
 
-    @check_args_type
     def getScore(self, index: int) -> float:
         """
         Summary: 
@@ -657,7 +640,6 @@ class Location:
         return self.scores[index]
 
 
-    @check_args_type
     def setScore(self, index: int, value: float) -> None:
         """
         Summary:
@@ -678,7 +660,6 @@ class Link:
     The Link class
     """
 
-    @check_args_type
     def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False, attributes: dict = {}):
         """
         Summary: 
@@ -720,7 +701,6 @@ class Link:
         self.attributes = attributes
 
 
-    @check_args_type
     def DecrementNumAgents(self) -> None:
         """
         Summary:
@@ -735,7 +715,6 @@ class Link:
         self.numAgents -= 1
 
 
-    @check_args_type
     def getBaseEndPointScore(self) -> float:
         """
         Summary:
@@ -750,7 +729,6 @@ class Link:
         return self.endpoint.scores[0]
 
 
-    @check_args_type
     def IncrementNumAgents(self, agent) -> None:
         """
         Summary: 
@@ -774,7 +752,6 @@ class Link:
             #print(category, file=sys.stderr)
 
 
-    @check_args_type
     def setAttribute(self, name: str, value) -> None:
         """
         Summary: 
@@ -811,7 +788,6 @@ class Ecosystem:
     The Ecosystem class
     """
 
-    @check_args_type
     def __init__(self, start_date="2099-01-01", demographics_test_prefix=""):
         """
         Summary: 
@@ -854,7 +830,6 @@ class Ecosystem:
 
 
 
-    @check_args_type
     def get_camp_names(self) -> List[str]:
         """
         Summary: 
@@ -875,7 +850,6 @@ class Ecosystem:
         return camp_names
 
 
-    @check_args_type
     def export_graph(self, use_ids_instead_of_names: bool = False) -> Tuple[List[str], List[List]]:
         """
         Summary: 
@@ -897,7 +871,6 @@ class Ecosystem:
         return vertices, edges
 
 
-    @check_args_type
     def _aggregate_arrivals(self) -> None:
         """
         Summary: 
@@ -931,7 +904,6 @@ class Ecosystem:
             #       arrival_total, tmp_num_arrivals)
 
 
-    @check_args_type
     def enact_border_closures(self, time: int, twoway: bool = True, Debug: bool = False) -> None:
         """
         Summary: 
@@ -991,7 +963,6 @@ class Ecosystem:
                         self.set_forced_redirection(c[1], c[2], True)
 
 
-    @check_args_type
     def _convert_location_name_to_index(self, name: str) -> int:
         """
         Summary: 
@@ -1019,7 +990,7 @@ class Ecosystem:
 
         return x
 
-    @check_args_type
+    
     def _remove_link_1way(self, startpoint: str, endpoint: str, close_only: bool = False) -> bool:
         """
         Summary: 
@@ -1071,7 +1042,6 @@ class Ecosystem:
         return removed
 
 
-    @check_args_type
     def _reopen_link_1way(self, startpoint: str, endpoint: str) -> bool:
         """
         Summary:
@@ -1122,7 +1092,6 @@ class Ecosystem:
         return reopened
 
 
-    @check_args_type
     def remove_link(
         self, startpoint: str, endpoint: str, twoway: bool = True, close_only: bool = False
     ) -> bool:
@@ -1152,7 +1121,6 @@ class Ecosystem:
         )
 
 
-    @check_args_type
     def reopen_link(self, startpoint: str, endpoint: str, twoway: bool = True) -> bool:
         """
         Summary: 
@@ -1173,7 +1141,6 @@ class Ecosystem:
         return self._reopen_link_1way(startpoint=startpoint, endpoint=endpoint)
 
 
-    @check_args_type
     def close_link(self, startpoint: str, endpoint: str, twoway: bool = True) -> bool:
         """
         Summary:
@@ -1193,7 +1160,6 @@ class Ecosystem:
         )
 
 
-    @check_args_type
     def _change_location_1way(
         self, location_name: str, mode: str = "close", direction: str = "both", Debug: bool = False
     ) -> bool:
@@ -1292,7 +1258,6 @@ class Ecosystem:
         return changed_anything
 
 
-    @check_args_type
     def _change_border_1way(
         self, source_country: str, dest_country: str, mode: str = "close", Debug: bool = False
     ) -> None:
@@ -1360,7 +1325,6 @@ class Ecosystem:
             )
 
 
-    @check_args_type
     def close_border(
         self, source_country: str, dest_country: str, twoway: bool = True, Debug: bool = False
     ) -> None:
@@ -1387,7 +1351,6 @@ class Ecosystem:
             )
 
 
-    @check_args_type
     def reopen_border(
         self, source_country: str, dest_country: str, twoway: bool = True, Debug: bool = False
     ) -> None:
@@ -1414,7 +1377,6 @@ class Ecosystem:
             )
 
 
-    @check_args_type
     def close_camp(self, location_name: str, IDP: bool):
         """
         Summary: 
@@ -1431,7 +1393,6 @@ class Ecosystem:
         print("Time = {}. Close camp {}, IDP: {}.".format(self.time, location_name, IDP), file=sys.stderr)
 
 
-    @check_args_type
     def change_location_type(self, location_name: str, location_type: str):
         """
         Summary: 
@@ -1488,7 +1449,6 @@ class Ecosystem:
         print(f"Time = {self.time}. Location {location_name} changed type to {location_type}.", file=sys.stderr)
 
 
-    @check_args_type
     def open_camp(self, location_name: str, IDP: bool):
         """
         Summary: 
@@ -1505,7 +1465,6 @@ class Ecosystem:
         print("Time = {}. Open camp {}, IDP: {}.".format(self.time, location_name, IDP), file=sys.stderr)
 
 
-    @check_args_type
     def set_forced_redirection(self, loc1_name: str, loc2_name: str, value: bool):
         """
         Summary: 
@@ -1527,7 +1486,6 @@ class Ecosystem:
                 print("Time = {}. Redirection {}-{} changed from {} to {}.".format(self.time, loc1_name, loc2_name, old_val, value), file=sys.stderr)
 
 
-    @check_args_type
     def close_location(self, location_name: str, twoway: bool = True, Debug: bool = False) -> bool:
         """
         Summary:
@@ -1551,7 +1509,6 @@ class Ecosystem:
         )
 
 
-    @check_args_type
     def reopen_location(self, location_name: str, twoway: bool = True, Debug: bool = False) -> bool:
         """
         Summary: 
@@ -1573,7 +1530,6 @@ class Ecosystem:
         return self._change_location_1way(location_name, mode="reopen", direction="in", Debug=Debug)
 
 
-    @check_args_type
     def add_conflict_zone(self, name: str, conflict_intensity: float = 1.0, change_movechance: bool = True) -> None:
         """
         Summary: 
@@ -1612,7 +1568,6 @@ class Ecosystem:
         )
 
 
-    @check_args_type
     def remove_conflict_zone(self, name: str, change_movechance: bool = True) -> None:
         """
         Summary:
@@ -1637,7 +1592,6 @@ class Ecosystem:
         spawning.refresh_spawn_weights(self)
 
 
-    @check_args_type
     def set_conflict_intensity(self, name: str, conflict_intensity: float, change_movechance: bool = True) -> None:
         """
         Summary: 
@@ -1657,7 +1611,6 @@ class Ecosystem:
             self.add_conflict_zone(name, conflict_intensity, change_movechance)
 
 
-    @check_args_type
     def pick_spawn_locations(self, number: int = 1) -> list:
         """
         Summary:
@@ -1683,7 +1636,6 @@ class Ecosystem:
         ).tolist()
 
 
-    @check_args_type
     def evolve(self) -> None:
         """
         Summary: 
@@ -1748,7 +1700,6 @@ class Ecosystem:
         self.date_string = self.date.strftime("%Y-%m-%d")
 
 
-    @check_args_type
     def addLocation(
         self,
         name: str,
@@ -1808,7 +1759,6 @@ class Ecosystem:
         return loc
 
 
-    @check_args_type
     def addAgent(self, location, attributes) -> None:
         """
         Summary: 
@@ -1835,7 +1785,6 @@ class Ecosystem:
         self.agents.append(Person(location=location, attributes=attributes))
 
 
-    @check_args_type
     def insertAgent(self, location, attributes={}) -> None:
         """
         Summary: 
@@ -1851,7 +1800,6 @@ class Ecosystem:
         self.agents.append(Person(location=location, attributes=attributes))
 
 
-    @check_args_type
     def insertAgents(self, location, number: int) -> None:
         """
         Summary: 
@@ -1869,7 +1817,6 @@ class Ecosystem:
             self.insertAgent(location=location)
 
 
-    @check_args_type
     def clearLocationsFromAgents(self, location_names: List[str]) -> None:
         """
         Summary: 
@@ -1893,7 +1840,6 @@ class Ecosystem:
         self.agents = new_agents
 
 
-    @check_args_type
     def numAgents(self) -> int:
         """
         Summary:
@@ -1908,7 +1854,6 @@ class Ecosystem:
         return len(self.agents)
 
 
-    @check_args_type
     def numIDPs(self) -> int:
         """
         Summary: 
@@ -1929,7 +1874,6 @@ class Ecosystem:
         return num_idps
 
 
-    @check_args_type
     def linkUp(
         self,
         endpoint1: str,
@@ -1992,7 +1936,6 @@ class Ecosystem:
         )
 
 
-    @check_args_type
     def printInfo(self) -> None:
         """
         Summary: 
@@ -2019,7 +1962,6 @@ class Ecosystem:
             print(loc.name, loc.numAgents, file=sys.stderr)
 
 
-    @check_args_type
     def printComplete(self) -> None:
         """
         Summary: 
@@ -2041,7 +1983,6 @@ class Ecosystem:
                 loc.print()
 
 
-    @check_args_type
     def getRankN(self, time) -> bool:
         """
         Summary:

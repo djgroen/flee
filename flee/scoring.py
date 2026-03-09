@@ -3,18 +3,10 @@ from flee import crawling
 import flee.lib_math as lm
 import numpy as np
 import os
-
 from typing import List, Optional, Tuple
-
-if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
-    from beartype import beartype as check_args_type
-else:
-    def check_args_type(func):
-        return func
-
 import sys
 
-@check_args_type
+
 def updateLocationScore(time: int, loc) -> None:
     """
     Summary: 

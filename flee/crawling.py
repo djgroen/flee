@@ -6,17 +6,9 @@ import flee.lib_math as lm
 from beartype.typing import List, Optional, Tuple
 from flee.SimulationSettings import SimulationSettings
 
-
-if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
-    from beartype import beartype as check_args_type
-else:
-    def check_args_type(func):
-        return func
-
 # File for generating routes to interconnect different locations using pregenerated routes.
 # To be used for alternative algorithms for agent movement selection.
 
-@check_args_type
 def getLocationCrawlEndPointScore(link, time) -> float:
     """
     Summary:
@@ -52,7 +44,6 @@ def getLocationCrawlEndPointScore(link, time) -> float:
 
 
 
-@check_args_type
 def _addLocationRoute(
   source_loc,
   loc,
@@ -78,7 +69,6 @@ def _addLocationRoute(
         source_loc.routes[link.endpoint.name] = [weight, origin_names[1:] + [link.endpoint.name], link.endpoint]
 
 
-@check_args_type
 def _addMajorRouteToLocation(
   source_loc, 
   route,
@@ -113,8 +103,6 @@ def _addMajorRouteToLocation(
     sys.exit()
 
 
-
-@check_args_type
 def calculateLocCrawlLinkWeight(
   source_loc,
   loc,
@@ -172,7 +160,6 @@ def calculateLocCrawlLinkWeight(
                     )
 
 
-@check_args_type
 def insertMajorRoutesForLocation(
   source_loc, 
   l, 
@@ -198,7 +185,6 @@ def insertMajorRoutesForLocation(
     #print(f"major route loop done.", file=sys.stderr)
 
 
-@check_args_type
 def compileDestList(l):
     """
     Makes a list of destinations that are reachable through regular routes
@@ -213,7 +199,6 @@ def compileDestList(l):
     return dest_list
 
 
-@check_args_type
 def insertAllMajorRoutesAtLocation(l, time: int):
     # get list of destination locations (l.routes[name][2]) 
     # get list of destination location names keys of (l.routes)
@@ -243,8 +228,6 @@ def insertAllMajorRoutesAtLocation(l, time: int):
             insertMajorRoutesForLocation(l, loc, l.routes[route_name][1], dest_list, time)
 
 
-
-@check_args_type
 def generateLocationRoutes(l, time: int, debug: bool = False):
   """
   Summary:

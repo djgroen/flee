@@ -13,17 +13,6 @@ from flee.Diagnostics import write_agents_par,write_links_par
 from flee.SimulationSettings import SimulationSettings
 from mpi4py import MPI
 
-if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
-    from beartype import beartype as check_args_type
-else:
-
-    def check_args_type(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-
-        return wrapper
-
 
 class MPIManager:
     """
@@ -39,7 +28,6 @@ class MPIManager:
         self.size = self.comm.Get_size()
 
     # pylint: disable=missing-function-docstring
-    @check_args_type
     def CalcCommWorldTotalSingle(self, i):
         total = np.array([-1])
         # If you want this number on rank 0, just use Reduce.
@@ -47,7 +35,6 @@ class MPIManager:
         return total[0]
 
     # pylint: disable=missing-function-docstring
-    @check_args_type
     def CalcCommWorldTotal(self, np_array):
         assert np_array.size > 0
 
@@ -77,7 +64,6 @@ class Person(flee.Person):
         "attributes",
     ]
 
-    @check_args_type
     def __init__(self, e, location, attributes):
         """
         Summary: 
@@ -94,7 +80,6 @@ class Person(flee.Person):
         super().__init__(location, attributes)
         self.e = e
 
-    @check_args_type
     def evolve(self, e, time: int, ForceTownMove: bool = False) -> None:
         """
         Summary:
@@ -110,7 +95,6 @@ class Person(flee.Person):
         """
         super().evolve(e, time=time, ForceTownMove=ForceTownMove)
 
-    @check_args_type
     def finish_travel(self, e, time: int) -> None:
         """
         Summary: 
@@ -126,7 +110,6 @@ class Person(flee.Person):
         super().finish_travel(e, time=time)
 
 
-    @check_args_type
     def getBaseEndPointScore(self, link) -> float:
         """
         Summary: 
@@ -147,7 +130,6 @@ class Location(flee.Location):
     The Location class
     """
 
-    @check_args_type
     def __init__(
         self,
         e,
@@ -208,7 +190,6 @@ class Location(flee.Location):
         self.scores = []
 
 
-    @check_args_type
     def DecrementNumAgents(self) -> None:
         """
         Summary: 
@@ -223,7 +204,6 @@ class Location(flee.Location):
         self.numAgentsOnRank -= 1
 
 
-    @check_args_type
     def IncrementNumAgents(self, agent) -> None:
         """
         Summary: 
@@ -238,7 +218,6 @@ class Location(flee.Location):
         self.numAgentsOnRank += 1
 
 
-    @check_args_type
     def print(self) -> None:
         """
         Summary: 
@@ -255,7 +234,6 @@ class Location(flee.Location):
             super().print()
 
 
-    @check_args_type
     def getScore(self, index: int) -> float:
         """
         Summary: 
@@ -270,7 +248,6 @@ class Location(flee.Location):
         return Ecosystem.scores[self.id * self.e.scores_per_location + index]
 
 
-    @check_args_type
     def setScore(self, index: int, value: float) -> None:
         """
         Summary: 
@@ -285,7 +262,6 @@ class Location(flee.Location):
         """
         Ecosystem.scores[self.id * self.e.scores_per_location + index] = value
 
-    @check_args_type
     def updateAllScores(self, time: int) -> None:
         """
         Summary:
@@ -307,7 +283,6 @@ class Link(flee.Link):
     The Link class
     """
 
-    @check_args_type
     def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False, attributes: dict = {}):
         """
         Summary: 
@@ -326,7 +301,6 @@ class Link(flee.Link):
 
 
 
-    @check_args_type
     def DecrementNumAgents(self) -> None:
         """
         Summary: 
@@ -342,7 +316,6 @@ class Link(flee.Link):
         super().DecrementNumAgents()
 
 
-    @check_args_type
     def IncrementNumAgents(self, agent) -> None:
         """
         Summary: 
@@ -358,7 +331,6 @@ class Link(flee.Link):
         super().IncrementNumAgents(agent)
 
 
-    @check_args_type
     def getBaseEndPointScore(self) -> float:
         """
         Summary: 
@@ -384,7 +356,6 @@ class Ecosystem(flee.Ecosystem):
     # (sequential Flee simulations have it non-static still).
     scores = np.array([1.0, 1.0])
 
-    @check_args_type
     def __init__(self, start_date="2099-01-01", demographics_test_prefix=""):
         """
         Summary: 
@@ -445,7 +416,6 @@ class Ecosystem(flee.Ecosystem):
 
 
 
-    @check_args_type
     def getRankN(self, t: int) -> bool:
         """
         Summary: 
@@ -470,7 +440,6 @@ class Ecosystem(flee.Ecosystem):
         return False
 
 
-    @check_args_type
     def numIDPs(self) -> int:
         """
         Summary:
@@ -492,7 +461,6 @@ class Ecosystem(flee.Ecosystem):
         return num_idps_all
 
 
-    @check_args_type
     def linkUp(
         self,
         endpoint1: str,
@@ -541,7 +509,6 @@ class Ecosystem(flee.Ecosystem):
         )
 
 
-    @check_args_type
     def updateNumAgents(self, CountClosed: bool = False, log: bool = True) -> None:
         """
         Summary: Updates the number of agents in the ecosystem.
@@ -623,7 +590,6 @@ class Ecosystem(flee.Ecosystem):
     over time due to removals by clearLocationFromAgents?
     """
 
-    @check_args_type
     def addAgent(self, location, attributes) -> None:
         """
         Summary: 
@@ -653,7 +619,6 @@ class Ecosystem(flee.Ecosystem):
             self.agents.append(Person(self, location=location, attributes=attributes))
 
 
-    @check_args_type
     def insertAgent(self, location, attributes={}) -> None:
         """
         Summary: 
@@ -671,7 +636,6 @@ class Ecosystem(flee.Ecosystem):
             self.agents.append(Person(self, location=location, attributes=attributes))
 
 
-    @check_args_type
     def insertAgents(self, location, number: int) -> None:
         """
         Summary: 
@@ -690,7 +654,6 @@ class Ecosystem(flee.Ecosystem):
             self.insertAgent(location=location)
 
 
-    @check_args_type
     def clearLocationsFromAgents(self, location_names: List[str]) -> None:
         """
         Summary: 
@@ -721,7 +684,6 @@ class Ecosystem(flee.Ecosystem):
         self.updateNumAgents(log=False)
 
 
-    @check_args_type
     def numAgents(self) -> int:
         """
         Summary: 
@@ -736,7 +698,6 @@ class Ecosystem(flee.Ecosystem):
         return int(self.total_agents)
 
 
-    @check_args_type
     def numAgentsOnRank(self) -> int:
         """
         Summary:
@@ -751,7 +712,6 @@ class Ecosystem(flee.Ecosystem):
         return len(self.agents)
 
 
-    @check_args_type
     def synchronize_locations(self, start_loc_local: int, end_loc_local: int, Debug: bool = False) -> None:
         """
         Summary: 
@@ -798,7 +758,6 @@ class Ecosystem(flee.Ecosystem):
             print("end of synchronize_locations", file=sys.stderr)
 
 
-    @check_args_type
     def evolve(self) -> None:
         """
         Summary:
@@ -917,7 +876,6 @@ class Ecosystem(flee.Ecosystem):
 
 
 
-    @check_args_type
     def addLocation(
         self,
         name: str,
@@ -999,7 +957,6 @@ class Ecosystem(flee.Ecosystem):
         return loc
 
 
-    @check_args_type
     def printComplete(self) -> None:
         """
         Summary:
@@ -1016,7 +973,6 @@ class Ecosystem(flee.Ecosystem):
             super().printComplete()
 
 
-    @check_args_type
     def printInfo(self) -> None:
         """
         Summary:

@@ -20,24 +20,12 @@ import seaborn as sns
 from libmuscle import Instance, Message
 from ymmsl import Operator
 
-if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
-    from beartype import beartype as check_args_type
-else:
-
-    def check_args_type(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-
-        return wrapper
-
 
 class CouplingInterface:
     """
     The Coupling Interface class
     """
 
-    @check_args_type
     def __init__(
         self,
         e,
@@ -115,7 +103,7 @@ class CouplingInterface:
         if self.coupling_type == "muscle3":
             return self.instance.reuse_instance()
 
-    @check_args_type
+
     def addCoupledLocation(
         self, location, name: str, direction: str = "inout", interval: int = 1
     ) -> None:
@@ -221,7 +209,6 @@ class CouplingInterface:
                     self.addCoupledLocation(location=loc, name=loc.name, direction="in", interval=1)
 
 
-    @check_args_type
     def Couple(self, time: int) -> None:
         """
         Summary:
@@ -361,7 +348,6 @@ class CouplingInterface:
                         self.e.updateNumAgents(log=False)
 
 
-    @check_args_type
     def setCouplingChannel(self, outputchannel: str, inputchannel: str) -> None:
         """
         Summary:
@@ -381,7 +367,6 @@ class CouplingInterface:
             self.inputfilename = inputchannel
 
 
-    @check_args_type
     def generateOutputCSVString(self) -> str:
         """
         Summary:
@@ -409,7 +394,6 @@ class CouplingInterface:
         return out_csv_string
 
 
-    @check_args_type
     def extractNewAgentsFromCSVString(self, csv_string: List[str]) -> dict:
         """
         Summary:
@@ -438,7 +422,6 @@ class CouplingInterface:
         return newAgents
 
 
-    @check_args_type
     def writeOutputToFile(self, day: int) -> None:
         """
         Summary:
@@ -465,7 +448,6 @@ class CouplingInterface:
         )
 
 
-    @check_args_type
     def waitForInputFiles(self, check_dir: str, in_fnames: dict) -> None:
         """
         Summary:
@@ -490,7 +472,6 @@ class CouplingInterface:
                         founded_files += 1
 
 
-    @check_args_type
     def readInputFromFile(self, t: int) -> dict:
         """
         Summary:
@@ -615,7 +596,6 @@ class CouplingInterface:
         self.logNewRefugees.append([t, new_refs])
 
 
-    @check_args_type
     def logExchangeData(self, t: int) -> None:
         """
         Summary:
@@ -883,7 +863,6 @@ class CouplingInterface:
         plt.savefig(outputPlotFile)
 
 
-    @check_args_type
     def readCSVLogFiles(
         self, dirInputFiles: str, inputFileNames: List[str], columnHeader: List[str]
     ) -> Tuple[np.ndarray, dict]:
