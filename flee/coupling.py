@@ -576,7 +576,6 @@ class CouplingInterface:
                 csvWriter.writerows(self.logNewRefugees)
 
 
-    @check_args_type
     def logNewAgents(self, t: int, new_refs: int) -> None:
         """
         Summary:
@@ -653,7 +652,8 @@ class CouplingInterface:
             df = pd.read_csv(os.path.join(dirInputFiles, fname), index_col=None, header=0)
             dfs.append(df)
 
-        frame = pd.concat(dfs, axis=0, ignore_index=True).groupby(["Day"]).mean()
+        frame = pd.concat(dfs, axis=0, ignore_index=True).groupby(["Day"])
+        frame = frame.mean(numeric_only=True)
 
         for column_name in list(frame):
             if "error" not in column_name.lower():

@@ -2,7 +2,7 @@
 export PYTHONPATH="$(dirname "$PWD")"
 
 # setting variables
-NUM_INSTANCES=3
+NUM_INSTANCES=2
 cores=1
 
 # INPUT_DATA_DIR="ssudan-mscale"
