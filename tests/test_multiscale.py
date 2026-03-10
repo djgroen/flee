@@ -17,11 +17,11 @@ def test_file_coupling(tmp_path):
 
     shutil.rmtree(f"{mscale_root}/out/file")
     os.mkdir(f"{mscale_root}/out/file")         
-    os.mkdir(f"{mscale_root}/out/micro")         
-    os.mkdir(f"{mscale_root}/out/coupled")         
-    os.mkdir(f"{mscale_root}/out/macro")         
-    os.mkdir(f"{mscale_root}/out/log_exchange_data")         
-    os.mkdir(f"{mscale_root}/out/plot_exchange_data")         
+    os.mkdir(f"{mscale_root}/out/file/micro")         
+    os.mkdir(f"{mscale_root}/out/file/coupled")         
+    os.mkdir(f"{mscale_root}/out/file/macro")         
+    os.mkdir(f"{mscale_root}/out/file/log_exchange_data")         
+    os.mkdir(f"{mscale_root}/out/file/plot_exchange_data")         
 
     cmdline_macro = f"{sys.executable} {str(micro_script)} --submodel macro --data_dir=test --instance_index 0 --coupling_type file --num_instances 1"
     cmdline_micro = f"{sys.executable} {str(micro_script)} --submodel micro --data_dir=test --instance_index 0 --coupling_type file --num_instances 1"
