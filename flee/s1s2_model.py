@@ -4,6 +4,11 @@ Parsimonious Dual-Process S1/S2 Decision-Making Model
 This module implements the theoretical model for crisis decision-making:
 Deliberation requires BOTH cognitive capacity AND structural opportunity.
 
+Note: η (eta, pressure sensitivity) and θ (theta, pressure threshold) were parameters
+in an earlier pressure-based model version (s1s2_refactored). Removed in parsimony
+reduction to the 2-parameter form (α, β) with P_S2 = Ψ × Ω. See s1s2_refactored.py
+for the prior implementation.
+
 Mathematical Model:
     Ψ(x; α) = 1/(1 + e^(-αx))              # Cognitive capacity (Psi)
     Ω(c; β) = 1/(1 + e^(-β(1-c)))          # Structural opportunity (Omega)
@@ -44,6 +49,12 @@ def compute_capacity(experience_index, alpha=2.0):
 def compute_opportunity(conflict_intensity, beta=2.0):
     """
     Structural opportunity: Ω(c; β) = sigmoid(β * (1 - c))
+    
+    Functional form: Ω is a sigmoid in the argument β×(1-c). For uniform β and
+    varying conflict c across agents/locations, the effective distribution of Ω
+    is bimodal when conflict is concentrated at extremes (e.g. c≈0 at safe zones,
+    c≈1 at origin). Low β → Ω compressed toward 0.5; high β → Ω pushed toward 0 or 1.
+    Sobol indices reflect sensitivity to β, not to Ω directly — report both in methods.
     
     Args:
         conflict_intensity: Threat level [0, 1], where 1 = extreme threat

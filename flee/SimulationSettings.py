@@ -312,7 +312,6 @@ class SimulationSettings:
         SimulationSettings.move_rules["soft_capability"] = bool(fetchss(dpr, "soft_capability", False))
         SimulationSettings.move_rules["pmove_s2_mode"] = fetchss(dpr, "pmove_s2_mode", "scaled")
         SimulationSettings.move_rules["pmove_s2_constant"] = float(fetchss(dpr, "pmove_s2_constant", 0.9))
-        SimulationSettings.move_rules["eta"] = float(fetchss(dpr, "eta", 0.5))
         SimulationSettings.move_rules["steepness"] = float(fetchss(dpr, "steepness", 6.0))
         SimulationSettings.move_rules["soft_gate_steepness"] = float(fetchss(dpr, "soft_gate_steepness", 8.0))
 
@@ -323,8 +322,6 @@ class SimulationSettings:
                 "enabled": bool(s1s2_model_config.get("enabled", False)),
                 "alpha": float(s1s2_model_config.get("alpha", 2.0)),
                 "beta": float(s1s2_model_config.get("beta", 2.0)),
-                "eta": float(s1s2_model_config.get("eta", 4.0)),
-                "theta": float(s1s2_model_config.get("theta", 0.5)),
                 "p_s2": float(s1s2_model_config.get("p_s2", 0.8))
             }
         else:
@@ -333,8 +330,6 @@ class SimulationSettings:
                 "enabled": False,
                 "alpha": 2.0,
                 "beta": 2.0,
-                "eta": 4.0,
-                "theta": 0.5,
                 "p_s2": 0.8
             }
 

@@ -8,13 +8,17 @@ Usage:
   python run_easyvvuq_campaign.py              # quick run, 16 samples (ring/star/linear)
   python run_easyvvuq_campaign.py --sobol       # Sobol indices (~200 runs)
   python run_easyvvuq_campaign.py -n 64         # 64 random samples
+  python run_easyvvuq_campaign.py --diagnostic-only  # sampler uniformity check only
 
 Topology is varied: 0=ring, 1=star, 2=linear.
 
 Then visualize:
   python visualize_easyvvuq.py
 
-Output: data/easyvvuq/s1s2_campaign/ with results and analysis.
+Omega vs beta diagnostic (model nonlinearity):
+  python run_omega_diagnostic.py
+
+Output: data/easyvvuq/s1s2_campaign/ with results, figures/, and diagnostic_sampling.png.
 """
 import argparse
 import sys
@@ -27,11 +31,17 @@ def main():
     parser = argparse.ArgumentParser(description="EasyVVUQ S1/S2 sensitivity campaign")
     parser.add_argument("-n", "--samples", type=int, default=16, help="Number of samples")
     parser.add_argument("--sobol", action="store_true", help="Use MCSampler for Sobol indices")
+    parser.add_argument("--diagnostic-only", action="store_true", help="Run sampler diagnostic only, no simulations")
     args = parser.parse_args()
 
     try:
         import easyvvuq as uq
         import chaospy as cp
+        import numpy as np
+        from scipy import stats as scipy_stats
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
     except ImportError as e:
         print("Install EasyVVUQ and chaospy: pip install easyvvuq chaospy")
         print("Error:", e)
@@ -58,6 +68,72 @@ def main():
         "topology": cp.DiscreteUniform(0, 2),  # 0=ring, 1=star, 2=linear
     }
 
+    # --- Task 1: Diagnostic block (checks sampler output before any simulation) ---
+    n_samples = args.samples
+    if args.sobol:
+        n_mc = max(32, n_samples)
+        diag_sampler = uq.sampling.MCSampler(vary=vary, n_mc_samples=n_mc)
+        diag_samples = []
+        try:
+            while True:
+                diag_samples.append(next(diag_sampler))
+        except StopIteration:
+            pass
+    else:
+        diag_sampler = uq.sampling.RandomSampler(vary=vary)
+        diag_samples = [next(diag_sampler) for _ in range(n_samples)]
+    alpha_arr = np.array([s["alpha"] for s in diag_samples])
+    beta_arr = np.array([s["beta"] for s in diag_samples])
+    p_s2_arr = np.array([s["p_s2"] for s in diag_samples])
+
+    param_configs = [
+        ("alpha", alpha_arr, 0.5, 4.0),
+        ("beta", beta_arr, 0.5, 4.0),
+        ("p_s2", p_s2_arr, 0.3, 1.0),
+    ]
+    print("\n=== Sampler diagnostic (raw samples, before simulation) ===")
+    beta_ks_pvalue = None
+    for name, arr, low, high in param_configs:
+        ks_stat, ks_pvalue = scipy_stats.kstest(arr, "uniform", args=(low, high - low))
+        if name == "beta":
+            beta_ks_pvalue = ks_pvalue
+        print(f"  {name}: min={arr.min():.4f} max={arr.max():.4f} mean={arr.mean():.4f} std={arr.std():.4f}")
+        print(f"         KS stat={ks_stat:.4f} p-value={ks_pvalue:.4f} {'(uniform OK)' if ks_pvalue > 0.05 else '(REJECT uniform)'}")
+
+    # Task 3: Assert uniform beta coverage; if failed, fall back to rule='random' for uniformity
+    use_random_rule = False
+    if beta_ks_pvalue is not None and beta_ks_pvalue <= 0.05:
+        print("\nWARNING: Beta sampler rejected uniformity (KS p < 0.05). Using rule='random' for MCSampler.")
+        use_random_rule = True
+
+    # Save diagnostic_sampling.png
+    fig, axes = plt.subplots(1, 3, figsize=(10, 3.5))
+    for ax, (name, arr, low, high) in zip(axes, param_configs):
+        ax.hist(arr, bins=min(30, max(10, len(arr) // 5)), density=True, alpha=0.7, color="steelblue", edgecolor="white")
+        try:
+            kde = scipy_stats.gaussian_kde(arr)
+            x = np.linspace(low, high, 200)
+            ax.plot(x, kde(x), "b-", lw=2, label="KDE")
+        except Exception:
+            pass
+        ax.axhline(1.0 / (high - low), color="black", ls="--", lw=1.5, label="Uniform")
+        ks_stat, ks_pvalue = scipy_stats.kstest(arr, "uniform", args=(low, high - low))
+        ax.set_title(f"{name}\nKS={ks_stat:.3f} p={ks_pvalue:.3f}")
+        ax.set_xlabel(name)
+        ax.set_ylabel("density")
+        ax.legend(loc="upper right", fontsize=8)
+        ax.set_xlim(low, high)
+    fig.suptitle("Sampler output diagnostic (raw parameter samples)")
+    fig.tight_layout()
+    diag_path = campaign_dir / "figures" / "diagnostic_sampling.png"
+    diag_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(diag_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"Saved: {diag_path}")
+
+    if args.diagnostic_only:
+        return 0
+
     # Use built-in encoder/decoder (EasyVVUQ 1.3 uses actions, not encoder/decoder in add_app)
     template_path = repo_root / "input.json.template"
     encoder = uq.encoders.GenericEncoder(
@@ -81,11 +157,13 @@ def main():
         actions=actions,
     )
 
-    n_samples = args.samples
+    # Create fresh sampler for campaign (diagnostic consumed the previous one)
     if args.sobol:
-        # MCSampler uses Saltelli: total runs = n_mc_samples * (n_params + 2)
-        n_mc = max(32, n_samples)  # 32 -> ~160 runs for 3 params
-        sampler = uq.sampling.MCSampler(vary=vary, n_mc_samples=n_mc)
+        sampler = uq.sampling.MCSampler(
+            vary=vary,
+            n_mc_samples=n_mc,
+            rule="random" if use_random_rule else "latin_hypercube",
+        )
         campaign.set_sampler(sampler)
         print(f"Sobol mode: MCSampler with n_mc={n_mc} (~{n_mc * 5} runs)")
     else:

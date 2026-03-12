@@ -10,7 +10,9 @@ Output: figures in campaign_dir/figures/
 - param_vs_evacuation.png: scatter plots (alpha, beta, p_s2 vs evacuation_rate)
 - pairplot.png: parameter correlations and relationships
 - correlation_heatmap.png: correlation matrix
-- sobol_indices.png: first-order Sobol indices (if QMC/MC sampler was used)
+- sobol_indices.png: first-order and total-effect Sobol indices (α, β, p_s2, topology) for both QoIs
+- diagnostic_sampling.png: sampler uniformity check (from run_easyvvuq_campaign.py)
+- omega_vs_beta_diagnostic.png: Omega(β) nonlinearity (from run_omega_diagnostic.py)
 """
 import argparse
 import sys
@@ -135,59 +137,148 @@ def main():
     except ImportError:
         print("  Skipping pairplot (install seaborn for pair plots)")
 
-    # 5. Sobol indices (only if QMC/MC sampler was used)
-    # RandomSampler does not produce Sobol indices. For Sobol, re-run with:
-    #   sampler = uq.sampling.QMCSampler(vary=vary, n_mc_samples=256)
-    #   campaign.set_sampler(sampler)
-    # then run campaign and apply QMCAnalysis
+    # 5. Sobol indices (SALib from Saltelli-style data, or EasyVVUQ if available)
+    sobol_params = ["alpha", "beta", "p_s2", "topology"]
+    sobol_done = False
+
+    # Try SALib when we have Saltelli-sized data (N*(D+2) for D=4 params)
     try:
-        import easyvvuq as uq
-        db_paths = list(campaign_dir.rglob("campaign.db"))
-        if db_paths:
-            db_path = db_paths[0]
-            campaign = uq.Campaign(
-                name="s1s2_sensitivity",
-                db_location=f"sqlite:///{db_path}",
-                work_dir=str(campaign_dir),
-            )
-            campaign.set_app("s1s2_sensitivity")
-            last = campaign.get_last_analysis()
-            if last is not None and hasattr(last, "sobols_first"):
-                sobol_params = [p for p in ["alpha", "beta", "p_s2", "topology"] 
-                                if p in (last.inputs if hasattr(last, "inputs") else [])]
-                if not sobol_params:
-                    sobol_params = ["alpha", "beta", "p_s2"]
-                for qoi in qois:
-                    try:
-                        first = [float(last.sobols_first(qoi, p)) for p in sobol_params]
-                        total = [float(last.sobols_total(qoi, p)) for p in sobol_params]
+        from SALib.analyze import sobol as sobol_analyze
+        # Saltelli: n_samples = N*(D+2), so 192 = 32*6 for D=4
+        n_min = 6 * 4  # minimum N=4 for 4 params
+        if len(df) >= n_min and len(df) % 6 == 0 and all(p in df.columns for p in sobol_params):
+            problem = {
+                "num_vars": 4,
+                "names": sobol_params,
+                "bounds": [[0.5, 4.0], [0.5, 4.0], [0.3, 1.0], [0, 2]],
+            }
+            Si_evac = sobol_analyze.analyze(problem, df["evacuation_rate"].values, calc_second_order=False)
+            Si_p_s2 = sobol_analyze.analyze(problem, df["mean_p_s2"].values, calc_second_order=False)
+
+            fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+            width = 0.35
+            x = np.arange(len(sobol_params))
+            for ax, (Si, qoi, title) in zip(
+                axes,
+                [
+                    (Si_evac, "evacuation_rate", "evacuation_rate"),
+                    (Si_p_s2, "mean_p_s2", "mean_p_s2"),
+                ],
+            ):
+                first = Si["S1"]
+                total = Si["ST"]
+                ax.bar(x - width / 2, first, width, label="First order")
+                ax.bar(x + width / 2, total, width, label="Total effect")
+                ax.set_xticks(x)
+                ax.set_xticklabels([r"$\alpha$", r"$\beta$", r"$p_{S2}$", "topology"])
+                ax.set_ylabel("Sobol index")
+                ax.set_title(title)
+                ax.legend()
+                ax.grid(True, alpha=0.3, axis="y")
+                ax.set_ylim(0, 1.05)
+            fig.suptitle("First-order and total-effect Sobol indices", y=1.02)
+            fig.tight_layout()
+            fig.savefig(fig_dir / "sobol_indices.png", dpi=args.dpi, bbox_inches="tight")
+            fig.savefig(fig_dir / "sobol_indices.pdf", bbox_inches="tight")
+            plt.close(fig)
+            print(f"  Saved sobol_indices.png/.pdf")
+            sobol_done = True
+    except ImportError:
+        pass
+    except Exception as e:
+        pass
+
+    # Fallback: EasyVVUQ QMCAnalysis if available
+    if not sobol_done:
+        try:
+            import easyvvuq as uq
+            db_paths = list(campaign_dir.rglob("campaign.db"))
+            if db_paths:
+                db_path = db_paths[0]
+                campaign = uq.Campaign(
+                    name="s1s2_sensitivity",
+                    db_location=f"sqlite:///{db_path}",
+                    work_dir=str(campaign_dir),
+                )
+                campaign.set_app("s1s2_sensitivity")
+                last = campaign.get_last_analysis()
+                if last is not None and hasattr(last, "sobols_first"):
+                    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+                    width = 0.35
+                    for ax, qoi in zip(axes, qois):
+                        first = [float(np.atleast_1d(last.sobols_first(qoi, p))[0]) for p in sobol_params]
+                        total = [float(np.atleast_1d(last.sobols_total(qoi, p))[0]) for p in sobol_params]
                         x = np.arange(len(sobol_params))
-                        width = 0.35
-                        fig, ax = plt.subplots(figsize=(6, 4))
                         ax.bar(x - width / 2, first, width, label="First order")
-                        ax.bar(x + width / 2, total, width, label="Total order")
+                        ax.bar(x + width / 2, total, width, label="Total effect")
                         ax.set_xticks(x)
-                        ax.set_xticklabels(sobol_params)
+                        ax.set_xticklabels([r"$\alpha$", r"$\beta$", r"$p_{S2}$", "topology"])
                         ax.set_ylabel("Sobol index")
-                        ax.set_title(f"Sensitivity indices: {qoi}")
+                        ax.set_title(qoi)
                         ax.legend()
                         ax.grid(True, alpha=0.3, axis="y")
-                        fig.tight_layout()
-                        fig.savefig(
-                            fig_dir / f"sobol_{qoi}.png",
-                            dpi=args.dpi,
-                            bbox_inches="tight",
-                        )
-                        plt.close(fig)
-                        print(f"  Saved sobol_{qoi}.png")
-                    except Exception:
-                        pass
-            else:
-                print("  No Sobol analysis (run: python run_easyvvuq_campaign.py --sobol)")
-        else:
-            print("  No campaign.db found; skipping Sobol plots")
-    except Exception:
-        print("  No Sobol analysis (run: python run_easyvvuq_campaign.py --sobol)")
+                    fig.suptitle("First-order and total-effect Sobol indices", y=1.02)
+                    fig.tight_layout()
+                    fig.savefig(fig_dir / "sobol_indices.png", dpi=args.dpi, bbox_inches="tight")
+                    fig.savefig(fig_dir / "sobol_indices.pdf", bbox_inches="tight")
+                    plt.close(fig)
+                    print(f"  Saved sobol_indices.png/.pdf")
+                    sobol_done = True
+        except Exception:
+            pass
+
+    if not sobol_done:
+        print("  No Sobol analysis (run: python run_easyvvuq_campaign.py --sobol, pip install SALib)")
+
+    # 6. Topology maps: network layouts with evacuation stats (presentation-ready)
+    try:
+        topo_dir_base = repo_root / "topologies"
+        topo_order = ["ring", "star", "linear"]
+        evac_means = {}
+        if "topology_name" in df.columns:
+            for t in topo_order:
+                sub = df[df["topology_name"] == t]
+                evac_means[t] = sub["evacuation_rate"].mean() * 100 if len(sub) else 0
+
+        fig, axes = plt.subplots(1, 3, figsize=(14, 5))
+        fig.patch.set_facecolor("white")
+        for ax, topo in zip(axes, topo_order):
+            topo_dir = topo_dir_base / topo / "input_csv"
+            if not topo_dir.exists():
+                ax.axis("off")
+                ax.text(0.5, 0.5, f"{topo}\n(no data)", ha="center", va="center")
+                continue
+            locs = pd.read_csv(topo_dir / "locations.csv")
+            routes = pd.read_csv(topo_dir / "routes.csv")
+            coord = {row["name"]: (float(row["gps_x"]), float(row["gps_y"])) for _, row in locs.iterrows()}
+            # Draw edges
+            for _, row in routes.iterrows():
+                n1, n2 = row["name1"], row["name2"]
+                if n1 in coord and n2 in coord:
+                    ax.plot([coord[n1][0], coord[n2][0]], [coord[n1][1], coord[n2][1]], "k-", lw=0.8, alpha=0.4, zorder=0)
+            # Draw nodes by type
+            for _, row in locs.iterrows():
+                x, y = float(row["gps_x"]), float(row["gps_y"])
+                name = row["name"]
+                loc_type = str(row.get("location_type", "town")).lower()
+                if "camp" in loc_type or "SafeZone" in name:
+                    ax.scatter(x, y, s=120, c="#27ae60", marker="s", edgecolors="white", linewidths=1.5, zorder=3, label="Safe zone" if name == locs.iloc[0]["name"] else "")
+                elif "conflict" in loc_type or "Facility" in name or "Hub" in name:
+                    ax.scatter(x, y, s=200, c="#e74c3c", marker="^", edgecolors="white", linewidths=1.5, zorder=3, label="Origin" if name == locs.iloc[0]["name"] else "")
+                else:
+                    ax.scatter(x, y, s=40, c="#3498db", alpha=0.7, edgecolors="white", linewidths=0.5, zorder=2)
+            evac = evac_means.get(topo, 0)
+            ax.set_title(f"{topo.capitalize()}\n{evac:.0f}% evacuated", fontsize=12, fontweight="bold")
+            ax.set_aspect("equal")
+            ax.axis("off")
+        fig.suptitle("Evacuation network topologies — S1/S2 dual-process model", fontsize=14, fontweight="bold", y=1.02)
+        fig.subplots_adjust(left=0.02, right=0.98, top=0.88, bottom=0.02, wspace=0.15)
+        fig.savefig(fig_dir / "presentation_summary.png", dpi=200, bbox_inches="tight", facecolor="white")
+        fig.savefig(fig_dir / "presentation_summary.pdf", bbox_inches="tight", facecolor="white")
+        plt.close(fig)
+        print(f"  Saved presentation_summary.png/.pdf (topology maps)")
+    except Exception as e:
+        print(f"  Topology maps skipped: {e}")
 
     print(f"\nFigures saved to: {fig_dir}")
     return 0
