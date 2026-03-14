@@ -1,4 +1,7 @@
 # Flee
+
+> **S1/S2 dual-process extension:** See [docs/README.md](docs/README.md) for documentation index, [TOPOLOGY_README.md](TOPOLOGY_README.md) for workflow, and [docs/EQUATIONS.md](docs/EQUATIONS.md) for equation-to-code reference.
+
 [![Build Status](https://travis-ci.com/djgroen/flee.svg?branch=master)](https://travis-ci.com/djgroen/flee)
 [![GitHub Issues](https://img.shields.io/github/issues/djgroen/flee.svg)](https://github.com/djgroen/flee/issues)
 [![GitHub last-commit](https://img.shields.io/github/last-commit/djgroen/flee.svg)](https://github.com/djgroen/flee/commits/master)
