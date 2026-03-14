@@ -162,53 +162,90 @@ def create_network_spatial_plots():
 
         pos = {n: (G.nodes[n]["x"], G.nodes[n]["y"]) for n in G.nodes()}
 
+        xs = [pos[n][0] for n in G.nodes()]
+        ys = [pos[n][1] for n in G.nodes()]
+        x_range = max(xs) - min(xs) or 1
+        y_range = max(ys) - min(ys) or 1
+        is_elongated = x_range > 2.5 * y_range
+        # Extra y-padding for elongated topologies so markers at top/bottom aren't clipped
+        y_frac = 0.45 if is_elongated else 0.15
+        x_frac = 0.12
+
         fig, axes = plt.subplots(1, 3, figsize=(14, 6))
         fig.suptitle(f"{topo.title()} topology: S1, S2, and structural metrics", fontsize=14, fontweight="bold")
-        fig.subplots_adjust(right=0.88, wspace=0.25, top=0.88, bottom=0.12)
+        fig.subplots_adjust(left=0.08, right=0.92, wspace=0.25, top=0.88, bottom=0.12)
 
         panels = [
-            ("S1: uniform P_move = 0.3", {n: (s1_move if conflict_map.get(n, 0) > 0 else 0.0) for n in G.nodes()}, "Node size ∝ P_move"),
-            ("S2: P_move = σ (safety gradient)", sigma_map, "Node size ∝ σ"),
-            ("Distance to nearest SafeZone", dist_norm, "Node size ∝ proximity to safety"),
+            ("S1: uniform P_move = 0.3", {n: (s1_move if conflict_map.get(n, 0) > 0 else 0.0) for n in G.nodes()}, "Node size ∝ P_move", "conflict", None),
+            ("S2: P_move = σ (safety gradient)", sigma_map, "Node size ∝ σ", "conflict", None),
+            ("Distance to nearest SafeZone", dist_norm, "Node size ∝ proximity to safety", "proximity", dist_norm),
         ]
-        sc = None
-        for ax, (title, size_map, size_label) in zip(axes, panels):
+        sc_conflict = None
+        sc_proximity = None
+        for idx, (ax, (title, size_map, size_label, color_by, color_map)) in enumerate(zip(axes, panels)):
             node_colors = []
             node_sizes = []
             nodelist = []
             for n in G.nodes():
-                c = max(0.0, min(1.0, conflict_map.get(n, 0.0)))
+                if color_by == "conflict":
+                    c = max(0.0, min(1.0, conflict_map.get(n, 0.0)))
+                else:
+                    c = color_map.get(n, 0.0) if color_map else 0.0
                 node_colors.append(c)
                 sz = size_map.get(n, 0.0) if size_map else 0.0
                 node_sizes.append(300 + 1200 * sz)
                 nodelist.append(n)
 
             nx.draw_networkx_edges(G, pos, ax=ax, edge_color="lightgray", width=1.5, alpha=0.7)
-            sc = ax.scatter(
-                [pos[n][0] for n in nodelist],
-                [pos[n][1] for n in nodelist],
-                c=node_colors,
-                s=node_sizes,
-                cmap="RdYlGn_r",
-                vmin=0,
-                vmax=1,
-                alpha=0.85,
-                edgecolors="black",
-                linewidths=0.5,
-            )
+            if color_by == "conflict":
+                sc = ax.scatter(
+                    [pos[n][0] for n in nodelist],
+                    [pos[n][1] for n in nodelist],
+                    c=node_colors,
+                    s=node_sizes,
+                    cmap="YlOrRd",
+                    vmin=0,
+                    vmax=1,
+                    alpha=0.85,
+                    edgecolors="black",
+                    linewidths=0.5,
+                )
+                sc_conflict = sc
+            else:
+                sc = ax.scatter(
+                    [pos[n][0] for n in nodelist],
+                    [pos[n][1] for n in nodelist],
+                    c=node_colors,
+                    s=node_sizes,
+                    cmap="viridis",
+                    vmin=0,
+                    vmax=1,
+                    alpha=0.85,
+                    edgecolors="black",
+                    linewidths=0.5,
+                )
+                sc_proximity = sc
             ax.set_aspect("equal")
-            ax.margins(0.12)
+            x_lo, x_hi = min(xs), max(xs)
+            y_lo, y_hi = min(ys), max(ys)
+            # Extra y-padding for third panel (proximity) to avoid marker cutoff
+            panel_y_frac = (0.55 if is_elongated else 0.22) if idx == 2 else y_frac
+            ax.set_xlim(x_lo - x_frac * x_range, x_hi + x_frac * x_range)
+            ax.set_ylim(y_lo - panel_y_frac * y_range, y_hi + panel_y_frac * y_range)
             ax.set_title(title, fontsize=11)
             ax.text(0.5, -0.05, size_label, transform=ax.transAxes, ha="center", fontsize=8, style="italic")
             ax.axis("off")
 
-        if sc is not None:
-            cbar_ax = fig.add_axes([0.91, 0.15, 0.02, 0.7])
-            fig.colorbar(sc, cax=cbar_ax, label="Conflict intensity")
+        if sc_conflict is not None:
+            cbar_ax1 = fig.add_axes([0.01, 0.35, 0.02, 0.5])
+            fig.colorbar(sc_conflict, cax=cbar_ax1, label="Conflict intensity")
+        if sc_proximity is not None:
+            cbar_ax2 = fig.add_axes([0.93, 0.35, 0.02, 0.5])
+            fig.colorbar(sc_proximity, cax=cbar_ax2, label="Proximity to safety")
 
         out_path = OUTPUT_DIR / f"network_spatial_{topo}.png"
-        fig.savefig(out_path, dpi=300, bbox_inches="tight")
-        fig.savefig(out_path.with_suffix(".pdf"), bbox_inches="tight")
+        fig.savefig(out_path, dpi=300, bbox_inches="tight", pad_inches=0.25)
+        fig.savefig(out_path.with_suffix(".pdf"), bbox_inches="tight", pad_inches=0.25)
         plt.close(fig)
         print(f"  Saved {out_path}")
 
