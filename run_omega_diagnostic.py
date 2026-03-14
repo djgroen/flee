@@ -27,7 +27,7 @@ def main():
     seed = 0
     topology = "ring"
 
-    config_dir = repo_root / "data" / "fork_experiments" / "configs"
+    config_dir = repo_root / "data" / "experiments" / "configs"
     config_file = config_dir / f"{topology}_small.yml"
     if not config_file.exists():
         config_file = repo_root / "configs" / f"{topology}_topology.yml"

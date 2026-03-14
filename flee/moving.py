@@ -3,18 +3,19 @@ import sys
 import numpy as np
 import random
 import flee.lib_math as lm
-from beartype.typing import List, Optional, Tuple
+from typing import List, Optional, Tuple
 from flee.SimulationSettings import SimulationSettings
 import flee.spawning as spawning
 import flee.demographics as demographics
 
-# Import new 5-parameter S1/S2 model
+# Import S1/S2 V3 model (continuous blend: P_S2 = Ψ×Ω as blending weight)
 try:
-    from flee.s1s2_model import calculate_move_probability_s1s2, compute_deliberation_probability
+    from flee.s1s2_model import compute_deliberation_weight, compute_s2_move_probability, compute_opportunity
 except ImportError as e:
     print(f"DEBUG: ImportError in moving.py: {e}", file=sys.stderr)
-    calculate_move_probability_s1s2 = None
-    compute_deliberation_probability = None
+    compute_deliberation_weight = None
+    compute_s2_move_probability = None
+    compute_opportunity = None
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
@@ -39,28 +40,6 @@ def getEndPointScore(agent, endpoint, time) -> float:
         base (float): score for the endpoint
     """
     base = endpoint.getScore(0)
-    
-    # Consider shared safety information if available
-    if "_safety_info" in agent.attributes:
-        safety_info = agent.attributes["_safety_info"]
-        if endpoint.name in safety_info:
-            location_info = safety_info[endpoint.name]
-            
-            # Adjust score based on shared conflict information
-            shared_conflict = location_info.get('conflict_level', 0)
-            if shared_conflict > 0.5:
-                base *= 0.5  # Reduce attractiveness of high-conflict areas
-            
-            # Adjust score based on shared capacity information
-            capacity_ratio = location_info.get('capacity_ratio', 0)
-            if capacity_ratio > 0.9:
-                base *= 0.3  # Heavily penalize overcrowded locations
-            elif capacity_ratio > 0.7:
-                base *= 0.7  # Moderately penalize crowded locations
-            
-            # Boost score for camps if they're not overcrowded
-            if location_info.get('camp_status', False) and capacity_ratio < 0.8:
-                base *= 1.5  # Camps are generally safer destinations
 
     if SimulationSettings.move_rules["ChildrenAvoidHazards"]:
         if agent.attributes["age"]<19:
@@ -182,15 +161,42 @@ def chooseFromWeights(weights, routes):
   return result[0]
 
 
+S2_OVERRIDE_KEYS = ["AwarenessLevel", "WeightSoftening", "DistancePower", "PruningThreshold"]
+S2_OVERRIDES = {
+    "AwarenessLevel": lambda orig: min(3, orig + 1),
+    "WeightSoftening": 0.0,
+    "DistancePower": 1.2,
+    "PruningThreshold": 1.0,
+}
+
+
+def _s2_route_context():
+    """Context manager: temporarily apply S2 routing params, restore on exit."""
+    from contextlib import contextmanager
+
+    @contextmanager
+    def _ctx():
+        old = {k: SimulationSettings.move_rules[k] for k in S2_OVERRIDE_KEYS}
+        try:
+            for k in S2_OVERRIDE_KEYS:
+                v = S2_OVERRIDES.get(k)
+                SimulationSettings.move_rules[k] = v(old[k]) if callable(v) else v
+            yield
+        finally:
+            SimulationSettings.move_rules.update(old)
+
+    return _ctx()
+
+
 @check_args_type
-def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
+def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
     """
-    Summary:
-        Calculates the probability that an agent will move this step.
+    Calculates the probability that an agent will move this step.
+    Returns (blended_movechance, s2_weight) where s2_weight is in [0, 1].
     """
-    system2_active = False
+    s2_weight = 0.0
     movechance = a.location.movechance
-    
+
     # Standard FLEE: Population/Capacity scaling
     movechance *= (float(max(a.location.pop, a.location.capacity)) / SimulationSettings.move_rules["MovechancePopBase"])**SimulationSettings.move_rules["MovechancePopScaleFactor"]
 
@@ -229,107 +235,126 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
             movechance *= flood_forecast_movechance
 
     if SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False):
-        # Camps/safe zones: respect camp_movechance regardless of S1/S2 state.
-        # Without this, S2-active agents at camps get p_move ≈ p_s2 (e.g. 0.8) instead of 0.001.
+        # Camps/safe zones: respect camp_movechance, no dual-process override
         if getattr(a.location, 'camp', False) or getattr(a.location, 'idpcamp', False):
-            return a.location.movechance, False
+            return a.location.movechance, 0.0
+
         conflict = max(0.0, getattr(a.location, 'conflict', 0.0))
-        
-        # Get S1/S2 parameters from config
+
+        # Read parameters
         s1s2_params = SimulationSettings.move_rules.get('s1s2_model_params', {})
-        if not s1s2_params: # Support flat structure as well
-            s1s2_params = {
-                'alpha': SimulationSettings.move_rules.get('alpha', 2.0),
-                'beta': SimulationSettings.move_rules.get('beta', 2.0),
-                'p_s2': SimulationSettings.move_rules.get('p_s2', 0.8)
-            }
-        
         alpha = float(s1s2_params.get('alpha', 2.0))
         beta = float(s1s2_params.get('beta', 2.0))
-        p_s2_val = float(s1s2_params.get('p_s2', 0.8))
+        kappa = float(s1s2_params.get('kappa', 5.0))
 
-        # 1. Deliberation Probability: P_S2 = Ψ(experience; α) × Ω(conflict; β)
-        if compute_deliberation_probability:
-            p_s2_active = compute_deliberation_probability(a.experience_index, conflict, alpha, beta)
-            a.s2_activation_prob = p_s2_active
-            
-            # 2. S2 Activation Threshold
-            system2_active = p_s2_active > 0.5
-            
-            # 3. Combined Move Probability
-            move_prob = (1.0 - p_s2_active) * movechance + p_s2_active * p_s2_val
+        # Compute P_S2 = Ψ × Ω (continuous reliability weight)
+        if compute_deliberation_weight and compute_s2_move_probability:
+            s2_weight = compute_deliberation_weight(a.experience_index, conflict, alpha, beta)
+            a.s2_activation_prob = s2_weight
 
-            if system2_active:
-                a.log_decision("S2", {
-                    "experience_index": a.experience_index,
-                    "conflict": conflict,
-                    "p_s2_active": p_s2_active,
-                    "location": getattr(a.location, 'name', 'Unknown')
-                }, time)
-                
-                provisional_route = selectRoute(a, time, system2_active=True)
-                if len(provisional_route) > 0:
-                    a.attributes["_temp_route"] = provisional_route
-            
+            # Compute S2 move probability σ from safety-per-distance evaluation
+            c_best = conflict
+            d_best = 1.0
+            if a.location.links:
+                best_link = min(a.location.links,
+                               key=lambda lnk: max(0.0, getattr(lnk.endpoint, 'conflict', 0.0)))
+                c_best = max(0.0, getattr(best_link.endpoint, 'conflict', 0.0))
+                d_best = max(1.0, best_link.get_distance())
+
+            sigma = compute_s2_move_probability(conflict, c_best, d_best, kappa)
+
+            # Blended move probability: P_move = (1 - P_S2)·P_S1 + P_S2·σ
+            blended_movechance = (1.0 - s2_weight) * movechance + s2_weight * sigma
+
             if conflict > 0.9:
-                return 1.0, system2_active
-                
-            return move_prob, system2_active
+                blended_movechance = max(blended_movechance, 0.95)
+
+            return blended_movechance, s2_weight
 
     if a.location.town and ForceTownMove:
-        return 1.0, system2_active
+        return 1.0, 0.0
     elif len(a.route) > 0:
-        return 1.0, system2_active
+        return 1.0, 0.0
 
-    return movechance, system2_active
+    return movechance, 0.0
 
 
 @check_args_type
-def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = False, system2_active: bool = False):
-  weights = []
-  routes = []
-  
-  if SimulationSettings.move_rules["AwarenessLevel"] == 0:
-      linklen = len(a.location.links)
-      return [np.random.randint(0, linklen)]
+def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = False, s2_weight: float = 0.0):
+    """Select route using blended S1/S2 scoring when s2_weight > 0."""
+    if SimulationSettings.move_rules["AwarenessLevel"] == 0:
+        linklen = len(a.location.links)
+        return [np.random.randint(0, linklen)]
 
-  original_params = {}
-  if SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False) and system2_active:
-      original_params['awareness_level'] = SimulationSettings.move_rules["AwarenessLevel"]
-      original_params['weight_softening'] = SimulationSettings.move_rules["WeightSoftening"]
-      original_params['distance_power'] = SimulationSettings.move_rules["DistancePower"]
-      original_params['pruning_threshold'] = SimulationSettings.move_rules["PruningThreshold"]
-      
-      SimulationSettings.move_rules["AwarenessLevel"] = min(3, original_params['awareness_level'] + 1)
-      SimulationSettings.move_rules["WeightSoftening"] = 0.0
-      SimulationSettings.move_rules["DistancePower"] = 1.2
-      SimulationSettings.move_rules["PruningThreshold"] = 1.0
+    use_s2 = SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False) and s2_weight > 0.01
 
-  if SimulationSettings.move_rules["FixedRoutes"] is True:
-      for l in a.location.routes.keys():
-          weights = weights + [a.location.routes[l][0] * getEndPointScore(a, a.location.routes[l][2], time)]
-          routes = routes + [a.location.routes[l][1]]
-  else:
-      for k, e in enumerate(a.location.links):
-          wgt, rts = calculateLinkWeight(a, link=e, prior_distance=0.0, origin_names=[a.location.name], step=1, time=time, debug=debug)
-          weights = weights + wgt
-          routes = routes + rts
-      if return_all_routes is True:
-          return weights, routes
-      for i in range(0, len(routes)):
-          routes[i] = routes[i][1:]
-      weights, routes = pruneRoutes(weights, routes)
-          
-  if SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False) and system2_active:
-      SimulationSettings.move_rules["AwarenessLevel"] = original_params['awareness_level']
-      SimulationSettings.move_rules["WeightSoftening"] = original_params['weight_softening']
-      SimulationSettings.move_rules["DistancePower"] = original_params['distance_power']
-      SimulationSettings.move_rules["PruningThreshold"] = original_params['pruning_threshold']
+    def _compute_routes_s1():
+        """Standard FLEE route scoring (S1)."""
+        weights_s1, routes_s1 = [], []
+        if SimulationSettings.move_rules["FixedRoutes"] is True:
+            for l in a.location.routes.keys():
+                weights_s1.append(a.location.routes[l][0] * getEndPointScore(a, a.location.routes[l][2], time))
+                routes_s1.append(a.location.routes[l][1])
+        else:
+            for k, e in enumerate(a.location.links):
+                wgt, rts = calculateLinkWeight(a, link=e, prior_distance=0.0,
+                    origin_names=[a.location.name], step=1, time=time, debug=debug)
+                weights_s1 += wgt
+                routes_s1 += rts
+            if return_all_routes:
+                return (weights_s1, routes_s1)
+            for i in range(len(routes_s1)):
+                routes_s1[i] = routes_s1[i][1:]
+            weights_s1, routes_s1 = pruneRoutes(weights_s1, routes_s1)
+        return (weights_s1, routes_s1)
 
-  route = chooseFromWeights(weights=weights, routes=routes)
-  if route == None:
-      return []
-  return route
+    if not use_s2:
+        result = _compute_routes_s1()
+        if return_all_routes and isinstance(result, tuple) and len(result) == 2:
+            return result
+        weights, routes = result
+        route = chooseFromWeights(weights=weights, routes=routes)
+        return route if route is not None else []
+
+    # Blended S1/S2 path: compute both, then blend weights
+    s1_result = _compute_routes_s1()
+    weights_s1, routes_s1 = s1_result
+
+    weights_s2, routes_s2 = [], []
+    with _s2_route_context():
+        if SimulationSettings.move_rules["FixedRoutes"] is True:
+            for l in a.location.routes.keys():
+                weights_s2.append(a.location.routes[l][0] * getEndPointScore(a, a.location.routes[l][2], time))
+                routes_s2.append(a.location.routes[l][1])
+        else:
+            for k, e in enumerate(a.location.links):
+                wgt, rts = calculateLinkWeight(a, link=e, prior_distance=0.0,
+                    origin_names=[a.location.name], step=1, time=time, debug=debug)
+                weights_s2 += wgt
+                routes_s2 += rts
+            for i in range(len(routes_s2)):
+                routes_s2[i] = routes_s2[i][1:]
+            weights_s2, routes_s2 = pruneRoutes(weights_s2, routes_s2)
+
+    route_to_s2_weight = {}
+    for w, r in zip(weights_s2, routes_s2):
+        key = tuple(r)
+        route_to_s2_weight[key] = w
+
+    blended_weights = []
+    for w_s1, r in zip(weights_s1, routes_s1):
+        w_s2 = route_to_s2_weight.get(tuple(r), 0.0)
+        blended = (1.0 - s2_weight) * w_s1 + s2_weight * w_s2
+        blended_weights.append(blended)
+
+    s1_route_set = {tuple(r) for r in routes_s1}
+    for w, r in zip(weights_s2, routes_s2):
+        if tuple(r) not in s1_route_set:
+            blended_weights.append(s2_weight * w)
+            routes_s1.append(r)
+
+    route = chooseFromWeights(weights=blended_weights, routes=routes_s1)
+    return route if route is not None else []
 
 
 def pruneRoutes(weights, routes):

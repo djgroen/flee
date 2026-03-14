@@ -24,7 +24,9 @@ def main():
         params = json.load(f)
     alpha = float(params["alpha"])
     beta = float(params["beta"])
-    p_s2 = float(params.get("p_s2", 0.8))
+    if "move_prob_s2" in params or "p_s2" in params:
+        import sys
+        print("WARNING: move_prob_s2 is deprecated; S2 move probability now computed from safety differential. Ignoring.", file=sys.stderr)
     topology_raw = params.get("topology", "ring")
     # Map 0,1,2 to ring,star,linear (EasyVVUQ samples topology as int)
     if isinstance(topology_raw, (int, float)):
@@ -38,7 +40,7 @@ def main():
     from run_nuclear_parameter_sweep import ParameterSweeper
     import yaml
 
-    config_dir = repo_root / "data" / "fork_experiments" / "configs"
+    config_dir = repo_root / "data" / "experiments" / "configs"
     config_file = config_dir / f"{topology}_small.yml"
     if not config_file.exists():
         config_file = repo_root / "configs" / f"{topology}_topology.yml"
@@ -48,7 +50,6 @@ def main():
     config["simulation"]["n_timesteps"] = n_timesteps
     config["move_rules"]["s1s2_model"]["alpha"] = alpha
     config["move_rules"]["s1s2_model"]["beta"] = beta
-    config["move_rules"]["s1s2_model"]["p_s2"] = p_s2
 
     output_dir = run_dir
     sweeper = ParameterSweeper(output_base_dir=str(run_dir))

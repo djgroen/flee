@@ -22,20 +22,11 @@ move_rules:
   avoid_short_stints: False
   start_on_foot: False
   weight_power: 1.0
-  # S1/S2 Dual-Process Decision Making Configuration
-  two_system_decision_making: true  # Enable S1/S2 system (true/false)
-  conflict_threshold: 0.5           # S2 activation threshold [0.0, 1.0]
-  connectivity_mode: baseline        # Connectivity mode: "baseline" or "diminishing"
-  steepness: 6.0                     # Sigmoid steepness parameter for S2 activation
-  soft_capability: false             # Use soft capability gate (true/false)
-  pmove_s2_mode: scaled              # S2 move probability mode: "scaled" or "constant"
-  pmove_s2_constant: 0.9             # Constant S2 move probability (if mode is "constant")
-  soft_gate_steepness: 8.0            # Steepness for soft capability gate
-  # Optional: Parsimonious S1/S2 Model (alpha, beta, p_s2 only)
-  # s1s2_model:
-  #   enabled: false                  # Enable parsimonious model (true/false)
-  #   alpha: 2.0                      # Cognitive capacity weight
-  #   beta: 2.0                       # Structural opportunity weight
-  #   p_s2: 0.8                       # S2 move probability
+  # V3 Dual-Process Decision Making
+  two_system_decision_making: true
+  s1s2_model:
+    alpha: 2.0    # Experience-to-capacity rate
+    beta: 2.0     # Conflict-to-opportunity collapse steepness
+    kappa: 5.0    # S2 move-decision sensitivity
 optimisations:
   hasten: 1

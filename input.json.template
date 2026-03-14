@@ -1,1 +1,1 @@
-{"alpha": $alpha, "beta": $beta, "p_s2": $p_s2, "topology": $topology, "seed": 0, "n_timesteps": 100, "n_agents": 500}
+{"alpha": $alpha, "beta": $beta, "topology": $topology, "seed": 0, "n_timesteps": 100, "n_agents": 500}

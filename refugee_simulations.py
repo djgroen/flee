@@ -43,7 +43,7 @@ except ImportError:
 class RefugeeSimulator:
     """Simulator for refugee movement scenarios with S1/S2 decision-making."""
     
-    def __init__(self, output_dir="refugee_simulation_results"):
+    def __init__(self, output_dir="data/refugee"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
         self.results = []
@@ -440,15 +440,19 @@ class RefugeeSimulator:
             ecosystem = flee.Ecosystem()
             
             # Set output directory for agent logs (Flee writes to current directory)
-            # IMPORTANT: Change to run_dir so each simulation saves its own agents.out.0
+            # IMPORTANT: Change to run_dir so each simulation saves its own agents.out.0 and out.csv
             import os
             original_dir = os.getcwd()
             os.chdir(str(run_dir))  # Change to run-specific directory
             
-            # Clean up any existing agents.out.0 from this run directory
-            agents_out_0 = run_dir / 'agents.out.0'
+            # Clean up any existing output files from this run directory
+            agents_out_0 = Path('agents.out.0')
             if agents_out_0.exists():
                 agents_out_0.unlink()
+            
+            # Initialize out.csv file (standard Flee population output)
+            # Use relative path since we're already in run_dir
+            out_csv_file = Path('out.csv')
             
             # Add locations
             location_map = {}
@@ -471,7 +475,17 @@ class RefugeeSimulator:
             # Find origin (highest conflict location)
             origin = max(location_map.values(), key=lambda l: getattr(l, 'conflict', 0.0))
             
+            # Initialize out.csv file (standard Flee population output)
+            # Do this before agents are spawned so we can write header
+            with open(out_csv_file, 'w') as f:
+                # Header: Day,Date,Origin sim,Intermediate sim,Camp sim,Total refugees
+                # For refugee scenarios: Origin = conflict zones, Intermediate = towns, Camp = safe zones
+                f.write('Day,Date,Origin sim,Intermediate sim,Camp sim,Total refugees\n')
+            
             # Create agents with varied attributes
+            # Track route choices at decision time (when leaving conflict zone)
+            route_decision_tracker = {}  # agent_id -> {'destination': str, 'cognitive_state': str, 'timestep': int}
+            
             for i in range(num_agents):
                 # Varied experience profiles - adjusted to enable more S2 activation
                 attributes = {
@@ -479,15 +493,29 @@ class RefugeeSimulator:
                     'education_level': np.random.uniform(0.4, 0.8),  # Higher education (was 0.3-0.7)
                     'stress_tolerance': np.random.uniform(0.5, 0.9),  # Higher stress tolerance (was 0.4-0.8)
                     's2_threshold': np.random.uniform(0.4, 0.6),  # Varied thresholds (was fixed 0.5)
+                    '_agent_id': i,  # Store ID for tracking
                 }
                 
-                ecosystem.addAgent(
+                agent = ecosystem.addAgent(
                     location=origin,  # Pass Location object, not string
                     attributes=attributes
                 )
             
             # Get agents from ecosystem (after they're added)
             agents = ecosystem.agents
+            
+            # Write initial state (t=0) to out.csv after agents are spawned
+            origin_pop = origin.numAgents if origin else 0
+            intermediate_pop = sum(loc.numAgents for loc in location_map.values() 
+                                  if hasattr(loc, 'location_type') and loc.location_type == 'town')
+            camp_pop = sum(loc.numAgents for loc in location_map.values() 
+                          if hasattr(loc, 'location_type') and loc.location_type == 'camp')
+            total_refugees = origin_pop + intermediate_pop + camp_pop
+            with open(out_csv_file, 'a') as f:
+                f.write(f"0,Day0,{origin_pop},{intermediate_pop},{camp_pop},{total_refugees}\n")
+            
+            # Track route choices at decision time (when agents first leave conflict zone)
+            route_decision_tracker = {}  # agent_id -> {'destination': str, 'cognitive_state': str, 'timestep': int}
             
             # Track metrics over time
             metrics = {
@@ -557,19 +585,39 @@ class RefugeeSimulator:
                 s2_count_by_loc = {}
                 total_by_loc = {}
                 
+                # Initialize population counters for out.csv (reset each timestep)
+                origin_pop = 0
+                intermediate_pop = 0
+                camp_pop = 0
+                
                 for loc_name, location in location_map.items():
+                    # Use location.numAgents - this is automatically maintained by Flee
+                    # numAgents is decremented when agent starts travelling (handle_travel)
+                    # and incremented when agent arrives at destination (handle_travel)
+                    # This is the standard Flee way to get population counts
+                    # See: test_native_flee_simulation.py, run_multiple_flee_scenarios.py
                     pop = location.numAgents
+                    
                     pop_by_loc[loc_name] = pop
                     metrics['population_by_location'][loc_name].append(pop)
                     
-                    # Track by type
-                    loc_type = location.location_type if hasattr(location, 'location_type') else 'unknown'
+                    # Track by type - get from original locations list since Location object doesn't store it
+                    # Find the location type from the original locations list
+                    loc_type = 'unknown'
+                    for orig_loc in locations:
+                        if orig_loc['name'] == loc_name:
+                            loc_type = orig_loc.get('type', 'unknown')
+                            break
+                    
                     if loc_type == 'camp':
                         pop_by_type['camp'] += pop
+                        camp_pop += pop
                     elif loc_type == 'town':
                         pop_by_type['town'] += pop
+                        intermediate_pop += pop
                     elif loc_type == 'conflict':
                         pop_by_type['conflict'] += pop
+                        origin_pop += pop
                     else:
                         pop_by_type['unknown'] += pop
                     
@@ -577,7 +625,11 @@ class RefugeeSimulator:
                     s2_count = 0
                     total_agents = 0
                     for agent in agents:
-                        if agent is not None and hasattr(agent, 'location') and agent.location == location:
+                        if (agent is not None 
+                            and hasattr(agent, 'location') 
+                            and agent.location is not None
+                            and not agent.travelling
+                            and agent.location.name == loc_name):  # Compare by name, not object identity
                             total_agents += 1
                             cognitive_state = getattr(agent, 'cognitive_state', 'S1')
                             if cognitive_state == 'S2':
@@ -592,6 +644,57 @@ class RefugeeSimulator:
                     s2_count_by_loc[loc_name] = s2_count
                     total_by_loc[loc_name] = total_agents
                     metrics['s2_activation_by_location'][loc_name].append(s2_rate)
+                
+                # Write to out.csv (standard Flee format) - AFTER collecting population data
+                # Use the accumulated values from the loop
+                total_refugees = origin_pop + intermediate_pop + camp_pop
+                with open(out_csv_file, 'a') as f:
+                    f.write(f"{t},Day{t},{origin_pop},{intermediate_pop},{camp_pop},{total_refugees}\n")
+                
+                # Track route choices at decision time (when agents leave conflict zone)
+                # Check if agents just started a route from conflict zone
+                origin_name = origin.name if hasattr(origin, 'name') else 'ConflictZone'
+                for idx, agent in enumerate(agents):
+                    if agent is None or not hasattr(agent, 'location'):
+                        continue
+                    
+                    agent_id = agent.attributes.get('_agent_id', idx)
+                    
+                    # Check if agent just started travelling from conflict zone
+                    if agent.travelling and len(agent.route) > 0:
+                        # Agent is on a route - check if they just left conflict zone
+                        # We need to track this when they first start the route
+                        # For now, we'll track when they finish the route and use their state at origin
+                        pass
+                    
+                    # Track when agent arrives at a safe zone and check their route history
+                    if not agent.travelling and agent.location:
+                        loc_name = agent.location.name
+                        if ('Border' in loc_name or 'SafeZone' in loc_name) and agent_id not in route_decision_tracker:
+                            # Agent just arrived at safe zone - track their decision
+                            # Use cognitive state from previous timestep or current if available
+                            # For now, we'll use a simplified approach: track based on route taken
+                            # If agent came from conflict zone directly or via Town1 -> SafeZoneA (S1 route)
+                            # If agent came via Town2 -> SafeZoneB (S2 route)
+                            cognitive_state = getattr(agent, 'cognitive_state', 'S1')
+                            
+                            # Determine which route they took based on destination
+                            if 'SafeZoneA' in loc_name:
+                                # Route 1: ConflictZone -> Town1 -> SafeZoneA (shorter, higher conflict)
+                                # This is typically S1 choice
+                                route_decision_tracker[agent_id] = {
+                                    'destination': 'SafeZoneA',
+                                    'cognitive_state': cognitive_state,
+                                    'timestep': t
+                                }
+                            elif 'SafeZoneB' in loc_name:
+                                # Route 2: ConflictZone -> Town2 -> SafeZoneB (longer, lower conflict)
+                                # This is typically S2 choice
+                                route_decision_tracker[agent_id] = {
+                                    'destination': 'SafeZoneB',
+                                    'cognitive_state': cognitive_state,
+                                    'timestep': t
+                                }
                 
                 # Track agent states (ALL agents at ALL timesteps, like nuclear simulations)
                 agent_states = []
@@ -663,16 +766,30 @@ class RefugeeSimulator:
                           f"Avg connections = {np.mean(connections):.1f}")
             
             # Final route choice analysis (for scenarios with multiple routes)
+            # Use tracked decisions from when agents first chose routes (at conflict zone)
             route_choices = {}
-            for agent in agents:
-                if agent is not None and hasattr(agent, 'location') and agent.location:
-                    loc_name = agent.location.name
-                    if 'Border' in loc_name or 'SafeZone' in loc_name:
-                        if loc_name not in route_choices:
-                            route_choices[loc_name] = {'S1': 0, 'S2': 0, 'total': 0}
-                        cognitive_state = getattr(agent, 'cognitive_state', 'S1')
-                        route_choices[loc_name][cognitive_state] += 1
-                        route_choices[loc_name]['total'] += 1
+            for agent_id, decision in route_decision_tracker.items():
+                dest = decision['destination']
+                cog_state = decision['cognitive_state']
+                
+                if dest not in route_choices:
+                    route_choices[dest] = {'S1': 0, 'S2': 0, 'total': 0}
+                
+                route_choices[dest][cog_state] += 1
+                route_choices[dest]['total'] += 1
+            
+            # Fallback: if no tracked decisions, use final state (for backward compatibility)
+            # This happens if route tracking didn't work or for scenarios without conflict zone origin
+            if not route_choices:
+                for agent in agents:
+                    if agent is not None and hasattr(agent, 'location') and agent.location:
+                        loc_name = agent.location.name
+                        if 'Border' in loc_name or 'SafeZone' in loc_name:
+                            if loc_name not in route_choices:
+                                route_choices[loc_name] = {'S1': 0, 'S2': 0, 'total': 0}
+                            cognitive_state = getattr(agent, 'cognitive_state', 'S1')
+                            route_choices[loc_name][cognitive_state] += 1
+                            route_choices[loc_name]['total'] += 1
             
             metrics['route_choices'] = route_choices
             

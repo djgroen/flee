@@ -54,3 +54,13 @@ Thumbs.db
 !*.txt
 !requirements.txt
 !setup.py
+
+# Essential CSV/JSON files for input data and templates
+!conflict_input/**/*.csv
+!conflict_input/**/*.json
+!flee/config_template/**/*.csv
+!flee/config_template/**/*.json
+!test_data/**/*.csv
+!test_data/**/*.json
+!conflict_validation/**/*.csv
+!conflict_validation/**/*.json

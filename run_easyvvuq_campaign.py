@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-EasyVVUQ sensitivity analysis for S1/S2 parameters (alpha, beta, p_s2).
+EasyVVUQ sensitivity analysis for S1/S2 parameters (alpha, beta).
 Runs a campaign, computes basic stats and optionally Sobol indices.
 
 Usage:
@@ -54,7 +54,6 @@ def main():
     params = {
         "alpha": {"default": 2.0, "min": 0.5, "max": 4.0, "type": "float"},
         "beta": {"default": 2.0, "min": 0.5, "max": 4.0, "type": "float"},
-        "p_s2": {"default": 0.8, "min": 0.3, "max": 1.0, "type": "float"},
         "topology": {"default": 0, "min": 0, "max": 2, "type": "integer"},
         "seed": {"default": 0, "type": "integer"},
         "n_timesteps": {"default": 100, "type": "integer"},
@@ -64,7 +63,6 @@ def main():
     vary = {
         "alpha": cp.Uniform(0.5, 4.0),
         "beta": cp.Uniform(0.5, 4.0),
-        "p_s2": cp.Uniform(0.3, 1.0),
         "topology": cp.DiscreteUniform(0, 2),  # 0=ring, 1=star, 2=linear
     }
 
@@ -84,21 +82,23 @@ def main():
         diag_samples = [next(diag_sampler) for _ in range(n_samples)]
     alpha_arr = np.array([s["alpha"] for s in diag_samples])
     beta_arr = np.array([s["beta"] for s in diag_samples])
-    p_s2_arr = np.array([s["p_s2"] for s in diag_samples])
 
     param_configs = [
         ("alpha", alpha_arr, 0.5, 4.0),
         ("beta", beta_arr, 0.5, 4.0),
-        ("p_s2", p_s2_arr, 0.3, 1.0),
+        ("topology", np.array([s["topology"] for s in diag_samples]), 0, 2),
     ]
     print("\n=== Sampler diagnostic (raw samples, before simulation) ===")
     beta_ks_pvalue = None
     for name, arr, low, high in param_configs:
-        ks_stat, ks_pvalue = scipy_stats.kstest(arr, "uniform", args=(low, high - low))
-        if name == "beta":
-            beta_ks_pvalue = ks_pvalue
-        print(f"  {name}: min={arr.min():.4f} max={arr.max():.4f} mean={arr.mean():.4f} std={arr.std():.4f}")
-        print(f"         KS stat={ks_stat:.4f} p-value={ks_pvalue:.4f} {'(uniform OK)' if ks_pvalue > 0.05 else '(REJECT uniform)'}")
+        if name == "topology":
+            print(f"  {name}: min={arr.min():.0f} max={arr.max():.0f} mean={arr.mean():.4f} (discrete)")
+        else:
+            ks_stat, ks_pvalue = scipy_stats.kstest(arr, "uniform", args=(low, high - low))
+            if name == "beta":
+                beta_ks_pvalue = ks_pvalue
+            print(f"  {name}: min={arr.min():.4f} max={arr.max():.4f} mean={arr.mean():.4f} std={arr.std():.4f}")
+            print(f"         KS stat={ks_stat:.4f} p-value={ks_pvalue:.4f} {'(uniform OK)' if ks_pvalue > 0.05 else '(REJECT uniform)'}")
 
     # Task 3: Assert uniform beta coverage; if failed, fall back to rule='random' for uniformity
     use_random_rule = False
@@ -108,6 +108,7 @@ def main():
 
     # Save diagnostic_sampling.png
     fig, axes = plt.subplots(1, 3, figsize=(10, 3.5))
+    # For topology (discrete), use histogram; for alpha/beta use KSTest
     for ax, (name, arr, low, high) in zip(axes, param_configs):
         ax.hist(arr, bins=min(30, max(10, len(arr) // 5)), density=True, alpha=0.7, color="steelblue", edgecolor="white")
         try:
@@ -181,7 +182,7 @@ def main():
                 return "ring"
         df["topology_name"] = df["topology"].apply(_topo_name)
     print("\n=== Collated results ===")
-    cols = ["alpha", "beta", "p_s2", "topology_name", "evacuation_rate", "mean_p_s2"]
+    cols = ["alpha", "beta", "topology_name", "evacuation_rate", "mean_p_s2"]
     cols = [c for c in cols if c in df.columns]
     print(df[cols].to_string())
 
@@ -203,7 +204,7 @@ def main():
             )
             campaign.apply_analysis(qmc_analysis)
             sobol = campaign.get_last_analysis()
-            sobol_params = ["alpha", "beta", "p_s2", "topology"]
+            sobol_params = ["alpha", "beta", "topology"]
             print("\n=== First-order Sobol indices (evacuation_rate) ===")
             for p in sobol_params:
                 print(f"  {p}: {sobol.sobols_first('evacuation_rate', p):.4f}")

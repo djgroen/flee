@@ -8,8 +8,8 @@
 | `flee/SimulationSettings.py` | `s1s2_model_params["eta"]` | No | No | **Yes** (removed) |
 | `flee/SimulationSettings.py` | `s1s2_model_params["theta"]` | No | No | **Yes** (removed) |
 | `flee/simsetting.yml` | `eta` | No | No | **Yes** (removed) |
-| `flee/s1s2_model.py` | — | — | — | **Never used** (core model uses only α, β, p_s2) |
-| `flee/moving.py` | — | — | — | **Never used** (uses only alpha, beta, p_s2 from s1s2_params) |
+| `flee/s1s2_model.py` | — | — | — | **Never used** (core model uses only α, β, move_prob_s2) |
+| `flee/moving.py` | — | — | — | **Never used** (uses only alpha, beta, move_prob_s2 from s1s2_params) |
 | `flee/s1s2_refactored.py` | `eta`, `theta` (threshold) | Yes (alternative path) | No (path not invoked for movement) | Used in legacy module only |
 
 **Core model path:** `moving.py` → `compute_deliberation_probability(experience_index, conflict, alpha, beta)` → P_S2 = Ψ × Ω. No eta, no theta.

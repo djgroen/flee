@@ -73,13 +73,13 @@ def write_agents_par(
         if agents:
             print(
                 "#time,rank-agentid,original_location,current_location,gps_x,gps_y,is_travelling,distance_travelled,"
-                "places_travelled,distance_moved_this_timestep,{}".format(print_attribute_keys(agents[0])),
+                "places_travelled,distance_moved_this_timestep,timesteps_since_departure,{}".format(print_attribute_keys(agents[0])),
                 file=my_file,
             )
         else:  # Handle the case where agents list is empty
             print(
                 "#time,rank-agentid,original_location,current_location,gps_x,gps_y,is_travelling,distance_travelled,"
-                "places_travelled,distance_moved_this_timestep",
+                "places_travelled,distance_moved_this_timestep,timesteps_since_departure",
                 file=my_file,
             )
     else:
@@ -105,7 +105,7 @@ def write_agents_par(
                 y = 0.0
 
             print(
-                    "{},{}-{},{},{},{},{},{},{},{},{},{}".format(
+                    "{},{}-{},{},{},{},{},{},{},{},{},{},{}".format(
                     time,
                     rank,
                     k,
@@ -117,6 +117,7 @@ def write_agents_par(
                     a.distance_travelled,
                     a.places_travelled,
                     a.distance_moved_this_timestep,
+                    a.timesteps_since_departure,
                     print_attribute_values(a),
                     ),
                 file=my_file,
@@ -135,7 +136,7 @@ def write_agents_par(
                             y = 0.0
 
                         print(
-                            "{}-{},{}-{},{},{},{},{},{},{},{},{},{}".format(
+                            "{}-{},{}-{},{},{},{},{},{},{},{},{},{},{}".format(
                                 time,
                                 hop_number,
                                 rank,
@@ -148,6 +149,7 @@ def write_agents_par(
                                 a.distance_travelled,
                                 a.places_travelled,
                                 a.distance_moved_this_timestep,
+                                a.timesteps_since_departure,
                                 print_attribute_values(a),
                             ),
                             file=my_file,
@@ -164,7 +166,7 @@ def write_agents_par(
                             y = 0.0
 
                         print(
-                            "{},{}-{},{},{},{},{},{},{},{},{},{}".format(
+                            "{},{}-{},{},{},{},{},{},{},{},{},{},{}".format(
                                 time,
                                 rank,
                                 k,
@@ -176,6 +178,7 @@ def write_agents_par(
                                 a.distance_travelled,
                                 a.places_travelled,
                                 a.distance_moved_this_timestep,
+                                a.timesteps_since_departure,
                                 print_attribute_values(a),
                             ),
                             file=my_file,

@@ -28,6 +28,5 @@ move_rules:
     enabled: true
     alpha: 2.0    # Cognitive capacity sensitivity (Ψ)
     beta: 2.0     # Structural opportunity sensitivity (Ω)
-    p_s2: 0.8     # S2 move probability
-# P_S2 = Ψ(experience; α) × Ω(conflict; β). Agent uses S2 when P_S2 > 0.5.
+# P_S2 = Ψ × Ω. Bernoulli draw: u < P_S2 → S2 mode. S2 move prob from safety differential.
 ```

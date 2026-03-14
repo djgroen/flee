@@ -2,3 +2,4 @@
 # Install: pip install -r requirements_easyvvuq.txt
 easyvvuq>=0.8
 chaospy>=4.0
+SALib>=1.4

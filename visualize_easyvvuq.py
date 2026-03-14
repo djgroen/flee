@@ -7,10 +7,10 @@ Usage:
   # Default: data/easyvvuq/s1s2_campaign
 
 Output: figures in campaign_dir/figures/
-- param_vs_evacuation.png: scatter plots (alpha, beta, p_s2 vs evacuation_rate)
+- param_vs_evacuation.png: scatter plots (alpha, beta, topology vs evacuation_rate)
 - pairplot.png: parameter correlations and relationships
 - correlation_heatmap.png: correlation matrix
-- sobol_indices.png: first-order and total-effect Sobol indices (α, β, p_s2, topology) for both QoIs
+- sobol_indices.png: first-order and total-effect Sobol indices (α, β, topology) for both QoIs
 - diagnostic_sampling.png: sampler uniformity check (from run_easyvvuq_campaign.py)
 - omega_vs_beta_diagnostic.png: Omega(β) nonlinearity (from run_omega_diagnostic.py)
 """
@@ -59,14 +59,17 @@ def main():
                 return "ring"
         df["topology_name"] = df["topology"].apply(_topo_name)
 
-    params = ["alpha", "beta", "p_s2"]
+    params = ["alpha", "beta"]
     if "topology" in df.columns:
         params = params + ["topology"]
     qois = ["evacuation_rate", "mean_p_s2"]
 
     # 1. Scatter: each param vs evacuation_rate (color by topology if present)
-    fig, axes = plt.subplots(1, 3, figsize=(12, 4), sharey=True)
-    for ax, p in zip(axes, ["alpha", "beta", "p_s2"]):
+    scatter_params = ["alpha", "beta", "topology_name"] if "topology_name" in df.columns else ["alpha", "beta"]
+    fig, axes = plt.subplots(1, len(scatter_params), figsize=(4 * len(scatter_params), 4), sharey=True)
+    if len(scatter_params) == 1:
+        axes = [axes]
+    for ax, p in zip(axes, scatter_params):
         if "topology_name" in df.columns:
             for topo in df["topology_name"].unique():
                 sub = df[df["topology_name"] == topo]
@@ -89,10 +92,10 @@ def main():
     if "topology_name" in df.columns:
         fig, ax = plt.subplots(figsize=(5, 4))
         topo_order = ["ring", "star", "linear"]
-        data = [df[df["topology_name"] == t]["evacuation_rate"].values 
-                for t in topo_order if t in df["topology_name"].values]
-        labels = [t for t in topo_order if t in df["topology_name"].values]
-        if data:
+        # Always show all three topologies; use empty array for missing
+        data = [df[df["topology_name"] == t]["evacuation_rate"].dropna().values for t in topo_order]
+        labels = topo_order
+        if any(len(d) > 0 for d in data):
             ax.boxplot(data, tick_labels=labels)
             ax.set_xlabel("Topology")
             ax.set_ylabel("Evacuation rate")
@@ -138,19 +141,20 @@ def main():
         print("  Skipping pairplot (install seaborn for pair plots)")
 
     # 5. Sobol indices (SALib from Saltelli-style data, or EasyVVUQ if available)
-    sobol_params = ["alpha", "beta", "p_s2", "topology"]
+    sobol_params = ["alpha", "beta", "topology"]
     sobol_done = False
 
     # Try SALib when we have Saltelli-sized data (N*(D+2) for D=4 params)
     try:
         from SALib.analyze import sobol as sobol_analyze
-        # Saltelli: n_samples = N*(D+2), so 192 = 32*6 for D=4
-        n_min = 6 * 4  # minimum N=4 for 4 params
-        if len(df) >= n_min and len(df) % 6 == 0 and all(p in df.columns for p in sobol_params):
+        # Saltelli: n_samples = N*(D+2) for D params
+        n_params = len(sobol_params)
+        n_min = (n_params + 2) * 4
+        if len(df) >= n_min and len(df) % (n_params + 2) == 0 and all(p in df.columns for p in sobol_params):
             problem = {
-                "num_vars": 4,
+                "num_vars": n_params,
                 "names": sobol_params,
-                "bounds": [[0.5, 4.0], [0.5, 4.0], [0.3, 1.0], [0, 2]],
+                "bounds": [[0.5, 4.0], [0.5, 4.0], [0, 2]],
             }
             Si_evac = sobol_analyze.analyze(problem, df["evacuation_rate"].values, calc_second_order=False)
             Si_p_s2 = sobol_analyze.analyze(problem, df["mean_p_s2"].values, calc_second_order=False)
@@ -170,7 +174,7 @@ def main():
                 ax.bar(x - width / 2, first, width, label="First order")
                 ax.bar(x + width / 2, total, width, label="Total effect")
                 ax.set_xticks(x)
-                ax.set_xticklabels([r"$\alpha$", r"$\beta$", r"$p_{S2}$", "topology"])
+                ax.set_xticklabels([r"$\alpha$", r"$\beta$", "topology"])
                 ax.set_ylabel("Sobol index")
                 ax.set_title(title)
                 ax.legend()
@@ -212,7 +216,7 @@ def main():
                         ax.bar(x - width / 2, first, width, label="First order")
                         ax.bar(x + width / 2, total, width, label="Total effect")
                         ax.set_xticks(x)
-                        ax.set_xticklabels([r"$\alpha$", r"$\beta$", r"$p_{S2}$", "topology"])
+                        ax.set_xticklabels([r"$\alpha$", r"$\beta$", "topology"])
                         ax.set_ylabel("Sobol index")
                         ax.set_title(qoi)
                         ax.legend()

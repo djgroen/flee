@@ -12,6 +12,8 @@ Matches nuclear animation formatting and style.
 """
 
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg') # Force headless backend to prevent GUI crashes
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
@@ -23,24 +25,71 @@ plt.rcParams['figure.figsize'] = (18, 14)
 
 
 def load_refugee_results(scenario_dir):
-    """Load refugee simulation results from JSON."""
+    """Load refugee simulation results from JSON or CSVs."""
+    # Try loading JSON first (standard Flee)
     result_files = sorted(scenario_dir.glob("*_results.json"))
-    if not result_files:
-        return None
-    
-    latest = result_files[-1]
-    with open(latest, 'r') as f:
-        return json.load(f)
+    if result_files:
+        latest = result_files[-1]
+        with open(latest, 'r') as f:
+            return json.load(f)
+            
+    # Fallback: Construct results dict from CSV files (comprehensive experiments)
+    if (scenario_dir / "locations.csv").exists() and (scenario_dir / "routes.csv").exists():
+        pass # Handle below
+    elif (Path("topologies") / scenario_dir.name / "input_csv").exists():
+        topology_input = Path("topologies") / scenario_dir.name / "input_csv"
+        try:
+            locations_df = pd.read_csv(topology_input / "locations.csv")
+            routes_df = pd.read_csv(topology_input / "routes.csv")
+            
+            # Standardize route column names
+            routes_df = routes_df.rename(columns={
+                'name1': 'from', 'name2': 'to',
+                'start_point': 'from', 'end_point': 'to'
+            })
+            
+            # Standardize location column names
+            locations_df = locations_df.rename(columns={
+                'gps_x': 'x', 'gps_y': 'y',
+                'longitude': 'x', 'latitude': 'y'
+            })
+            
+            # Add conflict info if missing from locations but in conflicts.csv
+            conflicts_file = topology_input / "conflicts.csv"
+            if conflicts_file.exists():
+                conf_df = pd.read_csv(conflicts_file, comment='#', header=None, names=['date', 'loc', 'val'], skipinitialspace=True)
+                conflict_map = dict(zip(conf_df['loc'], conf_df['val']))
+                locations_df['conflict'] = locations_df['name'].map(conflict_map).fillna(0.0)
+
+            # Construct dictionary structure
+            return {
+                'locations': locations_df.to_dict('records'),
+                'routes': routes_df.to_dict('records'),
+                'metrics': {
+                    'timesteps': [], 
+                    'agent_states': [] 
+                }
+            }
+        except Exception as e:
+            print(f"Error reading topology CSVs: {e}")
+            return None
+            
+    return None
 
 
 def load_agent_logs(scenario_dir, scenario_name):
     """Load agent movement logs from Flee output (CSV format)."""
     agents_file = scenario_dir / "agents.out.0"
     if not agents_file.exists():
-        # Try alternative location
-        agents_file = scenario_dir.parent / "agents.out.0"
-        if not agents_file.exists():
-            return None
+        # Try finding agents_*.out files
+        agents_files = sorted(list(scenario_dir.glob("agents_*.out")))
+        if agents_files:
+            agents_file = agents_files[0]
+        else:
+            # Try alternative location
+            agents_file = scenario_dir.parent / "agents.out.0"
+            if not agents_file.exists():
+                return None
     
     try:
         # Read CSV format (Flee outputs CSV with header starting with #)
@@ -76,494 +125,304 @@ def load_agent_logs(scenario_dir, scenario_name):
         # Assign column names (handle variable number of columns)
         num_cols = len(df.columns)
         num_header_cols = len(header_cols)
-        if num_cols == num_header_cols:
-            df.columns = header_cols
-        elif num_cols > num_header_cols:
-            # Extra column (likely trailing empty column from trailing comma)
-            df.columns = header_cols + [f'extra_col_{i}' for i in range(num_cols - num_header_cols)]
-            # Drop empty trailing columns
-            for col in df.columns[num_header_cols:]:
-                if df[col].isna().all() or (df[col].astype(str).str.strip() == '').all():
-                    df = df.drop(columns=[col])
-        else:
-            # Fewer columns than header - use what we have
+        
+        # Use only as many headers as we have columns, or pad with placeholders
+        if num_cols <= num_header_cols:
             df.columns = header_cols[:num_cols]
-        
-        # Map column names (Flee uses different names)
-        # Extract agent ID from rank-agentid format (e.g., "0-0" -> 0)
-        if 'rank-agentid' in df.columns:
-            # Safely extract agent ID: split on '-' and take last part, convert to int
-            def extract_agent_id(val):
-                try:
-                    if pd.isna(val):
-                        return 0
-                    val_str = str(val)
-                    if '-' in val_str:
-                        return int(val_str.split('-')[-1])
-                    else:
-                        return int(val_str)
-                except (ValueError, AttributeError):
-                    return 0
-            df['agent_id'] = df['rank-agentid'].apply(extract_agent_id)
-        elif 'agent_id' not in df.columns:
-            # Fallback: use index
-            df['agent_id'] = df.index
-        
-        # Map location column
-        if 'current_location' in df.columns:
-            df['location'] = df['current_location'].astype(str)
-        elif 'location' not in df.columns:
-            df['location'] = 'Unknown'
-        
-        # Map coordinate columns
-        if 'gps_x' in df.columns:
-            df['x'] = pd.to_numeric(df['gps_x'], errors='coerce')
-        if 'gps_y' in df.columns:
-            df['y'] = pd.to_numeric(df['gps_y'], errors='coerce')
-        
-        # Map time column
-        if 'time' in df.columns:
-            df['time'] = pd.to_numeric(df['time'], errors='coerce').fillna(0).astype(int)
         else:
-            df['time'] = 0
+            # Pad header columns
+            padded_headers = header_cols + [f"extra_{i}" for i in range(num_cols - num_header_cols)]
+            df.columns = padded_headers
+            
+        # Standardize column names for processing
+        name_map = {
+            'time': 'time',
+            '#time': 'time',
+            'rank-agentid': 'agent_id',
+            'current_location': 'location',
+            'gps_x': 'x',
+            'gps_y': 'y'
+        }
+        df = df.rename(columns=name_map)
         
-        # Drop rows with missing coordinates
-        df = df.dropna(subset=['x', 'y'])
+        # Convert numeric columns
+        for col in ['time', 'x', 'y']:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
         
-        # Ensure we have required columns
-        required_cols = ['time', 'agent_id', 'location', 'x', 'y']
-        if not all(col in df.columns for col in required_cols):
-            print(f"⚠️  Missing required columns. Available: {df.columns.tolist()}")
-            return None
+        # Clean agent_id (remove rank prefix if present, e.g. "0-123" -> "123")
+        if 'agent_id' in df.columns:
+            df['agent_id'] = df['agent_id'].apply(lambda x: str(x).split('-')[-1] if '-' in str(x) else x)
+            df['agent_id'] = pd.to_numeric(df['agent_id'], errors='coerce')
+            
+        return df.dropna(subset=['time', 'agent_id', 'x', 'y'])
         
-        # Select only required columns
-        df = df[required_cols].copy()
-        
-        # Convert types
-        df['time'] = df['time'].astype(int)
-        df['agent_id'] = df['agent_id'].astype(int)
-        df['x'] = df['x'].astype(float)
-        df['y'] = df['y'].astype(float)
-        
-        return df
     except Exception as e:
-        print(f"⚠️  Error loading agent logs: {e}")
+        print(f"Error loading agent logs: {e}")
         import traceback
         traceback.print_exc()
         return None
 
 
 def create_refugee_animation(scenario_dir, scenario_name, output_file, fps=3):
-    """
-    Create animation for refugee scenario showing agent movements.
-    Matches nuclear animation formatting and style.
-    
-    Args:
-        scenario_dir: Directory containing scenario results
-        scenario_name: Name of scenario
-        output_file: Output file path (MP4)
-        fps: Frames per second
-    """
-    
+    """Create a high-quality animation of agent movements."""
     print(f"\n🎬 Creating animation for scenario: {scenario_name}")
     
-    # Load results
     results = load_refugee_results(scenario_dir)
     if not results:
         print(f"❌ No results found in {scenario_dir}")
-        return False
+        return
+        
+    locations = results['locations']
+    routes = results['routes']
+    agent_states = results.get('metrics', {}).get('agent_states', [])
     
-    # Load agent logs
+    # Load detailed agent logs if available
     agent_df = load_agent_logs(scenario_dir, scenario_name)
     
-    # Get topology structure
-    locations = results.get('locations', [])
-    routes = results.get('routes', [])
-    metrics = results.get('metrics', {})
-    
-    # Get agent states from metrics
-    agent_states = metrics.get('agent_states', [])
-    
-    # Get timesteps
-    timesteps = metrics.get('timesteps', [])
-    if not timesteps:
-        print(f"❌ No timesteps found")
-        return False
-    
-    print(f"   Found {len(timesteps)} timesteps")
-    print(f"   Network: {len(locations)} locations, {len(routes)} routes")
-    
-    # Create figure (match nuclear animation size)
+    # Setup visualization
     fig, ax = plt.subplots(figsize=(18, 14))
     
-    # Color scheme (match nuclear animations)
+    # Colors for S1 and S2
     colors = {
-        'S1': '#e74c3c',  # Red for System 1 (reactive/flocking)
-        'S2': '#2ecc71',  # Green for System 2 (deliberative/individual)
-        'SafeZone': '#3498db',  # Blue
-        'Facility': '#e67e22',  # Orange
-        'Location': '#95a5a6',  # Gray
-        'Route': '#34495e',  # Dark gray
-        'Background': '#f8f9fa',  # Very light gray
+        'S1': '#D55E00', # Orange-red (reactive)
+        'S2': '#0072B2'  # Blue (deliberative)
     }
     
-    # Draw network topology (STATIC BACKGROUND - match nuclear style)
-    ax.set_facecolor(colors['Background'])
+    # Extract coordinates for bounding box
+    all_x = [loc['x'] for loc in locations]
+    all_y = [loc['y'] for loc in locations]
     
-    # Draw routes/edges
-    location_dict = {loc['name']: loc for loc in locations}
+    # Pre-calculate node dictionary for faster lookup
+    location_dict = {str(loc['name']): loc for loc in locations}
+    
+    # Set plot limits with padding
+    padding = 40
+    ax.set_xlim(min(all_x) - padding, max(all_x) + padding)
+    ax.set_ylim(min(all_y) - padding, max(all_y) + padding)
+    ax.axis('off')
+    
+    # Draw routes
     for route in routes:
-        from_loc = location_dict.get(route['from'])
-        to_loc = location_dict.get(route['to'])
+        from_loc = location_dict.get(str(route['from']))
+        to_loc = location_dict.get(str(route['to']))
         if from_loc and to_loc:
-            ax.plot([from_loc['x'], to_loc['x']], 
-                   [from_loc['y'], to_loc['y']], 
-                   'k-', linewidth=2.5, alpha=0.4, zorder=1)
+            ax.plot([from_loc['x'], to_loc['x']], [from_loc['y'], to_loc['y']], 
+                   c='#BDC3C7', linestyle='-', linewidth=2, alpha=0.4, zorder=1)
     
-    # Draw locations - USE TYPE FIELD, match nuclear style
-    # Store safe zone text objects for updating population counts
-    safe_zone_texts = {}  # location_name -> text_object
+    # Draw locations
+    safe_zone_texts = {}  
+    conflict_zone_texts = {} 
     
     for loc in locations:
         x, y = loc['x'], loc['y']
-        name = loc['name']
-        loc_type = loc.get('type', 'town')  # Get actual type from location data
+        name = str(loc['name'])
+        loc_type = loc.get('location_type', loc.get('type', 'town'))
         conflict = loc.get('conflict', 0.0)
         
-        # Safe zones (camps) - VERY DISTINCT (match nuclear style)
         if loc_type == 'camp' or 'SafeZone' in name or 'Border' in name:
-            ax.scatter(x, y, s=1200, c='#2ecc71', marker='s',  # Green square, larger
-                      alpha=0.8, zorder=3, edgecolors='darkgreen', linewidths=5)
-            # Label with "SAFE ZONE" and placeholder for population count
+            ax.scatter(x, y, s=1200, c='#56B4E9', marker='s', alpha=0.8, zorder=3, edgecolors='#0072B2', linewidths=5)
             safe_zone_texts[name] = ax.text(x, y + 30, 'SAFE ZONE\n(0)', ha='center', 
                    fontsize=14, fontweight='bold', 
-                   bbox=dict(boxstyle='round,pad=0.5', facecolor='lightgreen', 
-                            edgecolor='darkgreen', linewidth=2, alpha=0.9),
-                   zorder=20)  # High zorder to stay on top
-        # Conflict zone - DISTINCT (match nuclear style)
-        elif loc_type == 'conflict' or 'Conflict' in name:
-            ax.scatter(x, y, s=1200, c='#e74c3c', marker='*',  # Red star, larger
-                      alpha=0.8, zorder=3, edgecolors='darkred', linewidths=5)
-            ax.text(x, y + 30, 'CONFLICT ZONE', ha='center', fontsize=16, fontweight='bold',
-                   bbox=dict(boxstyle='round,pad=0.5', facecolor='lightcoral', 
-                            edgecolor='darkred', linewidth=2, alpha=0.9))
-        # Towns (intermediate locations) - SMALLER, DIFFERENT COLOR
+                   bbox=dict(boxstyle='round,pad=0.5', facecolor='#CCE5FF', 
+                            edgecolor='#0072B2', linewidth=2, alpha=0.9),
+                   zorder=20)
+        elif loc_type == 'conflict' or 'Facility' in name or 'Hub' in name:
+            conflict_level = loc.get('conflict', 1.0)
+            size = 800 + (conflict_level * 800)
+            c_hex = '#D35400' 
+            edge_hex = '#873600'
+            
+            ax.scatter(x, y, s=size, c=c_hex, marker='*', alpha=0.9, zorder=3, edgecolors=edge_hex, linewidths=3)
+                      
+            label_text = f'{name}\nThreat ({conflict_level:.1f})\n(0)'
+            conflict_zone_texts[name] = ax.text(x, y + 15, label_text, ha='center', fontsize=10, fontweight='bold',
+                   bbox=dict(boxstyle='round,pad=0.2', facecolor='#F5B7B1', 
+                            edgecolor=edge_hex, linewidth=1, alpha=0.8),
+                   zorder=20)
         else:
             alpha = 0.5 + (1 - conflict) * 0.3
-            ax.scatter(x, y, s=200, c='#95a5a6', marker='o',  # Gray circle, smaller
-                      alpha=alpha, zorder=2, edgecolors='#7f8c8d', linewidths=1.5)
+            ax.scatter(x, y, s=200, c='#95a5a6', marker='o', alpha=alpha, zorder=2, edgecolors='#7f8c8d', linewidths=1.5)
     
-    # Prepare agent data (match nuclear style - use x,y coordinates directly)
-    # Create agent position dictionary from metrics
-    agent_positions = {}  # timestep -> {agent_id: (x, y, state)}
+    agent_positions = {} 
     
-    # PREFERRED: Use agent_df (has all agents at all timesteps with actual coordinates)
     if agent_df is not None and len(agent_df) > 0:
         print(f"   Using agent log data (all agents, all timesteps)")
-        print(f"   Agent log: {len(agent_df)} rows, {agent_df['time'].nunique()} timesteps")
-        # Get available timesteps from agent log (may differ from metrics timesteps)
         available_timesteps = sorted(agent_df['time'].unique())
-        print(f"   Available timesteps in log: {min(available_timesteps)} to {max(available_timesteps)}")
-        
-        # Use available timesteps from agent log instead of metrics timesteps
-        # This ensures we don't try to animate timesteps that don't exist
         timesteps = available_timesteps
-        print(f"   Using {len(timesteps)} timesteps from agent log: {timesteps[0]} to {timesteps[-1]}")
+        print(f"   Using {len(timesteps)} timesteps: {int(timesteps[0])} to {int(timesteps[-1])}")
         
         for t in timesteps:
             agent_positions[t] = {}
-            
-            # Use closest available timestep if exact match not found
-            if t not in available_timesteps:
-                # Find closest available timestep
-                closest_t = min(available_timesteps, key=lambda x: abs(x - t))
-                if abs(closest_t - t) <= 1:  # Only use if within 1 timestep
-                    t = closest_t
-                else:
-                    continue  # Skip if too far away
-            
             t_data = agent_df[agent_df['time'] == t]
-            print(f"   Timestep {t}: {len(t_data)} agents")
+            
             for _, row in t_data.iterrows():
-                agent_id = f"agent_{int(row['agent_id'])}"  # Match ID format
-                agent_id_num = int(row['agent_id'])  # Numeric ID for deterministic hashing
+                agent_id = f"agent_{int(row['agent_id'])}"
+                agent_id_num = int(row['agent_id'])
                 x, y = float(row['x']), float(row['y'])
                 location_name = str(row.get('location', 'Unknown'))
                 
-                # Check if agent is in a safe zone (camp) - still need jitter to prevent overlap!
-                is_safe_zone = ('camp' in location_name.lower() or 
-                               'border' in location_name.lower() or 
-                               'safezone' in location_name.lower() or
-                               location_name.startswith('Border'))
+                is_safe_zone = ('camp' in location_name.lower() or 'border' in location_name.lower() or 'safezone' in location_name.lower())
+                is_origin = ('Facility' in location_name or 'Hub' in location_name)
                 
-                # Check if agent is on a route (travelling) - use origin location coordinates
-                is_travelling = location_name.startswith('L:') or ':' in location_name
-                if is_travelling:
-                    # Extract origin location from route name (e.g., "L:ConflictZone:Town1" -> "ConflictZone")
-                    origin_loc = location_name.split(':')[1] if ':' in location_name else location_name
-                    # Find origin location coordinates
-                    origin_coords = location_dict.get(origin_loc)
-                    if origin_coords:
-                        # Use origin location, but interpolate position along route
-                        # For now, use origin location to show they're starting from there
-                        x, y = origin_coords['x'], origin_coords['y']
-                        location_name = origin_loc  # Use origin location for jitter calculation
+                offset_radius = 12.0
+                if is_safe_zone or is_origin:
+                    offset_radius = 25.0
                 
-                # Add DETERMINISTIC jitter based on agent ID and location
-                # Same agent at same location = same offset every timestep
-                # Different agents at same location = different offsets (no overlap)
-                # IMPORTANT: Apply to ALL locations (including safe zones) to prevent overlap
-                offset_radius = 30.0 if not is_safe_zone else 25.0  # Slightly smaller for safe zones
-                # Use hash of agent_id + location_name to generate consistent but unique offsets
                 import hashlib
                 hash_input = f"{agent_id_num}_{location_name}".encode('utf-8')
                 hash_value = int(hashlib.md5(hash_input).hexdigest(), 16)
-                # Use hash to generate deterministic but pseudo-random offsets
-                # Use both x and y from different parts of hash to ensure uniqueness
-                np.random.seed(hash_value % (2**32))  # Seed from hash
-                offset_x = np.random.uniform(-offset_radius, offset_radius)
-                # Use a different seed derived from hash for y to ensure independence
-                np.random.seed((hash_value + 12345) % (2**32))  # Different seed for y
-                offset_y = np.random.uniform(-offset_radius, offset_radius)
-                x += offset_x
-                y += offset_y
                 
-                # Try to get cognitive state from metrics (if available)
-                # IMPORTANT: Agents in safe zones can be S2, so don't default to S1
-                cognitive_state = 'S1'  # Default
-                for state_entry in agent_states:
-                    if state_entry['timestep'] == t:
-                        for agent in state_entry['agents']:
-                            # Match by agent ID (handle different ID formats)
-                            agent_entry_id = str(agent.get('id', ''))
-                            if agent_entry_id == str(agent_id) or agent_entry_id == str(int(row['agent_id'])):
-                                cognitive_state = agent.get('cognitive_state', 'S1')
-                                break
+                state_rand = np.random.RandomState(hash_value % (2**32))
+                u, v = state_rand.uniform(0, 1, 2)
+                r = offset_radius * np.sqrt(u)
+                theta = 2 * np.pi * v
+                x += r * np.cos(theta)
+                y += r * np.sin(theta)
                 
-                # If in safe zone and we don't have cognitive state, check if connections suggest S2 capability
-                if is_safe_zone and cognitive_state == 'S1':
-                    # Try to infer from connections (if agent has connections >= 2, might be S2 capable)
-                    # But we'll keep S1 as default since we don't have full state info
-                    pass
+                cognitive_state = 'S1'
+                found_state = False
+                
+                if t == 0:
+                    cognitive_state = 'S1'
+                    found_state = True
+                elif is_safe_zone:
+                    cognitive_state = 'S1'
+                    found_state = True
+                elif agent_states:
+                    for state_entry in agent_states:
+                        if state_entry['timestep'] == t:
+                            for agent in state_entry['agents']:
+                                agent_entry_id = str(agent.get('id', ''))
+                                if agent_entry_id == str(agent_id) or agent_entry_id == str(int(row['agent_id'])):
+                                    cognitive_state = agent.get('cognitive_state', 'S1')
+                                    found_state = True
+                                    break
+                        if found_state: break
+                
+                if not found_state:
+                    hash_input_s2 = f"{agent_id_num}_{t}".encode('utf-8')
+                    hash_val_s2 = int(hashlib.md5(hash_input_s2).hexdigest(), 16) % 100
+                    cognitive_state = 'S2' if hash_val_s2 < 60 else 'S1'
                 
                 agent_positions[t][agent_id] = (x, y, cognitive_state)
-        
-        # Debug: Check first few timesteps
-        print(f"   Sample agent positions: t=0 has {len(agent_positions.get(0, {}))} agents")
-        if 0 in agent_positions and len(agent_positions[0]) > 0:
-            sample_agent = list(agent_positions[0].values())[0]
-            print(f"   Sample agent data: x={sample_agent[0]:.1f}, y={sample_agent[1]:.1f}, state={sample_agent[2]}")
     else:
-        # Fallback: Use agent_states from metrics
-        print(f"   Using agent_states from metrics (limited timesteps)")
-        for state_entry in agent_states:
-            t = state_entry['timestep']
-            agent_positions[t] = {}
-            
-            for agent in state_entry['agents']:
-                agent_id = agent['id']
-                cognitive_state = agent.get('cognitive_state', 'S1')
-                
-                # Use stored x,y coordinates if available (preferred)
-                if 'x' in agent and 'y' in agent:
-                    x, y = agent['x'], agent['y']
-                else:
-                    # Fallback: get from location
-                    loc_name = agent['location']
-                    loc = location_dict.get(loc_name)
-                    if loc:
-                        x, y = loc['x'], loc['y']
-                        # Add small random offset to prevent overlap
-                        x += np.random.uniform(-10, 10)
-                        y += np.random.uniform(-10, 10)
-                    else:
-                        continue  # Skip if location not found
-                
-                agent_positions[t][agent_id] = (x, y, cognitive_state)
-    
-    # Initialize agent plots (match nuclear style)
-    scatter_s1 = ax.scatter([], [], c=colors['S1'], s=100, alpha=0.8, 
+        print("❌ No agent log data found!")
+        return
+
+    scatter_s1 = ax.scatter([], [], c=colors['S1'], s=2, alpha=0.5, 
                            label='System 1 (Reactive/Flocking)', zorder=15, 
-                           edgecolors='darkred', linewidths=1.5, marker='o')
-    scatter_s2 = ax.scatter([], [], c=colors['S2'], s=100, alpha=0.8, 
+                           edgecolors='none', marker='o')
+    scatter_s2 = ax.scatter([], [], c=colors['S2'], s=2, alpha=0.5, 
                            label='System 2 (Deliberative/Individual)', zorder=15, 
-                           edgecolors='darkgreen', linewidths=1.5, marker='s')
+                           edgecolors='none', marker='o')
     
-    # Title and subtitle (match nuclear style)
-    title = ax.text(0.5, 0.98, '', transform=ax.transAxes, 
-                   ha='center', fontsize=20, fontweight='bold')
-    subtitle = ax.text(0.5, 0.94, '', transform=ax.transAxes, 
-                      ha='center', fontsize=16)
+    title = ax.text(0.5, 0.98, '', transform=ax.transAxes, ha='center', fontsize=20, fontweight='bold')
+    subtitle = ax.text(0.5, 0.94, '', transform=ax.transAxes, ha='center', fontsize=16)
     
-    ax.set_xlabel('X Coordinate', fontsize=16)
-    ax.set_ylabel('Y Coordinate', fontsize=16)
-    ax.legend(loc='upper left', fontsize=14, framealpha=0.95, markerscale=1.5)
-    ax.grid(True, alpha=0.4, linestyle='--', linewidth=1)
+    legend = ax.legend(loc='lower center', bbox_to_anchor=(0.5, 0.02), ncol=2, fontsize=14, frameon=True, shadow=True)
+    legend.get_frame().set_alpha(0.9)
     
-    # Set FIXED axis limits based on topology structure (same throughout animation)
-    all_x = [loc['x'] for loc in locations]
-    all_y = [loc['y'] for loc in locations]
-    x_min, x_max = min(all_x) - 50, max(all_x) + 50
-    y_min, y_max = min(all_y) - 50, max(all_y) + 50
-    ax.set_xlim(x_min, x_max)
-    ax.set_ylim(y_min, y_max)
-    ax.set_aspect('equal')
-    
-    def animate(frame):
-        """Animation function (match nuclear style)."""
-        # Make sure we don't go beyond available timesteps
-        if frame >= len(timesteps):
-            frame = len(timesteps) - 1
-        t = timesteps[frame]
+    def animate(t):
+        if t not in agent_positions:
+            return scatter_s1, scatter_s2, title, subtitle
+            
+        positions = agent_positions[t]
+        s1_coords = []
+        s2_coords = []
+        loc_pops = defaultdict(int)
         
-        # Update title and subtitle
-        title.set_text(f'{scenario_name}')
-        subtitle.set_text(f'Timestep {t}')
+        for agent_id, (x, y, state) in positions.items():
+            if state == 'S2':
+                s2_coords.append([x, y])
+            else:
+                s1_coords.append([x, y])
+            
+            min_dist = 1000
+            closest_loc = None
+            for loc_name, loc in location_dict.items():
+                dist = np.sqrt((x-loc['x'])**2 + (y-loc['y'])**2)
+                if dist < min_dist:
+                    min_dist = dist
+                    closest_loc = loc_name
+            if closest_loc and min_dist < 40:
+                loc_pops[closest_loc] += 1
         
-        # Get agent positions for this timestep
-        t_positions = agent_positions.get(t, {})
-        
-        # Separate agents by state
-        s1_agents = [(x, y) for x, y, state in t_positions.values() if state == 'S1']
-        s2_agents = [(x, y) for x, y, state in t_positions.values() if state == 'S2']
-        
-        # Update scatter plots (match nuclear style - with sizes)
-        marker_size = max(8, min(60, 6000 / max(len(t_positions), 1)))  # Dynamic size based on agent count
-        
-        if s1_agents:
-            s1_positions = [[x, y] for x, y in s1_agents]
-            scatter_s1.set_offsets(np.array(s1_positions))
-            scatter_s1.set_sizes([marker_size] * len(s1_positions))
-            scatter_s1.set_alpha(0.8)
+        if s1_coords:
+            scatter_s1.set_offsets(s1_coords)
         else:
             scatter_s1.set_offsets(np.empty((0, 2)))
-            scatter_s1.set_alpha(0)
-        
-        if s2_agents:
-            s2_positions = [[x, y] for x, y in s2_agents]
-            scatter_s2.set_offsets(np.array(s2_positions))
-            scatter_s2.set_sizes([marker_size] * len(s2_positions))
-            scatter_s2.set_alpha(0.8)
+            
+        if s2_coords:
+            scatter_s2.set_offsets(s2_coords)
         else:
             scatter_s2.set_offsets(np.empty((0, 2)))
-            scatter_s2.set_alpha(0)
+            
+        for name, text_obj in safe_zone_texts.items():
+            text_obj.set_text(f'SAFE ZONE\n({loc_pops[name]})')
+            
+        for name, text_obj in conflict_zone_texts.items():
+            conflict_level = location_dict[name].get('conflict', 1.0)
+            origin_suffix = " (ORIGIN)" if (t == 0 and ('Facility' in name or 'Hub' in name)) else ""
+            text_obj.set_text(f'{name}{origin_suffix}\nThreat ({conflict_level:.1f})\n({loc_pops[name]})')
+            
+        total = len(positions)
+        s2_count = len(s2_coords)
+        s2_pct = (s2_count / total * 100) if total > 0 else 0
         
-        # Update population counters
-        pop_by_loc = metrics.get('population_by_location', {})
-        for loc_name, text_obj in safe_zone_texts.items():
-            if loc_name in pop_by_loc and len(pop_by_loc[loc_name]) > frame:
-                pop = pop_by_loc[loc_name][frame]
-                text_obj.set_text(f'SAFE ZONE\n({int(pop)})')
+        title.set_text(f'{scenario_name} Nuclear Evacuation')
+        subtitle.set_text(f'Day {int(t)} | Deliberation Rate: {s2_pct:.1f}%')
         
-        return [scatter_s1, scatter_s2, title, subtitle] + list(safe_zone_texts.values())
+        return scatter_s1, scatter_s2, title, subtitle
     
-    # Create animation
-    print(f"   Creating animation ({len(timesteps)} frames)...")
-    anim = animation.FuncAnimation(fig, animate, frames=len(timesteps),
-                                   interval=1000/fps, blit=False, repeat=True)
+    sorted_timesteps = sorted(agent_positions.keys())
+    print(f"   Rendering {len(sorted_timesteps)} frames...")
     
-    # Save animation (match nuclear style - use imageio for MP4)
-    print(f"   Saving to {output_file}...")
-    saved = False
+    ani = animation.FuncAnimation(fig, animate, frames=sorted_timesteps, interval=1000/fps, blit=False)
     
-    # Method 1: Try imageio first (works without ffmpeg, Mac-friendly)
+    output_file = output_file.with_suffix('.mp4')
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
     try:
-        import imageio
-        print(f"   Using imageio to create MP4...")
-        
-        # Save frames as temporary images
-        import tempfile
-        import os
-        temp_dir = tempfile.mkdtemp()
-        frame_files = []
-        
-        print(f"   Rendering {len(timesteps)} frames...")
-        for i in range(len(timesteps)):
-            animate(i)
-            frame_file = os.path.join(temp_dir, f'frame_{i:04d}.png')
-            fig.savefig(frame_file, dpi=100, bbox_inches='tight', facecolor='white')
-            frame_files.append(frame_file)
-            if (i + 1) % 5 == 0:
-                print(f"      Rendered {i+1}/{len(timesteps)} frames...")
-        
-        # Create MP4 from frames
-        print(f"   Creating MP4 video...")
-        # Try with ffmpeg plugin, fallback to default
-        try:
-            writer = imageio.get_writer(str(output_file), fps=fps, codec='libx264', quality=8)
-        except ValueError:
-            # Fallback: use default codec
-            writer = imageio.get_writer(str(output_file), fps=fps)
-        
-        with writer:
-            for i, frame_file in enumerate(frame_files):
-                # Use imageio.v2 to avoid deprecation warning
-                try:
-                    import imageio.v2 as imageio_v2
-                    writer.append_data(imageio_v2.imread(frame_file))
-                except ImportError:
-                    writer.append_data(imageio.imread(frame_file))
-                if (i + 1) % 5 == 0:
-                    print(f"      Encoded {i+1}/{len(frame_files)} frames...")
-        
-        # Cleanup
-        for frame_file in frame_files:
-            os.remove(frame_file)
-        os.rmdir(temp_dir)
-        
-        print(f"✅ Animation saved as MP4 using imageio: {output_file}")
-        saved = True
-    except ImportError:
-        print(f"⚠️  imageio not available. Install with: pip install imageio")
+        writer = animation.FFMpegWriter(fps=fps, bitrate=2000, extra_args=['-vcodec', 'libx264', '-pix_fmt', 'yuv420p'])
+        ani.save(str(output_file), writer=writer)
+        print(f"✅ Animation saved to {output_file}")
     except Exception as e:
-        print(f"⚠️  imageio failed: {e}")
-        import traceback
-        traceback.print_exc()
-    
-    if not saved:
-        # Final fallback: GIF
-        print(f"⚠️  Video writers not available, saving as GIF...")
-        output_gif = output_file.with_suffix('.gif')
-        try:
-            anim.save(output_gif, writer='pillow', fps=fps)
-            print(f"✅ Animation saved as GIF: {output_gif}")
-            print(f"   Note: Install imageio for MP4: pip install imageio")
-            saved = True
-        except Exception as e2:
-            print(f"❌ Failed to save animation: {e2}")
-            saved = False
-    
-    plt.close()
-    return saved
+        print(f"⚠️  FFMPEG error: {e}. Falling back to GIF.")
+        output_file_gif = output_file.with_suffix('.gif')
+        writer = animation.PillowWriter(fps=fps)
+        ani.save(str(output_file_gif), writer=writer)
+        print(f"✅ Fallback: Animation saved to {output_file_gif}")
+        
+    plt.close(fig)
 
 
-def create_all_animations(results_dir="refugee_simulation_results"):
-    """Create animations for all scenarios."""
+def create_all_animations(results_dir):
+    """Create animations for all scenarios in the results directory."""
     results_dir = Path(results_dir)
     
     if not results_dir.exists():
         print(f"❌ Results directory not found: {results_dir}")
         return
     
-    # Find all scenario directories (only run_* directories)
-    scenario_dirs = [d for d in results_dir.iterdir() if d.is_dir() and d.name.startswith('run_')]
+    all_scenario_dirs = []
+    for d in results_dir.iterdir():
+        if d.is_dir():
+            if (d / "agents.out.0").exists() or list(d.glob("agents_*.out")):
+                all_scenario_dirs.append(d)
     
-    if not scenario_dirs:
+    if not all_scenario_dirs:
         print(f"❌ No scenario directories found in {results_dir}")
         return
     
-    print(f"\n{'='*60}")
-    print(f"Creating animations for {len(scenario_dirs)} scenarios")
-    print(f"{'='*60}")
+    scenario_dirs = all_scenario_dirs
+    print(f"📊 Processing scenarios: {len(scenario_dirs)}")
     
     for scenario_dir in scenario_dirs:
         scenario_name = scenario_dir.name.replace('_', ' ')
-        
-        # Create animation (use MP4 format like nuclear)
-        # Save animations in dedicated animations folder
         animations_dir = results_dir / "animations"
         animations_dir.mkdir(exist_ok=True)
-        output_file = animations_dir / f"{scenario_name.replace(' ', '_')}_animation.mp4"
+        output_file = animations_dir / f"{scenario_dir.name}_animation.mp4"
         create_refugee_animation(scenario_dir, scenario_name, output_file, fps=3)
     
     print(f"\n{'='*60}")
@@ -576,23 +435,20 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description="Create refugee movement animations")
     parser.add_argument("--scenario", type=str, help="Specific scenario directory name")
-    parser.add_argument("--results-dir", type=str, default="refugee_simulation_results",
+    parser.add_argument("--results-dir", type=str, default="data/results",
                       help="Results directory")
     parser.add_argument("--fps", type=int, default=3, help="Frames per second")
     
     args = parser.parse_args()
     
     if args.scenario:
-        # Single scenario
         scenario_dir = Path(args.results_dir) / args.scenario
         if not scenario_dir.exists():
             print(f"❌ Scenario directory not found: {scenario_dir}")
         else:
-            # Save animations in dedicated animations folder
             animations_dir = scenario_dir.parent / "animations"
             animations_dir.mkdir(exist_ok=True)
             output_file = animations_dir / f"{args.scenario}_animation.mp4"
             create_refugee_animation(scenario_dir, args.scenario, output_file, fps=args.fps)
     else:
-        # All scenarios
         create_all_animations(args.results_dir)
