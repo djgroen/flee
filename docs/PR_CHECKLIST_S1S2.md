@@ -28,5 +28,5 @@ move_rules:
     enabled: true
     alpha: 2.0    # Cognitive capacity sensitivity (Ψ)
     beta: 2.0     # Structural opportunity sensitivity (Ω)
-# P_S2 = Ψ × Ω. Bernoulli draw: u < P_S2 → S2 mode. S2 move prob from safety differential.
+# P_S2 = Ψ × Ω (blending weight). P_move = (1−P_S2)·P_S1 + P_S2·σ.
 ```
