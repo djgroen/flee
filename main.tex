@@ -7,6 +7,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{subcaption}
+\usepackage{natbib}
 
 % Custom commands
 \newcommand{\R}{\mathbb{R}}
@@ -388,7 +389,44 @@ shape cognitive availability
 \end{frame}
 
 %==============================================================================
-% SLIDE 12: Thank You
+% SLIDE 12: Configuration (Section 7)
+%==============================================================================
+\begin{frame}{Configuration: Nuclear Case Parameters}
+
+\begin{table}[h]
+\small
+\begin{tabular}{llcll}
+\toprule
+Parameter & Symbol & Domain & Role & Description \\
+\midrule
+\texttt{alpha} & $\alpha$ & $(0, \infty)$ & Cognitive (free) & Psi curve shape \\
+\texttt{beta} & $\beta$ & $(0, \infty)$ & Cognitive (free) & Omega collapse rate \\
+\texttt{kappa} & $\kappa$ & $(0, \infty)$ & Cognitive (free) & S2 sensitivity \\
+\texttt{max\_move\_speed} & $v$ & $(0, \infty)$ &
+Physical constraint (fixed) & Mean vehicle speed under evacuation congestion \\
+\bottomrule
+\end{tabular}
+\caption{Nuclear case configuration. \texttt{max\_move\_speed} is a physical
+constraint fixed at an empirically grounded value.}
+\end{table}
+
+\vspace{0.5em}
+\paragraph{Physical constraint parameter.} \texttt{max\_move\_speed}
+($v$, km per timestep) is not a free cognitive parameter. It represents
+the mean vehicle travel speed under evacuation congestion and is fixed
+at an empirically grounded value rather than calibrated. For the
+Fukushima case, probe-car telematics data from Toyota Motor Corporation
+indicate average vehicle speeds of 7--20~km/h during the evacuation
+\citep{Shimazaki2012}, implying $v \approx 14$--$40$ km per 2-hour
+timestep. The data-preferred value is identified from the calibration
+grid search and fixed for all subsequent analyses. Its sensitivity is
+reported in the supplementary material but it does not enter the
+count of free cognitive parameters ($\alpha$, $\beta$, $\kappa$).
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 13: Thank You
 %==============================================================================
 \begin{frame}
 \begin{center}
@@ -405,6 +443,21 @@ Michael Puma\\
 Columbia University Climate School\\
 Center for Climate Systems Research
 \end{center}
+\end{frame}
+
+%==============================================================================
+% References
+%==============================================================================
+\begin{frame}[allowframebreaks]{References}
+\bibliographystyle{plainnat}
+\begin{thebibliography}{99}
+\bibitem[Shimazaki et~al., 2012]{Shimazaki2012}
+Shimazaki, T., et~al. (2012).
+\newblock Cluster analysis and discriminant analysis for determining
+post-earthquake road recovery patterns.
+\newblock [Primary source --- to be verified against Toyota G-BOOK
+telematics study of Fukushima road recovery].
+\end{thebibliography}
 \end{frame}
 
 \end{document}

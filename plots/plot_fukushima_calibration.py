@@ -138,13 +138,66 @@ def main():
     plt.close()
     print(f"Saved {OUTPUT_DIR / 'fig_fukushima_best_fit.png'}")
 
-    # Figure 2: Loss surface (alpha vs beta at best kappa)
-    best_kappa_df = grid_df[grid_df["kappa"] == best_kappa]
+    # Figure 2: max_move_speed sensitivity (2x2, one subplot per target)
+    TARGET_IDS = ["T1", "T2", "T3", "T4"]
+    TARGET_OBS = {
+        "T1": 0.2752, "T2": 0.1514, "T3": 0.5225, "T4": 0.0145,
+    }
+    TARGET_LABELS = {
+        "T1": "<5km at t=15h",
+        "T2": "<5km at t=20h",
+        "T3": "15-20km at t=33h",
+        "T4": "<20km at t=72h",
+    }
+    if "max_move_speed" in grid_df.columns:
+        fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+        axes = axes.flatten()
+        for i, tid in enumerate(TARGET_IDS):
+            ax = axes[i]
+            col = f"{tid}_model"
+            if col not in grid_df.columns:
+                continue
+            speeds = sorted(grid_df["max_move_speed"].unique())
+            medians = []
+            q25s = []
+            q75s = []
+            for sp in speeds:
+                sub = grid_df[grid_df["max_move_speed"] == sp][col]
+                medians.append(sub.median())
+                q25s.append(sub.quantile(0.25))
+                q75s.append(sub.quantile(0.75))
+            obs = TARGET_OBS[tid]
+            ax.fill_between(speeds, q25s, q75s, alpha=0.3, color="#1a9641")
+            ax.plot(speeds, medians, color="#1a9641", linewidth=2, label="Model (median)")
+            ax.axhline(obs, color="black", linestyle="--", linewidth=1.5, label="Observed")
+            ax.axhspan(obs * 0.8, obs * 1.2, alpha=0.2, color="gray")
+            ax.set_xlabel("max_move_speed (km per 2h step)")
+            ax.set_ylabel("Modeled value")
+            ax.set_title(f"T{i+1}: {TARGET_LABELS[tid]}")
+            ax.set_xlim(min(speeds), max(speeds))
+            ax.legend(loc="best", fontsize=8)
+            ax2 = ax.twiny()
+            ax2.set_xlim(ax.get_xlim())
+            ax2.set_xticks(speeds)
+            ax2.set_xticklabels([f"{s/2:.1f}" for s in speeds])
+            ax2.set_xlabel("Implied speed (km/h)")
+        fig.suptitle("Physical constraint sensitivity: max_move_speed", fontsize=12)
+        fig.tight_layout()
+        fig.savefig(OUTPUT_DIR / "fig_fukushima_speed_sensitivity.png", dpi=300, bbox_inches="tight")
+        plt.close()
+        print(f"Saved {OUTPUT_DIR / 'fig_fukushima_speed_sensitivity.png'}")
+
+    # Figure 3: Loss surface (alpha vs beta at best kappa and best max_move_speed)
+    if "max_move_speed" in grid_df.columns:
+        best_speed = best["max_move_speed"]
+        best_kappa_df = grid_df[(grid_df["kappa"] == best_kappa) & (grid_df["max_move_speed"] == best_speed)]
+    else:
+        best_kappa_df = grid_df[grid_df["kappa"] == best_kappa]
     if best_kappa_df.empty:
         best_kappa_df = grid_df
         best_kappa = grid_df["kappa"].iloc[0]
 
-    pivot = best_kappa_df.pivot(index="alpha", columns="beta", values="loss")
+    pivot = best_kappa_df.pivot_table(index="alpha", columns="beta", values="loss", aggfunc="min")
     alphas = pivot.index.values
     betas = pivot.columns.values
 

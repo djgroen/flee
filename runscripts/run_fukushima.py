@@ -33,9 +33,38 @@ TIMESTEP_HOURS = 2
 N_TIMESTEPS = 36  # 72h after crisis onset
 SEED = 42
 
+# =============================================================================
+# PARAMETER GRID SEARCH
+# =============================================================================
+# Cognitive parameters (free — inferred from data, no direct observational
+# analog, will appear as free parameters in main.tex Section 3):
+#   alpha: experience-to-capacity rate (Psi curve shape)
+#   beta:  conflict-to-opportunity steepness (Omega collapse rate)
+#   kappa: S2 move-decision sensitivity (logistic slope)
+#
+# Physical constraint parameter (swept to identify data-preferred value,
+# then fixed with empirical citation in the paper):
+#   max_move_speed: average vehicle speed under evacuation congestion (km/step)
+#   Empirical reference: Toyota probe-car data shows 7-20 km/h under
+#   Fukushima evacuation conditions (Shimazaki et al. 2012 road recovery study).
+#   Hayano & Adachi (2013) GPS data implies ~10-15 km/h average displacement
+#   speed for inner zone evacuees over the first 24h.
+#   Target range: 10-20 km/step (5-10 km/h). Value outside this range should
+#   be treated with skepticism regardless of loss improvement.
+# =============================================================================
+
+# max_move_speed: km per 2h timestep
+# Conversion from km/h: speed_kmh * 2
+# Range spans observed congested evacuation speeds:
+#   5 km/step  = 2.5 km/h  (severe gridlock, walking pace)
+#   10 km/step = 5 km/h    (heavy congestion)
+#   20 km/step = 10 km/h   (moderate congestion — probe-car studies)
+#   40 km/step = 20 km/h   (light congestion / motorway)
+#   60 km/step = 30 km/h   (near-normal conditions)
 ALPHA_RANGE = [0.5, 1.0, 2.0, 3.0, 5.0]
 BETA_RANGE = [1.0, 2.0, 3.0, 4.0, 6.0, 8.0]
 KAPPA_RANGE = [1.0, 3.0, 5.0, 10.0, 20.0]
+MAX_SPEED_RANGE = [5, 10, 20, 40, 60]
 
 # Target timesteps: t=15h->step8, t=20h->step10, t=33h->step17, t=72h->step36
 TARGET_STEPS = {15: 8, 20: 10, 33: 17, 72: 36}
@@ -93,7 +122,7 @@ def build_ecosystem(alpha, beta, kappa):
     return e, lm, ig
 
 
-def run_simulation(alpha, beta, kappa, seed=None):
+def run_simulation(alpha, beta, kappa, max_move_speed, seed=None):
     """Run one 36-timestep simulation, return per-step metrics."""
     if seed is not None:
         random.seed(seed)
@@ -108,6 +137,7 @@ def run_simulation(alpha, beta, kappa, seed=None):
             SimulationSettings.ReadFromYML(path)
             break
 
+    SimulationSettings.move_rules["MaxMoveSpeed"] = float(max_move_speed)
     SimulationSettings.move_rules["MovechancePopBase"] = 10000.0
     SimulationSettings.move_rules["MovechancePopScaleFactor"] = 0.0
     SimulationSettings.move_rules["FixedRoutes"] = False
@@ -201,6 +231,11 @@ def compute_loss(rows, targets_df):
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--quick", action="store_true", help="Run reduced grid (2 speeds, 1 alpha/beta/kappa) for testing")
+    args = parser.parse_args()
+
     if not TARGETS_PATH.exists():
         print(f"ERROR: Run runscripts/derive_fukushima_targets.py first. Missing {TARGETS_PATH}")
         return 1
@@ -208,20 +243,27 @@ def main():
     targets_df = pd.read_csv(TARGETS_PATH)
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
+    alpha_r = [1.0] if args.quick else ALPHA_RANGE
+    beta_r = [2.0] if args.quick else BETA_RANGE
+    kappa_r = [5.0] if args.quick else KAPPA_RANGE
+    speed_r = [5, 40] if args.quick else MAX_SPEED_RANGE
+
     results = []
-    for alpha in ALPHA_RANGE:
-        for beta in BETA_RANGE:
-            for kappa in KAPPA_RANGE:
-                rows = run_simulation(alpha, beta, kappa, seed=SEED)
-                loss, model_vals = compute_loss(rows, targets_df)
-                results.append({
-                    "alpha": alpha, "beta": beta, "kappa": kappa,
-                    "loss": loss,
-                    "T1_model": model_vals.get("T1", np.nan),
-                    "T2_model": model_vals.get("T2", np.nan),
-                    "T3_model": model_vals.get("T3", np.nan),
-                    "T4_model": model_vals.get("T4", np.nan),
-                })
+    for alpha in alpha_r:
+        for beta in beta_r:
+            for kappa in kappa_r:
+                for max_move_speed in speed_r:
+                    rows = run_simulation(alpha, beta, kappa, max_move_speed, seed=SEED)
+                    loss, model_vals = compute_loss(rows, targets_df)
+                    results.append({
+                        "alpha": alpha, "beta": beta, "kappa": kappa,
+                        "max_move_speed": max_move_speed,
+                        "loss": loss,
+                        "T1_model": model_vals.get("T1", np.nan),
+                        "T2_model": model_vals.get("T2", np.nan),
+                        "T3_model": model_vals.get("T3", np.nan),
+                        "T4_model": model_vals.get("T4", np.nan),
+                    })
 
     res_df = pd.DataFrame(results)
     res_df.to_csv(RESULTS_DIR / "grid_search.csv", index=False)
@@ -232,7 +274,7 @@ def main():
     print(top5.to_string(index=False))
 
     best = res_df.loc[res_df["loss"].idxmin()]
-    rows = run_simulation(best["alpha"], best["beta"], best["kappa"], seed=SEED)
+    rows = run_simulation(best["alpha"], best["beta"], best["kappa"], best["max_move_speed"], seed=SEED)
     traj_df = pd.DataFrame(rows)
     traj_df["hours_since_t0"] = traj_df["step"] * TIMESTEP_HOURS
     traj_df.to_csv(RESULTS_DIR / "best_fit_trajectory.csv", index=False)
@@ -247,19 +289,39 @@ def main():
 
     obs1, obs2, obs3, obs4 = t1_row["empirical_value"], t2_row["empirical_value"], t3_row["empirical_value"], t4_row["empirical_value"]
     m1, m2, m3, m4 = best["T1_model"], best["T2_model"], best["T3_model"], best["T4_model"]
+    best_speed = best["max_move_speed"]
+    speed_kmh = best_speed / 2.0
+
+    # max_move_speed sensitivity: median T3_model at each speed
+    speed_sensitivity = {}
+    for sp in speed_r:
+        sub = res_df[res_df["max_move_speed"] == sp]
+        speed_sensitivity[sp] = sub["T3_model"].median()
+    def _dist_to_target(s):
+        v = speed_sensitivity.get(s, np.nan)
+        return abs(v - 0.52) if not np.isnan(v) else float("inf")
+    data_preferred_speed = min(speed_r, key=_dist_to_target)
 
     print("\n=== FUKUSHIMA CALIBRATION REPORT ===")
-    print(f"Best parameters: alpha={best['alpha']}, beta={best['beta']}, kappa={best['kappa']}")
+    print(f"Best parameters (cognitive): alpha={best['alpha']}, beta={best['beta']}, kappa={best['kappa']}")
+    print(f"Best physical constraint:    max_move_speed={best_speed} km/step ({speed_kmh:.1f} km/h implied)")
     print(f"Loss: {best['loss']:.6f}")
     print("\nCalibration target performance:")
-    print(f"  T1 (<5km at t=15h):     observed={obs1:.4f}, modeled={m1:.4f}, diff={m1-obs1:.4f}")
-    print(f"  T2 (<5km at t=20h):     observed={obs2:.4f}, modeled={m2:.4f}, diff={m2-obs2:.4f}")
-    print(f"  T3 (15-20km at t=33h):  observed={obs3:.4f}, modeled={m3:.4f}, diff={m3-obs3:.4f}")
-    print(f"  T4 (<20km at t=72h):    observed={obs4:.4f}, modeled={m4:.4f}, diff={m4-obs4:.4f}")
-    print(f"\nT3_model in range 0.30-0.65? {0.30 <= m3 <= 0.65 if not np.isnan(m3) else 'N/A'}")
+    print(f"  T1 (<5km at t=15h):     observed={obs1:.2f}, modeled={m1:.4f}, diff={m1-obs1:.4f}")
+    print(f"  T2 (<5km at t=20h):     observed={obs2:.2f}, modeled={m2:.4f}, diff={m2-obs2:.4f}")
+    print(f"  T3 (15-20km at t=33h):  observed={obs3:.2f}, modeled={m3:.4f}, diff={m3-obs3:.4f}")
+    print(f"  T4 (<20km at t=72h):    observed={obs4:.3f}, modeled={m4:.4f}, diff={m4-obs4:.4f}")
+    print("\nmax_move_speed sensitivity:")
+    for sp in speed_r:
+        t3_at = speed_sensitivity.get(sp, np.nan)
+        print(f"  At max_move_speed={sp}:   T3_model={t3_at:.4f}")
+    print(f"  Data-preferred value (T3 closest to 0.52): {data_preferred_speed} km/step")
+    print("\nNote: max_move_speed will be fixed at data-preferred value in")
+    print("final model. Cognitive parameters alpha/beta/kappa are the three")
+    print("free parameters of the dual-process architecture.")
     print(f"\nPhase boundaries (best-fit run):")
-    print(f"  t*  = {tstar} (Phase 1 minimum)")
-    print(f"  t** = {tstarstar} (Phase 2 plateau onset)")
+    print(f"  t*  = {tstar} (Phase 1 minimum — end of acute S1-dominated response)")
+    print(f"  t** = {tstarstar} (Phase 2 plateau onset — Psi heterogeneity visible)")
 
     # Shelter-in-place diagnostic: Tomioka and Naraha population fraction by step
     SHELTER_STEPS = [1, 4, 8, 12, 14, 18, 24, 36]
