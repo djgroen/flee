@@ -261,6 +261,21 @@ def main():
     print(f"  t*  = {tstar} (Phase 1 minimum)")
     print(f"  t** = {tstarstar} (Phase 2 plateau onset)")
 
+    # Shelter-in-place diagnostic: Tomioka and Naraha population fraction by step
+    SHELTER_STEPS = [1, 4, 8, 12, 14, 18, 24, 36]
+    print("\n[SHELTER-IN-PLACE CHECK] Tomioka population fraction by step:")
+    for s in SHELTER_STEPS:
+        if s < len(rows):
+            frac = rows[s].get("frac_Tomioka", np.nan)
+            marker = "  <- conflict order fires here" if s == 8 else ("  <- 20km order fires here" if s == 14 else "")
+            print(f"  step {s:2d}:  {frac:.2f}{marker}")
+    print("[SHELTER-IN-PLACE CHECK] Naraha population fraction by step:")
+    for s in SHELTER_STEPS:
+        if s < len(rows):
+            frac = rows[s].get("frac_Naraha", np.nan)
+            marker = "  <- conflict order fires here" if s == 8 else ("  <- 20km order fires here" if s == 14 else "")
+            print(f"  step {s:2d}:  {frac:.2f}{marker}")
+
     return 0
 
 

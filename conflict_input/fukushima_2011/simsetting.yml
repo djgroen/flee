@@ -1,13 +1,21 @@
 # Fukushima 2011 — realistic municipality network
 # Timestep: 2 hours. Simulation period: 72h = 36 steps after crisis onset.
 # Conflict onset via conflicts.csv (evacuation orders as step changes).
+#
+# default_movechance=0.01 encodes shelter-in-place compliance in town zones
+# before evacuation orders. Residents in 10-20km zone were instructed to
+# remain indoors until the official order. Once conflict rises via
+# conflicts.csv (step 8 for 10km zone, step 14 for 20km zone),
+# conflict_movechance=0.5 takes over and drives rapid departure.
+# This is the flee representation of the order-as-S1-trigger mechanism.
+# See main.tex Section 5.2 and Hayano & Adachi (2013).
 
 move_rules:
   max_move_speed: 40.0        # km/timestep (2h): ~20 km/h avg under congestion
   max_walk_speed: 7.0         # km/timestep: 3.5 km/h walking
   conflict_movechance: 0.5
   camp_movechance: 0.001
-  default_movechance: 0.3
+  default_movechance: 0.01    # shelter-in-place: near-zero until order issued
   awareness_level: 2          # look-ahead 2 links for S2 routing
   two_system_decision_making: true
   s1s2_model:
