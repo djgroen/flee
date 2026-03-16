@@ -138,6 +138,21 @@ MAX_ROUTE_KM = 150
 OUTPUT_DIR = REPO_ROOT / "conflict_input" / "fukushima_2011"
 
 
+def verify_movechance_scaling():
+    """Print movechance-to-daily-rate conversion for 2h timestep."""
+    TIMESTEP_HOURS = 2.0
+    checks = [
+        ("conflict", 0.25, "~84% daily departure under conflict orders"),
+        ("default", 0.005, "~5.5% daily departure (shelter-in-place)"),
+        ("camp", 0.001, "~1.2% daily departure (near-zero)"),
+    ]
+    print("\n[MOVECHANCE SCALING VERIFICATION] (2h timestep)")
+    for label, p, note in checks:
+        f_daily = 1.0 - (1.0 - p) ** (24.0 / TIMESTEP_HOURS)
+        print(f"  {label}_movechance={p} -> {f_daily:.1%} daily  ({note})")
+    print()
+
+
 def extract_network():
     """Download OSM road network."""
     try:

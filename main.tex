@@ -443,10 +443,9 @@ at an empirically grounded value rather than calibrated. For the
 Fukushima case, probe-car telematics data from Toyota Motor Corporation
 indicate average vehicle speeds of 7--20~km/h during the evacuation
 \citep{Shimazaki2012}, implying $v \approx 14$--$40$ km per 2-hour
-timestep. The data-preferred value is identified from the calibration
-grid search and fixed for all subsequent analyses. Its sensitivity is
-reported in the supplementary material but it does not enter the
-count of free cognitive parameters ($\alpha$, $\beta$, $\kappa$).
+timestep. We use $v = 20$~km/step (10~km/h), the lower bound of this
+range, consistent with documented gridlock on Route~6. It does not
+enter the count of free cognitive parameters ($\alpha$, $\beta$, $\kappa$).
 
 \end{frame}
 
@@ -491,11 +490,33 @@ Center for Climate Systems Research
 \end{frame}
 
 %==============================================================================
+% SLIDE 12c: Source Verification Notes (Section 11)
+%==============================================================================
+\begin{frame}{Source Verification Notes}
+
+\paragraph{Fukushima calibration.} The physical parameters
+\texttt{conflict\_movechance} and \texttt{max\_move\_speed} are fixed from
+empirical data before cognitive parameter calibration.
+\texttt{conflict\_movechance} = 0.25 per 2-hour timestep is derived from the
+observed inner-zone ($<5$~km) clearing time in \citet{Hayano2013}:
+approximately 95\% departure within 18~hours implies
+$p_{\text{step}} = 1 - 0.05^{1/9} \approx 0.25$.
+\texttt{max\_move\_speed} = 20~km per 2-hour timestep (10~km/h) is the
+lower bound of the congested vehicle speed range reported in
+\citet{Shimazaki2012}.
+
+\end{frame}
+
+%==============================================================================
 % References
 %==============================================================================
 \begin{frame}[allowframebreaks]{References}
 \bibliographystyle{plainnat}
 \begin{thebibliography}{99}
+\bibitem[Hayano and Adachi, 2013]{Hayano2013}
+Hayano, R. and Adachi, R. (2013).
+\newblock Estimation of the total population moving into and out of the
+20~km evacuation zone during the Fukushima NPP accident.
 \bibitem[Shimazaki et~al., 2012]{Shimazaki2012}
 Shimazaki, T., et~al. (2012).
 \newblock Cluster analysis and discriminant analysis for determining

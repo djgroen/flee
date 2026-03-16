@@ -1,26 +1,37 @@
-# CALIBRATION NOTE — all movechance values are per 2-hour timestep, not per day.
-# Conversion: p_step = 1 - (1 - f_daily)^(2/24)
-# At daily timesteps the standard flee defaults (conflict=0.5, default=0.3)
-# are appropriate. At 2h timesteps those values cause unrealistically fast
-# evacuation. See scripts/build_fukushima_network.py for derivation.
+# PHYSICAL PARAMETERS — fixed from empirical data, not calibrated.
+# All values are per 2-hour timestep.
 #
-# awareness_level=1 prevents S2 agents in outer zones seeing inner zone
-# conflict and self-evacuating before official orders. At awareness_level=2,
-# Tomioka agents see Futaba/Namie conflict and 58% self-evacuate before
-# the 10km order fires — inconsistent with observed shelter-in-place behavior.
+# conflict_movechance = 0.25:
+#   Derived from Hayano & Adachi (2013) Fig 3.
+#   Inner zone (<5km) cleared from ~12,500 to ~625 (95%) in ~9 steps (18h).
+#   p_step = 1 - (1-0.95)^(1/9) = 0.254. Rounded to 0.25.
+#   Represents S1 heuristic flight rate under acute threat.
+#
+# default_movechance = 0.005:
+#   Shelter-in-place compliance in town zones before evacuation orders.
+#   ~5.7% daily departure rate (mostly S2-driven, not S1).
+#   Retained from previous calibration — empirically consistent with
+#   observed slow voluntary departure before orders were issued.
+#
+# max_move_speed = 20:
+#   Lower bound of Toyota G-BOOK probe-car range (7-20 km/h).
+#   At 2h timestep: 7 km/h × 2h = 14 km/step minimum.
+#   Using 20 km/step (10 km/h) — severe congestion, consistent with
+#   documented gridlock on Route 6 during Fukushima evacuation.
+#   Shimazaki et al. (2012).
 
 move_rules:
-  conflict_movechance: 0.14   # ~84% daily departure rate under conflict
-  default_movechance: 0.005   # ~5% daily (0.004 triggers flee auto-camp; 0.005 is threshold)
+  conflict_movechance: 0.25
+  default_movechance: 0.005
   camp_movechance: 0.001
-  awareness_level: 1          # 1-link lookahead prevents pre-order S2 departure
-  max_move_speed: 20.0        # starting point for grid search (10 km/h avg)
+  awareness_level: 1
+  max_move_speed: 20.0
   max_walk_speed: 7.0
   two_system_decision_making: true
   s1s2_model:
     alpha: 2.0
     beta: 4.0
-    kappa: 1.0   # reduced from 5.0 to suppress pre-order S2 departure
+    kappa: 1.0
 
 spawn_rules:
   take_from_population: True

@@ -20,6 +20,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+# Run movechance scaling verification when calibration runs
+from scripts.build_fukushima_network import verify_movechance_scaling
+verify_movechance_scaling()
+
 from flee import flee, InputGeography
 from flee.SimulationSettings import SimulationSettings
 
@@ -31,46 +35,33 @@ RESULTS_DIR = PROJECT_ROOT / "results" / "fukushima"
 # Scale factor for agent count (full pop ~138k would be slow)
 AGENT_SCALE = 0.02
 TIMESTEP_HOURS = 2
-# 72 steps = 144 hours = 6 days at 2h/step.
-# Extended from 36 to allow phase structure to fully develop.
-# Fukushima evacuation was substantially complete by day 3 (step 36)
-# for inner zones but outer zones (Iitate, Minamisoma) took longer.
-# tau* requires sufficient window for median agent to traverse d*(beta).
-N_TIMESTEPS = 72
+N_TIMESTEPS = 200
+# 200 steps = 400h ≈ 17 days at 2h/step.
+# Extended from 72 to allow phase structure to fully develop.
+# With conflict_movechance=0.25 and max_move_speed=20, expected
+# transit time from NPP to safe destination:
+#   - Move decision: 1/0.25 = 4 steps average per location
+#   - Network length: ~9 locations to safe destination
+#   - Expected transit: ~36 steps (~72h)
+# At 200 steps all agents should reach safe destinations and P_S2
+# should recover, allowing t* to be identified well within the window.
+# Fukushima outer zone dynamics (Iitate, Minamisoma) extended
+# to ~day 7-10; 200 steps covers this comfortably.
 SEED = 42
 
 # =============================================================================
 # PARAMETER GRID SEARCH
 # =============================================================================
-# Cognitive parameters (free — inferred from data, no direct observational
-# analog, will appear as free parameters in main.tex Section 3):
-#   alpha: experience-to-capacity rate (Psi curve shape)
-#   beta:  conflict-to-opportunity steepness (Omega collapse rate)
-#   kappa: S2 move-decision sensitivity (logistic slope)
-#
-# Physical constraint parameter (swept to identify data-preferred value,
-# then fixed with empirical citation in the paper):
-#   max_move_speed: average vehicle speed under evacuation congestion (km/step)
-#   Empirical reference: Toyota probe-car data shows 7-20 km/h under
-#   Fukushima evacuation conditions (Shimazaki et al. 2012 road recovery study).
-#   Hayano & Adachi (2013) GPS data implies ~10-15 km/h average displacement
-#   speed for inner zone evacuees over the first 24h.
-#   Target range: 10-20 km/step (5-10 km/h). Value outside this range should
-#   be treated with skepticism regardless of loss improvement.
-# =============================================================================
-
-# max_move_speed: km per 2h timestep
-# Conversion from km/h: speed_kmh * 2
-# Range spans observed congested evacuation speeds:
-#   5 km/step  = 2.5 km/h  (severe gridlock, walking pace)
-#   10 km/step = 5 km/h    (heavy congestion)
-#   20 km/step = 10 km/h   (moderate congestion — probe-car studies)
-#   40 km/step = 20 km/h   (light congestion / motorway)
-#   60 km/step = 30 km/h   (near-normal conditions)
+# Cognitive parameters — free, inferred from data
 ALPHA_RANGE = [0.5, 1.0, 2.0, 3.0, 5.0]
 BETA_RANGE = [1.0, 2.0, 3.0, 4.0, 6.0, 8.0]
 KAPPA_RANGE = [1.0, 3.0, 5.0, 10.0, 20.0]
-MAX_SPEED_RANGE = [5, 10, 20, 40, 60]
+
+# Physical constraint — fixed empirically, not swept
+# max_move_speed = 20.0 km/step (10 km/h, lower bound probe-car data)
+# conflict_movechance = 0.25 (derived from Hayano 2013 inner zone clearing)
+# See simsetting.yml for full derivation comments.
+FIXED_MAX_SPEED = 20.0
 
 # Target timesteps: t=15h->step8, t=20h->step10, t=33h->step17, t=72h->step36
 TARGET_STEPS = {15: 8, 20: 10, 33: 17, 72: 36}
@@ -219,8 +210,8 @@ def build_ecosystem(alpha, beta, kappa):
     return e, lm, ig
 
 
-def run_simulation(alpha, beta, kappa, max_move_speed, seed=None):
-    """Run one 36-timestep simulation, return per-step metrics."""
+def run_simulation(alpha, beta, kappa, seed=None):
+    """Run one N_TIMESTEPS simulation, return per-step metrics."""
     if seed is not None:
         random.seed(seed)
         np.random.seed(seed)
@@ -234,7 +225,7 @@ def run_simulation(alpha, beta, kappa, max_move_speed, seed=None):
             SimulationSettings.ReadFromYML(path)
             break
 
-    SimulationSettings.move_rules["MaxMoveSpeed"] = float(max_move_speed)
+    SimulationSettings.move_rules["MaxMoveSpeed"] = float(FIXED_MAX_SPEED)
     SimulationSettings.move_rules["MovechancePopBase"] = 10000.0
     SimulationSettings.move_rules["MovechancePopScaleFactor"] = 0.0
     SimulationSettings.move_rules["FixedRoutes"] = False
@@ -343,7 +334,6 @@ def main():
     alpha_r = [1.0] if args.quick else ALPHA_RANGE
     beta_r = [2.0] if args.quick else BETA_RANGE
     kappa_r = [5.0] if args.quick else KAPPA_RANGE
-    speed_r = [5, 40] if args.quick else MAX_SPEED_RANGE
 
     # Cache d*(beta) per unique beta
     d_star_cache = {}
@@ -352,27 +342,25 @@ def main():
     for alpha in alpha_r:
         for beta in beta_r:
             for kappa in kappa_r:
-                for max_move_speed in speed_r:
-                    rows = run_simulation(alpha, beta, kappa, max_move_speed, seed=SEED)
-                    loss, model_vals = compute_loss(rows, targets_df)
-                    mean_s2_series = [r["mean_s2"] for r in rows]
-                    tstar = find_tstar(mean_s2_series)
-                    if beta not in d_star_cache:
-                        d_star_cache[beta] = compute_characteristic_distance(
-                            beta, str(CONFLICTS_CSV), str(LOCATIONS_CSV), str(ROUTES_CSV), quiet=True
-                        )
-                    d_star = d_star_cache[beta]
-                    tau_star = (tstar * max_move_speed) / d_star if d_star > 0 else float("inf")
-                    results.append({
-                        "alpha": alpha, "beta": beta, "kappa": kappa,
-                        "max_move_speed": max_move_speed,
-                        "loss": loss,
-                        "T1_model": model_vals.get("T1", np.nan),
-                        "T2_model": model_vals.get("T2", np.nan),
-                        "T3_model": model_vals.get("T3", np.nan),
-                        "T4_model": model_vals.get("T4", np.nan),
-                        "tau_star": tau_star,
-                    })
+                rows = run_simulation(alpha, beta, kappa, seed=SEED)
+                loss, model_vals = compute_loss(rows, targets_df)
+                mean_s2_series = [r["mean_s2"] for r in rows]
+                tstar = find_tstar(mean_s2_series)
+                if beta not in d_star_cache:
+                    d_star_cache[beta] = compute_characteristic_distance(
+                        beta, str(CONFLICTS_CSV), str(LOCATIONS_CSV), str(ROUTES_CSV), quiet=True
+                    )
+                d_star = d_star_cache[beta]
+                tau_star = (tstar * FIXED_MAX_SPEED) / d_star if d_star > 0 else float("inf")
+                results.append({
+                    "alpha": alpha, "beta": beta, "kappa": kappa,
+                    "loss": loss,
+                    "T1_model": model_vals.get("T1", np.nan),
+                    "T2_model": model_vals.get("T2", np.nan),
+                    "T3_model": model_vals.get("T3", np.nan),
+                    "T4_model": model_vals.get("T4", np.nan),
+                    "tau_star": tau_star,
+                })
 
     res_df = pd.DataFrame(results)
     res_df.to_csv(RESULTS_DIR / "grid_search.csv", index=False)
@@ -383,7 +371,7 @@ def main():
     print(top5.to_string(index=False))
 
     best = res_df.loc[res_df["loss"].idxmin()]
-    rows = run_simulation(best["alpha"], best["beta"], best["kappa"], best["max_move_speed"], seed=SEED)
+    rows = run_simulation(best["alpha"], best["beta"], best["kappa"], seed=SEED)
     traj_df = pd.DataFrame(rows)
     traj_df["hours_since_t0"] = traj_df["step"] * TIMESTEP_HOURS
     traj_df.to_csv(RESULTS_DIR / "best_fit_trajectory.csv", index=False)
@@ -398,36 +386,21 @@ def main():
 
     obs1, obs2, obs3, obs4 = t1_row["empirical_value"], t2_row["empirical_value"], t3_row["empirical_value"], t4_row["empirical_value"]
     m1, m2, m3, m4 = best["T1_model"], best["T2_model"], best["T3_model"], best["T4_model"]
-    best_speed = best["max_move_speed"]
-    speed_kmh = best_speed / 2.0
-
-    # max_move_speed sensitivity: median T3_model at each speed
-    speed_sensitivity = {}
-    for sp in speed_r:
-        sub = res_df[res_df["max_move_speed"] == sp]
-        speed_sensitivity[sp] = sub["T3_model"].median()
-    def _dist_to_target(s):
-        v = speed_sensitivity.get(s, np.nan)
-        return abs(v - 0.52) if not np.isnan(v) else float("inf")
-    data_preferred_speed = min(speed_r, key=_dist_to_target)
+    best_alpha, best_beta, best_kappa = best["alpha"], best["beta"], best["kappa"]
 
     print("\n=== FUKUSHIMA CALIBRATION REPORT ===")
-    print(f"Best parameters (cognitive): alpha={best['alpha']}, beta={best['beta']}, kappa={best['kappa']}")
-    print(f"Best physical constraint:    max_move_speed={best_speed} km/step ({speed_kmh:.1f} km/h implied)")
+    print("Physical constraints (fixed empirically):")
+    print("  conflict_movechance = 0.25  (Hayano 2013, inner zone clearing)")
+    print("  max_move_speed      = 20.0  (Shimazaki 2012, probe-car data)")
+    print("  default_movechance  = 0.005 (shelter-in-place compliance)")
+    print("Cognitive parameters (free, grid-searched):")
+    print(f"  Best: alpha={best_alpha}, beta={best_beta}, kappa={best_kappa}")
     print(f"Loss: {best['loss']:.6f}")
     print("\nCalibration target performance:")
     print(f"  T1 (<5km at t=15h):     observed={obs1:.2f}, modeled={m1:.4f}, diff={m1-obs1:.4f}")
     print(f"  T2 (<5km at t=20h):     observed={obs2:.2f}, modeled={m2:.4f}, diff={m2-obs2:.4f}")
     print(f"  T3 (15-20km at t=33h):  observed={obs3:.2f}, modeled={m3:.4f}, diff={m3-obs3:.4f}")
     print(f"  T4 (<20km at t=72h):    observed={obs4:.3f}, modeled={m4:.4f}, diff={m4-obs4:.4f}")
-    print("\nmax_move_speed sensitivity:")
-    for sp in speed_r:
-        t3_at = speed_sensitivity.get(sp, np.nan)
-        print(f"  At max_move_speed={sp}:   T3_model={t3_at:.4f}")
-    print(f"  Data-preferred value (T3 closest to 0.52): {data_preferred_speed} km/step")
-    print("\nNote: max_move_speed will be fixed at data-preferred value in")
-    print("final model. Cognitive parameters alpha/beta/kappa are the three")
-    print("free parameters of the dual-process architecture.")
     print(f"\nPhase boundaries (best-fit run):")
     print(f"  t*  = {tstar} (Phase 1 minimum — end of acute S1-dominated response)")
     print(f"  t** = {tstarstar} (Phase 2 plateau onset — Psi heterogeneity visible)")
@@ -437,11 +410,11 @@ def main():
     d_star = compute_characteristic_distance(
         best_beta, str(CONFLICTS_CSV), str(LOCATIONS_CSV), str(ROUTES_CSV)
     )
-    tau_star = (tstar * best_speed) / d_star if d_star > 0 else float("inf")
+    tau_star = (tstar * FIXED_MAX_SPEED) / d_star if d_star > 0 else float("inf")
     print("\nDimensionless Phase 1 duration:")
     print(f"  d*(beta={best_beta:.1f}) = {d_star:.1f} km")
     print(f"  t* = {tstar} steps")
-    print(f"  v  = {best_speed} km/step")
+    print(f"  v  = {FIXED_MAX_SPEED} km/step")
     print(f"  tau* = t* * v / d* = {tau_star:.2f}")
     print("  Target: tau* ≈ 1.0")
     print("\n  tau* interpretation:")
@@ -469,7 +442,7 @@ def main():
     print(f"\nWrote {RESULTS_DIR / 'phase_boundaries.csv'}")
 
     # Shelter-in-place diagnostic: Tomioka and Naraha population fraction by step
-    SHELTER_STEPS = [1, 4, 8, 12, 14, 18, 24, 36, 72]
+    SHELTER_STEPS = [1, 4, 8, 12, 14, 30, 60, 100, 200]
     print("\n[SHELTER-IN-PLACE CHECK] Tomioka population fraction by step:")
     for s in SHELTER_STEPS:
         if s < len(rows):
@@ -482,6 +455,15 @@ def main():
             frac = rows[s].get("frac_Naraha", np.nan)
             marker = "  <- conflict order fires here" if s == 8 else ("  <- 20km order fires here" if s == 14 else "")
             print(f"  step {s:2d}:  {frac:.2f}{marker}")
+
+    # Inner zone clearing check (Futaba+Okuma, <5km) — Hayano data: ~95% cleared by step 9
+    INNER_STEPS = [5, 9, 12]
+    frac_key = "frac_<5km"
+    print("\n[INNER ZONE CLEARING CHECK] Futaba+Okuma (<5km) fraction remaining by step:")
+    for s in INNER_STEPS:
+        if s < len(rows):
+            frac = rows[s].get(frac_key, np.nan)
+            print(f"  step {s:2d}:  {frac:.2f}  (Hayano: ~0.05-0.15 at step 9)")
 
     return 0
 

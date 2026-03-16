@@ -111,6 +111,10 @@ def run_diagnostics():
     random.seed(SEED)
     np.random.seed(SEED)
 
+    # Movechance scaling verification (from build_fukushima_network)
+    from scripts.build_fukushima_network import verify_movechance_scaling
+    verify_movechance_scaling()
+
     # -------------------------------------------------------------------------
     # Diagnostic 5 — Simsetting check (do first)
     # -------------------------------------------------------------------------
