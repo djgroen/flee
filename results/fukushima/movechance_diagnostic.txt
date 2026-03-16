@@ -1,0 +1,150 @@
+
+[SIMSETTING CHECK]
+  conflict_movechance = 0.14
+  default_movechance  = 0.005
+  camp_movechance     = 0.001
+  max_move_speed      = 20.0
+  awareness_level     = 1
+[AddNewConflictZones] called at step t=0
+
+======================================================================
+Diagnostic 1 — Location type reclassification (Tomioka, Naraha)
+Diagnostic 2 — Departure counts per step
+Diagnostic 3 — AddNewConflictZones calls (above)
+======================================================================
+[AddNewConflictZones] called at step t=1
+[STEP 01] Tomioka: type=town, movechance=0.0050, conflict=-1.000
+[STEP 01] Naraha:  type=town, movechance=0.0050, conflict=-1.000
+[STEP 01] Tomioka: pop=261, departed_this_step=-26, fraction_remaining=0.826
+[STEP 01] Naraha:  pop=150, departed_this_step=-23, fraction_remaining=0.974
+
+[AddNewConflictZones] called at step t=2
+[STEP 02] Tomioka: type=town, movechance=0.0050, conflict=-1.000
+[STEP 02] Naraha:  type=town, movechance=0.0050, conflict=-1.000
+[STEP 02] Tomioka: pop=247, departed_this_step=14, fraction_remaining=0.782
+[STEP 02] Naraha:  pop=171, departed_this_step=-21, fraction_remaining=1.110
+
+[AddNewConflictZones] called at step t=3
+[STEP 03] Tomioka: type=town, movechance=0.0050, conflict=-1.000
+[STEP 03] Naraha:  type=town, movechance=0.0050, conflict=-1.000
+[STEP 03] Tomioka: pop=210, departed_this_step=37, fraction_remaining=0.665
+[STEP 03] Naraha:  pop=185, departed_this_step=-14, fraction_remaining=1.201
+
+[AddNewConflictZones] called at step t=4
+[STEP 04] Tomioka: type=town, movechance=0.0050, conflict=-1.000
+[STEP 04] Naraha:  type=town, movechance=0.0050, conflict=-1.000
+[STEP 04] Tomioka: pop=198, departed_this_step=12, fraction_remaining=0.627
+[STEP 04] Naraha:  pop=164, departed_this_step=21, fraction_remaining=1.065
+
+[AddNewConflictZones] called at step t=5
+[STEP 05] Tomioka: type=town, movechance=0.0050, conflict=-1.000
+[STEP 05] Naraha:  type=town, movechance=0.0050, conflict=-1.000
+[STEP 05] Tomioka: pop=190, departed_this_step=8, fraction_remaining=0.601
+[STEP 05] Naraha:  pop=156, departed_this_step=8, fraction_remaining=1.013
+
+[AddNewConflictZones] called at step t=6
+[STEP 06] Tomioka: type=town, movechance=0.0050, conflict=-1.000
+[STEP 06] Naraha:  type=town, movechance=0.0050, conflict=-1.000
+[STEP 06] Tomioka: pop=172, departed_this_step=18, fraction_remaining=0.544
+[STEP 06] Naraha:  pop=150, departed_this_step=6, fraction_remaining=0.974
+
+[AddNewConflictZones] called at step t=7
+[STEP 07] Tomioka: type=town, movechance=0.0050, conflict=-1.000
+[STEP 07] Naraha:  type=town, movechance=0.0050, conflict=-1.000
+[STEP 07] Tomioka: pop=156, departed_this_step=16, fraction_remaining=0.494
+[STEP 07] Naraha:  pop=153, departed_this_step=-3, fraction_remaining=0.994
+
+[AddNewConflictZones] called at step t=8
+[STEP 08] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 08] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 08] Tomioka: pop=165, departed_this_step=-9, fraction_remaining=0.522
+[STEP 08] Naraha:  pop=154, departed_this_step=-1, fraction_remaining=1.000
+
+[AddNewConflictZones] called at step t=9
+[STEP 09] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 09] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 09] Tomioka: pop=163, departed_this_step=2, fraction_remaining=0.516
+[STEP 09] Naraha:  pop=148, departed_this_step=6, fraction_remaining=0.961
+
+[AddNewConflictZones] called at step t=10
+[STEP 10] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 10] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 10] Tomioka: pop=151, departed_this_step=12, fraction_remaining=0.478
+[STEP 10] Naraha:  pop=140, departed_this_step=8, fraction_remaining=0.909
+
+[AddNewConflictZones] called at step t=11
+[STEP 11] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 11] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 11] Tomioka: pop=144, departed_this_step=7, fraction_remaining=0.456
+[STEP 11] Naraha:  pop=141, departed_this_step=-1, fraction_remaining=0.916
+
+[AddNewConflictZones] called at step t=12
+[STEP 12] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 12] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 12] Tomioka: pop=139, departed_this_step=5, fraction_remaining=0.440
+[STEP 12] Naraha:  pop=135, departed_this_step=6, fraction_remaining=0.877
+
+[AddNewConflictZones] called at step t=13
+[STEP 13] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 13] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 13] Tomioka: pop=133, departed_this_step=6, fraction_remaining=0.421
+[STEP 13] Naraha:  pop=125, departed_this_step=10, fraction_remaining=0.812
+
+[AddNewConflictZones] called at step t=14
+[STEP 14] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 14] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 14] Tomioka: pop=125, departed_this_step=8, fraction_remaining=0.396
+[STEP 14] Naraha:  pop=122, departed_this_step=3, fraction_remaining=0.792
+
+[AddNewConflictZones] called at step t=15
+[STEP 15] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 15] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 15] Tomioka: pop=117, departed_this_step=8, fraction_remaining=0.370
+[STEP 15] Naraha:  pop=118, departed_this_step=4, fraction_remaining=0.766
+
+[AddNewConflictZones] called at step t=16
+[STEP 16] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 16] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 16] Tomioka: pop=119, departed_this_step=-2, fraction_remaining=0.377
+[STEP 16] Naraha:  pop=109, departed_this_step=9, fraction_remaining=0.708
+
+[AddNewConflictZones] called at step t=17
+[STEP 17] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 17] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 17] Tomioka: pop=115, departed_this_step=4, fraction_remaining=0.364
+[STEP 17] Naraha:  pop=98, departed_this_step=11, fraction_remaining=0.636
+
+[AddNewConflictZones] called at step t=18
+[STEP 18] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 18] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 18] Tomioka: pop=109, departed_this_step=6, fraction_remaining=0.345
+[STEP 18] Naraha:  pop=91, departed_this_step=7, fraction_remaining=0.591
+
+[AddNewConflictZones] called at step t=19
+[STEP 19] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 19] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 19] Tomioka: pop=104, departed_this_step=5, fraction_remaining=0.329
+[STEP 19] Naraha:  pop=76, departed_this_step=15, fraction_remaining=0.494
+
+[AddNewConflictZones] called at step t=20
+[STEP 20] Tomioka: type=conflict, movechance=0.1400, conflict=0.800
+[STEP 20] Naraha:  type=conflict, movechance=0.1400, conflict=0.800
+[STEP 20] Tomioka: pop=92, departed_this_step=12, fraction_remaining=0.291
+[STEP 20] Naraha:  pop=71, departed_this_step=5, fraction_remaining=0.461
+
+
+======================================================================
+Diagnostic 4 — Tomioka intensity 0.8 vs 1.0 at step 8
+======================================================================
+[INTENSITY TEST] Tomioka fraction remaining:
+  step  8: intensity=0.8 -> 0.5222, intensity=1.0 -> 0.0538
+  step 10: intensity=0.8 -> 0.4778, intensity=1.0 -> 0.0095
+  step 12: intensity=0.8 -> 0.4399, intensity=1.0 -> 0.0095
+  step 14: intensity=0.8 -> 0.3956, intensity=1.0 -> 0.0032
+
+======================================================================
+SUMMARY
+======================================================================
+AddNewConflictZones called at step 8: True
+Tomioka type at step 8 (after AddNewConflictZones): conflict (expected: conflict if reclassification worked)
+

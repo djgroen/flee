@@ -1,27 +1,26 @@
-# Fukushima 2011 — realistic municipality network
-# Timestep: 2 hours. Simulation period: 72h = 36 steps after crisis onset.
-# Conflict onset via conflicts.csv (evacuation orders as step changes).
+# CALIBRATION NOTE — all movechance values are per 2-hour timestep, not per day.
+# Conversion: p_step = 1 - (1 - f_daily)^(2/24)
+# At daily timesteps the standard flee defaults (conflict=0.5, default=0.3)
+# are appropriate. At 2h timesteps those values cause unrealistically fast
+# evacuation. See scripts/build_fukushima_network.py for derivation.
 #
-# default_movechance=0.01 encodes shelter-in-place compliance in town zones
-# before evacuation orders. Residents in 10-20km zone were instructed to
-# remain indoors until the official order. Once conflict rises via
-# conflicts.csv (step 8 for 10km zone, step 14 for 20km zone),
-# conflict_movechance=0.5 takes over and drives rapid departure.
-# This is the flee representation of the order-as-S1-trigger mechanism.
-# See main.tex Section 5.2 and Hayano & Adachi (2013).
+# awareness_level=1 prevents S2 agents in outer zones seeing inner zone
+# conflict and self-evacuating before official orders. At awareness_level=2,
+# Tomioka agents see Futaba/Namie conflict and 58% self-evacuate before
+# the 10km order fires — inconsistent with observed shelter-in-place behavior.
 
 move_rules:
-  max_move_speed: 40.0        # km/timestep (2h): ~20 km/h avg under congestion
-  max_walk_speed: 7.0         # km/timestep: 3.5 km/h walking
-  conflict_movechance: 0.5
+  conflict_movechance: 0.14   # ~84% daily departure rate under conflict
+  default_movechance: 0.005   # ~5% daily (0.004 triggers flee auto-camp; 0.005 is threshold)
   camp_movechance: 0.001
-  default_movechance: 0.01    # shelter-in-place: near-zero until order issued
-  awareness_level: 2          # look-ahead 2 links for S2 routing
+  awareness_level: 1          # 1-link lookahead prevents pre-order S2 departure
+  max_move_speed: 20.0        # starting point for grid search (10 km/h avg)
+  max_walk_speed: 7.0
   two_system_decision_making: true
   s1s2_model:
     alpha: 2.0
     beta: 4.0
-    kappa: 5.0
+    kappa: 1.0   # reduced from 5.0 to suppress pre-order S2 departure
 
 spawn_rules:
   take_from_population: True
