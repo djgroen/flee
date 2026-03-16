@@ -92,6 +92,73 @@ SOURCE_MUNIS = ["Futaba", "Okuma", "Namie", "Tomioka", "Naraha", "Minamisoma", "
 # NPP (nearest plant) reference for d* computation
 NPP_LOCATIONS = ["Futaba", "Okuma"]
 
+# Zone groups for multi-wave phase analysis (Fukushima has 3 ordered evacuation waves)
+FUKUSHIMA_ZONES = {
+    "inner_3km": ["Futaba", "Okuma"],
+    "inner_3km_onset": 1,
+    "zone_10km": ["Namie", "Tomioka", "Naraha"],
+    "zone_10km_onset": 8,
+    "zone_20km": ["Minamisoma", "Iitate", "Kawauchi"],
+    "zone_20km_onset": 14,
+}
+
+
+def compute_zone_phase_boundaries(history_df, zone_groups, beta, v, d_star):
+    """
+    Compute Phase 1/2 boundaries separately for each ordered evacuation zone.
+
+    Fukushima has three ordered waves; global population-mean P_S2 is their
+    superposition. Zone-level analysis recovers the two-phase structure for
+    each wave independently.
+    """
+    EPS = 0.002
+    results = {}
+
+    zone_labels = [k for k in zone_groups if not k.endswith("_onset")]
+    for zone_label in zone_labels:
+        locations = zone_groups[zone_label]
+        onset_key = zone_label + "_onset"
+        if onset_key not in zone_groups:
+            continue
+        t_onset = zone_groups[onset_key]
+
+        zone_mask = history_df["origin_location"].isin(locations)
+        zone_df = history_df[zone_mask]
+        if zone_df.empty:
+            continue
+
+        zone_ps2 = zone_df.groupby("step")["s2_weight"].mean()
+
+        post_onset = zone_ps2[zone_ps2.index >= t_onset]
+        if post_onset.empty:
+            continue
+        t_star = int(post_onset.idxmin())
+
+        post_tstar = zone_ps2[zone_ps2.index > t_star]
+        t_starstar = None
+        for t in sorted(post_tstar.index):
+            if t - 1 in zone_ps2.index and abs(zone_ps2[t] - zone_ps2[t - 1]) < EPS:
+                t_starstar = int(t)
+                break
+        if t_starstar is None:
+            t_starstar = int(zone_ps2.index[-1])
+
+        tau_star = ((t_star - t_onset) * v / d_star) if d_star > 0 else float("inf")
+
+        n_agents = int(zone_df[zone_df["step"] == 0].shape[0]) if 0 in zone_df["step"].values else int(zone_mask.sum() // (zone_df["step"].nunique() or 1))
+        results[zone_label] = {
+            "t_conflict_onset": t_onset,
+            "t_star": t_star,
+            "t_starstar": t_starstar,
+            "tau_star": tau_star,
+            "ps2_at_onset": float(zone_ps2.get(t_onset, float("nan"))),
+            "ps2_at_tstar": float(zone_ps2.get(t_star, float("nan"))),
+            "ps2_at_tstarstar": float(zone_ps2.get(t_starstar, float("nan"))),
+            "n_agents": n_agents,
+        }
+
+    return results
+
 
 def compute_characteristic_distance(beta, conflicts_csv, locations_csv, routes_csv, quiet=False):
     """
@@ -210,8 +277,10 @@ def build_ecosystem(alpha, beta, kappa):
     return e, lm, ig
 
 
-def run_simulation(alpha, beta, kappa, seed=None):
-    """Run one N_TIMESTEPS simulation, return per-step metrics."""
+def run_simulation(alpha, beta, kappa, seed=None, collect_agent_history=False):
+    """Run one N_TIMESTEPS simulation, return per-step metrics.
+    When collect_agent_history=True, also returns agent_history_df for zone-level phase analysis.
+    """
     if seed is not None:
         random.seed(seed)
         np.random.seed(seed)
@@ -244,7 +313,7 @@ def run_simulation(alpha, beta, kappa, seed=None):
         pop = MUNI_POP.get(m, 0)
         n = max(0, int(pop / total_pop * AGENT_SCALE * total_pop))
         for _ in range(n):
-            ecosystem.insertAgent(loc_map[m], {})
+            ecosystem.insertAgent(loc_map[m], {"origin_location": m})
 
     # Override experience_index: Exponential(1.5) clipped [0, 3]
     for a in ecosystem.agents:
@@ -261,6 +330,7 @@ def run_simulation(alpha, beta, kappa, seed=None):
     muni_baseline = {m: loc_map[m].numAgents for m in SOURCE_MUNIS if m in loc_map}
 
     rows = []
+    agent_history = [] if collect_agent_history else None
 
     def record_row(step):
         muni_pops = {m: loc_map[m].numAgents for m in SOURCE_MUNIS if m in loc_map}
@@ -280,6 +350,12 @@ def run_simulation(alpha, beta, kappa, seed=None):
             base = muni_baseline.get(m, 1)
             row[f"frac_{m}"] = muni_pops.get(m, 0) / base if base > 0 else 0.0
         rows.append(row)
+        if collect_agent_history:
+            for a in ecosystem.agents:
+                origin = a.attributes.get("origin_location", None)
+                if origin is not None:
+                    s2 = getattr(a, "s2_activation_prob", 0.0)
+                    agent_history.append({"step": step, "origin_location": origin, "s2_weight": s2})
 
     record_row(0)
 
@@ -288,6 +364,9 @@ def run_simulation(alpha, beta, kappa, seed=None):
         ecosystem.evolve()
         record_row(t)
 
+    if collect_agent_history:
+        agent_history_df = pd.DataFrame(agent_history)
+        return rows, agent_history_df
     return rows
 
 
@@ -371,7 +450,9 @@ def main():
     print(top5.to_string(index=False))
 
     best = res_df.loc[res_df["loss"].idxmin()]
-    rows = run_simulation(best["alpha"], best["beta"], best["kappa"], seed=SEED)
+    rows, agent_history_df = run_simulation(
+        best["alpha"], best["beta"], best["kappa"], seed=SEED, collect_agent_history=True
+    )
     traj_df = pd.DataFrame(rows)
     traj_df["hours_since_t0"] = traj_df["step"] * TIMESTEP_HOURS
     traj_df.to_csv(RESULTS_DIR / "best_fit_trajectory.csv", index=False)
@@ -440,6 +521,41 @@ def main():
     }])
     phase_df.to_csv(RESULTS_DIR / "phase_boundaries.csv", index=False)
     print(f"\nWrote {RESULTS_DIR / 'phase_boundaries.csv'}")
+
+    # Zone-level phase analysis (Fukushima has 3 ordered waves; global tau* is superposition)
+    print("\n=== ZONE-LEVEL PHASE ANALYSIS ===")
+    print("(Two-phase structure per ordered evacuation wave)")
+    zone_results = compute_zone_phase_boundaries(
+        agent_history_df, FUKUSHIMA_ZONES, beta=best_beta,
+        v=FIXED_MAX_SPEED, d_star=d_star
+    )
+    print(f"{'Zone':<12} {'Onset':>6} {'t*':>5} {'t**':>5} {'tau*':>7} "
+          f"{'P_S2(onset)':>11} {'P_S2(t*)':>10} {'P_S2(t**)':>10}")
+    print("-" * 70)
+    for zone, r in zone_results.items():
+        tau_ok = 0.5 <= r["tau_star"] <= 3.0
+        flag = " OK" if tau_ok else " !!"
+        print(f"{zone:<12} {r['t_conflict_onset']:>6} {r['t_star']:>5} "
+              f"{r['t_starstar']:>5} {r['tau_star']:>7.2f}{flag} "
+              f"{r['ps2_at_onset']:>11.3f} {r['ps2_at_tstar']:>10.3f} "
+              f"{r['ps2_at_tstarstar']:>10.3f}")
+    print()
+    print("tau* interpretation: distance-normalized Phase 1 duration.")
+    print("Target tau* in [0.5, 3.0] per zone.")
+    print("Zones outside range flagged with !!")
+
+    import csv
+    zone_csv = RESULTS_DIR / "zone_phase_boundaries.csv"
+    with open(zone_csv, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=[
+            "zone", "t_conflict_onset", "t_star", "t_starstar",
+            "tau_star", "ps2_at_onset", "ps2_at_tstar", "ps2_at_tstarstar",
+            "n_agents"
+        ])
+        writer.writeheader()
+        for zone, r in zone_results.items():
+            writer.writerow({"zone": zone, **r})
+    print(f"Zone phase boundaries saved to {zone_csv}")
 
     # Shelter-in-place diagnostic: Tomioka and Naraha population fraction by step
     SHELTER_STEPS = [1, 4, 8, 12, 14, 30, 60, 100, 200]
