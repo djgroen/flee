@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # Fukushima 2011 calibration simulation.
-# Network: simplified radial geometry, 5 distance rings + 4 safe destinations.
-# Timestep = 2 hours. Crisis onset at t=1 (t=0 is pre-crisis baseline).
-# Population initialized from Hayano & Adachi (2013) Fig 3, 2011-03-11 04:00.
+# Network: realistic municipality-level from conflict_input/fukushima_2011/.
+# Timestep = 2 hours. t=0 is pre-crisis baseline, t=1 is crisis onset (earthquake).
+# Conflict onset via conflicts.csv (evacuation orders at steps 4, 8, 14).
 # Calibration targets: data/calibration_targets/fukushima_2011_targets.csv
-# See main.tex Section 5.2 for phase definitions.
 
 """
 Run Fukushima evacuation calibration: grid search over alpha, beta, kappa.
+Uses InputGeography and conflicts.csv for time-varying conflict onset.
 """
 
 import os
@@ -19,34 +19,16 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from flee import flee
+from flee import flee, InputGeography
 from flee.SimulationSettings import SimulationSettings
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+INPUT_DIR = PROJECT_ROOT / "conflict_input" / "fukushima_2011"
 TARGETS_PATH = PROJECT_ROOT / "data" / "calibration_targets" / "fukushima_2011_targets.csv"
 RESULTS_DIR = PROJECT_ROOT / "results" / "fukushima"
 
-# Network: 5 rings + 4 safe destinations
-# L0-L4: conflict linearly 1.0 -> 0.11, pop from Hayano 2011-03-11 04:00
-FUKUSHIMA_LOCATIONS = [
-    ("L0", 0.0, 0.0, 1.00, 12500, "conflict"),   # 0-5km
-    ("L1", 5.0, 0.0, 0.78, 33800, "town"),       # 5-10km
-    ("L2", 10.0, 0.0, 0.56, 14500, "town"),      # 10-15km
-    ("L3", 15.0, 0.0, 0.33, 14800, "town"),      # 15-20km
-    ("L4", 20.0, 0.0, 0.11, 40500, "town"),     # 20-25km
-    ("S1", 70.0, 0.0, 0.0, 0, "camp"),          # Safe north
-    ("S2", -30.0, 0.0, 0.0, 0, "camp"),         # Safe south
-    ("S3", 20.0, 50.0, 0.0, 0, "camp"),        # Safe west
-    ("S4", 20.0, -50.0, 0.0, 0, "camp"),        # Safe inland
-]
-# Links: L0-L1, L1-L2, L2-L3, L3-L4 (5km each), L4-S1,S2,S3,S4 (50km each)
-FUKUSHIMA_LINKS = [
-    ("L0", "L1", 5.0), ("L1", "L2", 5.0), ("L2", "L3", 5.0), ("L3", "L4", 5.0),
-    ("L4", "S1", 50.0), ("L4", "S2", 50.0), ("L4", "S3", 50.0), ("L4", "S4", 50.0),
-]
-
-# Scale factor for agent count (full pop ~116k would be slow)
-AGENT_SCALE = 0.02  # ~2320 agents
+# Scale factor for agent count (full pop ~138k would be slow)
+AGENT_SCALE = 0.02
 TIMESTEP_HOURS = 2
 N_TIMESTEPS = 36  # 72h after crisis onset
 SEED = 42
@@ -55,9 +37,26 @@ ALPHA_RANGE = [0.5, 1.0, 2.0, 3.0, 5.0]
 BETA_RANGE = [1.0, 2.0, 3.0, 4.0, 6.0, 8.0]
 KAPPA_RANGE = [1.0, 3.0, 5.0, 10.0, 20.0]
 
-# Target timesteps (each step = 2h): t=15h->step8, t=20h->step10, t=33h->step17, t=72h->step36
+# Target timesteps: t=15h->step8, t=20h->step10, t=33h->step17, t=72h->step36
 TARGET_STEPS = {15: 8, 20: 10, 33: 17, 72: 36}
-ZONE_TO_LOC = {"<5km": "L0", "5–10km": "L1", "10–15km": "L2", "15–20km": "L3", "<20km_combined": ["L0", "L1", "L2", "L3"]}
+
+# Municipality to zone mapping for calibration (Hayano distance zones)
+# <5km: Futaba + Okuma; 5–10km: Namie; 10–15km: Tomioka; 15–20km: Naraha
+ZONE_TO_MUNIS = {
+    "<5km": ["Futaba", "Okuma"],
+    "5–10km": ["Namie"],
+    "10–15km": ["Tomioka"],
+    "15–20km": ["Naraha"],
+    "<20km_combined": ["Futaba", "Okuma", "Namie", "Tomioka", "Naraha"],
+}
+
+# Population baseline (2010 census) for zone aggregation
+MUNI_POP = {
+    "Futaba": 6900, "Okuma": 11500, "Namie": 20500, "Tomioka": 15800,
+    "Naraha": 7700, "Minamisoma": 70000, "Kawauchi": 2800, "Iitate": 6200,
+}
+
+SOURCE_MUNIS = ["Futaba", "Okuma", "Namie", "Tomioka", "Naraha", "Minamisoma", "Kawauchi", "Iitate"]
 
 
 def find_tstar(mean_s2_series):
@@ -75,102 +74,99 @@ def find_tstarstar(mean_s2_series, tstar, epsilon=0.002):
 
 
 def build_ecosystem(alpha, beta, kappa):
-    """Build Fukushima network with given S1S2 parameters."""
+    """Build ecosystem from InputGeography with given S1S2 parameters."""
     SimulationSettings.move_rules["TwoSystemDecisionMaking"] = True
     SimulationSettings.move_rules["s2_weight_override"] = None
     SimulationSettings.move_rules["s1s2_model_params"] = {"alpha": alpha, "beta": beta, "kappa": kappa}
 
-    ecosystem = flee.Ecosystem()
-    loc_map = {}
-    for name, x, y, conflict, pop, loc_type in FUKUSHIMA_LOCATIONS:
-        movechance = 0.5 if conflict > 0.5 else 0.3
-        if loc_type == "camp":
-            movechance = 0.001
-        cap = 100000 if loc_type == "camp" else 50000
-        loc = ecosystem.addLocation(
-            name=name, x=x, y=y, region="R1", country="C1",
-            location_type=loc_type, movechance=movechance, capacity=cap, pop=0,
-        )
-        loc.conflict = 0.0  # Pre-crisis
-        loc_map[name] = loc
+    SimulationSettings.ConflictInputFile = str(INPUT_DIR / "conflicts.csv")
 
-    for a, b, dist in FUKUSHIMA_LINKS:
-        ecosystem.linkUp(a, b, dist)
+    e = flee.Ecosystem()
+    ig = InputGeography.InputGeography()
 
-    return ecosystem, loc_map
+    ig.ReadLocationsFromCSV(str(INPUT_DIR / "locations.csv"))
+    ig.ReadLinksFromCSV(str(INPUT_DIR / "routes.csv"))
+    ig.ReadClosuresFromCSV(str(INPUT_DIR / "closures.csv"))
+    ig.ReadConflictInputCSV(str(INPUT_DIR / "conflicts.csv"))
+    e, lm = ig.StoreInputGeographyInEcosystem(e)
+
+    return e, lm, ig
 
 
 def run_simulation(alpha, beta, kappa, seed=None):
-    """Run one 36-timestep simulation, return per-step metrics and target frac_remaining."""
+    """Run one 36-timestep simulation, return per-step metrics."""
     if seed is not None:
         random.seed(seed)
         np.random.seed(seed)
 
-    for path in ["conflict_input/fukushima_2011/simsetting.yml", "flee/simsetting.yml", "test_data/test_settings.yml"]:
-        if (PROJECT_ROOT / path).exists():
-            SimulationSettings.ReadFromYML(str(PROJECT_ROOT / path))
+    for path in [
+        str(INPUT_DIR / "simsetting.yml"),
+        str(PROJECT_ROOT / "flee" / "simsetting.yml"),
+        str(PROJECT_ROOT / "test_data" / "test_settings.yml"),
+    ]:
+        if Path(path).exists():
+            SimulationSettings.ReadFromYML(path)
             break
+
     SimulationSettings.move_rules["MovechancePopBase"] = 10000.0
     SimulationSettings.move_rules["MovechancePopScaleFactor"] = 0.0
-    SimulationSettings.move_rules["AwarenessLevel"] = 1
     SimulationSettings.move_rules["FixedRoutes"] = False
     SimulationSettings.move_rules["PruningThreshold"] = 1.0
     SimulationSettings.log_levels["agent"] = 0
     SimulationSettings.log_levels["init"] = 0
+    SimulationSettings.ConflictInputFile = str(INPUT_DIR / "conflicts.csv")
 
-    ecosystem, loc_map = build_ecosystem(alpha, beta, kappa)
+    ecosystem, loc_map, ig = build_ecosystem(alpha, beta, kappa)
 
-    # Insert agents at L0-L4 proportionally to population
-    pops = [12500, 33800, 14500, 14800, 40500]
-    total = sum(pops)
-    for i, (name, _, _, _, _, _) in enumerate(FUKUSHIMA_LOCATIONS[:5]):
-        n = max(1, int(pops[i] / total * AGENT_SCALE * total))
+    # Insert agents proportionally to population at source municipalities
+    total_pop = sum(MUNI_POP.get(m, 0) for m in SOURCE_MUNIS)
+    for m in SOURCE_MUNIS:
+        if m not in loc_map:
+            continue
+        pop = MUNI_POP.get(m, 0)
+        n = max(0, int(pop / total_pop * AGENT_SCALE * total_pop))
         for _ in range(n):
-            ecosystem.insertAgent(loc_map[name], {})
+            ecosystem.insertAgent(loc_map[m], {})
 
     # Override experience_index: Exponential(1.5) clipped [0, 3]
     for a in ecosystem.agents:
         a.experience_index = min(3.0, max(0.0, np.random.exponential(1.5)))
 
-    # Pre-crisis step
-    for loc in loc_map.values():
-        loc.conflict = 0.0
-    for name, _, _, conflict, _, _ in FUKUSHIMA_LOCATIONS[:5]:
-        loc_map[name].movechance = 0.001
+    # Pre-crisis step (t=0)
+    ig.AddNewConflictZones(ecosystem, 0)
     ecosystem.evolve()
 
-    # Impose conflict (from t=1 onward)
-    for name, x, y, conflict, pop, loc_type in FUKUSHIMA_LOCATIONS:
-        loc_map[name].conflict = conflict
-        if name in ["L0", "L1", "L2", "L3", "L4"]:
-            loc_map[name].movechance = 0.5 if conflict > 0.5 else 0.3
+    baseline = {}
+    for zone, munis in ZONE_TO_MUNIS.items():
+        baseline[zone] = sum(loc_map[m].numAgents for m in munis if m in loc_map)
+    # Also record per-muni baseline for frac
+    muni_baseline = {m: loc_map[m].numAgents for m in SOURCE_MUNIS if m in loc_map}
 
     rows = []
-    baseline = {f"L{i}": pops[i] for i in range(5)}
 
     def record_row(step):
-        pop_L0 = loc_map["L0"].numAgents
-        pop_L1 = loc_map["L1"].numAgents
-        pop_L2 = loc_map["L2"].numAgents
-        pop_L3 = loc_map["L3"].numAgents
-        pop_L4 = loc_map["L4"].numAgents
+        muni_pops = {m: loc_map[m].numAgents for m in SOURCE_MUNIS if m in loc_map}
+        zone_pops = {}
+        for zone, munis in ZONE_TO_MUNIS.items():
+            zone_pops[zone] = sum(muni_pops.get(m, 0) for m in munis)
+        zone_fracs = {}
+        for zone, munis in ZONE_TO_MUNIS.items():
+            base = sum(muni_baseline.get(m, 0) for m in munis)
+            zone_fracs[zone] = zone_pops[zone] / base if base > 0 else 0.0
         s2_weights = [getattr(a, "s2_activation_prob", 0.0) for a in ecosystem.agents if a.location]
-        rows.append({
-            "step": step,
-            "L0": pop_L0, "L1": pop_L1, "L2": pop_L2, "L3": pop_L3, "L4": pop_L4,
-            "frac_L0": pop_L0 / baseline["L0"],
-            "frac_L1": pop_L1 / baseline["L1"],
-            "frac_L2": pop_L2 / baseline["L2"],
-            "frac_L3": pop_L3 / baseline["L3"],
-            "frac_L4": pop_L4 / baseline["L4"],
-            "frac_L0L3": (pop_L0 + pop_L1 + pop_L2 + pop_L3) / (12500 + 33800 + 14500 + 14800),
-            "mean_s2": np.mean(s2_weights) if s2_weights else 0.0,
-            "std_s2": np.std(s2_weights) if len(s2_weights) > 1 else 0.0,
-        })
+        row = {"step": step, "mean_s2": np.mean(s2_weights) if s2_weights else 0.0}
+        row["std_s2"] = np.std(s2_weights) if len(s2_weights) > 1 else 0.0
+        for k, v in zone_fracs.items():
+            row[f"frac_{k}"] = v
+        for m in SOURCE_MUNIS:
+            base = muni_baseline.get(m, 1)
+            row[f"frac_{m}"] = muni_pops.get(m, 0) / base if base > 0 else 0.0
+        rows.append(row)
 
     record_row(0)
 
     for t in range(1, N_TIMESTEPS + 1):
+        ig.AddNewConflictZones(ecosystem, t)
         ecosystem.evolve()
         record_row(t)
 
@@ -178,7 +174,7 @@ def run_simulation(alpha, beta, kappa, seed=None):
 
 
 def compute_loss(rows, targets_df):
-    """Weighted sum of squared differences: sum((model - target)^2 / uncertainty^2)."""
+    """Weighted sum of squared differences."""
     usable = targets_df[targets_df["usable"] == True]
     loss = 0.0
     model_vals = {}
@@ -196,11 +192,8 @@ def compute_loss(rows, targets_df):
         unc = row.get("uncertainty", 0.2)
         if unc <= 0:
             unc = 0.2
-        if zone == "<20km_combined":
-            model_val = r["frac_L0L3"]
-        else:
-            loc = ZONE_TO_LOC.get(zone, zone)
-            model_val = r.get(f"frac_{loc}", np.nan)
+        zone_key = zone.replace("–", "–")  # keep en-dash
+        model_val = r.get(f"frac_{zone_key}", r.get(f"frac_{zone}", np.nan))
         if not np.isnan(model_val) and not np.isnan(target_val):
             loss += ((model_val - target_val) ** 2) / (unc ** 2)
         model_vals[tid] = model_val
@@ -238,7 +231,6 @@ def main():
     print("\n=== Top 5 parameter sets by loss ===")
     print(top5.to_string(index=False))
 
-    # Best run for report and save trajectory for plotting
     best = res_df.loc[res_df["loss"].idxmin()]
     rows = run_simulation(best["alpha"], best["beta"], best["kappa"], seed=SEED)
     traj_df = pd.DataFrame(rows)
@@ -248,7 +240,6 @@ def main():
     tstar = find_tstar(mean_s2_series)
     tstarstar = find_tstarstar(mean_s2_series, tstar)
 
-    # Empirical values from targets
     t1_row = targets_df[targets_df["target_id"] == "T1"].iloc[0]
     t2_row = targets_df[targets_df["target_id"] == "T2"].iloc[0]
     t3_row = targets_df[targets_df["target_id"] == "T3"].iloc[0]
@@ -265,10 +256,10 @@ def main():
     print(f"  T2 (<5km at t=20h):     observed={obs2:.4f}, modeled={m2:.4f}, diff={m2-obs2:.4f}")
     print(f"  T3 (15-20km at t=33h):  observed={obs3:.4f}, modeled={m3:.4f}, diff={m3-obs3:.4f}")
     print(f"  T4 (<20km at t=72h):    observed={obs4:.4f}, modeled={m4:.4f}, diff={m4-obs4:.4f}")
+    print(f"\nT3_model in range 0.30-0.65? {0.30 <= m3 <= 0.65 if not np.isnan(m3) else 'N/A'}")
     print(f"\nPhase boundaries (best-fit run):")
     print(f"  t*  = {tstar} (Phase 1 minimum)")
     print(f"  t** = {tstarstar} (Phase 2 plateau onset)")
-    print("\nAll 32 unit tests: run pytest tests/test_s1s2_v3.py and confirm passing.")
 
     return 0
 

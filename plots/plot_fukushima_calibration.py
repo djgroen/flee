@@ -19,7 +19,8 @@ import pandas as pd
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 GRID_PATH = PROJECT_ROOT / "results" / "fukushima" / "grid_search.csv"
 TRAJ_PATH = PROJECT_ROOT / "results" / "fukushima" / "best_fit_trajectory.csv"
-OBS_PATH = PROJECT_ROOT / "data" / "observations" / "fukushima_2011" / "hayano_2013_fig3_hourly.csv"
+OBS_PATH = PROJECT_ROOT / "conflict_validation" / "fukushima_2011" / "hayano_2013_fig3_hourly.csv"
+INPUT_DIR = PROJECT_ROOT / "conflict_input" / "fukushima_2011"
 OUTPUT_DIR = PROJECT_ROOT / "plots" / "output"
 
 T0 = pd.Timestamp("2011-03-11 14:46")
@@ -29,7 +30,7 @@ OUTAGE_END = pd.Timestamp("2011-03-14 12:00")
 TIMESTEP_HOURS = 2
 
 ZONE_COLS = ["<5km", "5–10km", "10–15km", "15–20km"]
-ZONE_TO_LOC = {"<5km": "L0", "5–10km": "L1", "10–15km": "L2", "15–20km": "L3"}
+# New run uses zone names directly (frac_<5km, frac_5–10km, etc.)
 TARGET_HOURS = [15, 20, 33, 72]
 EVENT_HOURS = {"3km order": 6.6, "10km order": 15.0, "20km order": 27.6}
 
@@ -88,7 +89,6 @@ def main():
 
     for i, zone in enumerate(ZONE_COLS):
         ax = axes[i]
-        loc = ZONE_TO_LOC[zone]
         frac_col = f"frac_{zone}"
 
         # Observed: black dots with ±20% uncertainty
@@ -104,10 +104,10 @@ def main():
             alpha=0.7,
         )
 
-        # Modeled: green line
+        # Modeled: green line (traj has frac_<5km, frac_5–10km, etc.)
         ax.plot(
             traj_df["hours_since_t0"],
-            traj_df[f"frac_{loc}"],
+            traj_df[frac_col],
             color="#1a9641",
             linewidth=2,
             label="Model (best fit)",
@@ -170,6 +170,76 @@ def main():
     fig.savefig(OUTPUT_DIR / "fig_fukushima_loss_surface.png", dpi=300, bbox_inches="tight")
     plt.close()
     print(f"Saved {OUTPUT_DIR / 'fig_fukushima_loss_surface.png'}")
+
+    # Figure 3: Network map
+    if INPUT_DIR.exists():
+        loc_df = pd.read_csv(INPUT_DIR / "locations.csv")
+        loc_df.columns = [c.lstrip("#") for c in loc_df.columns]
+        loc_df = loc_df[loc_df.iloc[:, 0].astype(str).str.strip() != ""]
+        routes_df = pd.read_csv(INPUT_DIR / "routes.csv")
+        routes_df.columns = [c.lstrip("#") for c in routes_df.columns]
+        routes_df = routes_df[routes_df["name1"].astype(str).str.strip() != ""]
+
+        # Use gps_x=lon, gps_y=lat
+        lon_col = "gps_x" if "gps_x" in loc_df.columns else "lon"
+        lat_col = "gps_y" if "gps_y" in loc_df.columns else "lat"
+        loc_df["lon"] = loc_df[lon_col]
+        loc_df["lat"] = loc_df[lat_col]
+
+        NPP_LAT, NPP_LON = 37.4213, 141.0329
+
+        fig, ax = plt.subplots(figsize=(10, 10))
+        ax.set_aspect("equal")
+
+        # Concentric circles at 10, 20, 30 km
+        for r in [10, 20, 30]:
+            theta = np.linspace(0, 2 * np.pi, 100)
+            lat_c = NPP_LAT + (r / 111.0) * np.cos(theta)
+            lon_c = NPP_LON + (r / (111.0 * np.cos(np.radians(NPP_LAT)))) * np.sin(theta)
+            ax.plot(lon_c, lat_c, "k--", alpha=0.5, linewidth=1)
+
+        # Routes: line width ~ 1/distance
+        for _, row in routes_df.iterrows():
+            n1, n2, d = row["name1"], row["name2"], row["distance"]
+            loc1 = loc_df[loc_df["name"] == n1].iloc[0]
+            loc2 = loc_df[loc_df["name"] == n2].iloc[0]
+            lw = max(0.5, 20.0 / (d + 1))
+            ax.plot([loc1["lon"], loc2["lon"]], [loc1["lat"], loc2["lat"]], "gray", linewidth=lw, alpha=0.7)
+
+        # Locations: color by type
+        for _, row in loc_df.iterrows():
+            lt = row["location_type"]
+            if "conflict" in str(lt).lower():
+                color = "red"
+            elif "camp" in str(lt).lower():
+                color = "green"
+            else:
+                color = "blue"
+            pop = row.get("pop/cap", row.get("population", 0))
+            ax.scatter(row["lon"], row["lat"], c=color, s=80, zorder=5, edgecolors="black")
+            ax.annotate(f"{row['name']}\n({pop:,.0f})", (row["lon"], row["lat"]), fontsize=7, ha="center")
+
+        ax.scatter(NPP_LON, NPP_LAT, marker="*", s=400, c="black", zorder=10, edgecolors="white")
+        ax.annotate("NPP", (NPP_LON, NPP_LAT), fontsize=9, ha="center", fontweight="bold")
+
+        # Timeline inset: evacuation order steps
+        ax_inset = fig.add_axes([0.15, 0.65, 0.25, 0.2])
+        ax_inset.set_xlim(0, 36)
+        ax_inset.set_ylim(0, 1)
+        ax_inset.axvline(4, color="red", linestyle="--", alpha=0.7, label="3km (step 4)")
+        ax_inset.axvline(8, color="orange", linestyle="--", alpha=0.7, label="10km (step 8)")
+        ax_inset.axvline(14, color="blue", linestyle="--", alpha=0.7, label="20km (step 14)")
+        ax_inset.set_xlabel("Timestep")
+        ax_inset.set_title("Evacuation orders")
+        ax_inset.legend(fontsize=6)
+
+        ax.set_xlabel("Longitude")
+        ax.set_ylabel("Latitude")
+        ax.set_title("Fukushima 2011 evacuation network")
+        fig.tight_layout()
+        fig.savefig(OUTPUT_DIR / "fig_fukushima_network.png", dpi=300, bbox_inches="tight")
+        plt.close()
+        print(f"Saved {OUTPUT_DIR / 'fig_fukushima_network.png'}")
 
     return 0
 
