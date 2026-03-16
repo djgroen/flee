@@ -3,7 +3,6 @@ import sys
 import numpy as np
 import random
 import flee.lib_math as lm
-from beartype.typing import List, Optional, Tuple
 from flee.SimulationSettings import SimulationSettings
 import flee.spawning as spawning
 import flee.demographics as demographics
@@ -197,11 +196,11 @@ def calculateLinkWeight(
   agent,
   link,
   prior_distance: float,
-  origin_names: List[str],
+  origin_names: list[str],
   step: int,
   time: int,
   debug: bool = False,
-) -> Tuple[List[float],List[List[str]]]:
+) -> tuple[list[float],list[list[str]]]:
   """
   Summary:
       Calculates Link Weights recursively based on awareness level.
@@ -211,13 +210,13 @@ def calculateLinkWeight(
       a: agent  
       link (Link): The link to calculate the weight for.
       prior_distance (float): The distance travelled so far.
-      origin_names (List[str]): The names of the locations that have been visited so far.
+      origin_names (list[str]): The names of the locations that have been visited so far.
       step (int): The number of steps taken so far.
       time (int): The current time. 
       debug (bool, optional): Whether to print debug information. Defaults to False. 
 
   Returns:
-      Tuple[List[float],List[List[str]]]: A tuple containing the weights and routes.
+      tuple[list[float],list[list[str]]]: A tuple containing the weights and routes.
   """
 
   #if location_is_marker is True: #marker locations should not create a branch.
@@ -274,13 +273,13 @@ def calculateLinkWeight(
 # Or make origin_names data structure encapsulated in recursion.
 
 
-def normalizeWeights(weights: List[float]) -> List[float]:
+def normalizeWeights(weights: list[float]) -> list[float]:
   """
   Summary:
     Normalizes a list of weights.
 
   Args:
-    weights (List[float]): List of weights
+    weights (list[float]): List of weights
 
   Returns:
     list: Normalized list of weights
@@ -296,14 +295,14 @@ def normalizeWeights(weights: List[float]) -> List[float]:
   return weights
 
 
-def chooseFromWeights(weights, routes):
+def chooseFromWeights(weights: list[float], routes: list[list[str]]):
   """
   Summary:
       Chooses a route from a list of routes based on a list of weights.
 
   Args:
-      weights (List[float]): Weights for each route
-      routes (List[List[str]]]): List of possible routes
+      weights (list[float]): Weights for each route
+      routes (list[list[str]]): List of possible routes
 
   Returns:
       float: The chosen route index   
@@ -316,7 +315,7 @@ def chooseFromWeights(weights, routes):
   return result[0]
 
 
-def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
+def calculateMoveChance(a, ForceTownMove: bool, time) -> tuple[float, bool]:
     """
     Summary:
         Calculates the probability that an agent will move this step.

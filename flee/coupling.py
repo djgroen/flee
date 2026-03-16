@@ -6,7 +6,6 @@ import os.path
 import sys
 import time
 from functools import wraps
-from typing import List, Tuple
 
 import matplotlib
 
@@ -864,19 +863,19 @@ class CouplingInterface:
 
 
     def readCSVLogFiles(
-        self, dirInputFiles: str, inputFileNames: List[str], columnHeader: List[str]
-    ) -> Tuple[np.ndarray, dict]:
+        self, dirInputFiles: str, inputFileNames: list[str], columnHeader: list[str]
+    ) -> tuple[np.ndarray, dict]:
         """
         Summary:
             Read CSV log files.
 
         Args:
             dirInputFiles (str): directory of input files
-            inputFileNames (List[str]): list of input file names
-            columnHeader (List[str]): list of column headers
+            inputFileNames (list[str]): list of input file names
+            columnHeader (list[str]): list of column headers
 
         No Longer Returned:
-            Tuple[np.ndarray, dict]: days and dictionary with key <column header> and value <column data>.
+            tuple[np.ndarray, dict]: days and dictionary with key <column header> and value <column data>.
         
         Returns:
             days (np.ndarray): days

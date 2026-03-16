@@ -3,7 +3,6 @@ import sys
 import numpy as np
 import random
 import flee.lib_math as lm
-from beartype.typing import List, Optional, Tuple
 from flee.SimulationSettings import SimulationSettings
 
 # File for generating routes to interconnect different locations using pregenerated routes.
@@ -49,7 +48,7 @@ def _addLocationRoute(
   loc,
   link,
   prior_distance: float,
-  origin_names: List[str],
+  origin_names: list[str],
   time: int,
   major: bool,
 ) -> None:
@@ -108,7 +107,7 @@ def calculateLocCrawlLinkWeight(
   loc,
   link,
   prior_distance: float,
-  origin_names: List[str],
+  origin_names: list[str],
   step: int,
   time: int,
 ) -> None:
@@ -121,7 +120,7 @@ def calculateLocCrawlLinkWeight(
       loc: start location  
       link (Link): The link to calculate the weight for.
       prior_distance (float): The distance travelled so far.
-      origin_names (List[str]): The names of the locations that have been visited so far.
+      origin_names (list[str]): The names of the locations that have been visited so far.
       step (int): The number of steps taken so far.
       time (int): The current time. 
       debug (bool, optional): Whether to print debug information. Defaults to False. 

@@ -7,9 +7,6 @@ import os
 import pandas as pd
 import glob
 
-from typing import List, Optional, Tuple
-
-
 __refugees_raw = 0
 __refugee_debt = 0
 
@@ -111,7 +108,7 @@ def spawn_daily_displaced(e, t, d):
         refugee_debt = number of refugees that could not be spawned due to rounding errors
     
     Returns:
-        Tuple[int, int, int]: Tuple containing the number of new agents, 
+        tuple[int, int, int]: Tuple containing the number of new agents, 
         the raw refugee count, and the refugee debt.
     """
     global __refugees_raw, __refugee_debt

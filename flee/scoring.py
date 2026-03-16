@@ -3,7 +3,6 @@ from flee import crawling
 import flee.lib_math as lm
 import numpy as np
 import os
-from typing import List, Optional, Tuple
 import sys
 
 

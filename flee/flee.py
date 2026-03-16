@@ -5,7 +5,6 @@ import os
 import random
 import math
 import sys
-from typing import List, Optional, Tuple
 
 from datetime import datetime, timedelta
 
@@ -850,7 +849,7 @@ class Ecosystem:
         return camp_names
 
 
-    def export_graph(self, use_ids_instead_of_names: bool = False) -> Tuple[List[str], List[List]]:
+    def export_graph(self, use_ids_instead_of_names: bool = False) -> tuple[list[str], list[list]]:
         """
         Summary: 
             Exports the simulation graph as a list of vertices and a list of edges.
@@ -859,7 +858,7 @@ class Ecosystem:
             use_ids_instead_of_names (bool, optional): Whether to use location IDs instead of location names for the vertices. Defaults to False.
 
         Returns:
-            Tuple[List[str], List[List]]: A tuple containing a list of vertices and a list of edges.
+            tuple[list[str], list[list]]: A tuple containing a list of vertices and a list of edges.
         """
         vertices = []
         edges = []

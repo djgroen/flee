@@ -404,7 +404,7 @@ class InputGeography:
             e (Ecosystem): ecosystem object
 
         Returns:
-            Tuple[Ecosystem, Dict]: tuple of ecosystem object and location dictionary
+            tuple[Ecosystem, Dict]: tuple of ecosystem object and location dictionary
         """
 
         #0"name",1"region",2"country",3"gps_x",4"gps_y",5"location_type",6"conflict_date",7"pop/cap"
