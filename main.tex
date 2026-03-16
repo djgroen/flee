@@ -389,6 +389,29 @@ shape cognitive availability
 \end{frame}
 
 %==============================================================================
+% SLIDE 11b: Phase 1 Duration (Section 5.2)
+%==============================================================================
+\begin{frame}{Phase 1 Duration (Section 5.2)}
+
+\paragraph{Phase 1 duration.} The dimensionless Phase 1 duration
+$\tau^* = t^* \cdot v / d^*(\beta)$ normalizes the phase timing by
+network geometry and move speed. Here $t^*$ is the step at which
+mean $P_{S2}$ reaches its minimum (Phase 1 end), $v$ is
+\texttt{max\_move\_speed} (km/step), and $d^*(\beta)$ is the network
+distance (km) from the NPP to the location where conflict intensity
+$c = \ln(2)/\beta$ (the $\Omega = 0.5$ threshold). Calibration target:
+$\tau^* \approx 1$ (median agent reaches the $\Omega = 0.5$ zone at
+Phase 1 end).
+
+\vspace{0.5em}
+\textbf{Prediction 3 (updated):} $t^* > 0$ and $\tau^* \leq 1$.
+Phase 1 minimum occurs after crisis onset; dimensionless duration
+$\tau^* \leq 1$ ensures the phase transition matches spatial scale
+(not an artifact of a too-short simulation window).
+
+\end{frame}
+
+%==============================================================================
 % SLIDE 12: Configuration (Section 7)
 %==============================================================================
 \begin{frame}{Configuration: Nuclear Case Parameters}
@@ -404,6 +427,8 @@ Parameter & Symbol & Domain & Role & Description \\
 \texttt{kappa} & $\kappa$ & $(0, \infty)$ & Cognitive (free) & S2 sensitivity \\
 \texttt{max\_move\_speed} & $v$ & $(0, \infty)$ &
 Physical constraint (fixed) & Mean vehicle speed under evacuation congestion \\
+$d^*(\beta)$ & $d^*$ & $(0, \infty)$ & Derived & Network distance to $\Omega=0.5$ threshold (km) \\
+$\tau^*$ & $\tau^*$ & $(0, \infty)$ & Derived & Dimensionless Phase 1 duration: $t^* \cdot v / d^*$ \\
 \bottomrule
 \end{tabular}
 \caption{Nuclear case configuration. \texttt{max\_move\_speed} is a physical
@@ -422,6 +447,26 @@ timestep. The data-preferred value is identified from the calibration
 grid search and fixed for all subsequent analyses. Its sensitivity is
 reported in the supplementary material but it does not enter the
 count of free cognitive parameters ($\alpha$, $\beta$, $\kappa$).
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 12b: Parameter Reference (Section 8)
+%==============================================================================
+\begin{frame}{Parameter Reference (Section 8)}
+
+\begin{table}[h]
+\small
+\begin{tabular}{lll}
+\toprule
+Symbol & Definition & Role \\
+\midrule
+$d^*(\beta)$ & Network distance (km) from NPP to location with $c = \ln(2)/\beta$ & Characteristic spatial scale ($\Omega = 0.5$ threshold) \\
+$\tau^*$ & $t^* \cdot v / d^*(\beta)$ & Dimensionless Phase 1 duration; target $\approx 1$ \\
+\bottomrule
+\end{tabular}
+\caption{Derived parameters for phase structure validation.}
+\end{table}
 
 \end{frame}
 

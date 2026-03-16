@@ -66,3 +66,4 @@ Thumbs.db
 !conflict_validation/**/*.json
 !synthetic/results/**/*.csv
 !data/calibration_targets/**/*.csv
+!results/fukushima/*.csv

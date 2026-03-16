@@ -10,6 +10,7 @@ Run Fukushima evacuation calibration: grid search over alpha, beta, kappa.
 Uses InputGeography and conflicts.csv for time-varying conflict onset.
 """
 
+import math
 import os
 import sys
 import random
@@ -30,7 +31,12 @@ RESULTS_DIR = PROJECT_ROOT / "results" / "fukushima"
 # Scale factor for agent count (full pop ~138k would be slow)
 AGENT_SCALE = 0.02
 TIMESTEP_HOURS = 2
-N_TIMESTEPS = 36  # 72h after crisis onset
+# 72 steps = 144 hours = 6 days at 2h/step.
+# Extended from 36 to allow phase structure to fully develop.
+# Fukushima evacuation was substantially complete by day 3 (step 36)
+# for inner zones but outer zones (Iitate, Minamisoma) took longer.
+# tau* requires sufficient window for median agent to traverse d*(beta).
+N_TIMESTEPS = 72
 SEED = 42
 
 # =============================================================================
@@ -69,6 +75,11 @@ MAX_SPEED_RANGE = [5, 10, 20, 40, 60]
 # Target timesteps: t=15h->step8, t=20h->step10, t=33h->step17, t=72h->step36
 TARGET_STEPS = {15: 8, 20: 10, 33: 17, 72: 36}
 
+# Paths for d* computation
+CONFLICTS_CSV = INPUT_DIR / "conflicts.csv"
+LOCATIONS_CSV = INPUT_DIR / "locations.csv"
+ROUTES_CSV = INPUT_DIR / "routes.csv"
+
 # Municipality to zone mapping for calibration (Hayano distance zones)
 # <5km: Futaba + Okuma; 5–10km: Namie; 10–15km: Tomioka; 15–20km: Naraha
 ZONE_TO_MUNIS = {
@@ -86,6 +97,92 @@ MUNI_POP = {
 }
 
 SOURCE_MUNIS = ["Futaba", "Okuma", "Namie", "Tomioka", "Naraha", "Minamisoma", "Kawauchi", "Iitate"]
+
+# NPP (nearest plant) reference for d* computation
+NPP_LOCATIONS = ["Futaba", "Okuma"]
+
+
+def compute_characteristic_distance(beta, conflicts_csv, locations_csv, routes_csv, quiet=False):
+    """
+    Compute d*(beta) = network distance from NPP to the location
+    where conflict = ln(2)/beta (the Omega=0.5 threshold).
+
+    Uses the conflict schedule in conflicts.csv to find which location
+    has conflict closest to c* = ln(2)/beta at step 8 (after orders fire).
+    Returns distance in km from L0 (nearest NPP location) to that location
+    using the routes.csv link distances.
+    """
+    import networkx as nx
+
+    c_star = math.log(2) / beta
+    if not quiet:
+        print(f"[d*] beta={beta:.2f}, c*={c_star:.3f} (Omega=0.5 threshold)")
+
+    # Load conflict values at step 8
+    conflicts_df = pd.read_csv(conflicts_csv)
+    # Row 8 = step 8 (0-indexed)
+    if len(conflicts_df) <= 8:
+        print("[d*] conflicts.csv has insufficient rows for step 8")
+        return 0.0
+    row8 = conflicts_df.iloc[8]
+    conflict_cols = [c for c in conflicts_df.columns if c not in ("Day", "#Day") and str(c).strip()]
+
+    # Find location with conflict closest to c_star (only consider conflict > 0:
+    # locations with conflict=0 are not yet in the zone)
+    best_name = None
+    best_conflict = None
+    best_diff = float("inf")
+    for col in conflict_cols:
+        try:
+            val = float(row8[col])
+        except (ValueError, TypeError):
+            continue
+        if val <= 0:
+            continue
+        diff = abs(val - c_star)
+        if diff < best_diff:
+            best_diff = diff
+            best_name = col.strip()
+            best_conflict = val
+
+    if best_name is None:
+        if not quiet:
+            print("[d*] No valid conflict values at step 8")
+        return 0.0
+
+    # Build graph from routes
+    routes_df = pd.read_csv(routes_csv)
+    name1_col = "name1" if "name1" in routes_df.columns else routes_df.columns[0]
+    name2_col = "name2" if "name2" in routes_df.columns else routes_df.columns[1]
+    dist_col = "distance" if "distance" in routes_df.columns else routes_df.columns[2]
+    G = nx.Graph()
+    for _, r in routes_df.iterrows():
+        n1, n2 = str(r[name1_col]).strip(), str(r[name2_col]).strip()
+        d = float(r[dist_col])
+        G.add_edge(n1, n2, weight=d)
+
+    # Shortest path from each NPP location to best_name; use minimum
+    d_star_km = float("inf")
+    for npp in NPP_LOCATIONS:
+        if npp not in G or best_name not in G:
+            continue
+        try:
+            length = nx.shortest_path_length(G, npp, best_name, weight="weight")
+            if length < d_star_km:
+                d_star_km = length
+        except nx.NetworkXNoPath:
+            continue
+
+    if d_star_km == float("inf"):
+        d_star_km = 0.0
+        if not quiet:
+            print(f"[d*] No path from NPP to {best_name}")
+
+    if not quiet:
+        print(f"[d*] Closest location: {best_name} (conflict={best_conflict:.3f} at step 8, "
+              f"distance from NPP={d_star_km:.1f} km)")
+        print(f"[d*] d*(beta={beta:.1f}) = {d_star_km:.1f} km")
+    return d_star_km
 
 
 def find_tstar(mean_s2_series):
@@ -248,6 +345,9 @@ def main():
     kappa_r = [5.0] if args.quick else KAPPA_RANGE
     speed_r = [5, 40] if args.quick else MAX_SPEED_RANGE
 
+    # Cache d*(beta) per unique beta
+    d_star_cache = {}
+
     results = []
     for alpha in alpha_r:
         for beta in beta_r:
@@ -255,6 +355,14 @@ def main():
                 for max_move_speed in speed_r:
                     rows = run_simulation(alpha, beta, kappa, max_move_speed, seed=SEED)
                     loss, model_vals = compute_loss(rows, targets_df)
+                    mean_s2_series = [r["mean_s2"] for r in rows]
+                    tstar = find_tstar(mean_s2_series)
+                    if beta not in d_star_cache:
+                        d_star_cache[beta] = compute_characteristic_distance(
+                            beta, str(CONFLICTS_CSV), str(LOCATIONS_CSV), str(ROUTES_CSV), quiet=True
+                        )
+                    d_star = d_star_cache[beta]
+                    tau_star = (tstar * max_move_speed) / d_star if d_star > 0 else float("inf")
                     results.append({
                         "alpha": alpha, "beta": beta, "kappa": kappa,
                         "max_move_speed": max_move_speed,
@@ -263,6 +371,7 @@ def main():
                         "T2_model": model_vals.get("T2", np.nan),
                         "T3_model": model_vals.get("T3", np.nan),
                         "T4_model": model_vals.get("T4", np.nan),
+                        "tau_star": tau_star,
                     })
 
     res_df = pd.DataFrame(results)
@@ -323,8 +432,44 @@ def main():
     print(f"  t*  = {tstar} (Phase 1 minimum — end of acute S1-dominated response)")
     print(f"  t** = {tstarstar} (Phase 2 plateau onset — Psi heterogeneity visible)")
 
+    # Dimensionless Phase 1 duration tau*
+    best_beta = best["beta"]
+    d_star = compute_characteristic_distance(
+        best_beta, str(CONFLICTS_CSV), str(LOCATIONS_CSV), str(ROUTES_CSV)
+    )
+    tau_star = (tstar * best_speed) / d_star if d_star > 0 else float("inf")
+    print("\nDimensionless Phase 1 duration:")
+    print(f"  d*(beta={best_beta:.1f}) = {d_star:.1f} km")
+    print(f"  t* = {tstar} steps")
+    print(f"  v  = {best_speed} km/step")
+    print(f"  tau* = t* * v / d* = {tau_star:.2f}")
+    print("  Target: tau* ≈ 1.0")
+    print("\n  tau* interpretation:")
+    print("    tau* < 1: Phase 1 ends before median agent reaches Omega=0.5 zone (fast evacuation)")
+    print("    tau* ≈ 1: Well-calibrated — phase transition matches spatial scale")
+    print("    tau* >> 1: Simulation window too short or max_move_speed too slow")
+
+    if tstar > N_TIMESTEPS - 5:
+        print(f"\nWARNING: t*={tstar} is within 5 steps of simulation end.")
+        print(f"         tau*={tau_star:.2f} may be an artifact of simulation window.")
+        print("         Consider extending N_TIMESTEPS further or increasing max_move_speed.")
+
+    # Write phase_boundaries.csv for integration tests
+    phase_df = pd.DataFrame([{
+        "tstar": tstar,
+        "tstarstar": tstarstar,
+        "tau_star": tau_star,
+        "mean_s2_t0": rows[0]["mean_s2"],
+        "mean_s2_tstar": rows[tstar]["mean_s2"] if tstar < len(rows) else np.nan,
+        "mean_s2_tstarstar": rows[tstarstar]["mean_s2"] if tstarstar < len(rows) else np.nan,
+        "std_s2_tstar": rows[tstar]["std_s2"] if tstar < len(rows) else np.nan,
+        "std_s2_tstarstar": rows[tstarstar]["std_s2"] if tstarstar < len(rows) else np.nan,
+    }])
+    phase_df.to_csv(RESULTS_DIR / "phase_boundaries.csv", index=False)
+    print(f"\nWrote {RESULTS_DIR / 'phase_boundaries.csv'}")
+
     # Shelter-in-place diagnostic: Tomioka and Naraha population fraction by step
-    SHELTER_STEPS = [1, 4, 8, 12, 14, 18, 24, 36]
+    SHELTER_STEPS = [1, 4, 8, 12, 14, 18, 24, 36, 72]
     print("\n[SHELTER-IN-PLACE CHECK] Tomioka population fraction by step:")
     for s in SHELTER_STEPS:
         if s < len(rows):

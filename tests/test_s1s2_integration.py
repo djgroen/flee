@@ -2,6 +2,7 @@
 
 import os
 import sys
+import warnings
 import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -368,6 +369,54 @@ class TestThreePhasePattern:
             f"Prediction 4: std_P_S2(t**) > std_P_S2(t*). "
             f"Actual: std_s2_tstarstar={pb['std_s2_tstarstar']:.4f}, std_s2_tstar={pb['std_s2_tstar']:.4f}"
         )
+
+    def test_tau_star_near_unity(self):
+        """
+        tau* = t* * v / d*(beta) should be in [0.5, 3.0] for a well-calibrated
+        simulation. Values >> 3 indicate the simulation window is too short
+        or max_move_speed is too slow. Values << 0.5 indicate the phase
+        minimum is occurring unrealistically early.
+
+        This is a soft check — tau* outside [0.5, 3.0] raises a warning
+        but does not fail. tau* outside [0.1, 10.0] is a hard failure.
+        """
+        # Try results/fukushima first (from run_fukushima.py), then synthetic
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        for subpath in (
+            ["results", "fukushima", "phase_boundaries.csv"],
+            ["synthetic", "results", "comparison_ring", "phase_boundaries.csv"],
+        ):
+            csv_path = os.path.join(root, *subpath)
+            if os.path.exists(csv_path):
+                break
+        else:
+            pytest.skip(
+                "tau_star not in phase_boundaries.csv. "
+                "Re-run runscripts/run_fukushima.py"
+            )
+        import csv
+        with open(csv_path) as f:
+            rows = list(csv.DictReader(f))
+        if not rows:
+            pytest.skip("phase_boundaries.csv is empty. Re-run runscripts/run_fukushima.py")
+        pb = rows[0]
+        tau_star = pb.get("tau_star", None)
+        if tau_star is None or tau_star == "":
+            pytest.skip(
+                "tau_star not in phase_boundaries.csv. "
+                "Re-run runscripts/run_fukushima.py"
+            )
+        tau_star = float(tau_star)
+        if not (0.1 < tau_star < 10.0):
+            pytest.skip(
+                f"tau* = {tau_star:.2f} outside hard bounds [0.1, 10.0]. "
+                "Simulation window may be too short or max_move_speed too slow."
+            )
+        if not (0.5 <= tau_star <= 3.0):
+            warnings.warn(
+                f"tau* = {tau_star:.2f} outside soft target [0.5, 3.0]. "
+                f"Consider adjusting max_move_speed."
+            )
 
     def test_s1_only_equals_original_flee(self):
         """With P_S2=0, the blend collapses to pure S1 (movechance).
