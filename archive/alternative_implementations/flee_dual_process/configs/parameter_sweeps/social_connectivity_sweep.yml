@@ -1,0 +1,8 @@
+# Parameter Sweep: Social Connectivity
+# Tests the effect of different social connectivity levels on collective behavior
+
+sweep_type: single_parameter
+parameter: move_rules.average_social_connectivity
+values: [0.0, 1.0, 3.0, 5.0, 8.0]
+base_cognitive_mode: dual_process
+description: "Sweep social connectivity from isolated (0.0) to highly connected (8.0)"

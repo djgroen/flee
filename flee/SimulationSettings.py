@@ -313,6 +313,8 @@ class SimulationSettings:
             "beta": float(s1s2_config.get("beta", 2.0)),
             "kappa": float(s1s2_config.get("kappa", 5.0)),
         }
+        # Optional: force P_S2 for comparison runs (0=s1_only, 1=s2_only, None=compute normally)
+        SimulationSettings.move_rules["s2_weight_override"] = fetchss(dpr, "s2_weight_override", None)
 
         # Enable Farmer harvesting
         SimulationSettings.move_rules["HarvestMonths"] = fetchss(dpr, "harvest_months", [])

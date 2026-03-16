@@ -1,4 +1,0 @@
-name,region,country,lat,lon,location_type,conflict_date,population
-Conflict_Zone,Region1,Country1,0.000000,0.000000,conflict_zone,2023-01-01,0
-Transit_Town,Region1,Country1,0.000000,0.675676,town,,0
-Refugee_Camp,Region1,Country1,0.000000,1.351351,camp,,0

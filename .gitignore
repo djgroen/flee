@@ -64,3 +64,5 @@ Thumbs.db
 !test_data/**/*.json
 !conflict_validation/**/*.csv
 !conflict_validation/**/*.json
+!synthetic/results/**/*.csv
+!data/calibration_targets/**/*.csv

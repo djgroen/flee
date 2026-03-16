@@ -1,0 +1,765 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Packages
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+
+% Custom commands
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\sigmoid}{\sigma}
+
+% Title information
+\title[Dual-Process Crisis Model]{A Parsimonious Dual-Process Model of Crisis Decision-Making}
+\subtitle{Theoretical Foundations and Agent-Based Implementation}
+\author{Michael Puma}
+\institute{Columbia University Climate School\\Center for Climate Systems Research}
+\date{\today}
+
+\begin{document}
+
+% Title slide
+\begin{frame}
+\titlepage
+\end{frame}
+
+% Outline
+\begin{frame}{Outline}
+\tableofcontents
+\end{frame}
+
+%==============================================================================
+\section{The Problem}
+%==============================================================================
+
+\begin{frame}{Crisis Decisions Deviate from Rationality}
+
+\textbf{Observed patterns in forced displacement, disasters, panics:}
+
+\begin{itemize}
+    \item \textbf{Inverted-U}: Moderate conflict → deliberation; extreme conflict → panic
+    \item \textbf{Heterogeneity}: Identical situations → vastly different choices  
+    \item \textbf{Deliberation collapse}: Beyond thresholds, even experts revert to heuristics
+    \item \textbf{Experience matters}: Prior exposure predicts decisions better than education
+\end{itemize}
+
+\vspace{0.5em}
+\centering
+\textit{Standard rational choice models cannot explain these patterns}
+
+\end{frame}
+
+%==============================================================================
+\section{Dual-Process Theory}
+%==============================================================================
+
+\begin{frame}{Two Systems of Thinking (Kahneman 2011)}
+
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{System 1 (S1)}
+\begin{itemize}
+    \item Fast, automatic
+    \item Heuristic-based
+    \item Low cognitive load
+    \item Pattern matching
+\end{itemize}
+
+\vspace{0.5em}
+\textit{Examples:}
+\begin{itemize}
+    \item Fleeing visible danger
+    \item Following crowds
+\end{itemize}
+
+\column{0.48\textwidth}
+\textbf{System 2 (S2)}
+\begin{itemize}
+    \item Slow, deliberative  
+    \item Analytical
+    \item High cognitive load
+    \item Requires time \& info
+\end{itemize}
+
+\vspace{0.5em}
+\textit{Examples:}
+\begin{itemize}
+    \item Evaluating route safety
+    \item Timing displacement
+\end{itemize}
+
+\end{columns}
+
+\vspace{1em}
+\centering
+\alert{Traditional models: binary switch. Our model: continuous framework}
+
+\end{frame}
+
+%==============================================================================
+\section{Core Principle}
+%==============================================================================
+
+\begin{frame}{The Key Insight: Necessary Conditions Logic}
+
+\begin{center}
+\Large
+\textit{Deliberation requires BOTH\\
+cognitive capacity AND structural opportunity}
+\end{center}
+
+\vspace{1em}
+
+\textbf{Concrete example:} Moderate-conflict evacuation ($c = 0.3$)
+
+\begin{enumerate}
+    \item \textbf{Experienced civilian}: $\Psi = 0.8$, $\Omega = 0.7$ → $P_{S2} = 0.56$
+    \item \textbf{Inexperienced civilian}: $\Psi = 0.2$, $\Omega = 0.7$ → $P_{S2} = 0.14$  
+    \item \textbf{Soldier under ambush}: $\Psi = 0.8$, $\Omega = 0.1$ → $P_{S2} = 0.08$
+\end{enumerate}
+
+\vspace{0.5em}
+Low capacity OR low opportunity $\Rightarrow$ deliberation fails
+
+\end{frame}
+
+%==============================================================================
+\section{The Model}
+%==============================================================================
+
+\begin{frame}{Mathematical Definition: Only 2 Parameters!}
+
+\textbf{Cognitive Capacity} (ability to deliberate):
+\begin{equation*}
+\Psi(x; \alpha) = \frac{1}{1 + e^{-\alpha x}}
+\end{equation*}
+where $x$ = experience-based capacity index, $\alpha$ = sensitivity
+
+\vspace{0.5em}
+
+\textbf{Structural Opportunity} (situation permits deliberation):
+\begin{equation*}
+\Omega(c; \beta) = \frac{1}{1 + e^{-\beta(1-c)}}
+\end{equation*}
+where $c$ = conflict intensity, $\beta$ = sensitivity
+
+\vspace{0.5em}
+
+\textbf{Deliberation Probability} (System 2 processing):
+\begin{equation*}
+\boxed{P_{S2} = \Psi \times \Omega}
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}{Why Multiplicative? Four Justifications}
+
+\textbf{1. Bottleneck Logic}
+\begin{itemize}
+    \item Like water through pipes in series
+    \item Each factor \textit{scales} available capacity
+\end{itemize}
+
+\textbf{2. Independence of Constraints}
+\begin{itemize}
+    \item Capacity and opportunity are orthogonal
+    \item High capacity cannot compensate for zero opportunity
+\end{itemize}
+
+\textbf{3. Fuzzy Logic Extension}  
+\begin{itemize}
+    \item Continuous version of logical AND: $\Psi \otimes \Omega = \Psi \times \Omega$
+    \item Preserves boundary conditions and monotonicity
+\end{itemize}
+
+\textbf{4. Parsimony (Occam's Razor)}
+\begin{itemize}
+    \item Additive form: compensatory (contradicts observations)
+    \item Minimum form: discontinuous at boundaries
+    \item Multiplicative: matches empirical patterns
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Experience vs. Education}
+
+\textbf{Initial intuition:} Use education as cognitive capacity proxy
+
+\vspace{0.5em}
+
+\textbf{Critical insight:} In survival contexts, relevant experience matters more
+
+\vspace{0.5em}
+
+\textbf{Example:} Afghan displacement
+\begin{itemize}
+    \item Urban educated professional: High education, \alert{low survival capacity}
+    \item Tribal elder: Low education, \alert{high survival capacity}
+    \begin{itemize}
+        \item Prior conflict exposure
+        \item Local knowledge  
+        \item Social networks
+    \end{itemize}
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{Solution:} Experience-based capacity index
+\begin{equation*}
+x = f(\text{prior displacement}, \text{local knowledge}, \text{conflict exposure}, \text{age}, ...)
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}{Parsimony Principle (Rodriguez-Iturbe)}
+
+\textbf{Question:} Which parameters are necessary?
+
+\vspace{0.5em}
+
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{Original model:}
+\begin{itemize}
+    \item $\alpha$: Capacity weight
+    \item $\beta$: Opportunity weight
+    \item $\eta$: Pressure sensitivity
+    \item $\theta$: Pressure threshold  
+    \item $p_{s2}$: Deliberative move prob
+\end{itemize}
+
+\column{0.48\textwidth}
+\textbf{Reduced model:}
+\begin{itemize}
+    \item $\alpha$: FREE
+    \item $\beta$: FREE
+    \item $\eta = 4.0$: Fixed
+    \item $\theta = 0.5$: Fixed
+    \item $p_{s2} = 0.8$: Fixed
+\end{itemize}
+\end{columns}
+
+\vspace{1em}
+
+\begin{center}
+\large
+\textit{Complex patterns emerge from 2 parameters}\\
+\textit{as predictions, not assumptions}
+\end{center}
+
+\end{frame}
+
+%==============================================================================
+\section{Mathematical Properties}
+%==============================================================================
+
+\begin{frame}{Key Mathematical Properties}
+
+\textbf{Boundedness:} All functions map to [0,1]
+\begin{align*}
+\Psi(x; \alpha) &\in [0, 1] \quad \forall x \in [0, \infty) \\
+\Omega(c; \beta) &\in [0, 1] \quad \forall c \in [0, 1] \\
+P_{S2} &\in [0, 1]
+\end{align*}
+
+\textbf{Monotonicity:}
+\begin{align*}
+\frac{\partial \Psi}{\partial x} &> 0 \quad \text{(more experience → more capacity)} \\
+\frac{\partial \Omega}{\partial c} &< 0 \quad \text{(more conflict → less opportunity)}
+\end{align*}
+
+\textbf{Non-Compensatory Interaction:}
+\begin{equation*}
+\frac{\partial P_{S2}}{\partial x} = \Omega \cdot \frac{\partial \Psi}{\partial x}
+\end{equation*}
+When $\Omega \approx 0$ (extreme conflict), increasing capacity has negligible effect
+
+\end{frame}
+
+\begin{frame}{Limiting Behavior}
+
+\textbf{Extreme cases confirm intuition:}
+
+\vspace{0.5em}
+
+\begin{itemize}
+    \item \textbf{Total conflict:}
+    \begin{equation*}
+    \lim_{c \to 1} P_{S2} = 0 \quad \text{(no deliberation possible)}
+    \end{equation*}
+    
+    \item \textbf{No capacity:}
+    \begin{equation*}
+    \lim_{x \to 0} P_{S2} = 0 \quad \text{(cannot deliberate)}
+    \end{equation*}
+    
+    \item \textbf{High capacity + low conflict:}
+    \begin{equation*}
+    \lim_{\substack{x \to \infty \\ c \to 0}} P_{S2} = 1 \quad \text{(full deliberation)}
+    \end{equation*}
+\end{itemize}
+
+\end{frame}
+
+%==============================================================================
+\section{Predictions}
+%==============================================================================
+
+\begin{frame}{Emergent Pattern 1: Inverted-U Relationship}
+
+\textbf{Deliberation maximized at intermediate conflict}
+
+\vspace{0.5em}
+
+\textit{Mechanism:}
+\begin{itemize}
+    \item Low conflict ($c \approx 0$): High $\Omega$, but low urgency perception
+    \item \alert{Moderate conflict ($c \approx 0.3$-$0.5$)}: Both $\Psi$ and $\Omega$ positive → \textbf{maximum deliberation}
+    \item High conflict ($c \approx 1$): $\Omega \to 0$ → deliberation collapses
+\end{itemize}
+
+\vspace{0.5em}
+
+\begin{center}
+\textit{(See Figure 4 in paper: inverted-U curves for different experience levels)}
+\end{center}
+
+\vspace{0.5em}
+
+\alert{Key prediction:} Universal collapse at extreme conflict regardless of experience
+
+\end{frame}
+
+\begin{frame}{Emergent Pattern 2: Heterogeneous Response}
+
+\textbf{Variation in experience produces variation in decisions}
+
+\vspace{0.5em}
+
+\begin{itemize}
+    \item Agents with identical demographics but different experience profiles exhibit different decision patterns
+    \item Mechanism: Variation in $x_i$ → variation in $\Psi_i$ → heterogeneous $P_{S2,it}$
+\end{itemize}
+
+\vspace{1em}
+
+\textbf{Emergent Pattern 3: Deliberation Collapse}
+
+\vspace{0.5em}
+
+\begin{itemize}
+    \item Beyond critical threshold $c^*$, even high-capacity agents revert to heuristics
+    \item Mechanism: When $\Omega(c^*) \approx 0$, product $P_{S2} \approx 0$ regardless of $\Psi$
+    \item Observed in Fukushima: even trained operators made heuristic decisions under extreme stress
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Testable Hypotheses}
+
+\textbf{1. Cross-sectional:} 
+\begin{itemize}
+    \item Higher experience → higher deliberation (at moderate conflict)
+\end{itemize}
+
+\textbf{2. Temporal:}
+\begin{itemize}
+    \item Deliberation declines non-linearly as conflict intensifies
+\end{itemize}
+
+\textbf{3. Interaction:}
+\begin{itemize}
+    \item Effect of experience on deliberation diminishes as conflict increases
+    \item Test: Interaction term significant and negative
+\end{itemize}
+
+\textbf{4. Comparative:}
+\begin{itemize}
+    \item \textbf{Additive model}: High-capacity agents maintain deliberation under stress
+    \item \textbf{Multiplicative model}: All agents show collapse under extreme stress
+    \item Empirical evidence supports multiplicative (e.g., Fukushima)
+\end{itemize}
+
+\end{frame}
+
+%==============================================================================
+\section{Implementation}
+%==============================================================================
+
+\begin{frame}{Agent-Based Implementation (FLEE)}
+
+\textbf{Implemented in FLEE} (open-source refugee movement model).\\
+Feature is \alert{optional and off by default}; enable via \texttt{two\_system\_decision\_making: true}.
+
+\vspace{0.5em}
+
+\textbf{Algorithm at each timestep:}
+
+\begin{enumerate}
+    \item Initialize agents with heterogeneous experience $x_i$
+    \item Observe conflict $c_t$ at agent location
+    \item Compute $\Psi_i = \sigma(\alpha x_i)$
+    \item Compute $\Omega_t = \sigma(\beta(1 - c_t))$
+    \item Compute $P_{S2,it} = \Psi_i \times \Omega_t$
+    \item Draw $u \sim U(0,1)$
+    \item If $u < P_{S2,it}$: deliberative decision
+    \item Else: heuristic decision
+\end{enumerate}
+
+\textbf{Decision rules:}
+\begin{itemize}
+    \item S1 (heuristic): Simple threshold — ``Move if $c > 0.5$''
+    \item S2 (deliberative): Weighted factors — safety, resources, social ties
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Implementation Status (Current)}
+
+\textbf{Integration with main FLEE:}
+\begin{itemize}
+    \item Pull request submitted to \textbf{djgroen/flee} (main FLEE repository).
+    \item Branch: \texttt{feature/dual-process-experiments} from fork \texttt{mjpuma/flee}.
+    \item Scope: \texttt{moving.py}, \texttt{flee.py}, \texttt{SimulationSettings.py}, \texttt{s1s2\_model.py}, \texttt{simsetting.yml} (minimal, reviewable diff).
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{Design choices:}
+\begin{itemize}
+    \item S1/S2 logic lives alongside existing rules (FleeWhenStarving, Flood/FloodForecaster); no breaking changes.
+    \item Validated with \texttt{run\_pr\_checklist.py}: default-off and default-on runs pass; \texttt{p\_s2} in results when enabled.
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{Config:} \texttt{move\_rules.two\_system\_decision\_making}, \texttt{s1s2\_model\_params} ($\alpha$, $\beta$, $p_{s2}$, etc.). See \texttt{docs/PR\_CHECKLIST\_S1S2.md} for schema.
+
+\end{frame}
+
+\begin{frame}{Idealized Experiments}
+
+\textbf{Three Topologies for Nuclear Evacuation:}
+\begin{itemize}
+    \item \textbf{Ring/Circular}: Concentric evacuation zones (Fukushima, Chernobyl style)
+    \item \textbf{Star/Hub-and-Spoke}: Central facility with radiating routes (Indian Point style)
+    \item \textbf{Linear}: Single evacuation corridor (coastal/mountain facilities)
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{Simulation Parameters:}
+\begin{itemize}
+    \item $N=1000$ agents per topology
+    \item $T=30$ timesteps
+    \item Experience $x$ varies by agent (prior displacement, connections, local knowledge)
+    \item Conflict $c$ varies by location (0.95 at Facility → 0.0 at SafeZone)
+    \item Model: $P_{S2} = \Psi(x; \alpha=2.0) \times \Omega(c; \beta=2.0)$
+\end{itemize}
+
+\end{frame}
+
+%==============================================================================
+\section{Results}
+%==============================================================================
+
+\begin{frame}{Temporal Dynamics: S2 Activation Over Time}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{nuclear_evacuation_temporal_dynamics.png}
+\end{figure}
+
+\textbf{Key Observations:}
+\begin{itemize}
+    \item S2 activation increases over time as agents gain experience
+    \item Ring topology shows highest S2 activation (98\% at Ring3, one step from SafeZone)
+    \item Consistent with model: $P_{S2} = \Psi \times \Omega$ where both factors are high
+    \item Evacuation progress correlates with S2 activation
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Ring Topology: S2 Activation at One Step from SafeZone}
+
+\textbf{Critical Finding:} Agents activate System 2 at 93.5\% rate (Ring topology) when conditions are favorable
+
+\vspace{0.5em}
+
+\textbf{Mechanism (consistent with model):}
+\begin{itemize}
+    \item \textbf{Cognitive Capacity ($\Psi$)}: High due to agent experience
+    \begin{itemize}
+        \item Agents have traveled through multiple rings
+        \item High \texttt{timesteps\_since\_departure} → high experience index
+    \end{itemize}
+    \item \textbf{Structural Opportunity ($\Omega$)}: High due to low conflict
+    \begin{itemize}
+        \item Ring3 locations: conflict = 0.20 (vs. Facility = 0.95)
+        \item $\Omega = \sigma(2.0 \times (1 - 0.20)) \approx 0.83$
+    \end{itemize}
+    \item \textbf{Result:} $P_{S2} = \text{High} \times \text{High} = 93.5\%$ S2 activation
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{In contrast:} Agents at Facility (center) show 0\% S2 activation
+\begin{itemize}
+    \item Low $\Psi$ (just spawned) × Low $\Omega$ (conflict = 0.95) = 0\% S2
+    \item High-conflict zone hard constraint ensures agents always try to leave (panic response)
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Topology Comparison}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{nuclear_evacuation_topology_comparison.png}
+\end{figure}
+
+\textbf{Summary:}
+\begin{itemize}
+    \item Star topology: Highest average S2 (82.1\%) and evacuation success (28.8\%)
+    \item Ring topology: Moderate S2 (74.5\%) with peak at Ring3 (98\%)
+    \item Linear topology: Lowest S2 (67.6\%) and highest cognitive pressure (0.232)
+    \item Peak S2 similar across all (~94\%) when both $\Psi$ and $\Omega$ are high
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Summary Statistics}
+
+\begin{table}
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+Topology & Avg S2 (\%) & Final Evac. (\%) & Peak S2 (\%) & Avg Pressure \\
+\midrule
+Ring     & 77.5        & 98.7            & 93.5         & 0.215 \\
+Star     & 54.8        & 100.0           & 57.0         & 0.262 \\
+Linear   & 63.3        & 87.8            & 96.3         & 0.163 \\
+\bottomrule
+\end{tabular}
+\caption{Summary statistics for nuclear evacuation simulations with high-conflict 
+zone hard constraint. Ring topology shows highest average S2 activation (77.5\%) 
+and near-complete evacuation (98.7\%). Star topology achieves 100\% evacuation 
+success. Linear topology shows highest peak S2 (96.3\%) but lower final evacuation 
+(87.8\%) due to bottleneck effects.}
+\end{table}
+
+\vspace{0.5em}
+
+\textbf{Key Validation:}
+\begin{itemize}
+    \item Model prediction: $P_{S2} = \Psi \times \Omega$ matches observed patterns
+    \item High-conflict zone hard constraint ensures agents always try to leave extreme danger zones
+    \item Peak S2 (93--96\%) occurs when both factors are high (model saturation)
+    \item Ring and Star topologies achieve near-complete evacuation (98--100\%)
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Network Topology Structures}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{nuclear_evacuation_network_diagrams.png}
+\end{figure}
+
+\textbf{Topology Characteristics:}
+\begin{itemize}
+    \item \textbf{Ring}: Single SafeZone, all Ring3 locations one step away
+    \item \textbf{Star}: Multiple safe zones, hub-and-spoke structure
+    \item \textbf{Linear}: Single corridor, bottleneck effects
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{Implications:}
+\begin{itemize}
+    \item Topology structure affects both S2 activation and evacuation success
+    \item Multiple routes (Star) enable higher deliberation and success
+    \item Bottlenecks (Linear) increase cognitive pressure, reduce S2
+\end{itemize}
+
+\end{frame}
+
+%==============================================================================
+\section{Validation Strategy}
+%==============================================================================
+
+\begin{frame}{Empirical Validation Requirements}
+
+\begin{table}
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Variable} & \textbf{Proxy Measures} \\
+\midrule
+Conflict intensity $c$ & Battle deaths, ACLED events \\
+Experience index $x$ & Prior displacement, age, rural/urban \\
+Deliberation proxy & Timing, route choice, preparation \\
+Movement $y$ & Displacement records, UNHCR data \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.5em}
+
+\textbf{Estimation steps:}
+\begin{enumerate}
+    \item Construct experience index from available data
+    \item Calibrate $\alpha$, $\beta$ via maximum likelihood
+    \item Out-of-sample validation (train on one crisis, test on another)
+    \item Model comparison: Likelihood ratio test vs. additive/minimum alternatives
+\end{enumerate}
+
+\end{frame}
+
+%==============================================================================
+\section{Contributions}
+%==============================================================================
+
+\begin{frame}{Theoretical Contributions}
+
+\begin{enumerate}
+    \item \textbf{Rigorous definition of $P_{S2}$}
+    \begin{itemize}
+        \item As proportion of cognitive resources, not binary state
+    \end{itemize}
+    
+    \item \textbf{Justified multiplicative form}
+    \begin{itemize}
+        \item Four independent arguments: logical AND, independence, fuzzy logic, parsimony
+    \end{itemize}
+    
+    \item \textbf{Falsifiable predictions}  
+    \begin{itemize}
+        \item Distinguishes multiplicative from additive through testable interactions
+    \end{itemize}
+    
+    \item \textbf{Experience over education}
+    \begin{itemize}
+        \item Capacity measured by survival-relevant factors
+    \end{itemize}
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}{Empirical \& Practical Contributions}
+
+\textbf{Empirical:}
+\begin{itemize}
+    \item \textbf{Minimal parameterization:} Only $\alpha$ and $\beta$
+    \item \textbf{Emergent complexity:} Inverted-U, heterogeneity, collapse arise from simple $\Psi \times \Omega$
+    \item \textbf{Computational efficiency:} $O(n)$ enables large-scale simulation
+    \item \textbf{Open-source integration:} Implementation in FLEE; PR to main repository (djgroen/flee) for community use
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{Practical implications:}
+\begin{itemize}
+    \item \textbf{For modelers:} Start with 2 parameters; add complexity only if data demand
+    \item \textbf{For policymakers:}
+    \begin{itemize}
+        \item Invest in disaster preparedness training (builds $\Psi$)
+        \item Provide early information before conflict escalates (while $\Omega$ still moderate)
+        \item Recognize critical thresholds beyond which even trained populations revert to heuristics
+    \end{itemize}
+    \item \textbf{For humanitarian response:} Target interventions based on conflict phase
+    \begin{itemize}
+        \item Early: Decision support, information provision
+        \item Late: Simple, fast evacuation routes
+    \end{itemize}
+\end{itemize}
+
+\end{frame}
+
+%==============================================================================
+\section{Future Directions}
+%==============================================================================
+
+\begin{frame}{Limitations \& Future Research}
+
+\textbf{Current limitations:}
+\begin{itemize}
+    \item Experience index requires operationalization and validation
+    \item Fixed meta-parameters ($\eta$, $\theta$, $p_{s2}$) may vary across contexts
+    \item Static capacity: $\Psi$ currently time-invariant (no learning/trauma effects)
+    \item No social influence: agents treated independently
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{Future research:}
+\begin{itemize}
+    \item \textbf{Empirical validation:} Fit to multiple displacement crises
+    \item \textbf{Out-of-sample testing:} Train on one crisis, test on another
+    \item \textbf{Conditional expansion:} Add parameters only if likelihood ratio test significant ($p < 0.01$)
+    \item \textbf{Dynamic capacity:} Model $\Psi_i(t)$ evolving with experience/trauma
+    \item \textbf{Social networks:} Include social learning and imitation
+    \item \textbf{Other domains:} Pandemic evacuation, financial panics, climate migration
+    \item \textbf{Sensitivity analysis:} EasyVVUQ or FabFlee integration for $\alpha$, $\beta$ (post-merge)
+\end{itemize}
+
+\end{frame}
+
+%==============================================================================
+\section{Conclusion}
+%==============================================================================
+
+\begin{frame}{Conclusion: Simplicity and Power}
+
+\begin{center}
+\Large
+\textbf{Complex phenomena need not require complex models}
+\end{center}
+
+\vspace{1em}
+
+\textbf{Key contributions:}
+\begin{enumerate}
+    \item Theoretical foundation: Necessary conditions logic → multiplicative form
+    \item Empirical parsimony: 2 parameters, complex emergent patterns
+    \item Testable predictions: Falsifiable hypotheses distinguishing alternatives
+    \item Practical relevance: Direct implications for humanitarian response
+    \item \textbf{Implementation:} Optional S1/S2 in FLEE; PR to main repo (in review)
+\end{enumerate}
+
+\vspace{1em}
+
+\begin{center}
+\large
+The elegant interaction:\\
+\vspace{0.3em}
+$\boxed{P_{S2} = \Psi \times \Omega}$\\
+\vspace{0.3em}
+captures the essence of deliberation breakdown in crisis
+\end{center}
+
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Huge Thank You
+
+\vspace{1em}
+
+\Large Questions?
+
+\vspace{1.5em}
+
+\normalsize
+Michael Puma\\
+Columbia University Climate School\\
+Center for Climate Systems Research
+\end{center}
+\end{frame}
+
+\end{document}

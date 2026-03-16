@@ -1,0 +1,2427 @@
+from __future__ import annotations, print_function
+
+import copy
+import os
+import random
+import math
+import sys
+from typing import List, Optional, Tuple
+
+from datetime import datetime, timedelta
+
+import numpy as np
+from flee.Diagnostics import write_agents, write_links
+from flee.SimulationSettings import SimulationSettings
+from flee import moving, spawning, scoring, demographics
+
+# Optional import for cognitive logging (dual-process experiments)
+try:
+    from flee_dual_process.cognitive_logger import CognitiveStateLogger, DecisionLogger, SocialNetworkLogger, MetricsSummaryLogger
+    COGNITIVE_LOGGING_AVAILABLE = True
+except ImportError:
+    COGNITIVE_LOGGING_AVAILABLE = False
+
+if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
+    from beartype import beartype as check_args_type
+else:
+    def check_args_type(func):
+        return func
+
+
+class Person:
+    """
+    The Person class
+    """
+
+    __slots__ = [
+        "location",
+        "distance_travelled",
+        "home_location",
+        "timesteps_since_departure",
+        "places_travelled",
+        "recent_travel_distance",
+        "distance_moved_this_timestep",
+        "travelling",
+        "harvesting",
+        "distance_travelled_on_link",
+        "attributes",
+        "locations_visited",
+        "route",
+        "days_in_current_location",   
+        "last_connection_update",
+        "cognitive_state",
+        "decision_history",
+        "system2_activations",
+    ]
+
+    @check_args_type
+    def __init__(self, location, attributes):
+        """
+        Summary: 
+            Initializes a new Flee Agent
+        
+        Args:
+            location: The initial location of the agent (can be None for testing).
+            attributes: A dictionary of attributes for the agent.
+    
+        Returns:
+            None.
+        """
+        self.location = location
+        self.home_location = location
+        self.timesteps_since_departure = 0
+        self.places_travelled = 1
+    
+        # An index of how much the agent has recently traveled
+        self.recent_travel_distance = 0.0
+        self.distance_moved_this_timestep = 0.0
+    
+        # Set to true when an agent resides on a link.
+        self.travelling = False
+        #Initializing harvesting parameter.
+        self.harvesting = False
+    
+        # Tracks how much distance a Person has been able to travel on the
+        # current link.
+        self.distance_travelled_on_link = 0
+    
+        # Initialize attributes dictionary and ensure "connections" is set
+        self.attributes = {"connections":0} | attributes
+        
+        self.route = []
+        
+        # System 1/System 2 tracking attributes
+        self.days_in_current_location = 0      # Track time in current location
+        self.last_connection_update = 0        # Track when connections were last updated
+        
+        # Cognitive state tracking attributes
+        self.cognitive_state = "S1"            # Current cognitive mode (S1 or S2)
+        self.decision_history = []             # Log of decision-making processes
+        self.system2_activations = 0           # Count of System 2 activations
+    
+        if SimulationSettings.log_levels["agent"] > 0:
+            self.distance_travelled = 0 
+        if SimulationSettings.log_levels["agent"] > 1:
+            self.locations_visited = [] 
+
+        # Only increment location count if location is not None
+        if self.location is not None:
+            self.location.IncrementNumAgents(self)
+
+            if "farmer_fraction" in self.location.attributes:
+                if random.random() < float(self.location.attributes["farmer_fraction"]):
+                    self.attributes["farmer"] = 1
+                else:
+                    self.attributes["farmer"] = 0
+
+    @check_args_type
+    def log_decision(self, decision_type: str, factors: dict, time: int) -> None:
+        """
+        Log decision-making process for cognitive state analysis.
+        
+        Args:
+            decision_type: Type of decision (e.g., 'move', 'stay', 'route_selection')
+            factors: Dictionary of factors that influenced the decision
+            time: Current simulation time
+            
+        Returns:
+            None
+        """
+        decision_entry = {
+            'time': time,
+            'type': decision_type,
+            'cognitive_state': self.cognitive_state,
+            'factors': factors.copy(),  # Make a copy to avoid reference issues
+            'location': self.location.name if self.location and hasattr(self.location, 'name') else None,
+            'connections': self.attributes.get("connections", 0)
+        }
+        
+        self.decision_history.append(decision_entry)
+        
+        # Limit decision history size to prevent memory issues
+        if len(self.decision_history) > 1000:
+            self.decision_history = self.decision_history[-500:]  # Keep last 500 entries
+
+    @check_args_type
+    def calculate_cognitive_pressure(self, time: int) -> float:
+        """
+        Calculate cognitive pressure based on conflict intensity, connectivity, and recovery period.
+        
+        Uses bounded mathematical model with realistic dynamics.
+        
+        Args:
+            time: Current simulation time
+            
+        Returns:
+            Cognitive pressure value (dimensionless parameter, bounded [0.0, 1.0])
+        """
+        if self.location is None:
+            return 0.0
+            
+        # Get conflict intensity (0.0 to 1.0)
+        conflict_intensity = max(0.0, getattr(self.location, 'conflict', 0.0))
+        
+        # Get connectivity (0 to 10, normalized to 0.0 to 1.0)
+        connectivity = min(1.0, self.attributes.get("connections", 0) / 10.0)
+        
+        # 1. Base Pressure (Internal Stress) - bounded to 0.4
+        base_pressure = min(0.4, connectivity * 0.2 + self._calculate_time_stress(time))
+        
+        # 2. Conflict Pressure (External Stress) - bounded to 0.4
+        conflict_pressure = min(0.4, conflict_intensity * connectivity * self._calculate_conflict_decay(time))
+        
+        # 3. Social Pressure (Network Effects) - bounded to 0.2
+        social_pressure = min(0.2, self._calculate_social_pressure(time))
+        
+        # Total cognitive pressure (bounded [0.0, 1.0])
+        cognitive_pressure = base_pressure + conflict_pressure + social_pressure
+        
+        return max(0.0, min(1.0, cognitive_pressure))
+    
+    def _calculate_time_stress(self, time: int) -> float:
+        """
+        Calculate time-based stress with realistic dynamics.
+        
+        Creates initial increase, peak, then decay.
+        """
+        # Time stress with decay: 0.1 * (1 - exp(-t/10)) * exp(-t/50)
+        growth_factor = 1.0 - math.exp(-time / 10.0)
+        decay_factor = math.exp(-time / 50.0)
+        return 0.1 * growth_factor * decay_factor
+    
+    def _calculate_conflict_decay(self, time: int) -> float:
+        """
+        Calculate conflict decay factor based on time since conflict.
+        """
+        # Get conflict start time (default to 0 if not set)
+        conflict_start_time = getattr(self.location, 'time_of_conflict', 0)
+        recovery_time = 20.0  # 20 timesteps for recovery
+        
+        # Exponential decay after conflict starts
+        time_since_conflict = max(0, time - conflict_start_time)
+        return math.exp(-time_since_conflict / recovery_time)
+    
+    def _calculate_social_pressure(self, time: int) -> float:
+        """
+        Calculate social pressure from network effects.
+        
+        For now, simplified implementation. Can be enhanced later.
+        """
+        # Simplified: based on connectivity and time
+        connectivity = min(1.0, self.attributes.get("connections", 0) / 10.0)
+        
+        # Social pressure increases with connectivity but is bounded
+        return min(0.2, connectivity * 0.1)
+
+    @check_args_type
+    def share_information_with_connected_agents(self, ecosystem, information: dict) -> None:
+        """
+        Share information with connected agents in the same location.
+        
+        Args:
+            ecosystem: The simulation ecosystem
+            information: Dictionary of information to share
+        """
+        if self.location is None or self.attributes.get("connections", 0) == 0:
+            return
+            
+        # Find other agents in the same location
+        connected_agents = []
+        for agent in ecosystem.agents:
+            if (agent != self and 
+                agent.location == self.location and 
+                agent.attributes.get("connections", 0) > 0):
+                connected_agents.append(agent)
+        
+        # Share information with a subset based on connection strength
+        max_shares = min(len(connected_agents), self.attributes.get("connections", 0))
+        if max_shares > 0:
+            import random
+            agents_to_share = random.sample(connected_agents, max_shares)
+            
+            for agent in agents_to_share:
+                # Share route information
+                if "route_info" in information and "_temp_route" not in agent.attributes:
+                    agent.attributes["_shared_route"] = information["route_info"].copy()
+                
+                # Share location safety information
+                if "location_safety" in information:
+                    if "_safety_info" not in agent.attributes:
+                        agent.attributes["_safety_info"] = {}
+                    agent.attributes["_safety_info"].update(information["location_safety"])
+
+    @check_args_type
+    def get_system2_capable(self) -> bool:
+        """
+        Determine if agent is capable of System 2 thinking.
+        
+        More realistic requirements based on connections, experience, or education.
+        
+        Returns:
+            True if agent can use System 2 thinking
+        """
+        # System 2 capability based on connections, experience, or education
+        min_connections = 1  # Lowered from 2
+        min_travel_experience = 3  # Lowered from 5
+        min_education = 0.3  # Education-based capability
+        
+        has_connections = self.attributes.get("connections", 0) >= min_connections
+        has_experience = self.timesteps_since_departure >= min_travel_experience
+        has_education = self.attributes.get("education_level", 0.5) >= min_education
+        
+        return has_connections or has_experience or has_education
+
+    # Add social connectivity
+    def update_social_connectivity(self, new_location, time):
+        """
+        Update agent's social connectivity based on location and interactions.
+        
+        Args:
+            new_location: The location the agent is moving to or currently in (can be Location or Link)
+            time: Current simulation time
+        """
+        # Skip if location is None (for testing scenarios)
+        if new_location is None:
+            return
+        
+        # Skip social connectivity updates when traveling on links
+        # only update when actually at locations
+        if hasattr(new_location, 'endpoint'):  # This means it's a Link object
+            return
+            
+        current_connections = self.attributes.get("connections", 0)
+        
+        # Factor 1: Population density effect
+        if new_location.numAgents > 100:
+            # High population areas increase connectivity
+            connection_boost = min(2, new_location.numAgents // 100)
+            self.attributes["connections"] = min(10, current_connections + connection_boost)
+        elif new_location.numAgents < 10:
+            # Isolated areas decrease connectivity
+            self.attributes["connections"] = max(0, current_connections - 1)
+        
+        # Factor 2: Camp effect (camps build stronger social networks)
+        if new_location.camp or new_location.idpcamp:
+            # Camps foster community building over time
+            days_in_location = getattr(self, 'days_in_current_location', 0) + 1
+            if days_in_location > 7:  # After a week
+                self.attributes["connections"] = min(8, current_connections + 1)
+            self.days_in_current_location = days_in_location
+        else:
+            self.days_in_current_location = 0
+        
+        # Factor 3: Conflict zones disrupt social networks
+        if new_location.conflict > 0.5:
+            # Active conflict disrupts connections
+            self.attributes["connections"] = max(0, current_connections - 2)
+        
+        # Factor 4: Time decay (connections fade without maintenance)
+        if hasattr(self, 'last_connection_update'):
+            time_since_update = time - self.last_connection_update
+            if time_since_update > 30:  # Monthly decay
+                self.attributes["connections"] = max(0, current_connections - 1)
+        
+        self.last_connection_update = time
+
+    @check_args_type
+    def handle_travel(self, location, travelling) -> None:
+        """
+        Summary:
+            Updates the agent's travel state.
+    
+        Args:
+            location: location to travel to (can be Location of Link type).
+            travelling: set to True if location is a Link, False if it is a Location object.
+        
+        Returns:
+            None.
+        """
+        self.location.DecrementNumAgents() 
+        
+        # Only reset days counter when actually changing locations (not links)
+        if not travelling and self.location != location:
+            self.days_in_current_location = 0
+        
+        self.location = location
+        self.location.IncrementNumAgents(self)
+        self.travelling = travelling
+        self.distance_travelled_on_link = 0
+
+
+    def check_dest_is_full_camp(self,e):
+        """
+        Summary:
+            Checks if the agent's destination camp is full.
+            Prevents the agent from moving to a camp that is already full.
+
+        Args:
+            e: ecosystem object
+
+        Returns:
+            True if the destination camp is full, False otherwise.
+        """
+        for i in range(0, len(e.locationNames)):
+            if e.locationNames[i] == self.route[-1]:
+                if e.locations[i].camp and moving.getCapMultiplier(e.locations[i],1) < 0.5:
+                    #print(e.time, e.locationNames[i], self.route[-1], file=sys.stderr)
+                    return True
+                else: 
+                    return False
+        print(f"Error: camp {self.route[-1]} not found in check_dest_is_full_camp", file=sys.stderr)
+        sys.exit()
+    
+    def take_next_step(self,e):
+        """
+        Summary:
+            Takes the next step on the agent's route.
+
+        Args:
+            e: The ecosystem object.
+
+        Returns:
+            The next link on the agent's route, 
+            or `None` if the agent's route is empty 
+            or the next link is invalid.
+        """
+        for l in self.location.links:
+            # If the name of the destination on the current link is same as the agents current waypoint on the route:
+            if l.endpoint.name == self.route[0]:
+                # Check if the destination camp is full, flooded. If so, remove the route and return `None`.
+                if self.check_dest_is_full_camp(e):
+                    self.route = []
+                    return None
+                # Otherwise, remove the first link from the route and return the next link.
+                self.route = self.route[1:]
+                return l
+
+        # Link has vanished, remove route.
+        self.route = []
+        return None
+
+
+    @check_args_type
+    def evolve(self, e, time: int, ForceTownMove: bool = False) -> None:
+        """
+        Summary:
+            Updates the agent's location and state 
+            based on the current simulation timestep.
+    
+        Args:
+            time (int): The current simulation timestep.
+            ForceTownMove (bool, optional): Whether or not the agent is forced to move to a town.
+    
+        Returns:
+            None.
+        """
+        # Update social connectivity at the start of each time step
+        self.update_social_connectivity(self.location, time)
+        
+        if not self.travelling:
+            # Increment days in current location for System 2 tracking
+            self.days_in_current_location += 1
+
+            # Set harvesting behaviour.
+            if SimulationSettings.farming:
+                if e.date.month in SimulationSettings.move_rules["HarvestMonths"]:
+                    if not self.harvesting:
+                        self.location.DecrementNumAgents()
+                        self.home_location.IncrementNumAgents(self)
+                    self.harvesting = True
+                    return #harvesting agents do not move.
+                else:
+                    if self.harvesting:
+                        self.location.IncrementNumAgents(self)
+                        self.home_location.DecrementNumAgents()
+                    self.harvesting = False
+        
+            # Calculate the agent's move chance with System 1/System 2 logic
+            movechance, system2_active = moving.calculateMoveChance(self, ForceTownMove, time)
+            
+            # Update cognitive state based on system2_active
+            previous_state = self.cognitive_state
+            if system2_active:
+                self.cognitive_state = "S2"
+                if previous_state == "S1":
+                    self.system2_activations += 1
+            else:
+                self.cognitive_state = "S1"
+            
+            # Handle information sharing if System 2 is active and agent has connections
+            if system2_active and self.attributes.get("_share_route_info", False):
+                route_info = self.attributes.get("_temp_route", [])
+                if route_info:
+                    safety_info = {}
+                    # Collect safety information about potential destinations
+                    for location_name in route_info:
+                        for loc in e.locations:
+                            if loc.name == location_name:
+                                safety_info[location_name] = {
+                                    'conflict_level': getattr(loc, 'conflict', 0),
+                                    'capacity_ratio': loc.numAgents / max(1, loc.capacity) if loc.capacity > 0 else 0,
+                                    'camp_status': loc.camp or loc.idpcamp
+                                }
+                                break
+                    
+                    # Share information with connected agents
+                    self.share_information_with_connected_agents(e, {
+                        'route_info': route_info,
+                        'location_safety': safety_info
+                    })
+                
+                # Clean up the sharing flag
+                del self.attributes["_share_route_info"]
+    
+            # Generate a random number and compare it to the move chance
+            outcome = random.random()
+            
+            # Log the movement decision
+            decision_factors = {
+                'movechance': movechance,
+                'outcome': outcome,
+                'system2_active': system2_active,
+                'force_town_move': ForceTownMove,
+                'conflict_level': getattr(self.location, 'conflict', 0) if self.location else 0,
+                'days_in_location': self.days_in_current_location
+            }
+    
+            # If the outcome is less than the move chance, then the agent moves
+            if outcome < movechance:
+                # Log the decision to move
+                self.log_decision('move', decision_factors, time)
+                
+                # If the agent does not have an existing route, then plan a new route
+                if len(self.route) == 0:
+                    # System 2 route planning: use pre-calculated route if available
+                    if system2_active and "_temp_route" in self.attributes:
+                        self.route = self.attributes["_temp_route"]
+                        del self.attributes["_temp_route"]
+                        # Log route selection decision
+                        self.log_decision('route_selection', {
+                            'method': 'system2_precalculated',
+                            'route_length': len(self.route),
+                            'cognitive_pressure': self.calculate_cognitive_pressure(time)
+                        }, time)
+                    # Check for shared route information from connected agents
+                    elif "_shared_route" in self.attributes:
+                        self.route = self.attributes["_shared_route"]
+                        del self.attributes["_shared_route"]
+                        # Log route selection decision
+                        self.log_decision('route_selection', {
+                            'method': 'shared_information',
+                            'route_length': len(self.route),
+                            'connections': self.attributes.get("connections", 0)
+                        }, time)
+                    else:
+                        # System 1 route planning: calculate route on the fly
+                        # But consider shared safety information if available
+                        route_selection_method = 'system1_immediate'
+                        if "_safety_info" in self.attributes:
+                            route_selection_method = 'system1_with_shared_info'
+                        
+                        self.route = moving.selectRoute(self, time=time, system2_active=system2_active)
+                        # Log route selection decision
+                        self.log_decision('route_selection', {
+                            'method': route_selection_method,
+                            'route_length': len(self.route),
+                            'has_safety_info': "_safety_info" in self.attributes
+                        }, time)
+    
+                # Attempt to follow route. Return None if fail.  
+                chosenDest = self.take_next_step(e)
+    
+                # If there is a viable route to a different location, then move to the next location
+                if chosenDest:
+                    # update location to link endpoint
+                    self.handle_travel(chosenDest, travelling=True)
+            else:
+                # Log the decision to stay
+                self.log_decision('stay', decision_factors, time)
+
+
+    @check_args_type
+    def finish_travel(self, e, time: int) -> None:
+        """
+        Summary:
+            Completes the agent's current journey
+            and updates its location and state.
+
+        Args:
+            e: The ecosystem object.
+            time (int): The current simulation timestep.
+
+        Returns:
+            None.
+        """
+        if self.travelling:
+
+            todays_travel_speed = float(self.location.attributes.get("max_move_speed", SimulationSettings.move_rules["MaxMoveSpeed"]))
+
+            if self.places_travelled == 1 and SimulationSettings.move_rules["StartOnFoot"]:
+                todays_travel_speed = SimulationSettings.move_rules["MaxWalkSpeed"]
+
+            # Flee 3.0: support for walk_probability attribute on links.
+            walk_probability = float(self.location.attributes.get("walk_probability","0.0"))
+            if random.random() < walk_probability:
+                todays_travel_speed = SimulationSettings.move_rules["MaxWalkSpeed"]
+
+            self.distance_travelled_on_link += todays_travel_speed
+            self.distance_moved_this_timestep += todays_travel_speed
+
+            # If destination has been reached.
+            if self.distance_travelled_on_link > self.location.get_distance():
+
+                self.places_travelled += 1
+                # remove the excess km tracked by the
+                # distance_moved_this_timestep var.
+                self.distance_moved_this_timestep += (
+                    self.location.get_distance() - self.distance_travelled_on_link
+                )
+
+                # update agent logs
+                if SimulationSettings.log_levels["agent"] > 0:
+                    self.distance_travelled += self.location.get_distance()
+
+                # if link is closed, bring agent to start point instead of the
+                # destination and return.
+                if self.location.closed is True:
+                    self.handle_travel(self.location.startpoint, travelling=False)
+                else:
+                    # if the person has moved less than the MaxMoveSpeed, it
+                    # should go through another evolve() step in the new
+                    # location.
+                    evolveMore = False
+                    if self.distance_moved_this_timestep < todays_travel_speed:
+                        if SimulationSettings.log_levels["agent"] > 1:
+                            self.locations_visited.append(self.location)
+                        evolveMore = True
+
+                    # update location (which is on a link) to link endpoint
+                    self.handle_travel(self.location.endpoint, travelling=False)
+
+                    if SimulationSettings.log_levels["camp"] > 0:
+                        if self.location.camp is True:
+                            self.location.incoming_journey_lengths += [
+                                self.timesteps_since_departure
+                            ]
+
+                    # Perform another evolve step if needed. And if it results
+                    # in travel, then the current traveled distance needs
+                    # to be taken into account.
+                    # Note MaxMoveSpeed is used here, not todays_travel_speed.
+                    if evolveMore is True:
+                        ForceTownMove = False
+                        if SimulationSettings.move_rules["AvoidShortStints"]:
+                            # Flee 2.0 Changeset 1, factor 2.
+                            if (
+                                self.recent_travel_distance
+                                + (
+                                    self.distance_moved_this_timestep
+                                    / SimulationSettings.move_rules["MaxMoveSpeed"]
+                                )
+                            ) / 2.0 < 0.5:
+                                ForceTownMove = True
+                        self.evolve(e, time=time, ForceTownMove=ForceTownMove)
+                        self.finish_travel(e, time=time)
+
+
+class Location:
+    """
+    The Location class
+    """
+
+    @check_args_type
+    def __init__(
+        self,
+        name: str,
+        region: str = "unknown",
+        x: float = 0.0,
+        y: float = 0.0,
+        location_type: Optional[str] = None,
+        movechance: float = 0.001,
+        capacity: int = -1,
+        pop: int = 0,
+        foreign: bool = False,
+        country: str = "unknown",
+        attributes: dict = {},
+    ) -> None:
+        """
+        Summary:
+            Initializes a new Location object.
+
+        Args:
+            name: The name of the location.
+            x: The X-coordinate of the location.
+            y: The Y-coordinate of the location.
+            location_type: The type of the location (e.g. camp, town, conflict zone, etc.).
+            movechance: The probability that an agent will move to this location.
+            capacity: The capacity of the location (i.e. the maximum number of agents that can be present at the location at any one time).
+            pop: The population of the location (i.e. the number of non-refugee agents that are present at the location at any one time).
+            foreign: Whether or not the location is in a foreign country.
+            country: The country that the location is in.
+            attributes: A dictionary of attributes for the location.
+
+        Returns:
+            None.
+        """
+        self.name = name
+        self.region = region
+        self.x = x
+        self.y = y
+        self.movechance = movechance
+        self.links = []  # paths connecting to other towns
+        self.routes = {}  # if Location-based routing is enabled, this will contain routes to other towns (may have multiple steps).
+        self.major_routes = []  # paths connecting to other towns
+        # paths connecting to other towns that are closed.
+        self.closed_links = []
+        self.numAgents = 0  # refugee population
+        # refugee population on current rank (for pflee).
+        self.numAgentsOnRank = 0
+        self.capacity = capacity  # refugee capacity
+        self.pop = pop  # non-refugee population
+        self.foreign = foreign
+        self.country = country
+        self.conflict = -1.0
+        self.conflict_date = -1 # date that last conflict erupted.
+        self.camp = False
+        self.idpcamp = False
+        self.town = False
+        self.forward = False
+        self.marker = False
+        self.flood_zone = False 
+        self.time_of_conflict = -1 # Time that a major conflict event last took place.
+        self.numAgentsSpawned = 0
+
+        self.attributes = attributes # This will store a range of attributes that are read from file.
+
+        if location_type is not None:
+            if "camp" in location_type.lower():
+                self.movechance = SimulationSettings.move_rules["CampMoveChance"]
+                self.camp = True
+                if "idp" in location_type.lower():
+                    self.idpcamp = True
+                    self.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
+            elif "conflict" in location_type.lower():
+                self.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
+                self.conflict = float(self.attributes.get("conflict_intensity",1.0))
+            elif "forward" in location_type.lower():
+                self.movechance = 1.0
+                self.forward = True
+            elif "marker" in location_type.lower():
+                self.movechance = 1.0
+                self.marker = True
+            elif "flood_zone" in location_type.lower(): 
+                # move chance based on default because flood_level not linked to flood_zone yet
+                self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+                self.flood_zone = True 
+            elif "default" in location_type.lower() or "town" in location_type.lower():
+                self.town = True
+                self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+            else:
+                print(
+                    "Error in creating Location() object: cannot parse location_type value of"
+                    " {} for location object with name {}".format(location_type, name),
+                    file=sys.stderr
+                )
+
+        # Automatically tags a location as a Camp if refugees are less than 2%
+        # likely to move out on a given day.
+        # Don't want flood zone to become a camp if movechance is low. 
+        if self.movechance < 0.005 and not self.camp and not self.flood_zone:
+            print(
+                "Warning: automatically setting location {} to camp, "
+                "as movechance = {}".format(self.name, self.movechance),
+                file=sys.stderr,
+            )
+            self.camp = True
+            self.town = False
+
+        self.scores = np.array([1.0])
+
+        scoring.updateLocationScore(0,self)
+
+        if SimulationSettings.log_levels["camp"] > 0:
+            # reinitializes every time step. Contains individual journey
+            # lengths from incoming agents.
+            self.incoming_journey_lengths = []
+
+        self.print()
+
+
+    @check_args_type
+    def calculateDistance(self, other_location) -> float:
+        """
+        Summary: 
+            Calculates the distance between this location and another one.
+            This assumes distance as the crow flies.
+
+        Args:
+            other_location: The other location to calculate the distance to.
+
+        Returns:
+            The distance between this location and the other location in kilometers.
+
+        """
+        # Approximate radius of earth in km
+        R = 6371.0
+
+        lat1 = math.radians(self.y)
+        lon1 = math.radians(self.x)
+        lat2 = math.radians(other_location.y)
+        lon2 = math.radians(other_location.x)
+
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+
+        a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+        return R * c
+
+
+    @check_args_type
+    def open_camp(self, IDP=False) -> None:
+        """
+        Summary:
+            Changes the location type to camp or IDP camp.
+
+        Args:
+            IDP(boolean): Whether or not to open an IDP camp.
+
+        Returns:
+            None.
+        """
+        self.movechance = SimulationSettings.move_rules["CampMoveChance"]
+        self.camp = True
+        self.conflict = -1.0
+        self.town = False
+        self.forward = False
+        self.marker = False
+        self.flood_zone = False
+        if IDP:
+            self.idpcamp = True
+            self.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
+
+
+    @check_args_type
+    def setAttribute(self, name: str, value) -> None:
+        """
+        Summary:
+            Sets the value of an attribute for the location.
+
+        Args:
+            name: The name of the attribute to set.
+            value: The value to set the attribute to.
+
+        Returns:
+            None.
+        """
+        self.attributes[name] = value
+
+
+    @check_args_type
+    def close_camp(self, IDP=False) -> None:
+        """
+        Summary:
+            Changes the location type to town.
+
+        Args:
+            IDP: Whether or not to close an IDP camp.
+
+        Returns:
+            None.
+        """
+        self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+        self.camp = False
+        self.idpcamp = False
+        self.conflict = -1.0
+        self.town = True
+        self.forward = False
+        self.marker = False
+        self.flood_zone = False
+
+
+    @check_args_type
+    def DecrementNumAgents(self) -> None:
+        """
+        Summary:
+            Decrements the number of agents in the location.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
+        self.numAgents -= 1
+
+
+    @check_args_type
+    def IncrementNumAgents(self, agent) -> None:
+        """
+        Summary: 
+            Increments the number of agents in the location.
+
+        Args:
+            agent: The agent to add to the location. 
+            Needed to specify which agent is being added to the location, 
+            because there may be multiple agents in a location.
+
+        Returns:
+            None.
+        """
+        self.numAgents += 1
+
+
+    @check_args_type
+    def print(self) -> None:
+        """
+        Summary: 
+            Prints information about the location.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
+        print(
+            "Location name: {}, X: {}, Y: {}, movechance: {}, cap: {}, "
+            "pop: {}, country: {}, conflict? {}, camp? {}, flood_zone? {}, foreign? {}, attributes: {}".format(
+                self.name,
+                self.x,
+                self.y,
+                self.movechance,
+                self.capacity,
+                self.pop,
+                self.country,
+                self.conflict,
+                self.camp,
+                self.flood_zone,
+                self.foreign,
+                self.attributes,
+            ),
+            file=sys.stderr,
+        )
+        for link in self.links:
+            print(
+                "Link from {} to {}, dist: {}, pop. {}".format(
+                    self.name, link.endpoint.name, link.get_distance(), link.numAgents
+                ),
+                file=sys.stderr,
+            )
+
+
+    @check_args_type
+    def SetConflictMoveChance(self) -> None: 
+
+        """
+        Summary:
+            Sets the move chance to the default value set for conflict regions.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
+        self.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
+
+
+    @check_args_type
+    def SetCampMoveChance(self) -> None:
+        """
+        Summary: 
+            Modify move chance to the default value set for camps.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+
+        """
+        self.movechance = SimulationSettings.CampMoveChance
+
+
+    @check_args_type
+    def getScore(self, index: int) -> float:
+        """
+        Summary: 
+            Gets the score at the specified index.
+
+        Args:
+            index (int): The index of the score to get.
+
+        Returns:
+            float: The score at the specified index.
+        """
+        return self.scores[index]
+
+
+    @check_args_type
+    def setScore(self, index: int, value: float) -> None:
+        """
+        Summary:
+            Sets the score at the specified index.
+
+        Args:
+            index (int): The index of the score to set.
+            value (float): The value to set the score to.
+
+        Returns:
+            None.
+        """
+        self.scores[index] = value
+
+
+class Link:
+    """
+    The Link class
+    """
+
+    @check_args_type
+    def __init__(self, startpoint, endpoint, distance: float, forced_redirection: bool = False, attributes: dict = {}):
+        """
+        Summary: 
+            Initializes a new Link object.
+
+        Args:
+            startpoint (Location): The startpoint of the link.
+            endpoint (Location): The endpoint of the link.
+            distance (float): The distance between the startpoint and endpoint of the link, in kilometers.
+            forced_redirection (bool): Whether or not the link is a forced redirection. If True, all agents will be routed through this link.
+            attributes (dict): A dictionary of attributes for the link.
+
+        Returns:
+            None.
+        """
+        self.name = "L:{}:{}".format(startpoint.name, endpoint.name)
+        self.closed = False
+
+        # distance in km.
+        self.__distance = distance
+
+        # links for now always connect two endpoints
+        self.startpoint = startpoint
+        self.endpoint = endpoint
+        self.x = (self.startpoint.x + self.endpoint.x) / 2.0
+        self.y = (self.startpoint.y + self.endpoint.y) / 2.0
+
+        # number of agents that are in transit.
+        self.numAgents = 0
+        self.cumNumAgents = 0 # cumulative # of agents
+        if SimulationSettings.log_levels["link"] > 1:
+            self.cumNumAgentsByAttribute = {}
+        # refugee population on current rank (for pflee).
+        self.numAgentsOnRank = 0
+
+        # if True, then all Persons will go down this link.
+        self.forced_redirection = forced_redirection
+
+        self.attributes = attributes
+
+
+    @check_args_type
+    def DecrementNumAgents(self) -> None:
+        """
+        Summary:
+            Decrements the number of agents on the link.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
+        self.numAgents -= 1
+
+
+    @check_args_type
+    def getBaseEndPointScore(self) -> float:
+        """
+        Summary:
+            Serial base endpoint score retrieval.
+
+        Args:
+            link (Link) : Description
+
+        Returns:
+            float: Description
+        """
+        return self.endpoint.scores[0]
+
+
+    @check_args_type
+    def IncrementNumAgents(self, agent) -> None:
+        """
+        Summary: 
+            Increments the number of agents on the link 
+            and the cumulative number of agents on the link.
+
+        Args:
+            agent: The agent to add to the link.
+
+        Returns:
+            None.
+        """
+        self.numAgents += 1
+        self.cumNumAgents += 1
+
+        if SimulationSettings.log_levels["link"] > 1:
+            for a in agent.attributes:
+                category = self.cumNumAgentsByAttribute.get(a, {})
+                category[agent.attributes[a]] = category.get(agent.attributes[a], 0) + 1
+                self.cumNumAgentsByAttribute[a] = category
+            #print(category, file=sys.stderr)
+
+
+    @check_args_type
+    def setAttribute(self, name: str, value) -> None:
+        """
+        Summary: 
+            Sets the value of an attribute for the link.
+
+        Args:
+            name (str): The name of the attribute to set.
+            value: The value to set the attribute to.
+
+        Returns:
+            None.
+        """
+
+        self.attributes[name] = value
+        
+
+
+    def get_distance(self) -> float:
+        """
+        Summary: 
+            Gets the distance of the link, in kilometers.
+
+        Args:
+            None.
+
+        Returns:
+            float: The distance of the link, in kilometers.
+        """
+        return self.__distance
+
+
+class Ecosystem:
+    """
+    The Ecosystem class
+    """
+
+    @check_args_type
+    def __init__(self, start_date="2099-01-01", demographics_test_prefix=""):
+        """
+        Summary: 
+            Initializes a new Simulation object.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
+        self.locations = []
+        self.locationNames = []
+        self.agents = []
+        self.closures = []  # format [type, source, dest, start, end]
+        self.time = 0
+        self.print_location_output = True  # print location output data
+        self.demographics_test_prefix = demographics_test_prefix # Should be empty unless testing demographics.
+        self.demographics_list = {} # Dict with all the demographic attributes
+        self.start_date_string = start_date
+        self.date = datetime.strptime(self.start_date_string, "%Y-%m-%d") + timedelta(days=self.time)
+        self.date_string = self.date.strftime("%Y-%m-%d")
+
+        demographics.init_demographics(self)
+        if SimulationSettings.move_rules["MatchCampReligion"] is True:
+            religions = demographics.get_attribute_values("religion")
+            self.demographics_list["religion"] = religions
+        if (SimulationSettings.move_rules["MatchCampEthnicity"] or 
+            SimulationSettings.move_rules["MatchTownEthnicity"] or 
+            SimulationSettings.move_rules["MatchConflictEthnicity"]) is True:
+            ethnicities = demographics.get_attribute_values("ethnicity")
+            self.demographics_list["ethnicity"] = ethnicities
+
+        # FLEE3 does not have a conflict zone list, and spawn weights cover all locations.
+        self.spawn_weights = np.array([])
+
+        if SimulationSettings.log_levels["camp"] > 0:
+            self.num_arrivals = []  # one element per time step.
+            self.travel_durations = []  # one element per time step.
+            
+        # Initialize cognitive loggers if available and enabled
+        self.cognitive_loggers = {}
+        if COGNITIVE_LOGGING_AVAILABLE and SimulationSettings.log_levels.get("cognitive", 0) > 0:
+            self.cognitive_loggers['state'] = CognitiveStateLogger()
+            self.cognitive_loggers['decision'] = DecisionLogger()
+            self.cognitive_loggers['social'] = SocialNetworkLogger()
+            self.cognitive_loggers['metrics'] = MetricsSummaryLogger()
+
+
+
+    @check_args_type
+    def get_camp_names(self) -> List[str]:
+        """
+        Summary: 
+            Gets a list of the names of all camps in the simulation.
+
+        Args:
+            None.
+
+        Returns:
+            List[str]: A list of the names of all camps in the simulation.
+        """
+        camp_names = []
+        for loc in self.locations:
+            if bool(SimulationSettings.spawn_rules.get("flood_driven_spawning", False)) is True:
+                camp_names += [loc.name]
+            elif loc.camp:
+                camp_names += [loc.name]
+        return camp_names
+
+
+    @check_args_type
+    def export_graph(self, use_ids_instead_of_names: bool = False) -> Tuple[List[str], List[List]]:
+        """
+        Summary: 
+            Exports the simulation graph as a list of vertices and a list of edges.
+
+        Args:
+            use_ids_instead_of_names (bool, optional): Whether to use location IDs instead of location names for the vertices. Defaults to False.
+
+        Returns:
+            Tuple[List[str], List[List]]: A tuple containing a list of vertices and a list of edges.
+        """
+        vertices = []
+        edges = []
+        for loc in self.locations:
+            vertices += [loc.name]
+            for p in loc.links:
+                edges += [[loc.name, p.endpoint.name, p.get_distance()]]
+
+        return vertices, edges
+
+
+    @check_args_type
+    def _aggregate_arrivals(self) -> None:
+        """
+        Summary: 
+            Adds up arrival statistics, to find out travel durations 
+            and total number of camp arrivals.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
+        if SimulationSettings.log_levels["camp"] > 0:
+            arrival_total = 0
+            tmp_num_arrivals = 0
+
+            for loc in self.locations:
+                if loc.camp is True:
+                    arrival_total += np.sum(loc.incoming_journey_lengths)
+                    tmp_num_arrivals += len(loc.incoming_journey_lengths)
+                    loc.incoming_journey_lengths = []
+
+            self.num_arrivals += [tmp_num_arrivals]
+
+            if tmp_num_arrivals > 0:
+                self.travel_durations += [float(arrival_total) / float(tmp_num_arrivals)]
+            else:
+                self.travel_durations += [0.0]
+
+            # print("New arrivals: ", self.travel_durations[-1],
+            #       arrival_total, tmp_num_arrivals)
+
+
+    @check_args_type
+    def enact_border_closures(self, time: int, twoway: bool = True, Debug: bool = False) -> None:
+        """
+        Summary: 
+            Enacts border closures, location closures, link closures,
+            camp closures, and forced redirection removals according 
+            to the list of closures provided.
+
+        Args:
+            time (int): The current time.
+            twoway (bool, optional): Whether or not border closures should be two-way. Defaults to True.
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+
+        Returns:
+            None.
+        """
+        # print("Enact border closures: ", self.closures)
+        if len(self.closures) > 0:
+            for c in self.closures:
+                if time == c[3]:
+                    if c[0] == "country":
+                        if Debug:
+                            print(
+                                "Time = {}. Closing Border between "
+                                "[{}] and [{}]".format(time, c[1], c[2]),
+                                file=sys.stderr,
+                            )
+                        self.close_border(source_country=c[1], dest_country=c[2], twoway=twoway)
+                    elif c[0] == "location":
+                        self.close_location(location_name=c[1], twoway=twoway)
+                    elif c[0] == "link":
+                        self.close_link(startpoint=c[1], endpoint=c[2], twoway=twoway)
+                    elif c[0] == "camp":
+                        self.close_camp(c[1], IDP=False)
+                    elif c[0] == "idpcamp":
+                        self.close_camp(c[1], IDP=True)
+                    elif c[0] == "remove_forced_redirection":
+                        self.set_forced_redirection(c[1], c[2], False)
+
+                if time == c[4]:
+                    if c[0] == "country":
+                        if Debug:
+                            print(
+                                "Time = {}. Reopening Border between "
+                                "[{}] and [{}]".format(time, c[1], c[2]),
+                                file=sys.stderr,
+                            )
+                        self.reopen_border(source_country=c[1], dest_country=c[2], twoway=twoway)
+                    elif c[0] == "location":
+                        self.reopen_location(location_name=c[1], twoway=twoway)
+                    elif c[0] == "link":
+                        self.reopen_link(startpoint=c[1], endpoint=c[2], twoway=twoway)
+                    elif c[0] == "camp":
+                        self.open_camp(c[1], IDP=False)
+                    elif c[0] == "idpcamp":
+                        self.open_camp(c[1], IDP=True)
+                    elif c[0] == "remove_forced_redirection":
+                        self.set_forced_redirection(c[1], c[2], True)
+
+
+    @check_args_type
+    def _convert_location_name_to_index(self, name: str) -> int:
+        """
+        Summary: 
+            Converts a location name to an index number.
+
+        Args:
+            name (str): The name of the location.
+
+        Returns:
+            int: The index of the location in the `locations` list, or -1 if the location is not found.
+        """
+        x = -1
+        # Convert name "startpoint" to index "x".
+        for i, loc in enumerate(self.locations):
+            if loc.name == name:
+                x = i
+
+        # for i in range(0, len(self.locations)):
+        #     if self.locations[i].name == name:
+        #         x = i
+
+        if x < 0:
+            print("#Warning: location not found in remove_link", file=sys.stderr)
+            return False
+
+        return x
+
+    @check_args_type
+    def _remove_link_1way(self, startpoint: str, endpoint: str, close_only: bool = False) -> bool:
+        """
+        Summary: 
+            Remove link in one direction
+            (private function, use remove_link instead).
+            close_only: if True will instead move the link to the closed_links
+            list of the location, rendering it inactive.
+
+        Args:
+            startpoint (str): Description
+            endpoint (str): Description
+            close_only (bool, optional): Description
+
+        Returns:
+            bool: Description
+        """
+        new_links = []
+        x = self._convert_location_name_to_index(name=startpoint)
+        removed = False
+
+        for i in range(0, len(self.locations[x].links)):
+            if self.locations[x].links[i].endpoint.name is not endpoint:
+                new_links += [self.locations[x].links[i]]
+                continue
+
+            if close_only:
+                # print("Closing [%s] to [%s]" % (startpoint, endpoint),
+                #       file=sys.stderr
+                #       )
+                self.locations[x].links[i].closed = True
+                # we copy the route link to have a backup.
+                self.locations[x].closed_links += [copy.copy(self.locations[x].links[i])]
+                # The original object might still be used by agents as part of
+                # finish_travel, but will be orphaned eventually.
+
+                # make sure agent counts are set to 0.
+                self.locations[x].closed_links[-1].numAgents = 0
+                # ditto.
+                self.locations[x].closed_links[-1].numAgentsOnRank = 0
+            removed = True
+
+        self.locations[x].links = new_links
+        if not removed:
+            print(
+                "Warning: cannot remove link from {}, "
+                "as there is no link to {}".format(startpoint, endpoint),
+                file=sys.stderr,
+            )
+        return removed
+
+
+    @check_args_type
+    def _reopen_link_1way(self, startpoint: str, endpoint: str) -> bool:
+        """
+        Summary:
+            Reopen a closed link.
+
+        Args:
+            startpoint (str): Description
+            endpoint (str): Description
+
+        Returns:
+            bool: Description
+        """
+        new_closed_links = []
+        x = self._convert_location_name_to_index(name=startpoint)
+        reopened = False
+        # print("Reopening link from {} to {}, "
+        #       "closed link list length = {}.".format(
+        #           startpoint, endpoint,
+        #           len(self.locations[x].closed_links)),
+        #       file=sys.stderr
+        #       )
+
+        for i in range(0, len(self.locations[x].closed_links)):
+            if self.locations[x].closed_links[i].endpoint.name is not endpoint:
+                # print("[{}] to [{}] ({})".format(
+                #     startpoint,
+                #     self.locations[x].closed_links[i].endpoint.name,
+                #     endpoint),
+                #     file=sys.stderr)
+                new_closed_links += [self.locations[x].closed_links[i]]
+            else:
+                # print("Match: [{}] to [{}] ({})".format(
+                #     startpoint,
+                #     self.locations[x].closed_links[i].endpoint.name,
+                #     endpoint),
+                #     file=sys.stderr)
+                self.locations[x].links += [self.locations[x].closed_links[i]]
+                self.locations[x].links[-1].closed = False
+                reopened = True
+
+        self.locations[x].closed_links = new_closed_links
+        if not reopened:
+            print(
+                "Warning: cannot reopen link from {},"
+                " as there is no link to {}".format(startpoint, endpoint),
+                file=sys.stderr,
+            )
+        return reopened
+
+
+    @check_args_type
+    def remove_link(
+        self, startpoint: str, endpoint: str, twoway: bool = True, close_only: bool = False
+    ) -> bool:
+        """
+        Summary:
+            Removes a link between two location names.
+            twoway: if True, also removes link from endpoint to startpoint.
+            close_only: if True will instead move the link to the closed_links
+            list of the location, rendering it inactive.
+
+        Args:
+            startpoint (str): Description
+            endpoint (str): Description
+            twoway (bool, optional): Description
+            close_only (bool, optional): Description
+
+        Returns:
+            bool: Description
+        """
+        if twoway:
+            return self._remove_link_1way(
+                startpoint=endpoint, endpoint=startpoint, close_only=close_only
+            )
+
+        return self._remove_link_1way(
+            startpoint=startpoint, endpoint=endpoint, close_only=close_only
+        )
+
+
+    @check_args_type
+    def reopen_link(self, startpoint: str, endpoint: str, twoway: bool = True) -> bool:
+        """
+        Summary: 
+            Reopens a previously closed link between two location names.
+            twoway: if True, also removes link from endpoint to startpoint.
+
+        Args:
+            startpoint (str): Description
+            endpoint (str): Description
+            twoway (bool, optional): Description
+
+        Returns:
+            bool: Description
+        """
+        if twoway:
+            return self._reopen_link_1way(startpoint=endpoint, endpoint=startpoint)
+
+        return self._reopen_link_1way(startpoint=startpoint, endpoint=endpoint)
+
+
+    @check_args_type
+    def close_link(self, startpoint: str, endpoint: str, twoway: bool = True) -> bool:
+        """
+        Summary:
+            Shorthand call for remove_link, only moving the link to
+            the closed list.
+
+        Args:
+            startpoint (str): name of the startpoint of the link.
+            endpoint (str): name of the endpoint of the link.
+            twoway (bool, optional): Whether or not the link is two-way. Defaults to True.
+
+        Returns:
+            bool: True if the link was closed, False otherwise.
+        """
+        return self.remove_link(
+            startpoint=startpoint, endpoint=endpoint, twoway=twoway, close_only=True
+        )
+
+
+    @check_args_type
+    def _change_location_1way(
+        self, location_name: str, mode: str = "close", direction: str = "both", Debug: bool = False
+    ) -> bool:
+        """
+        Summary: 
+            Close all links to or from one location.
+            mode: close or reopen
+            direction: in, out or both.
+
+        Args:
+            location_name (str): The name of the location.
+            mode (str, optional): The mode of the change: "close" or "reopen". Defaults to "close".
+            direction (str, optional): The direction of the change: "in", "out", or "both". Defaults to "both".
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+
+        Returns:
+            bool: True if any links were changed, False otherwise.
+        """
+
+        dir_mode = 0
+        if direction == "out":
+            dir_mode = 1
+        elif direction == "both":
+            dir_mode = 2
+
+        print(
+            "{} location 1 way [{}] in direction {} ({}).".format(
+                mode, location_name, direction, dir_mode
+            ),
+            file=sys.stderr,
+        )
+        changed_anything = False
+
+        for i in range(0, len(self.locationNames)):
+            if self.locationNames[i] == location_name:
+                changed_anything = True
+
+                link_set = self.locations[i].links
+                if mode == "reopen":
+                    link_set = self.locations[i].closed_links
+
+                j = 0
+                while j < len(link_set):
+                    if Debug:
+                        print(
+                            "starting to {} link "
+                            "[{}] [{}] in direction {}".format(
+                                mode, location_name, link_set[j].endpoint.name, direction
+                            ),
+                            file=sys.stderr,
+                        )
+                    if mode == "close":
+
+                        if dir_mode % 2 == 0:
+                            self.close_link(
+                                startpoint=link_set[j].endpoint.name,
+                                endpoint=self.locationNames[i],
+                                twoway=False,
+                            )
+
+                        if dir_mode > 0:
+                            if self.close_link(
+                                startpoint=self.locationNames[i],
+                                endpoint=link_set[j].endpoint.name,
+                                twoway=False,
+                            ):
+                                # shrink the link list. # This operation
+                                # affects the overall loop, so no major
+                                # operations should take place after this.
+                                link_set = self.locations[i].links
+                        else:
+                            j += 1
+
+                    elif mode == "reopen":
+
+                        if dir_mode % 2 == 0:
+                            self.reopen_link(
+                                startpoint=link_set[j].endpoint.name,
+                                endpoint=self.locationNames[i],
+                                twoway=False,
+                            )
+
+                        if dir_mode > 0:
+                            if self.reopen_link(
+                                startpoint=self.locationNames[i],
+                                endpoint=link_set[j].endpoint.name,
+                                twoway=False,
+                            ):
+                                # shrink the closed link list. # This operation
+                                # affects the overall loop, so no major
+                                # operations should take place after this.
+                                link_set = self.locations[i].closed_links
+                            else:
+                                j += 1
+
+        return changed_anything
+
+
+    @check_args_type
+    def _change_border_1way(
+        self, source_country: str, dest_country: str, mode: str = "close", Debug: bool = False
+    ) -> None:
+        """
+        Summary:
+            Close all links between two countries in one direction.
+
+        Args:
+            source_country (str): The name of the source country.
+            dest_country (str): The name of the destination country.
+            mode (str, optional): The mode of the change: "close" or "reopen". Defaults to "close".
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+
+        Returns:
+            None.
+
+        """
+        # print("{} border 1 way [{}] [{}]".format(
+        #     mode, source_country, dest_country),file=sys.stderr)
+        changed_anything = False
+        for i in range(0, len(self.locationNames)):
+            if self.locations[i].country == source_country:
+
+                link_set = self.locations[i].links
+                if mode == "reopen":
+                    link_set = self.locations[i].closed_links
+
+                j = 0
+                while j < len(link_set):
+                    if link_set[j].endpoint.country == dest_country:
+                        if Debug:
+                            print(
+                                "starting to {} border 1 way "
+                                "[{}/{}] [{}/{}]".format(
+                                    mode,
+                                    source_country,
+                                    self.locations[i].name,
+                                    dest_country,
+                                    link_set[j].endpoint.name,
+                                ),
+                                file=sys.stderr,
+                            )
+                        changed_anything = True
+                        if mode == "close":
+                            if self.close_link(
+                                startpoint=self.locationNames[i],
+                                endpoint=link_set[j].endpoint.name,
+                                twoway=False,
+                            ):
+                                link_set = self.locations[i].links
+                                continue
+                        elif mode == "reopen":
+                            if self.reopen_link(
+                                self.locationNames[i], link_set[j].endpoint.name, twoway=False
+                            ):
+                                link_set = self.locations[i].closed_links
+                                continue
+                    j += 1
+
+        if not changed_anything:
+            print(
+                "Warning: no link closed when closing borders between "
+                "{} and {}.".format(source_country, dest_country),
+                file=sys.stderr,
+            )
+
+
+    @check_args_type
+    def close_border(
+        self, source_country: str, dest_country: str, twoway: bool = True, Debug: bool = False
+    ) -> None:
+        """
+        Summary: 
+            Close all links between two countries. If twoway is set to false,
+            the only links from source to destination will be closed.
+
+        Args:
+            source_country (str): The name of the source country.
+            dest_country (str): The name of the destination country.
+            twoway (bool, optional): Whether to close the links in both directions. Defaults to True.
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+        
+        Returns:
+            None.
+        """
+        self._change_border_1way(
+            source_country=source_country, dest_country=dest_country, mode="close", Debug=Debug
+        )
+        if twoway:
+            self._change_border_1way(
+                source_country=dest_country, dest_country=source_country, mode="close", Debug=Debug
+            )
+
+
+    @check_args_type
+    def reopen_border(
+        self, source_country: str, dest_country: str, twoway: bool = True, Debug: bool = False
+    ) -> None:
+        """
+        Summary:
+            Re-open all links between two countries. If twoway is set to false,
+            the only links from source to destination will be closed.
+
+        Args:
+            source_country (str): The name of the source country.
+            dest_country (str): The name of the destination country.
+            twoway (bool, optional): Whether to reopen the links in both directions. Defaults to True.
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+
+        Returns:
+            None.
+        """
+        self._change_border_1way(
+            source_country=source_country, dest_country=dest_country, mode="reopen", Debug=Debug
+        )
+        if twoway:
+            self._change_border_1way(
+                source_country=dest_country, dest_country=source_country, mode="reopen", Debug=Debug
+            )
+
+
+    @check_args_type
+    def close_camp(self, location_name: str, IDP: bool):
+        """
+        Summary: 
+            Closes a camp in a given location.
+
+        Args:
+            location_name (str): The name of the location where the camp is located.
+            IDP (bool): Whether the camp is for IDPs or not.
+
+        Returns:
+            None.
+        """     
+        self.locations[self._convert_location_name_to_index(location_name)].close_camp(IDP)
+        print("Time = {}. Close camp {}, IDP: {}.".format(self.time, location_name, IDP), file=sys.stderr)
+
+
+    @check_args_type
+    def change_location_type(self, location_name: str, location_type: str):
+        """
+        Summary: 
+            Changes the type of a given location.
+
+        Args:
+            location_name (str): The name of the location where the camp is located.
+            location_type (str): New type of the location.
+
+        Returns:
+            None.
+        """
+
+        l = self.locations[self._convert_location_name_to_index(location_name)]
+
+        l.town = False
+        l.camp = False
+        l.idpcamp = False
+        l.conflict = -1.0
+        l.forward = False
+        l.marker = False
+        l.flood_zone = False
+
+        if "camp" in location_type.lower():
+            l.movechance = SimulationSettings.move_rules["CampMoveChance"]
+            l.camp = True
+            if "idp" in location_type.lower():
+                    l.idpcamp = True
+                    l.movechance = SimulationSettings.move_rules["IDPCampMoveChance"]
+        elif "conflict" in location_type.lower():
+            l.movechance = SimulationSettings.move_rules["ConflictMoveChance"]
+            l.conflict = float(self.attributes.get("conflict_intensity",1.0))
+        elif "forward" in location_type.lower():
+            l.movechance = 1.0
+            l.forward = True
+        elif "marker" in location_type.lower():
+            l.movechance = 1.0
+            l.marker = True
+        elif "flood_zone" in location_type.lower():
+            # move chance based on default because flood_level not linked to flood_zone yet
+            l.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+            l.flood_zone = True
+        elif "default" in location_type.lower() or "town" in location_type.lower():
+                l.town = True
+                l.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+                print(f"Change to town.", file=sys.stderr)
+        else:
+            print(
+                "Error in creating Location() object: cannot parse location_type value of"
+                " {} for location object with name {}".format(location_type, name),
+                file=sys.stderr
+            )
+
+        print(f"Time = {self.time}. Location {location_name} changed type to {location_type}.", file=sys.stderr)
+
+
+    @check_args_type
+    def open_camp(self, location_name: str, IDP: bool):
+        """
+        Summary: 
+            Opens a camp in a given location.
+
+        Args:
+            location_name (str): The name of the location where the camp is located.
+            IDP (bool): Whether the camp is for IDPs or not.
+
+        Returns:
+            None.
+        """
+        self.locations[self._convert_location_name_to_index(location_name)].open_camp(IDP)
+        print("Time = {}. Open camp {}, IDP: {}.".format(self.time, location_name, IDP), file=sys.stderr)
+
+
+    @check_args_type
+    def set_forced_redirection(self, loc1_name: str, loc2_name: str, value: bool):
+        """
+        Summary: 
+            Sets the forced redirection flag on the link between two locations.
+
+        Args:
+            loc1_name (str): The name of the first location.
+            loc2_name (str): The name of the second location.
+            value (bool): The new value of the forced redirection flag.
+
+        Returns:
+            None.
+        """
+        id1 = self._convert_location_name_to_index(loc1_name)
+        for i in range(0, len(self.locations[id1].links)):
+            if self.locations[id1].links[i].endpoint.name == loc2_name:
+                old_val = self.locations[id1].links[i].forced_redirection
+                self.locations[id1].links[i].forced_redirection = value
+                print("Time = {}. Redirection {}-{} changed from {} to {}.".format(self.time, loc1_name, loc2_name, old_val, value), file=sys.stderr)
+
+
+    @check_args_type
+    def close_location(self, location_name: str, twoway: bool = True, Debug: bool = False) -> bool:
+        """
+        Summary:
+            Close in- and outgoing links for a location.
+
+        Args:
+            location_name (str): The name of the location.
+            twoway (bool, optional): Whether or not to close the links in both directions. Defaults to True.
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+
+        Returns:
+            bool: True if the location was successfully closed, False otherwise.
+        """
+        if twoway:
+            return self._change_location_1way(
+                location_name=location_name, mode="close", direction="both", Debug=Debug
+            )
+
+        return self._change_location_1way(
+            location_name=location_name, mode="close", direction="in", Debug=Debug
+        )
+
+
+    @check_args_type
+    def reopen_location(self, location_name: str, twoway: bool = True, Debug: bool = False) -> bool:
+        """
+        Summary: 
+            Reopens the links for a location.
+
+        Args:
+            location_name (str): The name of the location.
+            twoway (bool, optional): Whether or not to reopen the links in both directions. Defaults to True.
+            Debug (bool, optional): Whether or not to print debug messages. Defaults to False.
+
+        Returns:
+            bool: True if the location was successfully reopened, False otherwise.
+        """
+        if twoway:
+            return self._change_location_1way(
+                location_name, mode="reopen", direction="both", Debug=Debug
+            )
+
+        return self._change_location_1way(location_name, mode="reopen", direction="in", Debug=Debug)
+
+
+    @check_args_type
+    def add_conflict_zone(self, name: str, conflict_intensity: float = 1.0, change_movechance: bool = True) -> None:
+        """
+        Summary: 
+            Adds a conflict zone. Default weight is equal to
+            population of the location.
+
+        Args:
+            name (str): The name of the location to add as a conflict zone.
+            conflict_intensity (float, optional): The intensity of the conflict in the specified location. Defaults to 1.0.
+            change_movechance (bool, optional): Whether or not to change the movement chance for the specified location. Defaults to True.
+
+        Returns:
+            None.
+        """
+        for i in range(0, len(self.locationNames)):
+            if self.locationNames[i] == name:
+                if change_movechance:
+                    self.locations[i].movechance = SimulationSettings.move_rules["ConflictMoveChance"]
+                    self.locations[i].conflict = conflict_intensity
+                    self.locations[i].town = False
+
+                self.locations[i].time_of_conflict = self.time                  
+                spawning.refresh_spawn_weights(self)
+
+                if SimulationSettings.log_levels["init"] > 0:
+                    print("Added conflict zone: {}, pop. {}, intensity: {}".format(name, self.locations[i].pop, conflict_intensity), file=sys.stderr)
+                    print("New total spawn weight: ", sum(self.spawn_weights), file=sys.stderr)
+                return
+
+        print("Diagnostic: self.locationNames: ", self.locationNames, file=sys.stderr)
+        print(
+            "ERROR in flee.add_conflict_zone: location with name [{}] "
+            "appears not to exist in the FLEE ecosystem "
+            "(see diagnostic above).".format(name),
+            file=sys.stderr,
+        )
+
+
+    @check_args_type
+    def remove_conflict_zone(self, name: str, change_movechance: bool = True) -> None:
+        """
+        Summary:
+            Shorthand function to remove a conflict zone from the list.
+            (not used yet)
+
+        Args:
+            name (str): The name of the location to remove as a conflict zone.
+            change_movechance (bool, optional): Whether or not to change the movement chance for the specified location. Defaults to True.
+
+        Returns:
+            None.
+        """
+        
+        for i in range(0, len(self.locationNames)):
+            if self.locationNames[i] == name:
+                if change_movechance:
+                    self.locations[i].movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+                self.locations[i].conflict = -1.0
+                self.locations[i].town = True
+
+        spawning.refresh_spawn_weights(self)
+
+
+    @check_args_type
+    def set_conflict_intensity(self, name: str, conflict_intensity: float, change_movechance: bool = True) -> None:
+        """
+        Summary: 
+            Sets the conflict intensity for a given location.
+
+        Args:
+            name (str): The name of the location to set the conflict intensity for.
+            conflict_intensity (float): The new conflict intensity for the specified location.
+            change_movechance (bool, optional): Whether or not to change the movement chance for the specified location. Defaults to True.
+
+        Returns:
+            None.
+        """
+        if conflict_intensity < 0.000001:
+            self.remove_conflict_zone(name, change_movechance)
+        else:
+            self.add_conflict_zone(name, conflict_intensity, change_movechance)
+
+
+    @check_args_type
+    def pick_spawn_locations(self, number: int = 1) -> list:
+        """
+        Summary:
+            Returns a weighted random element from the list of conflict locations.
+            This function returns a number, which is an index in the array of
+            conflict locations. The probability of selecting a location 
+            is proportional to its spawn weight.
+
+        Args:
+            number (int, optional): The number of locations to sample. Defaults to 1.
+
+        Returns:
+            list[Location]: A list of unique locations.
+        """
+        spawn_weight_total = sum(self.spawn_weights)
+
+        assert spawn_weight_total > 0
+
+        wgt = self.spawn_weights / spawn_weight_total
+
+        return np.random.choice(
+            self.locations, number, p=wgt
+        ).tolist()
+
+
+    @check_args_type
+    def evolve(self) -> None:
+        """
+        Summary: 
+            Updates the simulation state for the next timestep.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
+        spawning.refresh_spawn_weights(self) # Required to correctly incorporate TakeFromPopulation and ConflictSpawnDecay.
+        
+        # update location scores
+        for loc in self.locations:
+            loc.routes = {}
+            scoring.updateLocationScore(self.time, loc)
+        demographics.update_demographic_attributes(self)
+
+        # update agent locations
+        for a in self.agents:
+            if SimulationSettings.log_levels["agent"] > 1:
+                a.locations_visited = []
+            if a.location is not None:
+                a.evolve(self, time=self.time)
+
+        for a in self.agents:
+            if a.location is not None:
+                a.finish_travel(self, time=self.time)
+                a.timesteps_since_departure += 1
+        
+
+        if SimulationSettings.log_levels["agent"] > 0:
+            write_agents(agents=self.agents, time=self.time)
+
+        if SimulationSettings.log_levels["link"] > 0:
+            write_links(locations=self.locations, time=self.time)
+            
+        # Write cognitive state logs if enabled
+        if self.cognitive_loggers:
+            if 'state' in self.cognitive_loggers:
+                self.cognitive_loggers['state'].write_cognitive_states_csv(self.agents, self.time)
+            if 'decision' in self.cognitive_loggers:
+                self.cognitive_loggers['decision'].write_decision_log_csv(self.agents, self.time)
+            if 'social' in self.cognitive_loggers:
+                self.cognitive_loggers['social'].write_social_network_csv(self.agents, self.time)
+            if 'metrics' in self.cognitive_loggers:
+                self.cognitive_loggers['metrics'].collect_timestep_metrics(self.agents, self.time)
+
+        for a in self.agents:
+            a.recent_travel_distance = (
+                a.recent_travel_distance
+                + (a.distance_moved_this_timestep / SimulationSettings.move_rules["MaxMoveSpeed"])
+            ) / 2.0
+            a.distance_moved_this_timestep = 0
+
+        # update link properties
+        if SimulationSettings.log_levels["camp"] > 0:
+            self._aggregate_arrivals()
+
+        # Deactivate agents in camps with a certain probability.
+        if SimulationSettings.spawn_rules["camps_are_sinks"] == True:
+            for a in self.agents:
+                if a.travelling == False:
+                    if a.location is not None:
+                        if a.location.camp == True:
+                            outcome = random.random()
+                            if outcome < a.location.attributes.get("deactivation_probability", 0.0):
+                                a.location = None
+
+        self.time += 1
+        self.date = datetime.strptime(self.start_date_string, "%Y-%m-%d") + timedelta(days=self.time)
+        self.date_string = self.date.strftime("%Y-%m-%d")
+
+    @check_args_type
+    def finalize_cognitive_logging(self) -> None:
+        """
+        Finalize cognitive logging by writing summary files and closing loggers.
+        Should be called at the end of simulation.
+        """
+        if self.cognitive_loggers:
+            # Write summary files
+            if 'metrics' in self.cognitive_loggers:
+                self.cognitive_loggers['metrics'].write_metrics_summary_json()
+                self.cognitive_loggers['metrics'].write_hypothesis_specific_analysis_pkl()
+            
+            # Close all loggers
+            for logger_name, logger in self.cognitive_loggers.items():
+                if hasattr(logger, 'close'):
+                    logger.close()
+
+
+    @check_args_type
+    def addLocation(
+        self,
+        name: str,
+        region: str = "unknown",
+        x: float = 0.0,
+        y: float = 0.0,
+        location_type: Optional[str] = None,
+        movechance: float = 1.0,
+        capacity: int = -1,
+        pop: int = 0,
+        foreign: bool = False,
+        country: str = "unknown",
+        attributes: dict = {},
+    ):
+        """
+        Summary: 
+            Adds a location to the simulation network graph.
+
+        Args:
+            name (str): The name of the location.
+            region (str): Description
+            x (float, optional): The x-coordinate of the location. Defaults to 0.0.
+            y (float, optional): The y-coordinate of the location. Defaults to 0.0.
+            location_type (str, optional): The type of location. Defaults to None.
+            movechance (float, optional): The probability that an agent will move from this location. Defaults to 1.0.
+            capacity (int, optional): The maximum number of agents that can be present at this location. Defaults to -1 (unlimited).
+            pop (int, optional): The initial population of the location. Defaults to 0.
+            foreign (bool, optional): Whether or not this location is in a foreign country. Defaults to False.
+            country (str, optional): The country that this location is in. Defaults to "unknown".
+            attributes (dict, optional): A dictionary of additional attributes for the location. Defaults to an empty dictionary.
+
+        Returns:
+            None.
+        """
+
+        loc = Location(
+            name=name,
+            region=region,
+            x=x,
+            y=y,
+            location_type=location_type,
+            movechance=movechance,
+            capacity=capacity,
+            pop=pop,
+            foreign=foreign,
+            country=country,
+            attributes=attributes,
+        )
+        if SimulationSettings.log_levels["init"] > 0 and self.print_location_output:
+            print("Location:", name, x, y, loc.movechance, capacity, ", pop. ", pop, foreign, ", attrib. ", attributes, file=sys.stderr)
+
+        self.locations.append(loc)
+        self.spawn_weights = np.append(self.spawn_weights, [0.0])
+        self.locationNames.append(loc.name)
+
+        spawning.refresh_spawn_weights(self)
+        return loc
+
+
+    @check_args_type
+    def addAgent(self, location, attributes) -> None:
+        """
+        Summary: 
+            Adds an agent to the simulation at the specified location.
+
+        Args:
+            location (Location): The location to add the agent to.
+            attributes (dict): A dictionary of attributes for the agent.
+
+        Returns:
+            None.
+        """
+        if SimulationSettings.spawn_rules["TakeFromPopulation"]:
+            if location.pop > 0:
+                location.pop -= 1
+            else:
+                print(
+                    "WARNING: Number of agents in the simulation is larger than the"
+                    "population of the conflict zone."
+                )
+                location.print()
+            location.numAgentsSpawned += 1
+
+        self.agents.append(Person(location=location, attributes=attributes))
+
+
+    @check_args_type
+    def insertAgent(self, location, attributes={}) -> None:
+        """
+        Summary: 
+        Inserts an agent into the simulation at the specified location.
+        Note: insert Agent does NOT take from Population.
+
+        Args:
+            location (Location): The location to insert the agent at.
+
+        Returns:
+            None.
+        """
+        self.agents.append(Person(location=location, attributes=attributes))
+
+
+    @check_args_type
+    def insertAgents(self, location, number: int) -> None:
+        """
+        Summary: 
+            Inserts a specified number of agents into the simulation
+            at the specified location without taking from the population.
+
+        Args:
+            location (Location): The location to insert the agents at.
+            number (int): The number of agents to insert.
+
+        Returns:
+            None.
+        """
+        for _ in range(0, number):
+            self.insertAgent(location=location)
+
+
+    @check_args_type
+    def clearLocationsFromAgents(self, location_names: List[str]) -> None:
+        """
+        Summary: 
+            Remove all agents from a list of locations by name.
+            Useful for couplings to other simulation codes.
+
+        Args:
+            location_names (List[str]): A list of location names.
+
+        Returns:
+            None.
+        """
+        new_agents = []
+        for i in range(0, len(self.agents)):
+            if self.agents[i].location.name not in location_names:
+                new_agents += self.agents[i]  # agent is preserved in ecosystem
+            else:
+                # agent is removed from the ecosystem and number of agents
+                # drops by one.
+                self.agents[i].location.DecrementNumAgents()
+        self.agents = new_agents
+
+
+    @check_args_type
+    def setAttribute(self, name: str, value) -> None:
+        """
+        Summary: 
+            Sets the value of an attribute for the simulation.
+
+        Args:
+            name (str): The name of the attribute.
+            value: The value of the attribute.
+
+        Returns:
+            None.
+        """
+        self.attributes[name] = value
+        
+
+
+    @check_args_type
+    def numAgents(self) -> int:
+        """
+        Summary:
+            Returns the number of agents in the simulation.
+
+        Args:
+            None.
+
+        Returns:
+            int: The number of agents in the simulation.
+        """
+        return len(self.agents)
+
+
+    @check_args_type
+    def numIDPs(self) -> int:
+        """
+        Summary: 
+            Aggregates number of IDPs across locations
+        
+        Args:
+            None.
+
+        Returns:
+            int: total # of IDPs.
+        """
+        num_idps = 0
+
+        for l in self.locations:
+            if l.idpcamp:
+                num_idps += l.numAgents
+
+        return num_idps
+
+
+    @check_args_type
+    def linkUp(
+        self,
+        endpoint1: str,
+        endpoint2: str,
+        distance: float = 1.0,
+        forced_redirection: bool = False,
+        attributes: dict = {},
+    ) -> None:
+        """
+        Summary:
+            Creates a link between two endpoint locations
+
+        Args:
+            endpoint1 (str): The name of the first endpoint location.
+            endpoint2 (str): The name of the second endpoint location.
+            distance (float, optional): The distance between the two endpoint locations. Defaults to 1.0.
+            forced_redirection (bool, optional): Whether or not the link should be used as a forced redirection. Defaults to False.
+            attributes (dict, optional): A dictionary of attributes for the link. Defaults to an empty dictionary.
+
+        Returns:
+            None.
+        """
+        endpoint1_index = -1
+        endpoint2_index = -1
+        for i in range(0, len(self.locationNames)):
+            if self.locationNames[i] == endpoint1:
+                endpoint1_index = i
+            if self.locationNames[i] == endpoint2:
+                endpoint2_index = i
+
+        if endpoint1_index < 0:
+            print("Diagnostic: Ecosystem.locationNames: ", self.locationNames, file=sys.stderr)
+            print(
+                "Error: link created to non-existent source: {}  with dest {}".format(
+                    endpoint1, endpoint2), file=sys.stderr)
+            sys.exit()
+        if endpoint2_index < 0:
+            print("Diagnostic: Ecosystem.locationNames: ", self.locationNames, file=sys.stderr)
+            print(
+                "Error: link created to non-existent destination: {} with source {}".format(
+                    endpoint2, endpoint1), file=sys.stderr)
+            sys.exit()
+
+        self.locations[endpoint1_index].links.append(
+            Link(
+                startpoint=self.locations[endpoint1_index],
+                endpoint=self.locations[endpoint2_index],
+                distance=distance,
+                forced_redirection=forced_redirection,
+                attributes=attributes,
+            )
+        )
+        self.locations[endpoint2_index].links.append(
+            Link(
+                startpoint=self.locations[endpoint2_index],
+                endpoint=self.locations[endpoint1_index],
+                distance=distance,
+                attributes=attributes,
+            )
+        )
+
+
+    @check_args_type
+    def printInfo(self) -> None:
+        """
+        Summary: 
+            Prints information about the simulation to the standard error stream.
+
+        Args:
+            None. 
+
+        Returns:
+            None.
+        """
+        print(
+            "Time: {}, # of agents: {}, # of conflict zones {}.".format(
+                self.time, len(self.agents), len(self.conflict_zones)
+            ),
+            file=sys.stderr,
+        )
+        if len(self.conflict_zones) > 0:
+            print(
+                "First conflict zone is called {}".format(self.conflict_zones[0].name),
+                file=sys.stderr,
+            )
+        for loc in self.locations:
+            print(loc.name, loc.numAgents, file=sys.stderr)
+
+
+    @check_args_type
+    def printComplete(self) -> None:
+        """
+        Summary: 
+            Prints complete information about the simulation to the standard error stream.
+
+        Args: 
+            None.
+
+        Returns:
+            None.
+        """
+        print("Time: ", self.time, ", # of agents: ", len(self.agents))
+        if self.print_location_output:
+            for loc in self.locations:
+                print(
+                    "Location name %s, number of agents %s" % (loc.name, loc.numAgents),
+                    file=sys.stderr,
+                )
+                loc.print()
+
+
+    @check_args_type
+    def getRankN(self, time) -> bool:
+        """
+        Summary:
+            Returns whether this process should do a task. Always returns true,
+            as flee.py is sequential.
+
+        Args:
+            None.
+
+        Returns:
+            bool: True if this process should do a task, False otherwise.
+
+        """
+        return True
+    @check_args_type
+    def close_cognitive_loggers(self) -> None:
+        """
+        Summary:
+            Close all cognitive loggers to ensure data is properly written.
+            
+        Args:
+            None.
+            
+        Returns:
+            None.
+        """
+        if hasattr(self, 'cognitive_loggers') and self.cognitive_loggers:
+            for logger in self.cognitive_loggers.values():
+                logger.close()

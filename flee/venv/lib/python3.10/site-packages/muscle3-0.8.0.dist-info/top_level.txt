@@ -1,0 +1,3 @@
+integration_test
+libmuscle
+muscle3

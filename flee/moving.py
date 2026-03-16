@@ -241,6 +241,28 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
 
         conflict = max(0.0, getattr(a.location, 'conflict', 0.0))
 
+        # Optional override for comparison runs (s1_only=0, s2_only=1)
+        override = SimulationSettings.move_rules.get("s2_weight_override")
+        if override is not None:
+            s2_weight = float(override)
+            a.s2_activation_prob = s2_weight
+            if s2_weight <= 0.0:
+                return movechance, 0.0
+            if s2_weight >= 1.0 and compute_s2_move_probability:
+                c_best = conflict
+                d_best = 1.0
+                if a.location.links:
+                    best_link = min(a.location.links,
+                                   key=lambda lnk: max(0.0, getattr(lnk.endpoint, 'conflict', 0.0)))
+                    c_best = max(0.0, getattr(best_link.endpoint, 'conflict', 0.0))
+                    d_best = max(1.0, best_link.get_distance())
+                kappa = float(SimulationSettings.move_rules.get('s1s2_model_params', {}).get('kappa', 5.0))
+                sigma = compute_s2_move_probability(conflict, c_best, d_best, kappa)
+                blended = sigma
+                if conflict > 0.9:
+                    blended = max(blended, 0.95)
+                return blended, 1.0
+
         # Read parameters
         s1s2_params = SimulationSettings.move_rules.get('s1s2_model_params', {})
         alpha = float(s1s2_params.get('alpha', 2.0))

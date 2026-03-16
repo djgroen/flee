@@ -7,8 +7,9 @@ This feature implements the core integration between Flee's agent-based refugee 
 ## Problem Statement
 
 Currently, our dual-process cognitive framework has fundamental integration issues:
+
 1. **Flee execution problems** - Simulations complete but produce no output files
-2. **Parameter passing failures** - Cognitive parameters aren't reaching Flee properly  
+2. **Parameter passing failures** - Cognitive parameters aren't reaching Flee properly
 3. **S1/S2 modes not working** - No behavioral differences detected between cognitive modes
 4. **Import/module issues** - Framework has import problems preventing execution
 
@@ -45,7 +46,7 @@ Currently, our dual-process cognitive framework has fundamental integration issu
 #### Acceptance Criteria
 
 1. WHEN agents use System 1 THEN they SHALL make faster, more heuristic movement decisions
-2. WHEN agents use System 2 THEN they SHALL make slower, more analytical movement decisions  
+2. WHEN agents use System 2 THEN they SHALL make slower, more analytical movement decisions
 3. WHEN comparing S1 vs S2 modes THEN evacuation timing SHALL be statistically different
 4. WHEN measuring destination choices THEN S1 and S2 SHALL show different optimality patterns
 5. IF no behavioral differences detected THEN the system SHALL diagnose cognitive switching logic
@@ -69,7 +70,7 @@ Currently, our dual-process cognitive framework has fundamental integration issu
 #### Acceptance Criteria
 
 1. WHEN I run s1_only scenario THEN all agents SHALL use System 1 throughout simulation
-2. WHEN I run s2_full scenario THEN all agents SHALL use System 2 throughout simulation  
+2. WHEN I run s2_full scenario THEN all agents SHALL use System 2 throughout simulation
 3. WHEN I run dual_process scenario THEN agents SHALL switch between S1 and S2 based on pressure
 4. WHEN comparing scenarios THEN movement patterns SHALL be measurably different
 5. IF scenarios produce identical results THEN the system SHALL identify configuration errors
@@ -89,24 +90,28 @@ Currently, our dual-process cognitive framework has fundamental integration issu
 ## Technical Requirements
 
 ### TR-1: Flee Integration Points
+
 - Cognitive parameters must be loaded via SimulationSettings.py
 - Decision logic must be integrated into Person.selectRoute() method
 - Cognitive pressure calculation must be accessible to agents
 - System 2 activation must be trackable and loggable
 
 ### TR-2: Parameter Validation
+
 - TwoSystemDecisionMaking boolean flag validation
 - conflict_threshold numeric range validation (0.0 to 2.0)
 - average_social_connectivity range validation (0.0 to 1.0)
 - Parameter type checking and conversion
 
 ### TR-3: Output Requirements
+
 - Standard Flee output files (out.csv, agents.out)
 - Optional cognitive tracking files (cognitive_states.csv)
 - Debug logging for parameter loading and decision-making
 - Error reporting for failed simulations
 
 ### TR-4: Performance Requirements
+
 - Single simulation must complete within 2 minutes
 - Cognitive calculations must not significantly slow Flee
 - Memory usage must remain reasonable for 1000+ agents
@@ -115,12 +120,14 @@ Currently, our dual-process cognitive framework has fundamental integration issu
 ## Success Metrics
 
 ### Quantitative Metrics
+
 1. **Execution Success Rate**: >95% of simulations complete successfully
 2. **Behavioral Differentiation**: Cohen's d > 0.5 between S1 and S2 modes
 3. **Parameter Loading**: 100% of cognitive parameters loaded correctly
 4. **Performance Impact**: <20% slowdown compared to standard Flee
 
 ### Qualitative Metrics
+
 1. **Scientific Validity**: Results align with dual-process theory predictions
 2. **Reproducibility**: Same parameters produce consistent results
 3. **Debuggability**: Clear diagnostic information when issues occur
@@ -129,16 +136,19 @@ Currently, our dual-process cognitive framework has fundamental integration issu
 ## Risk Assessment
 
 ### High Risk
+
 - **Deep Flee Integration**: Modifying core Flee decision-making logic
 - **Parameter Passing Complexity**: Multiple integration points between framework and Flee
 - **Behavioral Validation**: Difficult to verify cognitive differences are meaningful
 
 ### Medium Risk
+
 - **Performance Impact**: Cognitive calculations may slow simulations
 - **Import Dependencies**: Module import issues between framework and Flee
 - **Configuration Complexity**: Multiple cognitive parameters must work together
 
 ### Low Risk
+
 - **Basic Flee Functionality**: Standard Flee features are well-established
 - **Parameter Validation**: Standard validation patterns available
 - **Debug Logging**: Straightforward to implement diagnostic tools
@@ -146,11 +156,13 @@ Currently, our dual-process cognitive framework has fundamental integration issu
 ## Dependencies
 
 ### Internal Dependencies
+
 - Flee simulation engine (flee.py, Person class)
 - SimulationSettings.py for parameter loading
 - Cognitive parameter configuration system
 
 ### External Dependencies
+
 - Python scientific computing stack (NumPy, SciPy)
 - Standard Flee dependencies (NetworkX, etc.)
 - Testing frameworks for validation
@@ -158,6 +170,7 @@ Currently, our dual-process cognitive framework has fundamental integration issu
 ## Definition of Done
 
 ✅ **Complete** when:
+
 1. Basic Flee simulations execute successfully and produce output files
 2. Cognitive parameters are correctly loaded and used by Flee
 3. System 1 and System 2 modes produce statistically different behaviors
@@ -171,16 +184,19 @@ Currently, our dual-process cognitive framework has fundamental integration issu
 ## Phase Approach
 
 ### Phase 1: Fix Basic Execution (1 week)
+
 - Diagnose and fix Flee output file generation
 - Ensure parameter loading works correctly
 - Get one cognitive mode working reliably
 
-### Phase 2: Validate Cognitive Differences (1 week)  
+### Phase 2: Validate Cognitive Differences (1 week)
+
 - Implement System 1 vs System 2 decision logic
 - Verify behavioral differences are detectable
 - Add cognitive pressure calculation and activation
 
 ### Phase 3: Complete Integration (1 week)
+
 - Implement dual-process switching mode
 - Add debug and validation tools
 - Create simple test scenarios for validation

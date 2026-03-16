@@ -1,0 +1,3 @@
+[console_scripts]
+muscle3 = muscle3.muscle3:muscle3
+muscle_manager = muscle3.muscle_manager:manage_simulation

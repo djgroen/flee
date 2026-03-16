@@ -1,0 +1,49 @@
+simulation:
+  name: "nuclear_linear_fukushima"
+  n_agents: 10000
+  n_timesteps: 30
+
+network:
+  topology_type: "linear"
+  input_dir: "topologies/linear"
+
+agents:
+  spawn_location: "Facility"
+  experience_distribution: "beta(2, 5)"
+
+move_rules:
+  two_system_decision_making: true
+  max_move_speed: 360.0
+  max_walk_speed: 35.0
+  default_movechance: 0.3
+  conflict_movechance: 1.0
+  camp_movechance: 0.001
+  movechance_pop_base: 10000
+  movechance_pop_scale_factor: 0.0
+  pruning_threshold: 1.0
+  weight_softening: 0.0
+  distance_power: 1.0
+  weight_power: 1.0
+  awareness_level: 1
+  stay_close_to_home: false
+  ChildrenAvoidHazards: false
+  BoysTakeRisk: false
+  FloodRulesEnabled: false
+  s1s2_model:
+    alpha: 2.0
+    beta: 2.0
+    kappa: 5.0
+
+log_levels:
+  agent: 1
+  link: 0
+  camp: 1
+  init: 0
+
+output:
+  save_every: 1
+  metrics:
+    - agent_locations
+    - deliberation_probability
+    - system_usage
+    - evacuation_success

@@ -1,0 +1,6 @@
+target_id,zone,metric,threshold,hours_since_t0,notes,empirical_value,uncertainty,usable
+T1,<5km,frac_remaining,0.4,15.0,Inner zone rapid self-evacuation (S1 Phase 1); <=40% by t=15h,0.2752,0.2,True
+T2,<5km,frac_remaining,0.1,20.0,Inner zone near-complete evacuation; <=10% by t=20h,0.1514,0.2,True
+T3,15–20km,frac_remaining,0.5,33.0,Outer zone delayed departure (S2 Phase 2); <=50% by t=33h,0.5225225225225226,0.2,True
+T4,<20km_combined,frac_remaining,0.05,72.0,Near-complete evacuation of full <20km zone; <=5% by t=72h,0.014455782312925174,0.2,True
+T5,all,exclude,,,Network outage artifact window; exclude from fitting,,,False

@@ -1,0 +1,26 @@
+# Fukushima 2011 nuclear evacuation — simulation settings
+# Dual-process parameters (see main.tex Section 3)
+# These are overridden during grid search in runscripts/run_fukushima.py
+
+move_rules:
+  max_move_speed: 300.0       # km per timestep (2h timestep = 150 km/h max)
+  conflict_movechance: 0.5    # calibrated to Hayano 2013: ~50% depart per step
+  camp_movechance: 0.001      # near-zero: agents stop at safe destinations
+  default_movechance: 0.3     # towns
+  awareness_level: 1
+  two_system_decision_making: true
+  s1s2_model:
+    alpha: 2.0         # experience-to-capacity rate
+    beta: 4.0          # conflict-to-opportunity collapse steepness
+    kappa: 5.0         # S2 move-decision sensitivity
+
+log_levels:
+  agent: 0
+  link: 0
+  camp: 0
+  conflict: 0
+  init: 0
+
+spawn_rules:
+  take_from_population: True
+  insert_day0: True

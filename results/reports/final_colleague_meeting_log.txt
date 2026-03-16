@@ -1,0 +1,366 @@
+YAML file: proper_10k_agent_experiments/grid_n8_baseline_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.0}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.0, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_grid_8 to camp, as movechance = 0.0
+Location name: Origin_grid_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_1_grid_8, X: 3.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_2_grid_8, X: 6.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_3_grid_8, X: 0.0, Y: 3.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_grid_8, X: 3.0, Y: 3.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_grid_8, X: 6.0, Y: 3.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_grid_8, X: 0.0, Y: 6.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_grid_8, X: 3.0, Y: 6.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+YAML file: proper_10k_agent_experiments/grid_n8_high_s2_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.7}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.7, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_grid_8 to camp, as movechance = 0.0
+Location name: Origin_grid_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_1_grid_8, X: 3.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_2_grid_8, X: 6.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_3_grid_8, X: 0.0, Y: 3.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_grid_8, X: 3.0, Y: 3.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_grid_8, X: 6.0, Y: 3.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_grid_8, X: 0.0, Y: 6.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_grid_8, X: 3.0, Y: 6.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+YAML file: proper_10k_agent_experiments/grid_n8_low_s2_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.3}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.3, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_grid_8 to camp, as movechance = 0.0
+Location name: Origin_grid_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_1_grid_8, X: 3.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_2_grid_8, X: 6.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_3_grid_8, X: 0.0, Y: 3.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_grid_8, X: 3.0, Y: 3.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_grid_8, X: 6.0, Y: 3.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_grid_8, X: 0.0, Y: 6.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_grid_8, X: 3.0, Y: 6.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+YAML file: proper_10k_agent_experiments/grid_n8_medium_s2_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.5}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.5, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_grid_8 to camp, as movechance = 0.0
+Location name: Origin_grid_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_1_grid_8, X: 3.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_2_grid_8, X: 6.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_3_grid_8, X: 0.0, Y: 3.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_grid_8, X: 3.0, Y: 3.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_grid_8, X: 6.0, Y: 3.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_grid_8, X: 0.0, Y: 6.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_grid_8, X: 3.0, Y: 6.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+YAML file: proper_10k_agent_experiments/linear_n8_baseline_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.0}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.0, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_linear_8 to camp, as movechance = 0.0
+Location name: Origin_linear_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_1_linear_8, X: 2.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_2_linear_8, X: 4.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_3_linear_8, X: 6.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_linear_8, X: 8.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_linear_8, X: 10.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_linear_8, X: 12.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_linear_8, X: 14.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+YAML file: proper_10k_agent_experiments/linear_n8_high_s2_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.7}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.7, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_linear_8 to camp, as movechance = 0.0
+Location name: Origin_linear_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_1_linear_8, X: 2.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_2_linear_8, X: 4.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_3_linear_8, X: 6.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_linear_8, X: 8.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_linear_8, X: 10.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_linear_8, X: 12.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_linear_8, X: 14.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+YAML file: proper_10k_agent_experiments/linear_n8_low_s2_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.3}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.3, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_linear_8 to camp, as movechance = 0.0
+Location name: Origin_linear_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_1_linear_8, X: 2.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_2_linear_8, X: 4.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_3_linear_8, X: 6.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_linear_8, X: 8.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_linear_8, X: 10.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_linear_8, X: 12.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_linear_8, X: 14.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+YAML file: proper_10k_agent_experiments/linear_n8_medium_s2_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.5}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.5, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_linear_8 to camp, as movechance = 0.0
+Location name: Origin_linear_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_1_linear_8, X: 2.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_2_linear_8, X: 4.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Town_3_linear_8, X: 6.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_linear_8, X: 8.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_linear_8, X: 10.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_linear_8, X: 12.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_linear_8, X: 14.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+YAML file: proper_10k_agent_experiments/star_n8_baseline_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.0}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.0, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_star_8 to camp, as movechance = 0.0
+Location name: Origin_star_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Hub_star_8, X: 3.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_2_star_8, X: 6.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_3_star_8, X: 3.000000000000001, Y: 5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_star_8, X: -2.999999999999999, Y: 5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_star_8, X: -6.0, Y: 7.347880794884119e-16, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_star_8, X: -3.0000000000000027, Y: -5.19615242270663, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_star_8, X: 3.000000000000001, Y: -5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+YAML file: proper_10k_agent_experiments/star_n8_high_s2_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.7}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.7, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_star_8 to camp, as movechance = 0.0
+Location name: Origin_star_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Hub_star_8, X: 3.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_2_star_8, X: 6.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_3_star_8, X: 3.000000000000001, Y: 5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_star_8, X: -2.999999999999999, Y: 5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_star_8, X: -6.0, Y: 7.347880794884119e-16, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_star_8, X: -3.0000000000000027, Y: -5.19615242270663, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_star_8, X: 3.000000000000001, Y: -5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+YAML file: proper_10k_agent_experiments/star_n8_low_s2_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.3}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.3, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_star_8 to camp, as movechance = 0.0
+Location name: Origin_star_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Hub_star_8, X: 3.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_2_star_8, X: 6.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_3_star_8, X: 3.000000000000001, Y: 5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_star_8, X: -2.999999999999999, Y: 5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_star_8, X: -6.0, Y: 7.347880794884119e-16, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_star_8, X: -3.0000000000000027, Y: -5.19615242270663, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_star_8, X: 3.000000000000001, Y: -5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+YAML file: proper_10k_agent_experiments/star_n8_medium_s2_5000/simsetting.yml
+YAML: {'log_levels': {'agent': 1, 'link': 1, 'camp': 0, 'conflict': 0, 'init': 0, 'granularity': 'location'}, 'spawn_rules': {'take_from_population': False, 'insert_day0': True}, 'move_rules': {'max_move_speed': 360.0, 'max_walk_speed': 35.0, 'foreign_weight': 1.0, 'camp_weight': 1.0, 'conflict_weight': 0.25, 'conflict_movechance': 0.0, 'camp_movechance': 0.001, 'default_movechance': 0.3, 'awareness_level': 1, 'capacity_scaling': 1.0, 'avoid_short_stints': False, 'start_on_foot': False, 'weight_power': 1.0, 'movechance_pop_base': 10000.0, 'movechance_pop_scale_factor': 0.5, 'two_system_decision_making': 0.5}, 'optimisations': {'hasten': 1}}
+Take from population? False
+Spawn decay set to: None, with interval 30
+INFO: Fixed Route Generation for Locations: False
+Move rules set to: {'FloodRulesEnabled': False, 'FloodForecaster': False, 'flood_forecaster_timescale': 0, 'MaxMoveSpeed': 360.0, 'MaxWalkSpeed': 35.0, 'MaxCrossingSpeed': 20.0, 'ForeignWeight': 1.0, 'CampWeight': 1.0, 'ConflictWeight': 0.25, 'ConflictMoveChance': 0.0, 'CampMoveChance': 0.001, 'IDPCampMoveChance': 0.1, 'DefaultMoveChance': 0.3, 'AwarenessLevel': 1, 'CapacityBuffer': 0.9, 'CapacityScaling': 1.0, 'AvoidShortStints': False, 'StartOnFoot': False, 'DistanceSoftening': 10.0, 'WeightSoftening': 0.0, 'WeightPower': 1.0, 'DistancePower': 1.0, 'StayCloseToHome': False, 'HomeDistancePower': 0.5, 'UsePopForLocWeight': False, 'PopPowerForLocWeight': 0.1, 'MovechancePopBase': 10000.0, 'MovechancePopScaleFactor': 0.5, 'PruningThreshold': 1.0, 'ChildrenAvoidHazards': False, 'BoysTakeRisk': False, 'MatchCampReligion': False, 'MatchCampEthnicity': False, 'MatchTownEthnicity': False, 'MatchConflictEthnicity': False, 'ReligionBaseRate': 4.0, 'FixedRoutes': False, 'TwoSystemDecisionMaking': 0.5, 'conflict_threshold': 0.5, 'connectivity_mode': 'baseline', 'soft_capability': False, 'pmove_s2_mode': 'scaled', 'pmove_s2_constant': 0.9, 'eta': 0.5, 'steepness': 6.0, 'soft_gate_steepness': 8.0, 's1s2_model_params': {'enabled': False, 'alpha': 2.0, 'beta': 2.0, 'eta': 4.0, 'theta': 0.5, 'p_s2': 0.8}, 'HarvestMonths': []}
+WARNING: could not find the directory where input demographic files could reside. Path given is: /input_csv
+header ['name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] ['#name', 'region', 'country', 'gps_x', 'gps_y', 'location_type', 'conflict_date', 'pop/cap'] 8
+appending
+link header ['name1', 'name2', 'distance', 'forced_redirection', 'blocked'] ['#name1', 'name2', 'distance', 'forced_redirection', 'blocked'] 5
+Home country set to:  TestCountry
+Warning: automatically setting location Origin_star_8 to camp, as movechance = 0.0
+Location name: Origin_star_8, X: 0.0, Y: 0.0, movechance: 0.0, cap: -1, pop: 10000, country: TestCountry, conflict? 1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Hub_star_8, X: 3.0, Y: 0.0, movechance: 0.3, cap: -1, pop: 0, country: TestCountry, conflict? -1.0, camp? False, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_2_star_8, X: 6.0, Y: 0.0, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_3_star_8, X: 3.000000000000001, Y: 5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_4_star_8, X: -2.999999999999999, Y: 5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_5_star_8, X: -6.0, Y: 7.347880794884119e-16, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_6_star_8, X: -3.0000000000000027, Y: -5.19615242270663, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Location name: Camp_7_star_8, X: 3.000000000000001, Y: -5.196152422706632, movechance: 0.001, cap: 0, pop: 0, country: TestCountry, conflict? -1.0, camp? True, flood_zone? False, foreign? False, attributes: {}
+Traceback (most recent call last):
+  File "/Users/mjp38/GitHub/flee-1/run_proper_experiments.py", line 70, in run_experiment
+    population = metadata['population']
+KeyError: 'population'
+======================================================================
+🎓 RUNNING COLLEAGUE MEETING EXPERIMENTS
+======================================================================
+
+Using properly generated input files from create_proper_10k_agent_experiments.py
+
+Found 12 experiments to run
+
+
+======================================================================
+🚀 Running: grid_n8_baseline_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+🚀 Running: grid_n8_high_s2_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+🚀 Running: grid_n8_low_s2_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+🚀 Running: grid_n8_medium_s2_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+🚀 Running: linear_n8_baseline_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+🚀 Running: linear_n8_high_s2_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+🚀 Running: linear_n8_low_s2_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+🚀 Running: linear_n8_medium_s2_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+🚀 Running: star_n8_baseline_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+🚀 Running: star_n8_high_s2_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+🚀 Running: star_n8_low_s2_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+🚀 Running: star_n8_medium_s2_5000
+======================================================================
+   ❌ FAILED: 'population'
+
+======================================================================
+📊 SUMMARY
+======================================================================
+Total experiments: 12
+Successful: 0
+Failed: 12
+
+Results saved to: results/data/colleague_meeting_results.json
+

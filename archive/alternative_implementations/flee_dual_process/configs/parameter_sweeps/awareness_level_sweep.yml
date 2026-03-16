@@ -1,0 +1,8 @@
+# Parameter Sweep: Awareness Level
+# Tests the effect of different awareness levels on decision-making
+
+sweep_type: single_parameter
+parameter: move_rules.awareness_level
+values: [1, 2, 3]
+base_cognitive_mode: dual_process
+description: "Sweep awareness level from 1 (low) to 3 (high) to test impact on decision-making quality"

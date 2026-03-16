@@ -1,0 +1,266 @@
+--- flee/flee.py.orig
++++ flee/flee.py
+@@ -1,6 +1,7 @@
+ import sys
+ import math
+ import random
++from s1s2_refactored import S1S2Config, calculate_s1s2_move_probability
+ 
+ # ... existing imports and code ...
+ 
+@@ -145,50 +146,6 @@ class Person:
+         return max(0.0, min(1.0, cognitive_pressure))
+     
+-    def _calculate_time_stress(self, time: int) -> float:
+-        """
+-        Calculate time-based stress with realistic dynamics.
+-        
+-        Creates initial increase, peak, then decay.
+-        """
+-        # Time stress with decay: 0.1 * (1 - exp(-t/10)) * exp(-t/50)
+-        growth_factor = 1.0 - math.exp(-time / 10.0)
+-        decay_factor = math.exp(-time / 50.0)
+-        return 0.1 * growth_factor * decay_factor
+-    
+-    def _calculate_conflict_decay(self, time: int) -> float:
+-        """
+-        Calculate conflict decay factor based on time since conflict.
+-        """
+-        # Get conflict start time (default to 0 if not set)
+-        conflict_start_time = getattr(self.location, 'time_of_conflict', 0)
+-        recovery_time = 20.0  # 20 timesteps for recovery
+-        
+-        # Exponential decay after conflict starts
+-        time_since_conflict = max(0, time - conflict_start_time)
+-        return math.exp(-time_since_conflict / recovery_time)
+-    
+-    def _calculate_social_pressure(self, time: int) -> float:
+-        """
+-        Calculate social pressure from network effects.
+-        
+-        For now, simplified implementation. Can be enhanced later.
+-        """
+-        # Simplified: based on connectivity and time
+-        connectivity = min(1.0, self.attributes.get("connections", 0) / 10.0)
+-        
+-        # Social pressure increases with connectivity but is bounded
+-        return min(0.2, connectivity * 0.1)
+-
+     @check_args_type
+     def share_information_with_connected_agents(self, ecosystem, information: dict) -> None:
+         """
+         Share information with connected agents in the same location.
+@@ -216,20 +173,6 @@ class Person:
+         return has_connections or has_experience or has_education
+     
+-    @check_args_type
+-    def calculate_cognitive_pressure(self, time: int) -> float:
+-        """
+-        Calculate cognitive pressure based on conflict intensity, connectivity, and recovery period.
+-        
+-        Uses bounded mathematical model with realistic dynamics.
+-        
+-        Args:
+-            time: Current simulation time
+-            
+-        Returns:
+-            Cognitive pressure value (dimensionless parameter, bounded [0.0, 1.0])
+-        """
+-        if self.location is None:
+-            return 0.0
+-            
+-        # Get conflict intensity (0.0 to 1.0)
+-        conflict_intensity = max(0.0, getattr(self.location, 'conflict', 0.0))
+-        
+-        # Get connectivity (0 to 10, normalized to 0.0 to 1.0)
+-        connectivity = min(1.0, self.attributes.get("connections", 0) / 10.0)
+-        
+-        # 1. Base Pressure (Internal Stress) - bounded to 0.4
+-        base_pressure = min(0.4, connectivity * 0.2 + self._calculate_time_stress(time))
+-        
+-        # 2. Conflict Pressure (External Stress) - bounded to 0.4
+-        conflict_pressure = min(0.4, conflict_intensity * connectivity * self._calculate_conflict_decay(time))
+-        
+-        # 3. Social Pressure (Network Effects) - bounded to 0.2
+-        social_pressure = min(0.2, self._calculate_social_pressure(time))
+-        
+-        # Total cognitive pressure (bounded [0.0, 1.0])
+-        cognitive_pressure = base_pressure + conflict_pressure + social_pressure
+-        
+-        return max(0.0, min(1.0, cognitive_pressure))
++    @check_args_type
++    def calculate_cognitive_pressure(self, time: int) -> float:
++        """
++        Calculate cognitive pressure using refactored S1/S2 system.
++        
++        Args:
++            time: Current simulation time
++            
++        Returns:
++            Cognitive pressure value (dimensionless parameter, bounded [0.0, 1.0])
++        """
++        if self.location is None:
++            return 0.0
++        
++        from s1s2_refactored import total_pressure
++        
++        conflict_intensity = max(0.0, getattr(self.location, 'conflict', 0.0))
++        connections = self.attributes.get("connections", 0)
++        conflict_start_time = getattr(self.location, 'time_of_conflict', 0)
++        
++        # Get connectivity mode from simulation settings
++        connectivity_mode = SimulationSettings.move_rules.get("connectivity_mode", "baseline")
++        
++        return total_pressure(
++            time, conflict_intensity, connections, connectivity_mode, conflict_start_time
++        )
+
+--- flee/moving.py.orig
++++ flee/moving.py
+@@ -1,6 +1,7 @@
+ import sys
+ import math
+ import random
++from s1s2_refactored import S1S2Config, calculate_s1s2_move_probability
+ 
+ # ... existing imports and code ...
+ 
+@@ -353,40 +354,6 @@ def selectRoute(a, time, system2_active=False):
+     return route
+ 
+ 
+-def calculate_systematic_s2_activation(agent, pressure, base_threshold, time):
+-    """
+-    Calculate systematic S2 activation using bounded mathematical model.
+-    
+-    Uses proper sigmoid function with bounded individual modifiers.
+-    """
+-    import math
+-    import random
+-    
+-    # Base sigmoid activation curve with proper steepness
+-    k = 6.0  # Steepness parameter (more realistic than 8.0)
+-    base_prob = 1.0 / (1.0 + math.exp(-k * (pressure - base_threshold)))
+-    
+-    # Individual difference modifiers (bounded and realistic)
+-    education_level = agent.attributes.get('education_level', 0.5)
+-    education_boost = education_level * 0.05  # Max 5% boost
+-    
+-    stress_tolerance = agent.attributes.get('stress_tolerance', 0.5)
+-    stress_modifier = stress_tolerance * 0.03  # Max 3% boost
+-    
+-    # Social support modifier (bounded)
+-    connections = agent.attributes.get('connections', 0)  # Start from 0, not 5
+-    social_support = min(connections * 0.01, 0.05)  # Max 5% boost
+-    
+-    # Time-based modifiers (bounded)
+-    fatigue_penalty = min(time * 0.001, 0.03)  # Max 3% penalty, bounded
+-    learning_boost = min(time * 0.002, 0.05)   # Max 5% boost, bounded
+-    
+-    # Combine all modifiers
+-    final_prob = base_prob + education_boost + social_support - fatigue_penalty + learning_boost + stress_modifier
+-    
+-    # Ensure probability stays in valid range
+-    final_prob = max(0.0, min(1.0, final_prob))
+-    
+-    # Random activation based on probability
+-    return random.random() < final_prob
+-
+ @check_args_type
+ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
+     """
+@@ -437,30 +404,6 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
+             # Only pre-calculate route if System 2 is actually activated
+             if system2_active:
+                 # Pre-calculate route for System 2 decision-making
+                 provisional_route = selectRoute(a, time, system2_active=True)
+                 if len(provisional_route) == 0:
+                     return 0.0, True  # suppress move if no viable route
+                 else:
+                     a.attributes["_temp_route"] = provisional_route
+                     
+                     # Share route information with connected agents
+                     if a.attributes.get("connections", 0) > 0:
+                         import flee
+                         # We need to pass the ecosystem, but it's not available here
+                         # This will be handled in the evolve method
+                         a.attributes["_share_route_info"] = True
+                         
+                 # For System 2, always return 1.0 (100% chance to initiate movement decision)
+                 return 1.0, system2_active
+@@ -404,6 +347,50 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, bool]:
+         # Calculate the agent's move chance with System 1/System 2 logic
+         movechance, system2_active = moving.calculateMoveChance(self, ForceTownMove, time)
+         
++        # Use refactored S1/S2 system
++        if SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False):
++            # Get S1/S2 configuration
++            s1s2_config = S1S2Config({
++                "connectivity_mode": SimulationSettings.move_rules.get("connectivity_mode", "baseline"),
++                "soft_capability": SimulationSettings.move_rules.get("soft_capability", False),
++                "pmove_s2_mode": SimulationSettings.move_rules.get("pmove_s2_mode", "scaled"),
++                "pmove_s2_constant": SimulationSettings.move_rules.get("pmove_s2_constant", 0.9),
++                "eta": SimulationSettings.move_rules.get("eta", 0.5),
++                "steepness": SimulationSettings.move_rules.get("steepness", 6.0),
++                "soft_gate_steepness": SimulationSettings.move_rules.get("soft_gate_steepness", 8.0),
++            })
++            
++            # Calculate S1/S2 move probability
++            move_prob, s2_activation_prob, s2_active = calculate_s1s2_move_probability(
++                time=time,
++                conflict_intensity=max(0.0, getattr(self.location, 'conflict', 0.0)),
++                connections=self.attributes.get("connections", 0),
++                timesteps_since_departure=self.timesteps_since_departure,
++                education=self.attributes.get('education_level', 0.5),
++                stress_tolerance=self.attributes.get('stress_tolerance', 0.5),
++                threshold=self.attributes.get('s2_threshold', 0.5),
++                location_movechance=self.location.movechance,
++                s1_move_prob=movechance,  # Use original S1 move chance
++                config=s1s2_config,
++                conflict_start_time=getattr(self.location, 'time_of_conflict', 0)
++            )
++            
++            # Update cognitive state based on S2 activation
++            previous_state = self.cognitive_state
++            if s2_active:
++                self.cognitive_state = "S2"
++                if previous_state == "S1":
++                    self.system2_activations += 1
++            else:
++                self.cognitive_state = "S1"
++            
++            # Log S2 activation decision
++            if s2_active:
++                self.log_decision("S2", {
++                    "cognitive_pressure": self.calculate_cognitive_pressure(time),
++                    "threshold": self.attributes.get('s2_threshold', 0.5),
++                    "connections": self.attributes.get('connections', 0),
++                    "location": getattr(self.location, 'name', 'UnknownLocation')
++                }, time)
++            
++            return move_prob, s2_active
++        else:
++            # Original S1 logic
++            return movechance, False
+
+--- flee/SimulationSettings.py.orig
++++ flee/SimulationSettings.py
+@@ -300,6 +300,20 @@ class SimulationSettings:
+         # System 2 activation threshold for cognitive pressure
+         SimulationSettings.move_rules["conflict_threshold"] = float(fetchss(dpr,"conflict_threshold", 0.5))
+ 
++        # S1/S2 System Configuration
++        SimulationSettings.move_rules["connectivity_mode"] = fetchss(dpr, "connectivity_mode", "baseline")
++        SimulationSettings.move_rules["soft_capability"] = bool(fetchss(dpr, "soft_capability", False))
++        SimulationSettings.move_rules["pmove_s2_mode"] = fetchss(dpr, "pmove_s2_mode", "scaled")
++        SimulationSettings.move_rules["pmove_s2_constant"] = float(fetchss(dpr, "pmove_s2_constant", 0.9))
++        SimulationSettings.move_rules["eta"] = float(fetchss(dpr, "eta", 0.5))
++        SimulationSettings.move_rules["steepness"] = float(fetchss(dpr, "steepness", 6.0))
++        SimulationSettings.move_rules["soft_gate_steepness"] = float(fetchss(dpr, "soft_gate_steepness", 8.0))
++
+         # Enable Farmer harvesting
+         SimulationSettings.move_rules["HarvestMonths"] = fetchss(dpr, "harvest_months", [])
+         if len(SimulationSettings.move_rules["HarvestMonths"]) > 0:
+             SimulationSettings.farming = True
+         else:
+             SimulationSettings.farming = False

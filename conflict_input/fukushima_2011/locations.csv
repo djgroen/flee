@@ -1,0 +1,10 @@
+name,region,country,lat,lon,location_type,conflict_date,population,capacity
+L0_0-5km,Futaba,Japan,37.421,141.033,conflict,1,12500,100000
+L1_5-10km,Okuma,Japan,37.421,141.083,conflict,1,33800,100000
+L2_10-15km,Tomioka,Japan,37.421,141.133,town,0,14500,100000
+L3_15-20km,Naraha,Japan,37.421,141.183,town,0,14800,100000
+L4_20-25km,Hirono,Japan,37.421,141.233,town,0,40500,100000
+Safe_North,Minamisoma_N,Japan,37.821,141.033,camp,0,0,500000
+Safe_South,Iwaki_S,Japan,37.021,141.033,camp,0,0,500000
+Safe_West,Koriyama_W,Japan,37.421,140.383,camp,0,0,500000
+Safe_Inland,Fukushima_I,Japan,37.621,140.483,camp,0,0,500000

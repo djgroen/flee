@@ -1,0 +1,411 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Packages
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{subcaption}
+
+% Custom commands
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\sigmoid}{\sigma}
+
+% Title information
+\title[GC24F-03]{GC24F-03 Modeling Adaptive Human Decision-Making in Refugee Movement Using Dual Process Theory (Invited)}
+\subtitle{System 1 vs System 2 Processing in Forced Displacement}
+\author{Michael Puma}
+\institute{Columbia University Climate School\\Center for Climate Systems Research}
+\date{\today}
+
+\begin{document}
+
+%==============================================================================
+% SLIDE 1: Title
+%==============================================================================
+\begin{frame}
+\titlepage
+\end{frame}
+
+%==============================================================================
+% SLIDE 2: The Question & Dual-Process Theory
+%==============================================================================
+\begin{frame}{How Do People Decide Where to Go When Fleeing Conflict?}
+
+\textbf{Two cognitive modes:}
+
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{System 1 (S1)}
+\begin{itemize}
+    \item Fast, automatic
+    \item Heuristic-based
+    \item ``Head toward nearest border''
+    \item Low cognitive load
+\end{itemize}
+
+\vspace{0.5em}
+\textit{Reactive, instinctive}
+
+\column{0.48\textwidth}
+\textbf{System 2 (S2)}
+\begin{itemize}
+    \item Slow, deliberative
+    \item Analytical
+    \item ``Calculate routes, compare destinations''
+    \item High cognitive load
+\end{itemize}
+
+\vspace{0.5em}
+\textit{Effortful, strategic}
+\end{columns}
+
+\vspace{1em}
+
+\textbf{Core principle: Context-dependent processing}
+\begin{itemize}
+    \item \textbf{High conflict} → System 1 (hard constraint)
+    \item \textbf{Low conflict + social connections} → System 2 possible
+\end{itemize}
+
+\vspace{0.5em}
+
+\centering
+\alert{System 2 isn't always ``better'' – it requires mental effort that people may not have during crisis}
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 3: Our Model
+%==============================================================================
+\begin{frame}{Our Model: Context-Dependent Cognitive Processing}
+
+\textbf{Key principle:} High conflict constrains people to System 1 processing, while recovery periods allow socially connected individuals to potentially engage System 2.
+
+\vspace{0.5em}
+
+\textbf{Mathematical framework:}
+\begin{equation*}
+P_{S2} = \frac{1}{1 + e^{-\eta(P(t) - \theta)}}
+\end{equation*}
+where $P(t) = B(t) + C(t) + S(t)$ (base + conflict + social pressure)
+
+\vspace{0.5em}
+
+\textbf{Key factors:}
+\begin{itemize}
+    \item \textbf{Conflict intensity} ($C$): High conflict → System 1 (hard constraint)
+    \item \textbf{Social connections} ($S$): Connections $\geq 2$ enable System 2 capability
+    \item \textbf{Recovery periods}: Lower conflict allows pressure to decrease
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{Implementation:} Agent-based model (FLEE framework) with four refugee scenarios:
+\begin{enumerate}
+    \item Nearest Border (S1 heuristic)
+    \item Multiple Routes (S2 deliberation)
+    \item Social Connections (S2 enabler)
+    \item Context Transition (S1→S2)
+\end{enumerate}
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 4: Results - Scenario Overview
+%==============================================================================
+\begin{frame}{Results: Four Refugee Scenarios}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{run_Nearest_Border_20251211_000126_network.png}
+        \caption{Nearest Border (S1)}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{run_Multiple_Routes_20251211_000127_network.png}
+        \caption{Multiple Routes (S2)}
+    \end{subfigure}
+    \vspace{0.3cm}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{run_Social_Connections_20251211_000127_network.png}
+        \caption{Social Connections}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{run_Context_Transition_20251211_000128_network.png}
+        \caption{Context Transition}
+    \end{subfigure}
+\end{figure}
+
+\textbf{Key finding:} Context-dependent S1/S2 activation
+\begin{itemize}
+    \item High conflict → System 1; Recovery → System 2
+    \item Social connections enable System 2 capability
+    \item Same agents switch cognitive modes based on context
+\end{itemize}
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 5: Results - Decision Patterns
+%==============================================================================
+\begin{frame}{Results: Decision Patterns}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{run_Nearest_Border_20251211_000126_decisions.png}
+        \caption{Nearest Border}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{run_Multiple_Routes_20251211_000127_decisions.png}
+        \caption{Multiple Routes}
+    \end{subfigure}
+    \vspace{0.3cm}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{run_Social_Connections_20251211_000127_decisions.png}
+        \caption{Social Connections}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{run_Context_Transition_20251211_000128_decisions.png}
+        \caption{Context Transition}
+    \end{subfigure}
+\end{figure}
+
+\textbf{Key findings:}
+\begin{itemize}
+    \item \textbf{Route choices differ}: S1 uses heuristics (shorter routes); S2 deliberates (safer routes)
+    \item \textbf{S2 activation increases} in recovery zones (low conflict + connections)
+    \item \textbf{Transitions occur}: Same agents switch cognitive modes based on context
+\end{itemize}
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 6: Dimensionless Parameters
+%==============================================================================
+\begin{frame}{Dimensionless Parameters \& Generalizability}
+
+\textbf{Why dimensionless?} Enable comparison across scales (village vs. country-level)
+
+\vspace{0.5em}
+
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{dimensionless_parameters.png}
+\end{figure}
+
+\column{0.48\textwidth}
+\textbf{Key parameters:}
+\begin{itemize}
+    \item $d^* = d/D_{char}$ (normalized distance)
+    \item $v^* = v/v_{char}$ (normalized speed)
+    \item $t^* = t/T_{char}$ (normalized time)
+    \item $\eta^*$ (evacuation rate)
+    \item $C^*$ (normalized conflict)
+    \item $S^*$ (social connectivity)
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{Critical insight:}
+\begin{itemize}
+    \item Universal threshold: $\Theta^* \approx 0.3$ for S2 activation
+    \item $C^* < 0.3$ + $S^* > 0.3$ → S2 activation
+    \item Patterns hold across spatial scales
+\end{itemize}
+\end{columns}
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 7: Heuristic Decision-Making Patterns
+%==============================================================================
+\begin{frame}{Heuristic Decision-Making Patterns}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{heuristic_decision_making.png}
+\end{figure}
+
+\textbf{Critical insights:}
+\begin{itemize}
+    \item \textbf{S2 activation vs. conflict}: Strong inverse relationship (high conflict → low S2)
+    \item \textbf{Route choice heuristics}: S1 agents choose shorter routes; S2 agents optimize safety
+    \item \textbf{Context transition}: Clear S1 → S2 transition as conflict decreases
+    \item \textbf{Universal threshold}: $\Theta^* \approx 0.3$ for S2 activation (consistent across scenarios)
+\end{itemize}
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 8: South Sudan Application
+%==============================================================================
+\begin{frame}{Application: South Sudan Displacement}
+
+\textbf{Survey data:} ``Why do Refugees Move After Arrival? Opportunity and Community''\\
+\textit{Population, Space and Place} (DOI: 10.1002/psp.2842)
+
+\vspace{0.5em}
+
+\textbf{Key empirical findings:}
+\begin{itemize}
+    \item \textbf{17\% mobility} within first year (vs. 3.4\% non-refugees)
+    \item \textbf{Drivers}: Employment opportunities and established community networks
+    \item \textbf{Timing}: Most moves occur \textit{after} initial settlement (not immediate flight)
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{S1/S2 interpretation:}
+\begin{itemize}
+    \item \textbf{Early phase} (active conflict): System 1 dominates → rapid, heuristic decisions
+    \item \textbf{Post-arrival phase}: System 2 becomes possible → employment/community comparison
+    \item \textbf{Social networks enable deliberation}: Community presence → S2 activation
+\end{itemize}
+
+\vspace{0.5em}
+
+\textbf{``S2 is Lazy'' insight:} 17\% engage S2 when conditions right (community networks reduce cognitive cost, employment justifies effort); 83\% don't move (S2 not worth it or not possible)
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 9: Humanitarian Implications
+%==============================================================================
+\begin{frame}{Humanitarian Implications}
+
+\textbf{Standard assumption:} Refugees always make calculated decisions OR always react instinctively
+
+\vspace{0.5em}
+
+\textbf{Our finding:} Cognitive processing varies with context
+
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{Active conflict:}
+\begin{itemize}
+    \item System 1 (reactive)
+    \item Simple, fast routes needed
+    \item Clear, visible directions
+    \item Don't assume deliberation
+\end{itemize}
+
+\column{0.48\textwidth}
+\textbf{Recovery periods:}
+\begin{itemize}
+    \item System 2 possible (if connected)
+    \item Decision support valuable
+    \item Social networks enable deliberation
+    \item Multiple route options allow comparison
+\end{itemize}
+\end{columns}
+
+\vspace{0.5em}
+
+\textbf{Practical recommendations:}
+\begin{itemize}
+    \item \textbf{Phase-based interventions}: Simple routes (active conflict) vs. decision support (recovery)
+    \item \textbf{Social connection support}: Community spaces, family reunification, information sharing
+    \item \textbf{Context-aware modeling}: Don't assume uniform decision-making
+\end{itemize}
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 10: Key Contributions
+%==============================================================================
+\begin{frame}{Key Contributions}
+
+\begin{enumerate}
+    \item \textbf{Context-dependent cognitive processing}
+    \begin{itemize}
+        \item High conflict constrains to System 1; recovery allows System 2
+        \item Same agents process differently in different contexts
+    \end{itemize}
+    
+    \item \textbf{Social connections enable System 2}
+    \begin{itemize}
+        \item Not just information – connections enable mental effort
+        \item Social resources shape cognitive availability
+    \end{itemize}
+    
+    \item \textbf{Implementation in Flee}
+    \begin{itemize}
+        \item Agent-based model with dual-process decision-making
+        \item Context-dependent rules and social connection tracking
+    \end{itemize}
+    
+    \item \textbf{Humanitarian relevance}
+    \begin{itemize}
+        \item Phase-based intervention strategies
+        \item Context-aware modeling approach
+    \end{itemize}
+\end{enumerate}
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 11: Conclusion
+%==============================================================================
+\begin{frame}{Conclusion}
+
+\begin{center}
+\Large
+\textbf{Cognitive processing varies with context and social resources}
+\end{center}
+
+\vspace{1em}
+
+\textbf{Key insights:}
+\begin{itemize}
+    \item High conflict constrains people to System 1 processing
+    \item Recovery periods allow socially connected individuals to engage System 2
+    \item Social connections matter because they enable the mental effort needed for analytical thinking
+    \item This variation matters for humanitarian response
+\end{itemize}
+
+\vspace{1em}
+
+\begin{center}
+\large
+Rather than assuming uniform decision-making,\\
+our model captures how environmental pressures and social resources\\
+shape cognitive availability
+\end{center}
+
+\end{frame}
+
+%==============================================================================
+% SLIDE 12: Thank You
+%==============================================================================
+\begin{frame}
+\begin{center}
+\Huge Thank You
+
+\vspace{1em}
+
+\Large Questions?
+
+\vspace{1.5em}
+
+\normalsize
+Michael Puma\\
+Columbia University Climate School\\
+Center for Climate Systems Research
+\end{center}
+\end{frame}
+
+\end{document}
+

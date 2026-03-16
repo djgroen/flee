@@ -1,0 +1,129 @@
+% LaTeX Code Snippets for Overleaf Presentation
+% Generated from nuclear evacuation simulation results
+% Date: 2025-11-26
+
+% ============================================================================
+% FIGURE 1: Temporal Dynamics
+% ============================================================================
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{nuclear_evacuation_temporal_dynamics.png}
+    \caption{Temporal dynamics of System 2 activation and evacuation progress 
+    across three topologies. (Top) S2 activation rate increases over time as 
+    agents gain experience and move to safer locations. Ring topology shows 
+    highest S2 activation (98\% at Ring3, one step from SafeZone), consistent 
+    with the model $P_{S2} = \Psi \times \Omega$ where both cognitive capacity 
+    ($\Psi$) and structural opportunity ($\Omega$) are high. (Middle) Evacuation 
+    progress shows agents reaching safe zones over time. (Bottom) Cognitive 
+    pressure decreases as agents move away from conflict zones.}
+    \label{fig:temporal_dynamics}
+\end{figure}
+
+% ============================================================================
+% FIGURE 2: Topology Comparison
+% ============================================================================
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{nuclear_evacuation_topology_comparison.png}
+    \caption{Comparison of System 2 activation and evacuation success across 
+    topologies. (Top left) Average S2 activation rate: Star (82.1\%) > Ring 
+    (74.5\%) > Linear (67.6\%). (Top right) Final evacuation success: Star 
+    (28.8\%) > Ring (21.2\%) > Linear (19.9\%). (Bottom left) Peak S2 activation 
+    is similar across all topologies (~94\%), suggesting the model reaches 
+    saturation when both $\Psi$ and $\Omega$ are high. (Bottom right) Average 
+    cognitive pressure is highest in Linear topology (0.232) due to bottleneck 
+    effects.}
+    \label{fig:topology_comparison}
+\end{figure}
+
+% ============================================================================
+% FIGURE 3: Network Diagrams
+% ============================================================================
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{nuclear_evacuation_network_diagrams.png}
+    \caption{Network topology structures for nuclear evacuation scenarios. 
+    (Left) Ring/Circular topology: Concentric evacuation zones (Fukushima, 
+    Chernobyl style) with single SafeZone. All Ring3 locations are one step 
+    from SafeZone, leading to 98\% S2 activation at these locations. (Center) 
+    Star/Hub-and-Spoke topology: Central facility with radiating routes (Indian 
+    Point style) with multiple safe zones. (Right) Linear topology: Single 
+    evacuation corridor (coastal/mountain facilities) with bottleneck effects.}
+    \label{fig:network_diagrams}
+\end{figure}
+
+% ============================================================================
+% TABLE: Summary Statistics
+% ============================================================================
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{lcccc}
+        \toprule
+        Topology & Avg S2 Rate (\%) & Final Evacuation (\%) & Peak S2 (\%) & Avg Pressure \\
+        \midrule
+        Ring     & 74.5             & 21.2                & 94.1         & 0.192 \\
+        Star     & 82.1             & 28.8                & 94.0         & 0.087 \\
+        Linear   & 67.6             & 19.9                & 93.9         & 0.232 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Summary statistics for nuclear evacuation simulations across 
+    three topologies. Star topology shows highest average S2 activation (82.1\%) 
+    and evacuation success (28.8\%), while Linear topology shows lowest S2 
+    activation (67.6\%) and highest cognitive pressure (0.232) due to bottleneck 
+    effects. Peak S2 activation is similar across all topologies (~94\%), 
+    consistent with model saturation when both cognitive capacity and structural 
+    opportunity are high.}
+    \label{tab:topology_comparison}
+\end{table}
+
+% ============================================================================
+% KEY FINDING TEXT
+% ============================================================================
+\section{Key Findings}
+
+\subsection{Ring Topology: S2 Activation at One Step from SafeZone}
+
+The ring topology demonstrates a clear pattern: agents activate System 2 
+thinking at 98\% rate when one step away from the SafeZone (Ring3 locations). 
+This finding is consistent with the parsimonious dual-process model 
+$P_{S2} = \Psi \times \Omega$:
+
+\begin{itemize}
+    \item \textbf{Cognitive Capacity ($\Psi$)}: High due to agent experience 
+          (agents have traveled through multiple rings, increasing 
+          \texttt{timesteps\_since\_departure})
+    \item \textbf{Structural Opportunity ($\Omega$)}: High due to low conflict 
+          (Ring3 locations have conflict = 0.20, compared to Facility = 0.95)
+    \item \textbf{Result}: $P_{S2} = \text{High} \times \text{High} = 98\%$ 
+          S2 activation
+\end{itemize}
+
+In contrast, agents at the Facility (center, high danger) show 0\% S2 activation 
+due to:
+\begin{itemize}
+    \item Low $\Psi$: Agents just spawned, minimal travel experience
+    \item Low $\Omega$: High conflict (0.95) prevents deliberative thinking
+    \item Result: $P_{S2} = \text{Low} \times \text{Low} = 0\%$ S2 activation
+\end{itemize}
+
+This pattern validates the model's prediction that deliberation requires BOTH 
+cognitive capacity AND structural opportunity—neither alone is sufficient.
+
+% ============================================================================
+% METHODOLOGY UPDATE (if needed)
+% ============================================================================
+\section{Methodology}
+
+The parsimonious dual-process model implements:
+
+\begin{align}
+    \Psi(x; \alpha) &= \frac{1}{1 + e^{-\alpha x}} \quad \text{(Cognitive capacity)} \\
+    \Omega(c; \beta) &= \frac{1}{1 + e^{-\beta(1-c)}} \quad \text{(Structural opportunity)} \\
+    P_{S2} &= \Psi \times \Omega \quad \text{(S2 activation probability)}
+\end{align}
+
+where $x$ is the experience-based capacity index (incorporating prior 
+displacement, local knowledge, conflict exposure, connections, age, and 
+education with 5\% weight), $c$ is conflict intensity [0, 1], and $\alpha=2.0$, 
+$\beta=2.0$ are free parameters.
+

@@ -1,0 +1,7 @@
+log_levels:
+  agent: 0
+move_rules:
+  max_move_speed: 360.0
+  awareness_level: 1
+spawn_rules:
+  take_from_population: False

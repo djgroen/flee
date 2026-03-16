@@ -1,0 +1,366 @@
+# Production Configuration Templates for Dual Process Experiments Framework
+# 
+# This file contains optimized configuration templates for production use,
+# with carefully tuned default parameter values based on validation experiments.
+
+# Base configuration template - common settings for all experiments
+base_template: &base_template
+  log_levels:
+    agent: 0
+    link: 0
+    camp: 0
+    conflict: 0
+    init: 0
+    granularity: 'location'
+  
+  spawn_rules:
+    take_from_population: false
+    insert_day0: true
+  
+  move_rules:
+    max_move_speed: 360.0
+    max_walk_speed: 35.0
+    foreign_weight: 1.0
+    camp_weight: 1.0
+    conflict_weight: 0.25
+    conflict_movechance: 1.0
+    camp_movechance: 0.001
+    default_movechance: 0.3
+    capacity_scaling: 1.0
+    avoid_short_stints: false
+    start_on_foot: false
+    weight_power: 1.0
+  
+  optimisations:
+    hasten: 1
+
+# Cognitive mode configurations - optimized based on validation results
+cognitive_modes:
+  
+  # Traditional single-system mode (equivalent to standard Flee)
+  s1_only:
+    <<: *base_template
+    move_rules:
+      <<: *base_template.move_rules
+      awareness_level: 1
+      two_system_decision_making: false
+      weight_softening: 0.5
+  
+  # System 2 disconnected mode - deliberative but without social influence
+  s2_disconnected:
+    <<: *base_template
+    move_rules:
+      <<: *base_template.move_rules
+      awareness_level: 3
+      two_system_decision_making: true
+      average_social_connectivity: 0.0
+      weight_softening: 0.1
+      conflict_threshold: 0.5
+      recovery_period_max: 14
+  
+  # System 2 full mode - deliberative with strong social connectivity
+  s2_full:
+    <<: *base_template
+    move_rules:
+      <<: *base_template.move_rules
+      awareness_level: 3
+      two_system_decision_making: true
+      average_social_connectivity: 8.0
+      weight_softening: 0.1
+      conflict_threshold: 0.5
+      recovery_period_max: 14
+  
+  # Dual process mode - balanced S1/S2 switching
+  dual_process:
+    <<: *base_template
+    move_rules:
+      <<: *base_template.move_rules
+      awareness_level: 2
+      two_system_decision_making: true
+      average_social_connectivity: 3.0
+      weight_softening: 0.3
+      conflict_threshold: 0.6
+      recovery_period_max: 21
+
+# Topology configuration templates
+topology_templates:
+  
+  # Small scale experiments (testing, validation)
+  small_scale:
+    linear:
+      n_nodes: 5
+      segment_distance: 50.0
+      start_pop: 500
+      pop_decay: 0.8
+    
+    star:
+      n_camps: 4
+      hub_pop: 1000
+      camp_capacity: 2500
+      radius: 75.0
+    
+    tree:
+      branching_factor: 2
+      depth: 3
+      root_pop: 800
+    
+    grid:
+      rows: 3
+      cols: 3
+      cell_distance: 60.0
+      pop_distribution: 'uniform'
+  
+  # Medium scale experiments (standard research)
+  medium_scale:
+    linear:
+      n_nodes: 10
+      segment_distance: 75.0
+      start_pop: 2000
+      pop_decay: 0.7
+    
+    star:
+      n_camps: 8
+      hub_pop: 5000
+      camp_capacity: 10000
+      radius: 150.0
+    
+    tree:
+      branching_factor: 3
+      depth: 4
+      root_pop: 3000
+    
+    grid:
+      rows: 5
+      cols: 5
+      cell_distance: 100.0
+      pop_distribution: 'weighted'
+  
+  # Large scale experiments (comprehensive studies)
+  large_scale:
+    linear:
+      n_nodes: 20
+      segment_distance: 100.0
+      start_pop: 10000
+      pop_decay: 0.6
+    
+    star:
+      n_camps: 15
+      hub_pop: 20000
+      camp_capacity: 50000
+      radius: 300.0
+    
+    tree:
+      branching_factor: 4
+      depth: 5
+      root_pop: 15000
+    
+    grid:
+      rows: 8
+      cols: 8
+      cell_distance: 150.0
+      pop_distribution: 'clustered'
+
+# Scenario configuration templates
+scenario_templates:
+  
+  # Quick onset scenarios
+  rapid_onset:
+    spike:
+      start_day: 0
+      peak_intensity: 0.9
+      duration: 30
+    
+    cascading:
+      start_day: 0
+      spread_rate: 0.5
+      max_intensity: 0.8
+      duration: 45
+  
+  # Gradual escalation scenarios
+  gradual_escalation:
+    gradual:
+      start_day: 0
+      end_day: 20
+      max_intensity: 0.8
+    
+    oscillating:
+      start_day: 0
+      period: 14
+      amplitude: 0.6
+      baseline: 0.2
+      duration: 60
+  
+  # Complex multi-phase scenarios
+  complex_patterns:
+    multi_spike:
+      spikes:
+        - {day: 5, intensity: 0.7}
+        - {day: 25, intensity: 0.9}
+        - {day: 45, intensity: 0.6}
+      duration: 70
+    
+    seasonal:
+      base_intensity: 0.3
+      seasonal_amplitude: 0.4
+      seasonal_period: 30
+      trend: 0.01
+      duration: 90
+
+# Experiment execution templates
+execution_templates:
+  
+  # Development and testing
+  development:
+    max_parallel: 2
+    timeout: 30
+    replications: 1
+    simulation_days: 30
+  
+  # Standard research experiments
+  research:
+    max_parallel: 4
+    timeout: 120
+    replications: 3
+    simulation_days: 60
+  
+  # Production parameter sweeps
+  production:
+    max_parallel: 8
+    timeout: 300
+    replications: 5
+    simulation_days: 90
+  
+  # High-throughput validation
+  validation:
+    max_parallel: 6
+    timeout: 60
+    replications: 10
+    simulation_days: 45
+
+# Parameter sweep templates
+parameter_sweep_templates:
+  
+  # Cognitive threshold sensitivity
+  threshold_sweep:
+    parameter: 'conflict_threshold'
+    values: [0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    base_mode: 'dual_process'
+    topology: 'medium_scale.linear'
+    scenario: 'gradual_escalation.gradual'
+  
+  # Social connectivity impact
+  connectivity_sweep:
+    parameter: 'average_social_connectivity'
+    values: [0.0, 1.0, 2.0, 4.0, 6.0, 8.0]
+    base_mode: 's2_full'
+    topology: 'medium_scale.star'
+    scenario: 'rapid_onset.spike'
+  
+  # Awareness level comparison
+  awareness_sweep:
+    parameter: 'awareness_level'
+    values: [1, 2, 3, 4, 5]
+    base_mode: 'dual_process'
+    topology: 'small_scale.grid'
+    scenario: 'complex_patterns.multi_spike'
+  
+  # Recovery period analysis
+  recovery_sweep:
+    parameter: 'recovery_period_max'
+    values: [7, 14, 21, 28, 35]
+    base_mode: 'dual_process'
+    topology: 'medium_scale.tree'
+    scenario: 'gradual_escalation.oscillating'
+
+# Analysis configuration templates
+analysis_templates:
+  
+  # Basic analysis for quick experiments
+  basic:
+    metrics:
+      - movement_timing
+      - destination_distribution
+      - cognitive_state_distribution
+    
+    visualizations:
+      - cognitive_evolution_plot
+      - movement_flow_diagram
+    
+    statistical_tests: false
+  
+  # Comprehensive analysis for research
+  comprehensive:
+    metrics:
+      - movement_timing
+      - destination_distribution
+      - distance_analysis
+      - cognitive_state_distribution
+      - cognitive_transitions
+      - social_connectivity_impact
+    
+    visualizations:
+      - cognitive_evolution_plot
+      - movement_flow_diagram
+      - parameter_sensitivity_heatmap
+      - comparative_analysis_charts
+    
+    statistical_tests: true
+    confidence_level: 0.95
+  
+  # Publication-ready analysis
+  publication:
+    metrics:
+      - all_available
+    
+    visualizations:
+      - all_publication_ready
+    
+    statistical_tests: true
+    multiple_comparison_correction: 'bonferroni'
+    confidence_level: 0.99
+    effect_size_calculation: true
+
+# Performance optimization settings
+performance_settings:
+  
+  # Memory optimization
+  memory:
+    chunk_size: 10000  # Process data in chunks
+    cache_size: 100    # Maximum cached experiments
+    gc_frequency: 10   # Garbage collection frequency
+  
+  # CPU optimization
+  cpu:
+    max_workers: 'auto'  # Auto-detect CPU cores
+    worker_timeout: 300  # Worker timeout in seconds
+    batch_size: 5        # Experiments per batch
+  
+  # I/O optimization
+  io:
+    buffer_size: 8192    # File I/O buffer size
+    compression: true    # Compress output files
+    async_writes: true   # Asynchronous file writes
+
+# Quality assurance settings
+quality_assurance:
+  
+  # Validation thresholds
+  validation:
+    min_success_rate: 0.95      # Minimum experiment success rate
+    max_memory_growth: 100      # Maximum memory growth (MB)
+    max_execution_time: 300     # Maximum execution time (seconds)
+    min_throughput: 0.1         # Minimum throughput (experiments/second)
+  
+  # Data integrity checks
+  integrity:
+    check_file_formats: true
+    validate_data_consistency: true
+    verify_output_completeness: true
+    statistical_sanity_checks: true
+  
+  # Error handling
+  error_handling:
+    max_retries: 3
+    retry_delay: 5
+    fail_fast: false
+    detailed_logging: true

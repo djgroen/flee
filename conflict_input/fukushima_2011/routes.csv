@@ -1,0 +1,9 @@
+name1,name2,distance
+L0_0-5km,L1_5-10km,5
+L1_5-10km,L2_10-15km,5
+L2_10-15km,L3_15-20km,5
+L3_15-20km,L4_20-25km,5
+L4_20-25km,Safe_North,60
+L4_20-25km,Safe_South,80
+L4_20-25km,Safe_West,120
+L4_20-25km,Safe_Inland,100

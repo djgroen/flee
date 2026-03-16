@@ -1,6 +1,0 @@
-name,region,country,lat,lon,location_type,conflict_date,population
-Origin,Region1,Country1,0.000000,0.000000,conflict_zone,2023-01-01,0
-Close_Safe,Region1,Country1,0.000000,0.450450,town,,0
-Medium_Balanced,Region1,Country1,0.900901,0.000000,town,,0
-Far_Excellent,Region1,Country1,0.000000,-1.081081,town,,0
-Risky_Close,Region1,Country1,-0.360360,0.270270,town,,0

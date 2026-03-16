@@ -1,0 +1,94 @@
+Metadata-Version: 2.1
+Name: muscle3
+Version: 0.8.0
+Summary: Version 3 of the MUltiScale Coupling Library and Environment
+Home-page: https://github.com/multiscale/muscle3
+Author: Lourens Veen
+Author-email: l.veen@esciencecenter.nl
+License: Apache License 2.0
+Keywords: multiscale,coupling,MUSCLE
+Classifier: Development Status :: 4 - Beta
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Requires-Python: >=3.8, <4
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+License-File: NOTICE
+Requires-Dist: click (<9,>=7.1)
+Requires-Dist: matplotlib (<4,>=3)
+Requires-Dist: msgpack (<2,>=1)
+Requires-Dist: psutil (>=5.0.0)
+Requires-Dist: parsimonious
+Requires-Dist: numpy (>=1.22)
+Requires-Dist: ymmsl (<0.15,>=0.14.0)
+Provides-Extra: dev
+Requires-Dist: tox ; extra == 'dev'
+
+.. image:: https://github.com/multiscale/muscle3/raw/develop/docs/source/muscle3_logo_readme.png
+    :alt: MUSCLE3
+
+.. image:: https://readthedocs.org/projects/muscle3/badge/?version=master
+    :target: https://muscle3.readthedocs.io/en/develop/?badge=master
+    :alt: Documentation Build Status
+
+.. image:: https://github.com/multiscale/muscle3/actions/workflows/ci.yaml/badge.svg?branch=master
+    :target: https://github.com/multiscale/muscle3/actions
+    :alt: Build Status
+
+.. image:: https://zenodo.org/badge/122876985.svg
+   :target: https://zenodo.org/badge/latestdoi/122876985
+
+.. image:: https://img.shields.io/badge/rsd-muscle3-00a3e3.svg
+   :target: https://www.research-software.nl/software/muscle3
+
+|
+
+MUSCLE3 is the third incarnation of the MUSCLE Multiscale Coupling Library and
+Environment. With MUSCLE3, you can connect multiple simulation models together into
+a multiscale simulation.
+
+Browse to `the MUSCLE3 documentation`_ to get started.
+
+
+Collaboration
+=============
+
+For academic collaboration, please contact `prof. Alfons Hoekstra (UvA CSL) <https://www.uva.nl/profiel/h/o/a.g.hoekstra/a.g.hoekstra.html>`_
+and/or `Lourens Veen (NLeSC) <https://www.esciencecenter.nl/team/lourens-veen-msc/>`_.
+
+Commercial support for MUSCLE3 is provided by
+`Ignition Computing <https://www.ignitioncomputing.com>`_.
+
+
+Legal
+=====
+
+MUSCLE3 is Copyright 2018-2022 University of Amsterdam and Netherlands eScience
+Center, Copyright 2022-2024 The ITER Organisation, and Copyright 2023-2025 Netherlands
+eScience Center. It is licensed under the Apache License 2.0.
+
+
+Contributing
+============
+
+We welcome contributions to MUSCLE3! For small additions or fixes, please
+submit a pull request, and we'll review your changes and apply them. If you
+want to add larger features, please make an issue and describe what you want to
+do, so that we can coordinate and avoid double work. For more details, see the
+`documentation on contributing`_.
+
+The MUSCLE3 community fosters a welcoming atmosphere, and participation is open
+to everyone. In order to ensure that it stays that way, we have a
+`code of conduct`_, and we will enforce it if necessary. Please treat your
+fellow human beings with respect.
+
+
+.. _`the MUSCLE3 documentation`: https://muscle3.readthedocs.io
+.. _`documentation on contributing`: http://muscle3.readthedocs.io/en/latest/contributing.html
+.. _`code of conduct`: https://github.com/multiscale/muscle3/blob/develop/CODE_OF_CONDUCT.rst

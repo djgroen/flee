@@ -41,6 +41,7 @@ class Person:
         "locations_visited",
         "route",
         "s2_activation_prob",
+        "_last_blended_movechance",
         "experience_index",
     ]
 
@@ -79,6 +80,7 @@ class Person:
         self.attributes = {"connections":0} | attributes
 
         self.s2_activation_prob = 0.0  # V3: deliberation weight for diagnostics
+        self._last_blended_movechance = 0.0  # for run_comparison_ring diagnostics
         self.experience_index = random.betavariate(2, 5)  # Heterogeneous capacity
 
         self.route = []
@@ -209,6 +211,7 @@ class Person:
         
             # Calculate blended move chance (returns movechance, s2_weight as floats)
             movechance, s2_weight = moving.calculateMoveChance(self, ForceTownMove, time)
+            self._last_blended_movechance = movechance  # for diagnostics (e.g. run_comparison_ring)
 
             outcome = random.random()
 
