@@ -469,44 +469,7 @@ class Ecosystem(flee.Ecosystem):
         forced_redirection: bool = False,
         attributes: dict = {},
     ) -> None:
-        endpoint1_index = -1
-        endpoint2_index = -1
-        for i in range(0, len(self.locationNames)):
-            if self.locationNames[i] == endpoint1:
-                endpoint1_index = i
-            if self.locationNames[i] == endpoint2:
-                endpoint2_index = i
-
-        if endpoint1_index < 0:
-            print("Diagnostic: Ecosystem.locationNames: ", self.locationNames, file=sys.stderr)
-            print(
-                "Error: link created to non-existent source: {}  with dest {}".format(
-                    endpoint1, endpoint2), file=sys.stderr)
-            sys.exit()
-        if endpoint2_index < 0:
-            print("Diagnostic: Ecosystem.locationNames: ", self.locationNames, file=sys.stderr)
-            print(
-                "Error: link created to non-existent destination: {} with source {}".format(
-                    endpoint2, endpoint1), file=sys.stderr)
-            sys.exit()
-
-        self.locations[endpoint1_index].links.append(
-            Link(
-                startpoint=self.locations[endpoint1_index],
-                endpoint=self.locations[endpoint2_index],
-                distance=distance,
-                forced_redirection=forced_redirection,
-                attributes=attributes,
-            )
-        )
-        self.locations[endpoint2_index].links.append(
-            Link(
-                startpoint=self.locations[endpoint2_index],
-                endpoint=self.locations[endpoint1_index],
-                distance=distance,
-                attributes=attributes,
-            )
-        )
+        super().linkUp(endpoint1, endpoint2, distance, forced_redirection, attributes)
 
 
     def updateNumAgents(self, CountClosed: bool = False, log: bool = True) -> None:
