@@ -600,21 +600,7 @@ class Ecosystem(flee.Ecosystem):
 
 
     def insertAgents(self, location, number: int) -> None:
-        """
-        Summary: 
-            Inserts a number of agents into the ecosystem at the specified
-            location.
-            Note: insert Agent does NOT take from Population.
-
-        Args:
-            location (Location): The location to insert the agents into.
-            number (int): The number of agents to insert.
-
-        Returns:
-            None.
-        """
-        for _ in range(0, number):
-            self.insertAgent(location=location)
+        super().insertAgents(location, number)
 
 
     def clearLocationsFromAgents(self, location_names: List[str]) -> None:
