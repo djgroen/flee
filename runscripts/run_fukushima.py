@@ -102,6 +102,12 @@ FUKUSHIMA_ZONES = {
     "zone_20km_onset": 14,
 }
 
+# Map origin_location -> zone for agent_history
+ORIGIN_TO_ZONE = {}
+for zone, locs in [("inner_3km", ["Futaba", "Okuma"]), ("zone_10km", ["Namie", "Tomioka", "Naraha"]), ("zone_20km", ["Minamisoma", "Iitate", "Kawauchi"])]:
+    for loc in locs:
+        ORIGIN_TO_ZONE[loc] = zone
+
 
 def compute_zone_phase_boundaries(history_df, zone_groups, beta, v, d_star):
     """
@@ -351,11 +357,35 @@ def run_simulation(alpha, beta, kappa, seed=None, collect_agent_history=False):
             row[f"frac_{m}"] = muni_pops.get(m, 0) / base if base > 0 else 0.0
         rows.append(row)
         if collect_agent_history:
-            for a in ecosystem.agents:
+            for agent_id, a in enumerate(ecosystem.agents):
                 origin = a.attributes.get("origin_location", None)
                 if origin is not None:
                     s2 = getattr(a, "s2_activation_prob", 0.0)
-                    agent_history.append({"step": step, "origin_location": origin, "s2_weight": s2})
+                    origin_zone = ORIGIN_TO_ZONE.get(origin, "other")
+                    loc = a.location
+                    if loc is None:
+                        loc_name, lat, lon, conflict = "", float("nan"), float("nan"), float("nan")
+                    else:
+                        # When travelling, loc is a Link; use endpoint
+                        ep = getattr(loc, "endpoint", loc)
+                        loc_name = getattr(ep, "name", str(loc))
+                        # flee uses x=lon, y=lat (InputGeography gps_x->x, gps_y->y)
+                        lon = getattr(ep, "x", float("nan"))
+                        lat = getattr(ep, "y", float("nan"))
+                        conflict = getattr(ep, "conflict", -1.0)
+                        if conflict < 0:
+                            conflict = float("nan")
+                    agent_history.append({
+                        "step": step,
+                        "agent_id": agent_id,
+                        "location": loc_name,
+                        "s2_weight": s2,
+                        "origin_location": origin,
+                        "origin_zone": origin_zone,
+                        "lat": lat,
+                        "lon": lon,
+                        "conflict_at_location": conflict,
+                    })
 
     record_row(0)
 
@@ -556,6 +586,26 @@ def main():
         for zone, r in zone_results.items():
             writer.writerow({"zone": zone, **r})
     print(f"Zone phase boundaries saved to {zone_csv}")
+
+    # Save full agent history and zone P_S2 time series for plotting
+    agent_history_df.to_csv(RESULTS_DIR / "agent_history.csv", index=False)
+    print(f"Agent history saved to {RESULTS_DIR / 'agent_history.csv'}")
+
+    zone_ps2_list = []
+    for zone_label in ["inner_3km", "zone_10km", "zone_20km"]:
+        zm = agent_history_df["origin_zone"] == zone_label
+        zd = agent_history_df[zm]
+        if zd.empty:
+            continue
+        grp = zd.groupby("step")["s2_weight"].agg(["mean", "std"])
+        grp = grp.rename(columns={"mean": "mean_ps2", "std": "std_ps2"})
+        grp["zone"] = zone_label
+        grp = grp.reset_index()
+        zone_ps2_list.append(grp)
+    if zone_ps2_list:
+        zone_ps2_df = pd.concat(zone_ps2_list, ignore_index=True)
+        zone_ps2_df.to_csv(RESULTS_DIR / "zone_ps2_timeseries.csv", index=False)
+        print(f"Zone P_S2 time series saved to {RESULTS_DIR / 'zone_ps2_timeseries.csv'}")
 
     # Shelter-in-place diagnostic: Tomioka and Naraha population fraction by step
     SHELTER_STEPS = [1, 4, 8, 12, 14, 30, 60, 100, 200]

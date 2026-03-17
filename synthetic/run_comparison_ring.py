@@ -102,6 +102,7 @@ N_AGENTS = 500
 N_TIMESTEPS = 72
 SEED = 42
 OUTPUT_DIR = REPO_ROOT / "synthetic" / "results" / "comparison_ring"
+PLOTS_DATA_DIR = REPO_ROOT / "results" / "synthetic"  # For figure generation
 
 
 def build_ecosystem(condition_name):
@@ -134,8 +135,10 @@ def build_ecosystem(condition_name):
     return ecosystem, loc_map
 
 
-def run_condition(condition_name):
-    """Run one condition and return per-timestep metrics."""
+def run_condition(condition_name, collect_agent_history=False):
+    """Run one condition and return per-timestep metrics.
+    When collect_agent_history=True, also returns agent_history list (for full_mixture only).
+    """
     random.seed(SEED)
     np.random.seed(SEED)
 
@@ -161,6 +164,7 @@ def run_condition(condition_name):
 
     rows = []
     agents_moved = set()
+    agent_history = [] if collect_agent_history else None
 
     def record_row(timestep):
         s2_weights = []
@@ -179,6 +183,31 @@ def run_condition(condition_name):
             except Exception:
                 d = 0.0
             distances.append(d)
+
+        if collect_agent_history:
+            for agent_id, a in enumerate(ecosystem.agents):
+                loc = a.location
+                if loc is None:
+                    loc_name, x, y, conflict = "", float("nan"), float("nan"), float("nan")
+                else:
+                    ep = getattr(loc, "endpoint", loc)
+                    loc_name = getattr(ep, "name", str(loc))
+                    x = getattr(ep, "x", float("nan"))
+                    y = getattr(ep, "y", float("nan"))
+                    conflict = getattr(ep, "conflict", -1.0)
+                    if conflict < 0:
+                        conflict = float("nan")
+                s2 = getattr(a, "s2_activation_prob", 0.0)
+                agent_history.append({
+                    "step": timestep,
+                    "agent_id": agent_id,
+                    "location": loc_name,
+                    "s2_weight": s2,
+                    "origin_zone": "L0",
+                    "x": x,
+                    "y": y,
+                    "conflict_at_location": conflict,
+                })
 
         mean_s2 = np.mean(s2_weights) if s2_weights else 0.0
         std_s2 = np.std(s2_weights) if len(s2_weights) > 1 else 0.0
@@ -215,6 +244,8 @@ def run_condition(condition_name):
         ecosystem.evolve()
         record_row(timestep=t)
 
+    if collect_agent_history:
+        return rows, agent_history
     return rows
 
 
@@ -224,7 +255,10 @@ def main():
     for cond_name in CONDITIONS:
         print(f"  Running {cond_name}...", end=" ", flush=True)
         try:
-            rows = run_condition(cond_name)
+            collect = cond_name == "full_mixture"
+            result = run_condition(cond_name, collect_agent_history=collect)
+            rows = result[0] if collect else result
+            agent_history = result[1] if collect else None
             out_path = OUTPUT_DIR / f"{cond_name}.csv"
             with open(out_path, "w") as f:
                 f.write("timestep,mean_s2_weight,mean_blended_movechance,std_s2_weight,num_agents_moved,mean_distance_from_origin\n")
@@ -259,6 +293,35 @@ def main():
                 print(f"[PHASE] t*={tstar}, t**={tstarstar}")
                 print(f"[PHASE] mean_P_S2: t=0={mean_s2_t0:.4f}, t*={mean_s2_tstar:.4f}, t**={mean_s2_tstarstar:.4f}")
                 print(f"[PHASE] std_P_S2:  t*={std_s2_tstar:.4f}, t**={std_s2_tstarstar:.4f}")
+
+                # Save agent_history and ps2_timeseries for plotting (results/synthetic/)
+                if agent_history is not None:
+                    PLOTS_DATA_DIR.mkdir(parents=True, exist_ok=True)
+                    import csv
+                    with open(PLOTS_DATA_DIR / "agent_history.csv", "w", newline="") as f:
+                        writer = csv.DictWriter(f, fieldnames=[
+                            "step", "agent_id", "location", "s2_weight", "origin_zone",
+                            "lat", "lon", "conflict_at_location"
+                        ])
+                        writer.writeheader()
+                        for rec in agent_history:
+                            writer.writerow({
+                                "step": rec["step"],
+                                "agent_id": rec["agent_id"],
+                                "location": rec["location"],
+                                "s2_weight": rec["s2_weight"],
+                                "origin_zone": rec["origin_zone"],
+                                "lat": rec.get("y", float("nan")),
+                                "lon": rec.get("x", float("nan")),
+                                "conflict_at_location": rec.get("conflict_at_location", float("nan")),
+                            })
+                    print(f"     -> {PLOTS_DATA_DIR / 'agent_history.csv'}")
+
+                    with open(PLOTS_DATA_DIR / "ps2_timeseries.csv", "w") as f:
+                        f.write("step,mean_ps2,std_ps2\n")
+                        for r in rows:
+                            f.write(f"{r['timestep']},{r['mean_s2_weight']:.6f},{r['std_s2_weight']:.6f}\n")
+                    print(f"     -> {PLOTS_DATA_DIR / 'ps2_timeseries.csv'}")
         except Exception as e:
             print(f"FAIL: {e}")
             import traceback
