@@ -1,0 +1,5 @@
+mode,mean_dep_time_h,sd_dep_time_h,p50_departed_by_h,p90_departed_by_h,KS_original_vs_s1_only_pvalue,KS_switch_vs_blend_pvalue,variance_ratio_std_switch_over_std_blend
+original,,,,,,,
+s1_only,,,,,,,
+switch,,,,,,,
+blend,,,,,,,
