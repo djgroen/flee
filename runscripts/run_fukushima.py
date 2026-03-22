@@ -63,6 +63,11 @@ KAPPA_RANGE = [1.0, 3.0, 5.0, 10.0, 20.0]
 # See simsetting.yml for full derivation comments.
 FIXED_MAX_SPEED = 20.0
 
+# tau* raw formula (t * v / d_star) produces values in implicit "days" when
+# t is in steps and 1 step = 2h (e.g. 200 steps => 400h => ~17 days scale).
+# Test bounds [0.1, 10.0] assume years. Normalize: tau_star_years = tau_star_raw / 365.25
+DAYS_PER_YEAR = 365.25
+
 # Target timesteps: t=15h->step8, t=20h->step10, t=33h->step17, t=72h->step36
 TARGET_STEPS = {15: 8, 20: 10, 33: 17, 72: 36}
 
@@ -149,7 +154,8 @@ def compute_zone_phase_boundaries(history_df, zone_groups, beta, v, d_star):
         if t_starstar is None:
             t_starstar = int(zone_ps2.index[-1])
 
-        tau_star = ((t_star - t_onset) * v / d_star) if d_star > 0 else float("inf")
+        tau_star_raw = ((t_star - t_onset) * v / d_star) if d_star > 0 else float("inf")
+        tau_star = tau_star_raw / DAYS_PER_YEAR if tau_star_raw != float("inf") else tau_star_raw
 
         n_agents = int(zone_df[zone_df["step"] == 0].shape[0]) if 0 in zone_df["step"].values else int(zone_mask.sum() // (zone_df["step"].nunique() or 1))
         results[zone_label] = {
@@ -460,7 +466,8 @@ def main():
                         beta, str(CONFLICTS_CSV), str(LOCATIONS_CSV), str(ROUTES_CSV), quiet=True
                     )
                 d_star = d_star_cache[beta]
-                tau_star = (tstar * FIXED_MAX_SPEED) / d_star if d_star > 0 else float("inf")
+                tau_star_raw = (tstar * FIXED_MAX_SPEED) / d_star if d_star > 0 else float("inf")
+                tau_star = tau_star_raw / DAYS_PER_YEAR if tau_star_raw != float("inf") else tau_star_raw
                 results.append({
                     "alpha": alpha, "beta": beta, "kappa": kappa,
                     "loss": loss,
@@ -516,13 +523,14 @@ def main():
     print(f"  t*  = {tstar} (Phase 1 minimum — end of acute S1-dominated response)")
     print(f"  t** = {tstarstar} (Phase 2 plateau onset — Psi heterogeneity visible)")
 
-    # Dimensionless Phase 1 duration tau*
+    # Dimensionless Phase 1 duration tau* (raw formula gives days; normalize to years)
     best_beta = best["beta"]
     d_star = compute_characteristic_distance(
         best_beta, str(CONFLICTS_CSV), str(LOCATIONS_CSV), str(ROUTES_CSV)
     )
-    tau_star = (tstar * FIXED_MAX_SPEED) / d_star if d_star > 0 else float("inf")
-    print("\nDimensionless Phase 1 duration:")
+    tau_star_raw = (tstar * FIXED_MAX_SPEED) / d_star if d_star > 0 else float("inf")
+    tau_star = tau_star_raw / DAYS_PER_YEAR if tau_star_raw != float("inf") else tau_star_raw
+    print("\nDimensionless Phase 1 duration (tau* in years):")
     print(f"  d*(beta={best_beta:.1f}) = {d_star:.1f} km")
     print(f"  t* = {tstar} steps")
     print(f"  v  = {FIXED_MAX_SPEED} km/step")
