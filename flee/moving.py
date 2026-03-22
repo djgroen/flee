@@ -333,47 +333,18 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
                     blended = max(blended, 0.95)
                 return blended, 1.0
 
-        # Decision engine (blend/switch) — moving.py stays mode-agnostic
+        # Decision engine (blend/switch) — delegate to engine
         engine = SimulationSettings.move_rules.get("decision_engine")
         if engine is None:
-            # Legacy fallback: use inline blend if s1s2_model available
-            if compute_deliberation_weight and compute_s2_move_probability:
-                s1s2_params = SimulationSettings.move_rules.get('s1s2_model_params', {})
-                alpha = float(s1s2_params.get('alpha', 2.0))
-                beta = float(s1s2_params.get('beta', 2.0))
-                kappa_val = float(s1s2_params.get('kappa', 5.0))
-                s2_weight = compute_deliberation_weight(
-                    a.experience_index, conflict, alpha, beta
-                )
-                a.s2_activation_prob = s2_weight
-
-                def _perceived_at_endpoint(lnk):
-                    ep = lnk.endpoint
-                    if radiation_field is not None and _get_location_coords(ep) is not None:
-                        lat, lon = _get_location_coords(ep)
-                        act = radiation_field.get_dose_rate(lat, lon, time_hours)
-                    else:
-                        act = max(0.0, getattr(ep, 'conflict', 0.0))
-                    if get_perceived_radiation:
-                        return get_perceived_radiation(
-                            act, getattr(ep, 'in_official_zone', False),
-                            official_zone_threat, info_mode
-                        )
-                    return act
-                perceived_best = perceived_here
-                d_best = 1.0
-                if a.location.links:
-                    best_link = min(a.location.links, key=_perceived_at_endpoint)
-                    perceived_best = _perceived_at_endpoint(best_link)
-                    d_best = max(1.0, best_link.get_distance())
-                sigma = compute_s2_move_probability(
-                    perceived_here, perceived_best, d_best, kappa_val
-                )
-                blended_movechance = (1.0 - s2_weight) * movechance + s2_weight * sigma
-                if conflict > 0.9:
-                    blended_movechance = max(blended_movechance, 0.95)
-                return blended_movechance, s2_weight
-            return movechance, 0.0
+            # Lazy engine creation when decision_mode set but no YML loaded (e.g. run_synthetic)
+            decision_mode = SimulationSettings.move_rules.get("decision_mode", "blend")
+            if decision_mode and compute_deliberation_weight:
+                from flee.decision_engine import DecisionEngine
+                config = {"s1s2_model_params": SimulationSettings.move_rules.get("s1s2_model_params", {})}
+                engine = DecisionEngine.create(decision_mode, config)
+                SimulationSettings.move_rules["decision_engine"] = engine
+            else:
+                return movechance, 0.0
 
         # Engine path: compute rad_best, distance_best then delegate
         def _perceived_at_endpoint(lnk):

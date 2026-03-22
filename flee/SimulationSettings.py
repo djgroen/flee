@@ -317,6 +317,18 @@ class SimulationSettings:
         # Optional: force P_S2 for comparison runs (0=s1_only, 1=s2_only, None=compute normally)
         SimulationSettings.move_rules["s2_weight_override"] = fetchss(dpr, "s2_weight_override", None)
 
+        # Decision engine mode: original | s1_only | switch | blend
+        decision_mode = fetchss(dp, "decision_mode", fetchss(dpr, "decision_mode", "blend"))
+        SimulationSettings.move_rules["decision_mode"] = decision_mode
+        if SimulationSettings.move_rules["TwoSystemDecisionMaking"]:
+            from flee.decision_engine import DecisionEngine
+            config = {"s1s2_model_params": SimulationSettings.move_rules["s1s2_model_params"]}
+            SimulationSettings.move_rules["decision_engine"] = DecisionEngine.create(
+                decision_mode, config
+            )
+        else:
+            SimulationSettings.move_rules["decision_engine"] = None
+
         # Enable Farmer harvesting
         SimulationSettings.move_rules["HarvestMonths"] = fetchss(dpr, "harvest_months", [])
         if len(SimulationSettings.move_rules["HarvestMonths"]) > 0:
