@@ -237,6 +237,7 @@ class SimulationSettings:
         SimulationSettings.move_rules["CampMoveChance"] = float(fetchss(dpr,"camp_movechance", 0.001)) # chance of persons leaving a camp.
         SimulationSettings.move_rules["IDPCampMoveChance"] = float(fetchss(dpr,"idpcamp_movechance", 0.1)) # chance of persons leaving a camp.
         SimulationSettings.move_rules["DefaultMoveChance"] = float(fetchss(dpr,"default_movechance", 0.3)) # chance of persons leaving a regular location per day.
+        SimulationSettings.move_rules["WaypointMoveChance"] = float(fetchss(dpr,"waypoint_movechance", 0.95)) # near-certain pass-through for junctions/checkpoints.
         
 
         SimulationSettings.move_rules["AwarenessLevel"] = int(fetchss(dpr,"awareness_level", 1)) # awareness of locations X link steps away by agents.

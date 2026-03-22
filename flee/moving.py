@@ -10,12 +10,41 @@ import flee.demographics as demographics
 
 # Import S1/S2 V3 model (continuous blend: P_S2 = Ψ×Ω as blending weight)
 try:
-    from flee.s1s2_model import compute_deliberation_weight, compute_s2_move_probability, compute_opportunity
+    from flee.s1s2_model import (
+        compute_deliberation_weight,
+        compute_s2_move_probability,
+        compute_opportunity,
+        get_perceived_radiation,
+    )
 except ImportError as e:
     print(f"DEBUG: ImportError in moving.py: {e}", file=sys.stderr)
     compute_deliberation_weight = None
     compute_s2_move_probability = None
     compute_opportunity = None
+    get_perceived_radiation = None
+
+
+def _get_location_coords(loc):
+    """Return (lat, lon) if location has coordinates, else None."""
+    lat = getattr(loc, "lat", getattr(loc, "gps_y", getattr(loc, "y", None)))
+    lon = getattr(loc, "lon", getattr(loc, "gps_x", getattr(loc, "x", None)))
+    if lat is not None and lon is not None:
+        return (float(lat), float(lon))
+    return None
+
+
+def _get_radiation_at_location(loc, time: int, fallback: float) -> float:
+    """
+    Get actual radiation [0,1] at location for S2 move evaluation.
+    Uses: radiation_field (if loc has coords), else location.radiation/dose_rate, else fallback (conflict).
+    """
+    rf = SimulationSettings.move_rules.get("radiation_field")
+    if rf is not None:
+        coords = _get_location_coords(loc)
+        if coords is not None:
+            time_hours = SimulationSettings.move_rules.get("time_hours", float(time))
+            return rf.get_dose_rate(coords[0], coords[1], time_hours)
+    return getattr(loc, "radiation", getattr(loc, "dose_rate", fallback))
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
@@ -85,6 +114,9 @@ def getEndPointScore(agent, endpoint, time) -> float:
                   flood_forecast_base *= float(agent_awareness_weight) 
                   base *= flood_forecast_base  
 
+    # Waypoints: strongly down-weight as final destinations (route through, not to)
+    if getattr(endpoint, "is_waypoint", False):
+        base *= 0.05
     if endpoint.camp is True:
         if SimulationSettings.move_rules["MatchCampEthnicity"]:
             base *= (demographics.get_attribute_ratio(endpoint, agent.attributes["ethnicity"]) * 10.0)
@@ -241,6 +273,32 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
 
         conflict = max(0.0, getattr(a.location, 'conflict', 0.0))
 
+        # Sync agent info state from location (zone registry updates locations each timestep)
+        a.in_official_zone = getattr(a.location, 'in_official_zone', False)
+
+        # Radiation-based S2 evaluation (nuclear case): get actual and perceived
+        radiation_field = SimulationSettings.move_rules.get("radiation_field")
+        time_hours = SimulationSettings.move_rules.get("time_hours", float(time))
+        if radiation_field is not None and _get_location_coords(a.location) is not None:
+            lat, lon = _get_location_coords(a.location)
+            actual_here = radiation_field.get_dose_rate(lat, lon, time_hours)
+        else:
+            actual_here = conflict
+        official_zone_threat = SimulationSettings.move_rules.get("official_zone_threat", 0.9)
+        info_mode = getattr(a, 'info_mode', 'official_zones')
+        perceived_here = (
+            get_perceived_radiation(actual_here, a.in_official_zone, official_zone_threat, info_mode)
+            if get_perceived_radiation else actual_here
+        )
+
+        # Official zone compliance: boost S1 movechance for in-zone agents
+        # Captures empirical pattern that ~98% of in-zone residents eventually complied at Fukushima
+        if a.in_official_zone and conflict > 0.3:
+            movechance = min(1.0, movechance * 1.5)
+        # Shadow evacuation: out-of-zone agents with high perceived threat also have elevated S1
+        elif not a.in_official_zone and perceived_here > 0.4:
+            movechance = min(1.0, movechance * 1.2)
+
         # Optional override for comparison runs (s1_only=0, s2_only=1)
         override = SimulationSettings.move_rules.get("s2_weight_override")
         if override is not None:
@@ -249,49 +307,105 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
             if s2_weight <= 0.0:
                 return movechance, 0.0
             if s2_weight >= 1.0 and compute_s2_move_probability:
-                c_best = conflict
+                def _perceived_at_endpoint(lnk):
+                    ep = lnk.endpoint
+                    if radiation_field is not None and _get_location_coords(ep) is not None:
+                        lat, lon = _get_location_coords(ep)
+                        act = radiation_field.get_dose_rate(lat, lon, time_hours)
+                    else:
+                        act = max(0.0, getattr(ep, 'conflict', 0.0))
+                    if get_perceived_radiation:
+                        return get_perceived_radiation(
+                            act, getattr(ep, 'in_official_zone', False),
+                            official_zone_threat, info_mode
+                        )
+                    return act
+                perceived_best = perceived_here
                 d_best = 1.0
                 if a.location.links:
-                    best_link = min(a.location.links,
-                                   key=lambda lnk: max(0.0, getattr(lnk.endpoint, 'conflict', 0.0)))
-                    c_best = max(0.0, getattr(best_link.endpoint, 'conflict', 0.0))
+                    best_link = min(a.location.links, key=_perceived_at_endpoint)
+                    perceived_best = _perceived_at_endpoint(best_link)
                     d_best = max(1.0, best_link.get_distance())
                 kappa = float(SimulationSettings.move_rules.get('s1s2_model_params', {}).get('kappa', 5.0))
-                sigma = compute_s2_move_probability(conflict, c_best, d_best, kappa)
+                sigma = compute_s2_move_probability(perceived_here, perceived_best, d_best, kappa)
                 blended = sigma
                 if conflict > 0.9:
                     blended = max(blended, 0.95)
                 return blended, 1.0
 
-        # Read parameters
-        s1s2_params = SimulationSettings.move_rules.get('s1s2_model_params', {})
-        alpha = float(s1s2_params.get('alpha', 2.0))
-        beta = float(s1s2_params.get('beta', 2.0))
-        kappa = float(s1s2_params.get('kappa', 5.0))
+        # Decision engine (blend/switch) — moving.py stays mode-agnostic
+        engine = SimulationSettings.move_rules.get("decision_engine")
+        if engine is None:
+            # Legacy fallback: use inline blend if s1s2_model available
+            if compute_deliberation_weight and compute_s2_move_probability:
+                s1s2_params = SimulationSettings.move_rules.get('s1s2_model_params', {})
+                alpha = float(s1s2_params.get('alpha', 2.0))
+                beta = float(s1s2_params.get('beta', 2.0))
+                kappa_val = float(s1s2_params.get('kappa', 5.0))
+                s2_weight = compute_deliberation_weight(
+                    a.experience_index, conflict, alpha, beta
+                )
+                a.s2_activation_prob = s2_weight
 
-        # Compute P_S2 = Ψ × Ω (continuous reliability weight)
-        if compute_deliberation_weight and compute_s2_move_probability:
-            s2_weight = compute_deliberation_weight(a.experience_index, conflict, alpha, beta)
-            a.s2_activation_prob = s2_weight
+                def _perceived_at_endpoint(lnk):
+                    ep = lnk.endpoint
+                    if radiation_field is not None and _get_location_coords(ep) is not None:
+                        lat, lon = _get_location_coords(ep)
+                        act = radiation_field.get_dose_rate(lat, lon, time_hours)
+                    else:
+                        act = max(0.0, getattr(ep, 'conflict', 0.0))
+                    if get_perceived_radiation:
+                        return get_perceived_radiation(
+                            act, getattr(ep, 'in_official_zone', False),
+                            official_zone_threat, info_mode
+                        )
+                    return act
+                perceived_best = perceived_here
+                d_best = 1.0
+                if a.location.links:
+                    best_link = min(a.location.links, key=_perceived_at_endpoint)
+                    perceived_best = _perceived_at_endpoint(best_link)
+                    d_best = max(1.0, best_link.get_distance())
+                sigma = compute_s2_move_probability(
+                    perceived_here, perceived_best, d_best, kappa_val
+                )
+                blended_movechance = (1.0 - s2_weight) * movechance + s2_weight * sigma
+                if conflict > 0.9:
+                    blended_movechance = max(blended_movechance, 0.95)
+                return blended_movechance, s2_weight
+            return movechance, 0.0
 
-            # Compute S2 move probability σ from safety-per-distance evaluation
-            c_best = conflict
-            d_best = 1.0
-            if a.location.links:
-                best_link = min(a.location.links,
-                               key=lambda lnk: max(0.0, getattr(lnk.endpoint, 'conflict', 0.0)))
-                c_best = max(0.0, getattr(best_link.endpoint, 'conflict', 0.0))
-                d_best = max(1.0, best_link.get_distance())
+        # Engine path: compute rad_best, distance_best then delegate
+        def _perceived_at_endpoint(lnk):
+            ep = lnk.endpoint
+            if radiation_field is not None and _get_location_coords(ep) is not None:
+                lat, lon = _get_location_coords(ep)
+                act = radiation_field.get_dose_rate(lat, lon, time_hours)
+            else:
+                act = max(0.0, getattr(ep, 'conflict', 0.0))
+            if get_perceived_radiation:
+                return get_perceived_radiation(
+                    act, getattr(ep, 'in_official_zone', False),
+                    official_zone_threat, info_mode
+                )
+            return act
+        perceived_best = perceived_here
+        d_best = 1.0
+        if a.location.links:
+            best_link = min(a.location.links, key=_perceived_at_endpoint)
+            perceived_best = _perceived_at_endpoint(best_link)
+            d_best = max(1.0, best_link.get_distance())
 
-            sigma = compute_s2_move_probability(conflict, c_best, d_best, kappa)
-
-            # Blended move probability: P_move = (1 - P_S2)·P_S1 + P_S2·σ
-            blended_movechance = (1.0 - s2_weight) * movechance + s2_weight * sigma
-
-            if conflict > 0.9:
-                blended_movechance = max(blended_movechance, 0.95)
-
-            return blended_movechance, s2_weight
+        blended_movechance, s2_weight = engine.compute_move_probability(
+            movechance_s1=movechance,
+            experience_index=a.experience_index,
+            conflict_intensity=conflict,
+            rad_here=perceived_here,
+            rad_best=perceived_best,
+            distance_best=d_best,
+        )
+        a.s2_activation_prob = s2_weight
+        return blended_movechance, s2_weight
 
     if a.location.town and ForceTownMove:
         return 1.0, 0.0
@@ -363,16 +477,35 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
         key = tuple(r)
         route_to_s2_weight[key] = w
 
+    conflict_at_location = max(0.0, getattr(a.location, 'conflict', 0.0))
+    engine = SimulationSettings.move_rules.get("decision_engine")
+
     blended_weights = []
     for w_s1, r in zip(weights_s1, routes_s1):
         w_s2 = route_to_s2_weight.get(tuple(r), 0.0)
-        blended = (1.0 - s2_weight) * w_s1 + s2_weight * w_s2
-        blended_weights.append(blended)
+        if engine is not None:
+            w = engine.compute_destination_weight(
+                w_s1, w_s2,
+                experience_index=a.experience_index,
+                conflict_intensity=conflict_at_location,
+            )
+        else:
+            w = (1.0 - s2_weight) * w_s1 + s2_weight * w_s2
+        blended_weights.append(w)
 
     s1_route_set = {tuple(r) for r in routes_s1}
     for w, r in zip(weights_s2, routes_s2):
         if tuple(r) not in s1_route_set:
-            blended_weights.append(s2_weight * w)
+            if engine is not None:
+                blended_weights.append(
+                    engine.compute_destination_weight(
+                        0.0, w,
+                        experience_index=a.experience_index,
+                        conflict_intensity=conflict_at_location,
+                    )
+                )
+            else:
+                blended_weights.append(s2_weight * w)
             routes_s1.append(r)
 
     route = chooseFromWeights(weights=blended_weights, routes=routes_s1)

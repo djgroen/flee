@@ -43,6 +43,9 @@ class Person:
         "s2_activation_prob",
         "_last_blended_movechance",
         "experience_index",
+        "info_mode",
+        "in_official_zone",
+        "cumulative_dose_msv",
     ]
 
     @check_args_type
@@ -82,6 +85,11 @@ class Person:
         self.s2_activation_prob = 0.0  # V3: deliberation weight for diagnostics
         self._last_blended_movechance = 0.0  # for run_comparison_ring diagnostics
         self.experience_index = random.betavariate(2, 5)  # Heterogeneous capacity
+
+        # Information state for nuclear/radiation context
+        self.info_mode = attributes.get("info_mode", "official_zones")  # 'official_zones' | 'dosimeter' | 'social'
+        self.in_official_zone = False  # updated each timestep from zone registry (via location)
+        self.cumulative_dose_msv = 0.0  # accumulated radiation dose (diagnostics)
 
         self.route = []
 
@@ -195,6 +203,18 @@ class Person:
             None.
         """
         if not self.travelling:
+            # Dose accumulation (nuclear context)
+            rf = SimulationSettings.move_rules.get("radiation_field")
+            if rf is not None and self.location is not None:
+                lat = getattr(self.location, "lat", getattr(self.location, "gps_y", getattr(self.location, "y", None)))
+                lon = getattr(self.location, "lon", getattr(self.location, "gps_x", getattr(self.location, "x", None)))
+                if lat is not None and lon is not None:
+                    time_hours = SimulationSettings.move_rules.get("time_hours", float(time))
+                    actual = rf.get_dose_rate(float(lat), float(lon), time_hours)
+                    dt_hours = SimulationSettings.move_rules.get("dt_hours", 1.0)
+                    max_rate = SimulationSettings.move_rules.get("max_dose_rate_msv_hr", 100.0)
+                    self.cumulative_dose_msv += actual * max_rate * dt_hours
+
             # Set harvesting behaviour.
             if SimulationSettings.farming:
                 if e.date.month in SimulationSettings.move_rules["HarvestMonths"]:
@@ -379,7 +399,8 @@ class Location:
         self.town = False
         self.forward = False
         self.marker = False
-        self.flood_zone = False 
+        self.flood_zone = False
+        self.location_type = location_type if location_type else "default"
         self.time_of_conflict = -1 # Time that a major conflict event last took place.
         self.numAgentsSpawned = 0
 
@@ -406,6 +427,12 @@ class Location:
                 self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
                 self.flood_zone = True 
             elif "default" in location_type.lower() or "town" in location_type.lower():
+                self.town = True
+                self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
+            elif "waypoint" in location_type.lower():
+                self.movechance = SimulationSettings.move_rules.get("WaypointMoveChance", 0.95)
+                # Waypoints: pass-through only, not camps/towns, excluded from stats
+            elif "city" in location_type.lower():
                 self.town = True
                 self.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
             else:
@@ -469,6 +496,10 @@ class Location:
 
         return R * c
 
+    @property
+    def is_waypoint(self) -> bool:
+        """True if location is a waypoint (junction, checkpoint, pass-through only)."""
+        return getattr(self, "location_type", "default") == "waypoint"
 
     @check_args_type
     def open_camp(self, IDP=False) -> None:
@@ -863,6 +894,8 @@ class Ecosystem:
         """
         camp_names = []
         for loc in self.locations:
+            if getattr(loc, "is_waypoint", False):
+                continue  # Exclude waypoints from camp/refugee statistics
             if bool(SimulationSettings.spawn_rules.get("flood_driven_spawning", False)) is True:
                 camp_names += [loc.name]
             elif loc.camp:
@@ -1450,6 +1483,7 @@ class Ecosystem:
         l.marker = False
         l.flood_zone = False
 
+        l.location_type = location_type.lower()
         if "camp" in location_type.lower():
             l.movechance = SimulationSettings.move_rules["CampMoveChance"]
             l.camp = True
@@ -1473,6 +1507,13 @@ class Ecosystem:
                 l.town = True
                 l.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
                 print(f"Change to town.", file=sys.stderr)
+        elif "waypoint" in location_type.lower():
+            l.movechance = SimulationSettings.move_rules.get("WaypointMoveChance", 0.95)
+            l.town = False
+            l.camp = False
+        elif "city" in location_type.lower():
+            l.town = True
+            l.movechance = SimulationSettings.move_rules["DefaultMoveChance"]
         else:
             print(
                 "Error in creating Location() object: cannot parse location_type value of"
@@ -1946,6 +1987,8 @@ class Ecosystem:
         num_idps = 0
 
         for l in self.locations:
+            if getattr(l, "is_waypoint", False):
+                continue  # Exclude waypoints from refugee statistics
             if l.idpcamp:
                 num_idps += l.numAgents
 
