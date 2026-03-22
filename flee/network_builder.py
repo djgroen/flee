@@ -57,7 +57,7 @@ def _write_conflicts(location_names: List[str], conflict_schedule: dict, output_
             f.write(",".join(row) + "\n")
 
 
-def build_linear(output_dir: Path, n: int = 6, spacing_km: float = 50.0) -> dict:
+def build_linear(output_dir: Path, n: int = 7, spacing_km: float = 50.0) -> dict:
     """
     Linear chain: source(conflict) — town_00 — town_01 — ... — camp
     Agents flee from source toward camp along single corridor.

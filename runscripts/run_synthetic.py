@@ -16,6 +16,10 @@ import numpy as np
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
+# Standardized output layout: output/results/synthetic/<topology>/
+OUTPUT_ROOT = REPO_ROOT / "output"
+DEFAULT_RESULTS_DIR = OUTPUT_ROOT / "results" / "synthetic"
+
 from flee import flee
 from flee import InputGeography
 from flee.SimulationSettings import SimulationSettings
@@ -37,23 +41,33 @@ def load_config(yml_path=None):
     SimulationSettings.move_rules["AwarenessLevel"] = 1
     SimulationSettings.move_rules["FixedRoutes"] = False
     SimulationSettings.move_rules["PruningThreshold"] = 1.0
+    # Camps as true sinks: agents at safe zones never leave
+    SimulationSettings.move_rules["CampMoveChance"] = 0.0
+    # Prevent return to conflict/disaster zone
+    SimulationSettings.move_rules["ConflictWeight"] = 0.01
     SimulationSettings.spawn_rules["conflict_driven_spawning"] = False
     SimulationSettings.spawn_rules["TakeFromPopulation"] = False
     SimulationSettings.log_levels["agent"] = 0
     SimulationSettings.log_levels["init"] = 0
 
 
-def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa, run_seed):
+def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa,
+            run_seed, topology='linear'):
     """Run one simulation for given mode and seed."""
     load_config()
     SimulationSettings.ConflictInputFile = str(Path(input_dir) / "conflicts.csv")
     SimulationSettings.move_rules["TwoSystemDecisionMaking"] = True
+
+    # Override decision mode AFTER ReadFromYML (YAML has decision_mode=blend by default)
     SimulationSettings.move_rules["decision_mode"] = mode
     SimulationSettings.move_rules["s1s2_model_params"] = {
-        "alpha": alpha, "beta": beta, "kappa": kappa,
+        "alpha": alpha,
+        "beta": beta,
+        "kappa": kappa,
     }
     SimulationSettings.move_rules["decision_engine"] = DecisionEngine.create(
-        mode, SimulationSettings.move_rules
+        mode,
+        {"s1s2_model_params": SimulationSettings.move_rules["s1s2_model_params"]},
     )
     SimulationSettings.move_rules["s2_weight_override"] = None
 
@@ -80,9 +94,51 @@ def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa, run_seed):
         source_name = list(lm.keys())[0]
     source = lm[source_name]
 
-    # Insert agents at source
-    for _ in range(n_agents):
-        e.insertAgent(source, {})
+    def _distribute_agents(e, lm, topology, n_agents_per_node, seed):
+        """
+        Place n_agents_per_node agents at each eligible location.
+        Experience indices drawn from Beta(2,5): mean=0.28, skewed low,
+        reflecting that most people have limited prior crisis experience.
+
+        Eligible locations by topology:
+          linear:         source + all towns (not camp)
+          ring:           ring towns only (not source, not camp)
+                          source is at centre with no residents
+          star:           source + all spoke towns (not camp)
+          fully_connected: all non-camp nodes
+        """
+        rng = np.random.default_rng(seed)
+
+        all_names = list(lm.keys())
+
+        if topology == 'ring':
+            spawn_names = [
+                n for n in all_names
+                if 'source' not in n.lower()
+                and 'camp' not in n.lower()
+            ]
+        else:
+            spawn_names = [
+                n for n in all_names
+                if 'camp' not in n.lower()
+            ]
+
+        agents_added = []
+        for loc_name in spawn_names:
+            loc = lm[loc_name]
+            exp_indices = rng.beta(2, 5, size=n_agents_per_node)
+            for exp_idx in exp_indices:
+                e.addAgent(location=loc, attributes={})
+                a = e.agents[-1]
+                a.experience_index = float(exp_idx)
+                agents_added.append(a)
+
+        print(f"  Distributed {len(agents_added)} agents across "
+              f"{len(spawn_names)} locations "
+              f"({n_agents_per_node} per node, topology={topology})")
+        return agents_added
+
+    _distribute_agents(e, lm, topology, n_agents, run_seed)
 
     # Source location distance for distance_from_source
     source_loc = source.endpoint if hasattr(source, "endpoint") else source
@@ -141,16 +197,22 @@ def main():
     ap.add_argument("--beta", type=float, default=2.0)
     ap.add_argument("--kappa", type=float, default=5.0)
     ap.add_argument("--n-runs", type=int, default=10)
-    ap.add_argument("--output-dir", type=Path, default=Path("results/synthetic/linear"))
+    ap.add_argument("--output-dir", type=Path, default=None,
+                    help="Defaults to output/results/synthetic/<topology>/")
     ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
 
-    args.output_dir = Path(args.output_dir)
+    args.output_dir = Path(args.output_dir) if args.output_dir else DEFAULT_RESULTS_DIR / args.topology
     input_dir = args.output_dir / "input_csv"
     input_dir.mkdir(parents=True, exist_ok=True)
 
-    # Build network
-    kwargs = {"n": args.n_nodes} if args.topology == "linear" else {}
+    # Build network (topology-specific kwargs)
+    if args.topology == "linear":
+        kwargs = {}  # use default n=7 (source + 5 towns + camp)
+    elif args.topology in ("ring", "star"):
+        kwargs = {"n": args.n_nodes} if args.topology == "ring" else {"n_spokes": args.n_nodes}
+    else:
+        kwargs = {"nodes": args.n_nodes}
     network_stats = build_network(args.topology, input_dir, **kwargs)
     with open(args.output_dir / "network_stats.json", "w") as f:
         json.dump(network_stats, f, indent=2)
@@ -168,6 +230,7 @@ def main():
             agents_per_timestep, first_departure, lm = run_one(
                 str(input_dir), mode, args.n_agents, args.n_steps,
                 args.alpha, args.beta, args.kappa, run_seed,
+                topology=args.topology,
             )
             mode_agents.append((run_id, agents_per_timestep, first_departure))
             # Summary per timestep
