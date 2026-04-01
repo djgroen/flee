@@ -1,6 +1,6 @@
 from flee import flee, demographics
 
-def setup(yaml="empty.yml"):
+def make_ecosystem(yaml="empty.yml"):
     flee.SimulationSettings.ReadFromYML(yaml)
 
     e = flee.Ecosystem()
@@ -17,7 +17,7 @@ def setup(yaml="empty.yml"):
 
 
 def test_get_attribute_ratio():
-    e = setup()
+    e = make_ecosystem()
 
     e.linkUp(endpoint1="A", endpoint2="B", distance=100.0)
     e.linkUp(endpoint1="B", endpoint2="C", distance=100.0)
@@ -33,7 +33,7 @@ def test_get_attribute_ratio():
 
 
 def test_load_demographics_csv():
-    e = setup()
+    e = make_ecosystem()
 
     demographics._read_demographic_csv(e, "test_data/test_data_idp/input_csv/demographics_religion.csv")
 
