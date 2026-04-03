@@ -222,6 +222,7 @@ nav:
 
   - Advanced:
     - Simulation settings configuration (advanced): Simulation_settings_advanced.md
+    - "simsetting.yml — Complete Parameter Reference": Simulation_settings_reference.md
     - Incorporating Food Security using IPC data : Food_Security_Mechanisms.md
     - FLEE Ensemble Simulations – SWEEP Method Overview: Flee_Ensemble.md
     - Sensitivity analysis of parameters using EasyVVUQ : Sensitivity_analysis_of_parameters_using_EasyVVUQ.md
