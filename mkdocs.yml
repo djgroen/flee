@@ -212,6 +212,7 @@ nav:
     - Types of location graphs: Types_of_location_graphs.md
     - Simulation settings configuration (basic): Simulation_settings_basic.md
     - Simulation instance execution : Simulation_instance_execution.md
+    - Output File Descriptions: Output_file_descriptions.md
     - "FabFlee: Automated Flee-based simulation": FabFlee_Automated_Flee_based_simulation.md
     - Input File Generation: Input_File_generator.md 
     - Remote execution on a supercomputer : Remote_execution_on_a_supercomputer.md
@@ -221,6 +222,7 @@ nav:
 
   - Advanced:
     - Simulation settings configuration (advanced): Simulation_settings_advanced.md
+    - "simsetting.yml — Complete Parameter Reference": Simulation_settings_reference.md
     - Incorporating Food Security using IPC data : Food_Security_Mechanisms.md
     - FLEE Ensemble Simulations – SWEEP Method Overview: Flee_Ensemble.md
     - Sensitivity analysis of parameters using EasyVVUQ : Sensitivity_analysis_of_parameters_using_EasyVVUQ.md
