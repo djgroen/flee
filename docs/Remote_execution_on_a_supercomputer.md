@@ -20,19 +20,15 @@ Before running any simulation on a remote supercomputer, the following is requir
 		!!! note
 			The installation path (``virtual_env_path``) is set on ``machines.yml`` as one of parameters for the target remote machine. By installing this ``_venv_`` on the target remote machine, the QCG Pilot Job (https://github.com/vecma-project/QCG-PilotJob) service will be also installed alongside other required dependencies.
 
-## *Running an ensemble simulation on a supercomputer using Pilot Jobs and QCG Broker*
+## *Running an ensemble simulation on a supercomputer using Pilot Jobs*
 1. To run an ensemble simulation on QCG machine using Pilot Jobs, run the following:
 	```sh
-	fabsim qcg flee_ensemble:<conflict_name>,N=20,simulation_period=<number>,PJ=true
-	```
-	or
-	```sh
-	fabsim <remote_machine_name> flee_ensemble:<conflict_name>,replicas=20,simulation_period=<number>,PJ=true
+	fabsim <remote_machine_name> flee_ensemble:<conflict_name>,replicas=20,simulation_period=<number>,pj_type=qcg,venv=true
 	```
 	
 	To showcase the execution of ensemble simulation using Pilot Job, simply run Mali conflict instance:
 		```sh
-		fabsim eagle_vecma flee_ensemble:mali,replicas=20,simulation_period=50,PJ=true
+		fabsim eagle_vecma flee_ensemble:mali,replicas=20,simulation_period=50,pj_type=qcg,venv=true
 		```
 
 2. To check if your jobs are finished or not, simply run:
