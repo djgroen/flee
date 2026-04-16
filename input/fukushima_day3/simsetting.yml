@@ -1,0 +1,9 @@
+# Fukushima Day 3 — first real-geography run
+# Parameters NOT calibrated — use starting values only
+log_level: 1
+max_move_speed: 200         # km/step — Shimazaki 2012: ~20 km/h × 10h/day
+conflict_movechance: 0.5    # Hayano 2013: 78% by day 4 → effective ~0.5/step
+camp_movechance: 0.0
+default_movechance: 0.3
+awareness_level: 1
+use_s1s2: true
