@@ -14,10 +14,13 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-# Paths (1 timestep = 1 hour)
+# Standardized output layout: output/results/synthetic/<topology>, output/figures/synthetic/<topology>
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "results" / "synthetic" / "linear"
-OUT_DIR = PROJECT_ROOT / "figures" / "synthetic"
+OUTPUT_ROOT = PROJECT_ROOT / "output"
+RESULTS_BASE = OUTPUT_ROOT / "results" / "synthetic"
+FIGURES_BASE = OUTPUT_ROOT / "figures" / "synthetic"
+
+TOPOLOGIES = ["linear", "ring", "star", "fully_connected"]
 
 # Color palette
 PALETTE = {
@@ -59,16 +62,26 @@ def setup_science_style(figwidth=3.5):
     return figwidth
 
 
-def load_data():
-    """Load summary and agents CSVs."""
-    summary_path = DATA_DIR / "summary_all_modes.csv"
+def _results_dir(topology: str, schedule: str = "static") -> Path:
+    """Return the results directory for a topology + schedule combination."""
+    if schedule == "static":
+        return RESULTS_BASE / topology
+    return RESULTS_BASE / f"{topology}_{schedule}"
+
+
+def load_data(topology: str, schedule: str = "static"):
+    """Load summary and agents CSVs for given topology and schedule."""
+    data_dir = _results_dir(topology, schedule)
+    summary_path = data_dir / "summary_all_modes.csv"
     if not summary_path.exists():
-        raise FileNotFoundError(f"Run runscripts/run_synthetic.py first. Expected: {summary_path}")
+        raise FileNotFoundError(
+            f"Run runscripts/run_synthetic.py --topology {topology} first. Expected: {summary_path}"
+        )
 
     summary = pd.read_csv(summary_path)
     agents_dfs = []
     for mode in MODE_ORDER:
-        p = DATA_DIR / f"agents_{mode}.csv"
+        p = data_dir / f"agents_{mode}.csv"
         if p.exists():
             df = pd.read_csv(p)
             df["mode"] = mode
@@ -168,27 +181,40 @@ def fig1_departure_curves(summary, out_dir):
 
 
 def fig2_ps2_timeseries(summary, out_dir):
-    """FIG 2: Mean P_S2 vs time, switch and blend only, ±1 SD shaded."""
+    """FIG 2: Mean P_S2 vs time, switch and blend.
+
+    If *mean_s2_weight_active* column exists (excludes camp agents),
+    plot it as the primary solid line; dashed line shows all-agents mean.
+    """
     figwidth = setup_science_style(3.5)
     fig, ax = plt.subplots(figsize=(figwidth, figwidth * 0.7))
+    has_active = "mean_s2_weight_active" in summary.columns
 
     for mode in ["switch", "blend"]:
         sub = summary[summary["decision_mode"] == mode]
         if sub.empty:
             continue
-        agg = sub.groupby("timestep")["mean_s2_weight"].agg(["mean", "std"]).reset_index()
+        col = "mean_s2_weight_active" if has_active else "mean_s2_weight"
+        agg = sub.groupby("timestep")[col].agg(["mean", "std"]).reset_index()
         agg["std"] = agg["std"].fillna(0)
         t = agg["timestep"].values
         m = agg["mean"].values
         s = agg["std"].values
-        ax.fill_between(t, m - s, m + s, alpha=0.3, color=PALETTE[mode])
-        ax.plot(t, m, color=PALETTE[mode], label=mode, lw=1.5)
+        ax.fill_between(t, m - s, m + s, alpha=0.2, color=PALETTE[mode])
+        label = f"{mode} (active)" if has_active else mode
+        ax.plot(t, m, color=PALETTE[mode], label=label, lw=1.5)
+
+        if has_active:
+            agg_all = sub.groupby("timestep")["mean_s2_weight"].agg(["mean"]).reset_index()
+            ax.plot(agg_all["timestep"].values, agg_all["mean"].values,
+                    color=PALETTE[mode], ls="--", lw=0.8, alpha=0.5,
+                    label=f"{mode} (all)")
 
     ax.set_xlabel("Time (hours)")
     ax.set_ylabel("Mean P_S2")
     ax.set_xlim(0, summary["timestep"].max() if not summary.empty else 72)
     ax.set_ylim(0, 1.05)
-    ax.legend()
+    ax.legend(fontsize=6)
     ax.grid(True, alpha=0.3)
     add_param_box(ax)
     fig.tight_layout()
@@ -378,48 +404,115 @@ def create_table1_stats(summary, agents, out_dir):
     print("  Saved table1_stats.csv")
 
 
-def create_animation(agents, summary, out_dir):
-    """Create anim_linear_blend.mp4 and .gif: agent positions by node, color=P_S2."""
+def _load_map_data(results_dir: Path) -> tuple:
+    """Load coord_map (name->(x,y)), edge segments, and loc_info for map visualization."""
+    loc_path = results_dir / "input_csv" / "locations.csv"
+    route_path = results_dir / "input_csv" / "routes.csv"
+    cols = ["name", "region", "country", "gps_x", "gps_y", "location_type", "conflict_date", "pop/cap"]
+    coord_map = {}
+    loc_info = {}
+    if loc_path.exists():
+        try:
+            df = pd.read_csv(loc_path, comment="#", header=None, names=cols)
+            for _, row in df.iterrows():
+                name = str(row["name"]).strip('"')
+                x, y = float(row["gps_x"]), float(row["gps_y"])
+                coord_map[name] = (x, y)
+                loc_type = str(row.get("location_type", "town")).lower()
+                loc_info[name] = {"x": x, "y": y, "type": "conflict" if "conflict" in loc_type else ("camp" if "camp" in loc_type else "town")}
+        except Exception:
+            pass
+
+    segments = []
+    if route_path.exists():
+        try:
+            rt = pd.read_csv(route_path, comment="#", header=None, names=["name1", "name2", "distance", "forced_redirection"])
+            for _, row in rt.iterrows():
+                n1 = str(row["name1"]).strip('"') if hasattr(row["name1"], "strip") else str(row["name1"])
+                n2 = str(row["name2"]).strip('"') if hasattr(row["name2"], "strip") else str(row["name2"])
+                if n1 in coord_map and n2 in coord_map:
+                    segments.append([coord_map[n1], coord_map[n2]])
+        except Exception:
+            pass
+
+    return coord_map, segments, loc_info
+
+
+def create_animation(agents, summary, out_dir, topology: str, results_dir: Path):
+    """Create anim_<topology>_blend.mp4 and .gif: map-based network with agents at GPS coords, color=P_S2."""
     blend = agents[agents["mode"] == "blend"] if not agents.empty else pd.DataFrame()
     if blend.empty:
         print("  Skipped animation (no blend data)")
         return
 
-    # Node order: source, town_00, town_01, town_02, town_03, camp
-    node_order = ["source", "town_00", "town_01", "town_02", "town_03", "camp"]
+    coord_map, segments, loc_info = _load_map_data(results_dir)
+    if not coord_map:
+        print("  Skipped animation (no locations)")
+        return
+
     times = sorted(blend["timestep"].unique())
     if not times:
         return
 
+    rng = np.random.default_rng(42)
+    jitter = 2.0
+
     setup_science_style(3.5)
-    fig, ax = plt.subplots(figsize=(7, 3))
-    ax.set_xlim(-0.5, len(node_order) - 0.5)
-    ax.set_ylim(-50, 550)
-    ax.set_xticks(range(len(node_order)))
-    ax.set_xticklabels(node_order, rotation=45)
-    ax.set_ylabel("Agent index (stacked)")
-    ax.set_title("Agent positions (color = P_S2)")
+    from matplotlib.collections import LineCollection
+    from matplotlib.animation import FuncAnimation, PillowWriter
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    # Draw network edges
+    if segments:
+        lc = LineCollection(segments, colors="lightgray", linewidths=1.2, zorder=0)
+        ax.add_collection(lc)
+
+    # Draw nodes by type: conflict=star, camp=square, town=circle (with updatable counters)
+    node_texts = {}
+    for name, info in loc_info.items():
+        x, y = info["x"], info["y"]
+        t = info["type"]
+        if t == "conflict":
+            ax.scatter(x, y, s=400, c="#D35400", marker="*", alpha=0.9, zorder=1,
+                       edgecolors="#873600", linewidths=1.5)
+            node_texts[name] = ax.text(x, y + 18, f"{name}\n(0)", ha="center", fontsize=9,
+                                       fontweight="bold", bbox=dict(boxstyle="round,pad=0.2",
+                                       facecolor="#F5B7B1", edgecolor="#873600", alpha=0.9), zorder=10)
+        elif t == "camp":
+            ax.scatter(x, y, s=300, c="#27AE60", marker="s", alpha=0.8, zorder=1,
+                       edgecolors="#1E8449", linewidths=1.5)
+            node_texts[name] = ax.text(x, y + 18, f"{name}\n(0)", ha="center", fontsize=9,
+                                       fontweight="bold", bbox=dict(boxstyle="round,pad=0.2",
+                                       facecolor="#D5F5E3", edgecolor="#1E8449", alpha=0.9), zorder=10)
+        else:
+            ax.scatter(x, y, s=80, c="#95a5a6", marker="o", alpha=0.6, zorder=1,
+                       edgecolors="#7f8c8d", linewidths=1)
+            node_texts[name] = ax.text(x, y + 12, "(0)", ha="center", fontsize=8, alpha=0.8, zorder=10)
+
+    scat = ax.scatter([], [], s=25, c=[], cmap="viridis", vmin=0, vmax=1, alpha=0.85, zorder=2)
+    title = ax.text(0.5, 0.98, "", transform=ax.transAxes, ha="center", fontsize=12, fontweight="bold")
+    subtitle = ax.text(0.5, 0.94, "", transform=ax.transAxes, ha="center", fontsize=10)
+
+    xs_all = [c[0] for c in coord_map.values()]
+    ys_all = [c[1] for c in coord_map.values()]
+    margin = max(25, 0.1 * (max(xs_all) - min(xs_all)) if xs_all else 25)
+    ax.set_xlim(min(xs_all) - margin, max(xs_all) + margin)
+    ax.set_ylim(min(ys_all) - margin, max(ys_all) + margin)
+    ax.set_aspect("equal")
+    ax.set_xlabel("x (km)")
+    ax.set_ylabel("y (km)")
+    plt.colorbar(scat, ax=ax, label="P_S2")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-
-    # Inset: mean P_S2 over time
-    ax_inset = fig.add_axes([0.15, 0.65, 0.25, 0.22])
-    sub = summary[summary["decision_mode"] == "blend"]
-    if not sub.empty:
-        by_t = sub.groupby("timestep")["mean_s2_weight"].mean()
-        ax_inset.plot(by_t.index, by_t.values, color=PALETTE["blend"], lw=1)
-    ax_inset.set_xlabel("Time (h)")
-    ax_inset.set_ylabel("Mean P_S2")
-    ax_inset.set_xlim(0, max(times))
-    ax_inset.set_ylim(0, 1)
-    ax_inset.spines["top"].set_visible(False)
-    ax_inset.spines["right"].set_visible(False)
-
-    scat = ax.scatter([], [], s=2, c=[], cmap="viridis", vmin=0, vmax=1)
 
     def init():
         scat.set_offsets(np.empty((0, 2)))
         scat.set_array(np.array([]))
+        for name, txt in node_texts.items():
+            txt.set_text(f"{name}\n(0)" if loc_info[name]["type"] != "town" else "(0)")
+        title.set_text(f"{topology} — t=0")
+        subtitle.set_text("")
         return [scat]
 
     def update(frame):
@@ -427,54 +520,183 @@ def create_animation(agents, summary, out_dir):
         sub = blend[(blend["timestep"] == t) & (blend["run_id"] == 0)]
         if sub.empty:
             sub = blend[(blend["timestep"] == t)]
-        xs, ys, colors = [], [], []
-        for node_idx, node in enumerate(node_order):
-            at_node = sub[sub["location"] == node]
-            for i, (_, row) in enumerate(at_node.iterrows()):
-                xs.append(node_idx + 0.02 * np.random.randn())
-                ys.append(i * 2)
-                colors.append(row["s2_weight"] if "s2_weight" in row else 0)
-        if xs:
-            scat.set_offsets(np.c_[xs, ys])
+        loc_counts = sub["location"].value_counts() if not sub.empty else pd.Series(dtype=int)
+        for name, txt in node_texts.items():
+            cnt = int(loc_counts.get(name, 0))
+            if loc_info[name]["type"] == "town":
+                txt.set_text(f"({cnt})")
+            else:
+                txt.set_text(f"{name}\n({cnt})")
+        coords, colors = [], []
+        for _, row in sub.iterrows():
+            loc = row.get("location")
+            if pd.isna(loc) or str(loc) == "nan" or loc not in coord_map:
+                continue
+            x, y = coord_map[loc]
+            if jitter > 0:
+                x += rng.uniform(-jitter, jitter)
+                y += rng.uniform(-jitter, jitter)
+            coords.append([x, y])
+            colors.append(row.get("s2_weight", 0.5))
+        if coords:
+            scat.set_offsets(np.array(coords))
             scat.set_array(np.array(colors))
         else:
             scat.set_offsets(np.empty((0, 2)))
             scat.set_array(np.array([]))
-        ax.set_title(f"t = {t} h")
+
+        mean_s2 = sub["s2_weight"].mean() if "s2_weight" in sub.columns and not sub.empty else 0
+        n_dep = 0
+        if "moved" in sub.columns:
+            m = sub["moved"]
+            if m.dtype == bool:
+                n_dep = (m == True).sum()  # noqa: E712
+            else:
+                n_dep = m.astype(str).str.lower().isin(("true", "1")).sum()
+        title.set_text(f"{topology} topology — t={t} h")
+        subtitle.set_text(f"Mean P_S2: {mean_s2:.2f} | Departed: {n_dep}/{len(sub)}")
         return [scat]
 
-    from matplotlib.animation import FuncAnimation, PillowWriter
     anim = FuncAnimation(fig, update, frames=len(times), init_func=init, interval=100)
+    stem = f"anim_{topology}_blend"
     try:
-        anim.save(out_dir / "anim_linear_blend.mp4", writer="ffmpeg", fps=6)
-        print("  Saved anim_linear_blend.mp4")
+        anim.save(out_dir / f"{stem}.mp4", writer="ffmpeg", fps=6)
+        print(f"  Saved {stem}.mp4")
     except Exception:
         pass
     try:
-        anim.save(out_dir / "anim_linear_blend.gif", writer=PillowWriter(fps=6))
-        print("  Saved anim_linear_blend.gif")
+        anim.save(out_dir / f"{stem}.gif", writer=PillowWriter(fps=6))
+        print(f"  Saved {stem}.gif")
     except Exception:
         pass
     plt.close(fig)
 
 
-def main():
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+def _get_conflict_intensity(schedule, t):
+    """Return conflict intensity at timestep *t* for a named schedule."""
+    if schedule == "static":
+        return 1.0 if t >= 1 else 0.0
+    elif schedule == "pulse":
+        if t < 1:
+            return 0.0
+        return 1.0 if t <= 12 else 0.2
+    elif schedule == "escalate":
+        if t < 1:
+            return 0.0
+        if t <= 7:
+            return 0.3
+        return 1.0 if t <= 19 else 0.1
+    return 0.0
+
+
+SCHEDULE_COLORS = {"static": "#888780", "pulse": "#378ADD", "escalate": "#1D9E75"}
+
+
+def fig5_schedule_comparison(topology, out_dir):
+    """Fig 5: P_S2 timeseries for static/pulse/escalate on one topology (blend mode)."""
+    figwidth = setup_science_style(7.0)
+    fig, ax1 = plt.subplots(figsize=(figwidth, figwidth * 0.45))
+    ax2 = ax1.twinx()
+    ax2.spines["top"].set_visible(False)
+
+    max_t = 0
+    found_any = False
+    for schedule in ("static", "pulse", "escalate"):
+        try:
+            summary, _ = load_data(topology, schedule)
+        except FileNotFoundError:
+            continue
+        blend = summary[summary["decision_mode"] == "blend"]
+        if blend.empty:
+            continue
+        found_any = True
+        col = "mean_s2_weight_active" if "mean_s2_weight_active" in summary.columns else "mean_s2_weight"
+        agg = blend.groupby("timestep")[col].agg(["mean", "std"]).reset_index()
+        agg["std"] = agg["std"].fillna(0)
+        t = agg["timestep"].values
+        m = agg["mean"].values
+        s = agg["std"].values
+        max_t = max(max_t, int(t.max()))
+        color = SCHEDULE_COLORS[schedule]
+        ax1.fill_between(t, m - s, m + s, alpha=0.2, color=color)
+        ax1.plot(t, m, color=color, label=f"P_S2 ({schedule})", lw=1.5)
+
+        conflict_t = np.arange(0, int(t.max()) + 1)
+        conflict_i = [_get_conflict_intensity(schedule, int(tt)) for tt in conflict_t]
+        ax2.plot(conflict_t, conflict_i, "--", color=color, alpha=0.5, lw=0.8)
+
+    if not found_any:
+        plt.close(fig)
+        print("  Skipping fig5 (no schedule data found)")
+        return
+
+    ax1.set_xlabel("Time (hours)")
+    ax1.set_ylabel("Mean P_S2 (blend mode)")
+    ax2.set_ylabel("Conflict intensity (dashed)")
+    ax1.set_xlim(0, max_t)
+    ax1.set_ylim(0, 0.6)
+    ax2.set_ylim(0, 1.2)
+    ax1.legend(loc="upper left", fontsize=7)
+    ax1.grid(True, alpha=0.3)
+    add_param_box(ax1)
+    fig.tight_layout()
+    for ext in ["png", "svg"]:
+        fig.savefig(out_dir / f"fig5_schedule_comparison.{ext}", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    print("  Saved fig5_schedule_comparison.png, .svg")
+
+
+def process_topology(topology: str, schedule: str = "static") -> int:
+    """Generate figures and animation for one topology + schedule."""
+    if schedule == "static":
+        out_dir = FIGURES_BASE / topology
+    else:
+        out_dir = FIGURES_BASE / f"{topology}_{schedule}"
+    out_dir.mkdir(parents=True, exist_ok=True)
     setup_science_style(3.5)
 
     try:
-        summary, agents = load_data()
+        summary, agents = load_data(topology, schedule)
     except FileNotFoundError as e:
         print(str(e))
         return 1
 
-    print("Creating figures in", OUT_DIR)
-    fig1_departure_curves(summary, OUT_DIR)
-    fig2_ps2_timeseries(summary, OUT_DIR)
-    fig3_first_departure_violins(agents, OUT_DIR)
-    fig4_distance_vs_time(summary, OUT_DIR)
-    create_table1_stats(summary, agents, OUT_DIR)
-    create_animation(agents, summary, OUT_DIR)
+    results_dir = _results_dir(topology, schedule)
+    print(f"Creating figures for {topology} ({schedule}) in {out_dir}")
+    fig1_departure_curves(summary, out_dir)
+    fig2_ps2_timeseries(summary, out_dir)
+    fig3_first_departure_violins(agents, out_dir)
+    fig4_distance_vs_time(summary, out_dir)
+    create_table1_stats(summary, agents, out_dir)
+    create_animation(agents, summary, out_dir, topology, results_dir)
+
+    # Fig 5 only makes sense in the base topology dir (compares across schedules)
+    if schedule != "static":
+        base_out = FIGURES_BASE / topology
+        base_out.mkdir(parents=True, exist_ok=True)
+        fig5_schedule_comparison(topology, base_out)
+
+    return 0
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate figures for synthetic experiments")
+    parser.add_argument("--topology", default="linear",
+                        help="Topology to process (or 'all' for all)")
+    parser.add_argument("--schedule", default="static",
+                        choices=["static", "pulse", "escalate"],
+                        help="Conflict schedule (affects result directory)")
+    args = parser.parse_args()
+
+    topologies = TOPOLOGIES if args.topology == "all" else [args.topology]
+    if args.topology != "all" and args.topology not in TOPOLOGIES:
+        print(f"Unknown topology: {args.topology}. Use one of {TOPOLOGIES} or 'all'")
+        return 1
+
+    for topo in topologies:
+        if process_topology(topo, args.schedule) != 0:
+            return 1
     print("Done.")
     return 0
 
