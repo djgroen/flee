@@ -1,0 +1,30 @@
+======================================================================
+SOBOL IDENTIFIABILITY REPORT — Day 4
+======================================================================
+
+CHECK 1 α sensitivity: max ST(α) = 0.6585 → PASS
+CHECK 1b κ sensitivity: max ST(κ) = 0.0000 → FLAG
+  DIAGNOSIS: κ insensitive because info_mode='official_zones' with
+  in_official_zone never set on locations. perceived_here = perceived_best
+  = 0.1 always → sigma = 0.5 regardless of κ.
+  ACTION: κ becomes identifiable with heterogeneous radiation
+  (dosimeter mode or plume model). Fix κ=5.0 for nuclear paper
+CHECK 2 β dominance (mid_ps2_trough): β ST=0.8005, max param=beta → PASS
+CHECK 2 β dominance (mid_ps2_dip): β ST=0.2134, max param=alpha → WARN
+CHECK 3 κ for hayano_t4: ST=0.0000, rank=3 → WARN
+CHECK 4 Three-phase robustness: 100.0% runs have dip>0.10 → PASS
+CHECK 5 Mean interaction (ST-S1): 0.2317 → WARN
+  ACTION: High interactions — joint calibration required on Day 7
+CHECK 6 Hayano 0.78 reachable: max=0.6214 → FAIL
+  ACTION: No parameter combo reaches 0.78. Check conflict_movechance, network connectivity, or conflict schedule.
+
+OVERALL: ISSUES FLAGGED — see actions
+
+PARAMETER SENSITIVITY SUMMARY TABLE
+----------------------------------------------------------------------
+Param     S1(hayano_t4) S1(mid_ps2_trough) S1(mid_ps2_dip) S1(mid_ps2_recovery) S1(blend_inner_t7)
+alpha       0.404/0.395    0.239/0.159    0.532/0.659    0.087/0.616   -0.053/0.602
+beta       -0.426/0.270    0.557/0.800    0.275/0.213    0.231/0.862   -0.080/0.665
+kappa       0.000/0.000    0.000/0.000    0.000/0.000    0.000/0.000    0.000/0.000
+(format: S1/ST per cell)
+----------------------------------------------------------------------

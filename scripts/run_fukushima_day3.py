@@ -87,7 +87,7 @@ def load_config(input_dir):
     SimulationSettings.move_rules["MovechancePopScaleFactor"] = 0.0
     SimulationSettings.spawn_rules["conflict_driven_spawning"] = False
     SimulationSettings.spawn_rules["TakeFromPopulation"] = False
-    SimulationSettings.log_levels["agent"] = 0
+    SimulationSettings.log_levels["agent"] = 1  # enable distance_travelled tracking
     SimulationSettings.log_levels["init"] = 0
 
 
@@ -184,10 +184,12 @@ def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa, seed):
         initial_zone[aid] = loc_to_zone(loc_name)
 
     agents_data = []
+    arrival_records = []
+    arrived_at_camp = set()
+
     for t in range(n_steps + 1):
         if t > 0:
             ig.AddNewConflictZones(e, t)
-            # Force-update for positive→different-positive transitions
             if hasattr(ig, "conflicts"):
                 for cname, cvals in ig.conflicts.items():
                     if t < len(cvals):
@@ -207,6 +209,21 @@ def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa, seed):
             moved = getattr(a, "places_travelled", 0) > 1
             zone = loc_to_zone(loc_name)
             conflict = max(0.0, getattr(ep, "conflict", 0.0))
+
+            # Record first arrival at camp with FLEE's internal distance_travelled
+            if zone == "camp" and aid not in arrived_at_camp:
+                arrived_at_camp.add(aid)
+                path_km = getattr(a, "distance_travelled", 0.0)
+                arrival_records.append({
+                    "agent_id": aid,
+                    "initial_zone": initial_zone.get(aid, "unknown"),
+                    "camp_node": loc_name,
+                    "arrival_timestep": t,
+                    "path_length_km": float(path_km),
+                    "experience_x": getattr(a, "experience_index", 0.0),
+                    "decision_mode": mode,
+                })
+
             agents_data.append({
                 "timestep": t, "agent_id": aid, "location": loc_name,
                 "location_type": loc_type, "zone": zone,
@@ -216,7 +233,8 @@ def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa, seed):
                 "decision_mode": mode,
             })
 
-    return pd.DataFrame(agents_data), lm
+    arrival_df = pd.DataFrame(arrival_records) if arrival_records else pd.DataFrame()
+    return pd.DataFrame(agents_data), lm, arrival_df
 
 
 # ── Figures ──
@@ -425,6 +443,88 @@ def fig_F4_network_snapshot(blend_df, lm, out_dir, t_snapshot=4):
     print("  Saved F4_network_snapshot_t4.png")
 
 
+def fig_F4b_path_length(arrival_df, out_dir):
+    """F4b: Path-length-at-arrival distributions by mode and zone."""
+    if arrival_df.empty:
+        print("  No arrival data for F4b")
+        return
+
+    figwidth = setup_science_style(7.0)
+
+    # Figure 1: Violin + strip plot by mode and zone
+    fig, axes = plt.subplots(1, 4, figsize=(figwidth * 1.6, figwidth * 0.5),
+                             sharey=True)
+    modes_present = [m for m in MODE_ORDER if m in arrival_df["decision_mode"].unique()]
+
+    for ax_idx, mode in enumerate(modes_present):
+        ax = axes[ax_idx] if len(modes_present) > 1 else axes
+        mdf = arrival_df[arrival_df["decision_mode"] == mode]
+
+        zone_data = []
+        zone_labels = []
+        zone_colors_list = []
+        for zone in ["inner", "mid", "outer"]:
+            zd = mdf[mdf["initial_zone"] == zone]["path_length_km"].values
+            if len(zd) > 0:
+                zone_data.append(zd)
+                zone_labels.append(zone)
+                zone_colors_list.append(ZONE_COLORS.get(zone, "#888"))
+
+        if zone_data:
+            parts = ax.violinplot(zone_data, positions=range(len(zone_data)),
+                                  showmeans=True, showmedians=True)
+            for i, pc in enumerate(parts["bodies"]):
+                pc.set_facecolor(zone_colors_list[i])
+                pc.set_alpha(0.3)
+
+            for i, zd in enumerate(zone_data):
+                jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(zd))
+                ax.scatter(np.full(len(zd), i) + jitter, zd, s=5, alpha=0.4,
+                           color=zone_colors_list[i], edgecolors="none")
+
+        ax.set_xticks(range(len(zone_labels)))
+        ax.set_xticklabels(zone_labels, fontsize=7)
+        ax.set_title(mode.replace("_", " "), fontsize=8)
+        if ax_idx == 0:
+            ax.set_ylabel("Path length (km)", fontsize=8)
+        ax.grid(axis="y", alpha=0.2)
+
+    fig.suptitle("Path Length at Arrival by Mode and Zone", fontsize=9, y=1.02)
+    fig.tight_layout()
+    fig.savefig(out_dir / "F4b_path_length_distributions.png", dpi=300,
+                bbox_inches="tight")
+    plt.close(fig)
+    print("  Saved F4b_path_length_distributions.png")
+
+    # Figure 2: Path length vs experience, colored by mode
+    fig, ax = plt.subplots(figsize=(figwidth, figwidth * 0.5))
+
+    for mode in modes_present:
+        mdf = arrival_df[arrival_df["decision_mode"] == mode]
+        ax.scatter(mdf["experience_x"], mdf["path_length_km"], s=10, alpha=0.4,
+                   color=PALETTE.get(mode, "#888"), label=mode.replace("_", " "),
+                   edgecolors="none")
+
+        # Linear trend
+        if len(mdf) > 5:
+            z = np.polyfit(mdf["experience_x"], mdf["path_length_km"], 1)
+            xfit = np.linspace(0, 1, 50)
+            ax.plot(xfit, np.polyval(z, xfit), color=PALETTE.get(mode, "#888"),
+                    lw=1.5, ls="--")
+
+    ax.set_xlabel("Experience index (x)", fontsize=8)
+    ax.set_ylabel("Path length at arrival (km)", fontsize=8)
+    ax.set_title("Path Length vs Experience — Deliberation Quality Test", fontsize=9)
+    ax.legend(fontsize=6, loc="upper right")
+    ax.grid(True, alpha=0.2)
+
+    fig.tight_layout()
+    fig.savefig(out_dir / "F4b_path_length_vs_experience.png", dpi=300,
+                bbox_inches="tight")
+    plt.close(fig)
+    print("  Saved F4b_path_length_vs_experience.png")
+
+
 def run_diagnostics(all_agents, n_steps):
     """Run Day 3 success criteria checks."""
     print("\n=== DIAGNOSTICS ===")
@@ -535,6 +635,67 @@ def run_diagnostics(all_agents, n_steps):
     return all_pass
 
 
+def extract_qois(all_agents):
+    """Extract scalar QoIs for Sobol analysis."""
+    blend = all_agents[all_agents["decision_mode"] == "blend"]
+    orig = all_agents[all_agents["decision_mode"] == "original"] if "original" in all_agents["decision_mode"].values else None
+
+    # QoI 1: hayano_t4 — inner+mid departure fraction at t=4
+    im_ids = blend[blend["initial_zone"].isin(["inner", "mid"])]["agent_id"].unique()
+    total_im = len(im_ids)
+    if total_im > 0:
+        camp_rows = blend[(blend["agent_id"].isin(im_ids)) & (blend["zone"] == "camp")]
+        first_camp = camp_rows.groupby("agent_id")["timestep"].min()
+        hayano_t4 = float((first_camp <= 4).sum() / total_im)
+    else:
+        hayano_t4 = 0.0
+
+    # QoI 2-4: mid-zone P_S2 dynamics
+    mid_locs = set(ZONES["mid"])
+    mid_active = blend[blend["location"].isin(mid_locs)]
+    if not mid_active.empty:
+        by_t = mid_active.groupby("timestep")["s2_weight"].mean()
+        init_ps2 = by_t.iloc[0] if len(by_t) > 0 else 0.315
+        mid_ps2_trough = float(by_t.min())
+        mid_ps2_dip = float(init_ps2 - mid_ps2_trough)
+        min_t = by_t.idxmin()
+        post = by_t[by_t.index > min_t]
+        t28 = by_t.get(28, by_t.iloc[-1] if len(by_t) > 0 else 0)
+        mid_ps2_recovery = float(t28 - mid_ps2_trough)
+    else:
+        mid_ps2_trough = 0.0
+        mid_ps2_dip = 0.0
+        mid_ps2_recovery = 0.0
+
+    # QoI 5: blend_inner_t7 — blend vs original inner-zone departure speedup
+    inner_ids_blend = blend[blend["initial_zone"] == "inner"]["agent_id"].unique()
+    n_inner = len(inner_ids_blend)
+    blend_inner_t7_frac = 0.0
+    if n_inner > 0:
+        camp_b = blend[(blend["agent_id"].isin(inner_ids_blend)) & (blend["zone"] == "camp")]
+        fc_b = camp_b.groupby("agent_id")["timestep"].min()
+        blend_inner_t7_frac = float((fc_b <= 7).sum() / n_inner)
+
+    orig_inner_t7_frac = 0.0
+    if orig is not None and not orig.empty:
+        inner_ids_orig = orig[orig["initial_zone"] == "inner"]["agent_id"].unique()
+        n_orig = len(inner_ids_orig)
+        if n_orig > 0:
+            camp_o = orig[(orig["agent_id"].isin(inner_ids_orig)) & (orig["zone"] == "camp")]
+            fc_o = camp_o.groupby("agent_id")["timestep"].min()
+            orig_inner_t7_frac = float((fc_o <= 7).sum() / n_orig)
+
+    blend_inner_t7 = blend_inner_t7_frac - orig_inner_t7_frac
+
+    return {
+        "hayano_t4": round(hayano_t4, 4),
+        "mid_ps2_trough": round(mid_ps2_trough, 4),
+        "mid_ps2_dip": round(mid_ps2_dip, 4),
+        "mid_ps2_recovery": round(mid_ps2_recovery, 4),
+        "blend_inner_t7": round(blend_inner_t7, 4),
+    }
+
+
 def main():
     ap = argparse.ArgumentParser(description="Day 3: First Fukushima run")
     ap.add_argument("--input-dir", default="input/fukushima_day3")
@@ -546,6 +707,8 @@ def main():
     ap.add_argument("--kappa", type=float, default=5.0)
     ap.add_argument("--modes", nargs="+", default=MODE_ORDER)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--output-json", default=None,
+                    help="Write QoI scalars to JSON file (for Sobol campaign)")
     args = ap.parse_args()
 
     input_dir = str(REPO_ROOT / args.input_dir)
@@ -553,21 +716,50 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     all_dfs = []
+    all_arrivals = []
     lm_ref = None
     for mode in args.modes:
         print(f"\n  Running {mode}...")
-        df, lm = run_one(input_dir, mode, args.n_agents, args.n_steps,
-                         args.alpha, args.beta, args.kappa, args.seed)
+        df, lm, arrivals = run_one(input_dir, mode, args.n_agents, args.n_steps,
+                                   args.alpha, args.beta, args.kappa, args.seed)
         all_dfs.append(df)
+        all_arrivals.append(arrivals)
         if lm_ref is None:
             lm_ref = lm
-        print(f"  {mode}: {len(df)} rows")
+        print(f"  {mode}: {len(df)} rows, {len(arrivals)} arrivals")
 
     all_agents = pd.concat(all_dfs, ignore_index=True)
+
+    # JSON QoI output mode (for Sobol campaign)
+    if args.output_json:
+        qois = extract_qois(all_agents)
+        import json
+        Path(args.output_json).parent.mkdir(parents=True, exist_ok=True)
+        with open(args.output_json, "w") as f:
+            json.dump(qois, f)
+        print(f"QoIs -> {args.output_json}: {qois}")
+        return 0
 
     # Save raw data
     all_agents.to_csv(out_dir / "agents_all_modes.csv", index=False)
     print(f"\nSaved agents_all_modes.csv ({len(all_agents)} rows)")
+
+    # Save path-length arrival data
+    if all_arrivals:
+        arrival_df = pd.concat([a for a in all_arrivals if not a.empty], ignore_index=True)
+        if not arrival_df.empty:
+            results_dir = REPO_ROOT / "results"
+            results_dir.mkdir(parents=True, exist_ok=True)
+            for mode in arrival_df["decision_mode"].unique():
+                mode_arr = arrival_df[arrival_df["decision_mode"] == mode]
+                mode_arr.to_csv(results_dir / f"path_length_{mode}.csv", index=False)
+                print(f"  Saved path_length_{mode}.csv ({len(mode_arr)} arrivals)")
+            arrival_df.to_csv(results_dir / "path_length_all.csv", index=False)
+            fig_F4b_path_length(arrival_df, out_dir)
+        else:
+            arrival_df = pd.DataFrame()
+    else:
+        arrival_df = pd.DataFrame()
 
     # Figures
     print("\nGenerating figures...")
