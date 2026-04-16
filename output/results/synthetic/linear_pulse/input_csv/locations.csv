@@ -1,0 +1,8 @@
+#"name","region","country","gps_x","gps_y","location_type","conflict_date","pop/cap"
+"source","R1","C1","0.0","0.0","conflict","1","10000"
+"town_00","R1","C1","50.0","0.0","town","",""
+"town_01","R1","C1","100.0","0.0","town","",""
+"town_02","R1","C1","150.0","0.0","town","",""
+"town_03","R1","C1","200.0","0.0","town","",""
+"town_04","R1","C1","250.0","0.0","town","",""
+"camp","R1","C1","300.0","0.0","camp","","50000"

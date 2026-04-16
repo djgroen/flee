@@ -1,0 +1,7 @@
+#"name1","name2","distance",forced_redirection
+"source","town_00",50.0,0
+"town_00","town_01",50.0,0
+"town_01","town_02",50.0,0
+"town_02","town_03",50.0,0
+"town_03","town_04",50.0,0
+"town_04","camp",50.0,0

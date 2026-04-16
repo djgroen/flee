@@ -1,0 +1,13 @@
+#"name1","name2","distance",forced_redirection
+"source","node_0",150.0,0
+"source","node_1",150.0,0
+"source","node_2",150.0,0
+"source","node_3",150.0,0
+"source","node_4",150.0,0
+"source","node_5",150.0,0
+"node_0","node_1",149.99999999999997,0
+"node_1","node_2",149.99999999999997,0
+"node_2","node_3",149.99999999999997,0
+"node_3","node_4",149.99999999999997,0
+"node_4","node_5",149.99999999999997,0
+"node_5","node_0",149.99999999999997,0
