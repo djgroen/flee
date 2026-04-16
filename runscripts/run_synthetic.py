@@ -5,6 +5,7 @@ Produces identical output schema for all modes for figure generation.
 """
 
 import argparse
+import csv as csv_mod
 import json
 import os
 import random
@@ -43,12 +44,117 @@ def load_config(yml_path=None):
     SimulationSettings.move_rules["PruningThreshold"] = 1.0
     # Camps as true sinks: agents at safe zones never leave
     SimulationSettings.move_rules["CampMoveChance"] = 0.0
+    # Match ConflictMoveChance to default so the dual-process model —
+    # not the location type — determines evacuation speed differences.
+    SimulationSettings.move_rules["ConflictMoveChance"] = 0.3
     # Prevent return to conflict/disaster zone
     SimulationSettings.move_rules["ConflictWeight"] = 0.01
     SimulationSettings.spawn_rules["conflict_driven_spawning"] = False
     SimulationSettings.spawn_rules["TakeFromPopulation"] = False
     SimulationSettings.log_levels["agent"] = 0
     SimulationSettings.log_levels["init"] = 0
+
+
+CONFLICT_SCHEDULES = ("static", "pulse", "escalate")
+
+
+def _get_conflict_intensity(schedule, t):
+    """Return conflict intensity at timestep *t* for a given schedule preset."""
+    if schedule == "static":
+        return 1.0 if t >= 1 else 0.0
+    elif schedule == "pulse":
+        if t < 1:
+            return 0.0
+        return 1.0 if t <= 12 else 0.2
+    elif schedule == "escalate":
+        if t < 1:
+            return 0.0
+        if t <= 7:
+            return 0.3
+        return 1.0 if t <= 19 else 0.1
+    return 0.0
+
+
+def write_conflict_schedule(input_dir, schedule, n_steps):
+    """Overwrite conflicts.csv with a time-varying schedule preset.
+
+    For *static* and *pulse*, only the source node has non-zero conflict.
+    For *escalate*, conflict spreads to neighboring towns (BFS from source)
+    with temporal delay and spatial decay, simulating a crisis radiating
+    outward — the mechanism that produces the three-phase P_S2 pattern.
+    """
+    from collections import deque
+
+    input_dir = Path(input_dir)
+
+    loc_names = []
+    loc_types = {}
+    source_name = None
+    with open(input_dir / "locations.csv", encoding="utf-8") as f:
+        for row in csv_mod.reader(f):
+            if not row or row[0].startswith("#"):
+                continue
+            name = row[0].strip('"')
+            ltype = row[5].strip('"') if len(row) > 5 else ""
+            loc_names.append(name)
+            loc_types[name] = ltype
+            if "conflict" in ltype.lower():
+                source_name = name
+
+    if source_name is None:
+        source_name = loc_names[0]
+
+    # Build adjacency from routes.csv for spatial spreading
+    adj: dict = {}
+    with open(input_dir / "routes.csv", encoding="utf-8") as f:
+        for row in csv_mod.reader(f):
+            if not row or row[0].startswith("#"):
+                continue
+            n1 = row[0].strip('"')
+            n2 = row[1].strip('"')
+            adj.setdefault(n1, []).append(n2)
+            adj.setdefault(n2, []).append(n1)
+
+    # BFS hop distance from source
+    hop_dist = {source_name: 0}
+    queue = deque([source_name])
+    while queue:
+        node = queue.popleft()
+        for nb in adj.get(node, []):
+            if nb not in hop_dist:
+                hop_dist[nb] = hop_dist[node] + 1
+                queue.append(nb)
+
+    SPREAD_HOPS = 4
+    DELAY_PER_HOP = 2
+    DECAY_PER_HOP = 0.7
+
+    with open(input_dir / "conflicts.csv", "w", encoding="utf-8") as f:
+        f.write("Day," + ",".join(loc_names) + "\n")
+        for t in range(n_steps + 1):
+            vals = []
+            for name in loc_names:
+                if "camp" in loc_types.get(name, "").lower():
+                    vals.append("0.0")
+                    continue
+                d = hop_dist.get(name, 999)
+                if schedule != "escalate" or d > SPREAD_HOPS:
+                    # static/pulse: source-only; escalate: beyond spread radius
+                    if name == source_name:
+                        vals.append(str(_get_conflict_intensity(schedule, t)))
+                    else:
+                        vals.append("0.0")
+                else:
+                    eff_t = t - d * DELAY_PER_HOP
+                    if eff_t < 0:
+                        vals.append("0.0")
+                    else:
+                        base = _get_conflict_intensity(schedule, eff_t)
+                        vals.append(str(round(base * (DECAY_PER_HOP ** d), 6)))
+            f.write(str(t) + "," + ",".join(vals) + "\n")
+
+    spread_info = f"spread={SPREAD_HOPS} hops" if schedule == "escalate" else "source-only"
+    print(f"  Conflict schedule '{schedule}' -> {source_name} ({spread_info})")
 
 
 def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa,
@@ -111,17 +217,16 @@ def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa,
 
         all_names = list(lm.keys())
 
+        # Exclude camps (by location type) and for ring also exclude source
+        is_camp = lambda name: getattr(lm.get(name), "camp", False)
         if topology == 'ring':
             spawn_names = [
                 n for n in all_names
-                if 'source' not in n.lower()
-                and 'camp' not in n.lower()
+                if not is_camp(n)
+                and 'source' not in n.lower()
             ]
         else:
-            spawn_names = [
-                n for n in all_names
-                if 'camp' not in n.lower()
-            ]
+            spawn_names = [n for n in all_names if not is_camp(n)]
 
         agents_added = []
         for loc_name in spawn_names:
@@ -147,6 +252,14 @@ def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa,
     for t in range(n_steps + 1):
         if t > 0:
             ig.AddNewConflictZones(e, t)
+            # Force-update intensity for positive→different-positive transitions
+            # (AddNewConflictZones only handles 0→positive and positive→0)
+            if hasattr(ig, "conflicts"):
+                for cname, cvals in ig.conflicts.items():
+                    if t < len(cvals):
+                        cur, prev = cvals[t], cvals[t - 1]
+                        if prev > 1e-6 and cur > 1e-6 and abs(cur - prev) > 1e-6:
+                            e.set_conflict_intensity(cname, cur)
         e.evolve()
 
         row_agents = []
@@ -192,17 +305,26 @@ def main():
     ap.add_argument("--n-nodes", type=int, default=6)
     ap.add_argument("--modes", nargs="+", default=["original", "s1_only", "switch", "blend"])
     ap.add_argument("--n-agents", type=int, default=500)
-    ap.add_argument("--n-steps", type=int, default=72)
+    ap.add_argument("--n-steps", type=int, default=48,
+                    help="Simulation steps; 48 sufficient for most evacuations (was 72)")
+    ap.add_argument("--conflict-schedule", choices=CONFLICT_SCHEDULES,
+                    default="static",
+                    help="Conflict intensity schedule: static|pulse|escalate")
     ap.add_argument("--alpha", type=float, default=2.0)
     ap.add_argument("--beta", type=float, default=2.0)
     ap.add_argument("--kappa", type=float, default=5.0)
     ap.add_argument("--n-runs", type=int, default=10)
     ap.add_argument("--output-dir", type=Path, default=None,
-                    help="Defaults to output/results/synthetic/<topology>/")
+                    help="Defaults to output/results/synthetic/<topology>[_<schedule>]/")
     ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
 
-    args.output_dir = Path(args.output_dir) if args.output_dir else DEFAULT_RESULTS_DIR / args.topology
+    if args.output_dir:
+        args.output_dir = Path(args.output_dir)
+    elif args.conflict_schedule == "static":
+        args.output_dir = DEFAULT_RESULTS_DIR / args.topology
+    else:
+        args.output_dir = DEFAULT_RESULTS_DIR / f"{args.topology}_{args.conflict_schedule}"
     input_dir = args.output_dir / "input_csv"
     input_dir.mkdir(parents=True, exist_ok=True)
 
@@ -214,6 +336,7 @@ def main():
     else:
         kwargs = {"nodes": args.n_nodes}
     network_stats = build_network(args.topology, input_dir, **kwargs)
+    write_conflict_schedule(input_dir, args.conflict_schedule, args.n_steps)
     with open(args.output_dir / "network_stats.json", "w") as f:
         json.dump(network_stats, f, indent=2)
 
@@ -239,6 +362,8 @@ def main():
                     continue
                 n_departed = sum(1 for r in rows if r["moved"])
                 mean_s2 = np.mean([r["s2_weight"] for r in rows])
+                active = [r for r in rows if r["location_type"] != "camp"]
+                mean_s2_active = np.mean([r["s2_weight"] for r in active]) if active else 0.0
                 mean_dist = np.mean([r["distance_from_source_km"] for r in rows])
                 mode_summaries.append({
                     "run_id": run_id,
@@ -247,6 +372,7 @@ def main():
                     "n_departed": n_departed,
                     "pct_departed": 100.0 * n_departed / len(rows),
                     "mean_s2_weight": mean_s2,
+                    "mean_s2_weight_active": mean_s2_active,
                     "mean_distance_km": mean_dist,
                 })
         all_results[mode] = {"agents": mode_agents, "summaries": mode_summaries}
@@ -267,10 +393,10 @@ def main():
     # Summary CSV (all modes)
     out_path = args.output_dir / "summary_all_modes.csv"
     with open(out_path, "w") as f:
-        f.write("run_id,decision_mode,timestep,n_departed,pct_departed,mean_s2_weight,mean_distance_km\n")
+        f.write("run_id,decision_mode,timestep,n_departed,pct_departed,mean_s2_weight,mean_s2_weight_active,mean_distance_km\n")
         for mode in args.modes:
             for row in all_results[mode]["summaries"]:
-                f.write(f"{row['run_id']},{row['decision_mode']},{row['timestep']},{row['n_departed']},{row['pct_departed']:.4f},{row['mean_s2_weight']:.6f},{row['mean_distance_km']:.4f}\n")
+                f.write(f"{row['run_id']},{row['decision_mode']},{row['timestep']},{row['n_departed']},{row['pct_departed']:.4f},{row['mean_s2_weight']:.6f},{row['mean_s2_weight_active']:.6f},{row['mean_distance_km']:.4f}\n")
     print(f"Wrote {out_path}")
     print(f"Done. Output in {args.output_dir}/")
     return 0
