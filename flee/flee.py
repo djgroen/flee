@@ -1763,6 +1763,12 @@ class Ecosystem:
         for loc in self.locations:
             loc.routes = {}
             scoring.updateLocationScore(self.time, loc)
+
+            # update location capacity if a daily capacity increase is set.
+            capacity_per_day = int(loc.attributes.get("capacity_per_day","0"))
+            if capacity_per_day > 0:
+                loc.capacity += capacity_per_day
+
         demographics.update_demographic_attributes(self)
 
         # update agent locations

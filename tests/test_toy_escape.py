@@ -29,7 +29,15 @@ def test_toy_escape():
         start_empty=False
     )
 
+    # Test capacity growth
+    l1.attributes["capacity_per_day"] = 10000
+    l1.capacity = 100
+
     for t in range(0, end_time):
+        
+        # check that capacity of L1 is growing correctly.
+        assert l1.capacity == 100 + t*10000
+
         new_refs = d.get_new_refugees(day=t)
 
         # Insert refugee agents
@@ -38,6 +46,7 @@ def test_toy_escape():
 
         # Propagate the model by one time step.
         e.evolve()
+
 
         print(
             t,
