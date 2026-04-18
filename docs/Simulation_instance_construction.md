@@ -120,9 +120,10 @@ Identified conflict zones and camps provide origin and destination locations. We
 Here, **custom_attributes** can be a list of optional location-specific (static) attributes that you can assign manually. For instance, you could assign an attribute named gdp to each location to indicate the average GPD in each place. You can define as many custom attributes as you like. (new as of Flee 3.0)
 
 Several **custom_attributes** trigger behavioral changes in the Flee 3 simulations, including:
-* `initial\_idps`, which is an attribute that can be added to any location to populate it with the indicated number of IDPs on Day 0. This attribute also technically works for refugee camps abroad, but hasn't yet been tested for this use case. (**new as of 6-9-2024**)
-* `conflict\_intensity`, which when explicitly defined for a location of type conflict, will override the default value (1.0) for conflict intensity to a custom-defined intensity level.
-* `capacity\_per\_day`, which increases the capacity of a location by the number indicated for every day in the simulaton. This is to mimic partially open camps, where only a limited number of persons can be admitted. When enabling this column, ensure that a 0 value is put for all locations that do not have growing capacities (including towns etc.).
+
+* `initial_idps`, which is an attribute that can be added to any location to populate it with the indicated number of IDPs on Day 0. This attribute also technically works for refugee camps abroad, but hasn't yet been tested for this use case. (**new as of 6-9-2024**)
+* `conflict_intensity`, which when explicitly defined for a location of type conflict, will override the default value (1.0) for conflict intensity to a custom-defined intensity level.
+* `capacity_per_day`, which increases the capacity of a location by the number indicated for every day in the simulaton. This is to mimic partially open camps, where only a limited number of persons can be admitted. When enabling this column, ensure that a 0 value is put for all locations that do not have growing capacities (including towns etc.).
 
 Record distances between locations in **`routes.csv`** file for simulation using the following format:
 
@@ -140,7 +141,7 @@ Record distances between locations in **`routes.csv`** file for simulation using
 
 **custom_attributes** work in the same way here as for `locations.csv`, providing users with the ability to add custom link attributes and set different values for individual links. Some attributes automatically trigger behaviors in Flee 3.0, including:
 
-* `max\_move\_speed`: when explicitly defined, this will override the MaxMoveSpeed set in `simsetting.yml` for individual links. Note that it is only possible to override this for all links or for none of the links at the moment.
+* `max_move_speed`: when explicitly defined, this will override the MaxMoveSpeed set in `simsetting.yml` for individual links. Note that it is only possible to override this for all links or for none of the links at the moment.
 
 !!! note 
 	Group-specific instrucitons for locations.csv. For those working with our group, here are some more specific instructions:
