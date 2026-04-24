@@ -1,6 +1,6 @@
 # Home
 
-![flee logo](images/flee.png)
+<img src="images/flee.png" alt="flee logo" style="width: 300px; display: block; margin: 1rem 0;" />
 
 **flee** is an open-source agent-based modelling toolkit for simulating the movement of displaced people across geographical locations.
 
