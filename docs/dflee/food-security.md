@@ -23,7 +23,7 @@ IPC data is provided at a regional level in `input_csv/region_attributes_IPC.csv
 - Values — percentage of persons with **critical food deprivation** (0–100)
 
 !!! warning
-    All regions used in your scenario must be included in this file, even if their food security value is 0. flee will linearly interpolate between listed days, so you do not need to list every day.
+    All regions used in your scenario must be included in this file, even if their food security value is 0. Flee will linearly interpolate between listed days, so you do not need to list every day.
 
 ---
 

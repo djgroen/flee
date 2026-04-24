@@ -13,7 +13,7 @@ pytest tests/
 This runs the full suite of functional tests. All tests should pass if the installation was successful.
 
 !!! note
-    If all tests are failing, double-check that you have installed all dependencies with `pip install -r requirements.txt` and that `PYTHONPATH` includes the flee directory (see [Installation](installation.md)).
+    If all tests are failing, double-check that you have installed all dependencies with `pip install -r requirements.txt` and that `PYTHONPATH` includes the Flee directory (see [Installation](installation.md)).
 
 ## Single test run
 

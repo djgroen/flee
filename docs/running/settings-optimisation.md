@@ -24,7 +24,7 @@ optimisations:
 | 100 | Each agent represents 100 people — 100× faster, less precise |
 
 !!! warning
-    flee is not deterministic. Even with `hasten = 1`, results can vary by up to ~1% between identical runs due to random sampling. With larger `hasten` values, variability increases further. Use ensemble runs (multiple repeat simulations) when `hasten > 1` to get reliable estimates.
+    Flee is not deterministic. Even with `hasten = 1`, results can vary by up to ~1% between identical runs due to random sampling. With larger `hasten` values, variability increases further. Use ensemble runs (multiple repeat simulations) when `hasten > 1` to get reliable estimates.
 
 Typical values for large-scale runs: `hasten = 10` to `hasten = 100`, depending on the required precision and available compute time.
 

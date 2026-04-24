@@ -26,7 +26,7 @@ The key input file is `flood_level.csv` in your `input_csv/` directory. It provi
 - Values — integer flood level, 0 to `max_flood_level`; `0` = no flooding
 
 !!! note
-    You do not need to include every day — flee will interpolate linearly between listed days. The file must cover the full simulation period.
+    You do not need to include every day — Flee will interpolate linearly between listed days. The file must cover the full simulation period.
 
 ### What the flood levels represent
 

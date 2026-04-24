@@ -2,13 +2,13 @@
 
 <img src="images/flee.png" alt="flee logo" style="width: 300px; display: block; margin: 1rem 0;" />
 
-**flee** is an open-source agent-based modelling toolkit for simulating the movement of displaced people across geographical locations.
+**Flee** is an open-source agent-based modelling toolkit for simulating the movement of displaced people across geographical locations.
 
 It is designed to be used by researchers, analysts, and humanitarian organisations to understand and forecast forced displacement — whether driven by armed conflict or natural disasters.
 
 ---
 
-## What can flee do?
+## What can Flee do?
 
 - Simulate thousands of individual agents (people) moving through a network of locations
 - Model refugee and internally displaced person (IDP) movements during conflict situations
@@ -18,14 +18,14 @@ It is designed to be used by researchers, analysts, and humanitarian organisatio
 
 ---
 
-## How is flee used?
+## How is Flee used?
 
-flee is typically used in one of two ways:
+Flee is typically used in one of two ways:
 
-1. **Directly** — by running Python scripts from the command line, using flee as a library
+1. **Directly** — by running Python scripts from the command line, using Flee as a library
 2. **Via FabFlee** — using the [FabSim3](https://fabsim3.readthedocs.io/) automation plugin to manage simulation workflows, run ensembles, and submit jobs to HPC systems
 
-The documentation covers both approaches. If you are new to flee, start with the [getting started](getting-started/index.md) section.
+The documentation covers both approaches. If you are new to Flee, start with the [getting started](getting-started/index.md) section.
 
 ---
 
@@ -53,5 +53,5 @@ See [Conflict vs disaster use cases](concepts/conflict-vs-disaster.md) for more 
 
 ---
 
-flee is released under a [BSD 3-clause licence](https://github.com/djgroen/flee/blob/master/LICENSE) and is publicly available at [https://github.com/djgroen/flee](https://github.com/djgroen/flee).
+Flee is released under a [BSD 3-clause licence](https://github.com/djgroen/flee/blob/master/LICENSE) and is publicly available at [https://github.com/djgroen/flee](https://github.com/djgroen/flee).
 

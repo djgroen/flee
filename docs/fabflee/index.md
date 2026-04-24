@@ -10,7 +10,7 @@ Without FabFlee, you run Flee directly from the command line on your local machi
 - Integrate with [EasyVVUQ](https://easyvvuq.readthedocs.io/) for uncertainty quantification
 
 !!! note
-    FabFlee is optional. If you only want to run flee locally and don't need HPC or ensemble support, you don't need it.
+    FabFlee is optional. If you only want to run Flee locally and don't need HPC or ensemble support, you don't need it.
 
 ---
 
