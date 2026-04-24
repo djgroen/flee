@@ -2,8 +2,8 @@
 
 This page provides a full quick-reference for every parameter that can be set in `simsetting.yml`.
 For narrative explanations and worked examples, see also
-[Simulation settings (basic)](Simulation_settings_basic.md) and
-[Simulation settings (advanced)](Simulation_settings_advanced.md).
+[Simulation settings (basic)](settings-basic.md) and
+[Simulation settings (advanced)](settings-optimisation.md).
 
 ---
 

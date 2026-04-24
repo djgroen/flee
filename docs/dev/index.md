@@ -6,9 +6,9 @@ This section contains information for developers who want to contribute to Flee,
 
 ## Pages in this section
 
-- **[Contributing](contributing.md)** — how to report bugs, submit features, and contribute code
+- **[Contributing](./contributing.md)** — how to report bugs, submit features, and contribute code
 - **[Code architecture](architecture.md)** — how the Flee codebase is structured
-- **[Writing and running tests](testing.md)** — how to run the test suite and add new tests
+- **[Writing and running tests](./testing.md)** — how to run the test suite and add new tests
 - **[Adding features](adding-features.md)** — guidelines for extending Flee
 - **[Roadmap](roadmap.md)** — planned features and known limitations
 

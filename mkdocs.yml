@@ -89,7 +89,6 @@ theme:
 plugins:
   - search
   # - enumerate-headings:
-  - autolinks
   - awesome-pages:
       collapse_single_pages: true
       strict: true
@@ -117,6 +116,7 @@ plugins:
 
 
   - mermaid2:
+      javascript: https://unpkg.com/mermaid/dist/mermaid.min.js
       arguments:
         securityLevel: 'loose'
         theme: 'forest'
@@ -137,7 +137,6 @@ extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
-  - https://unpkg.com/mermaid/dist/mermaid.min.js
   - static/js/extra.js
 
 ##################
@@ -168,8 +167,8 @@ markdown_extensions:
   - pymdownx.critic
   - pymdownx.details #  collapsible alerts
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       use_pygments: true
   - pymdownx.escapeall:

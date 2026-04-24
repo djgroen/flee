@@ -59,4 +59,4 @@ Locations are defined in `InputGeography.py`. To add a new CSV column that gets 
 
 ## Submitting your contribution
 
-See [Contributing](contributing.md) for the pull request workflow.
+See [Contributing](./contributing.md) for the pull request workflow.

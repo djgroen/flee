@@ -26,4 +26,4 @@ This page tracks planned improvements and known limitations of Flee.
 ## See also
 
 - [GitHub issues](https://github.com/djgroen/flee/issues) — full list of open issues and feature requests
-- [Contributing](contributing.md) — how to contribute to Flee
+- [Contributing](./contributing.md) — how to contribute to Flee
