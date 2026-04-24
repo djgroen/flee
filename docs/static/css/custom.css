@@ -3,6 +3,21 @@
   width: 10rem;
 }
 
+/* Prevent footer from overlapping the left nav on long pages.
+   With navigation.tabs active there are two header bars (2.4rem each).
+   Cap the sidebar's scroll wrapper so it stays within the viewport
+   and scrolls independently of the page footer. */
+.md-sidebar--primary {
+  position: sticky;
+  top: 4.8rem;
+  height: calc(100vh - 4.8rem);
+}
+
+.md-sidebar--primary .md-sidebar__scrollwrap {
+  max-height: 100%;
+  overflow-y: auto;
+}
+
 /* Indenting docstrings */
 div.doc-contents:not(.first) {
   padding-left: 25px;
