@@ -3,11 +3,11 @@ matplotlib
 pandas
 pytest
 # mpi4py must be built from source so it links against your system MPI library.
-# On Cray/Archer2, first run: export MPICC=cc
+# On Cray/Archer2, first run: export MPICC=cc --no-binary=mpi4py
 # On Ubuntu/Debian, first run: sudo apt install libopenmpi-dev
 # On macOS, first run: brew install open-mpi
---no-binary=mpi4py
 mpi4py
+numpy
 numpy
 beartype
 seaborn
