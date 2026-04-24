@@ -1,9 +1,9 @@
 ###########################
 #   Project information   #
 ###########################
-site_name: FLEE
-# site_url: https://flee.readthedocs.io
-site_description: Simulation toolkit for the movement of individuals
+site_name: flee
+site_url: https://flee.readthedocs.io
+site_description: Agent-based simulation toolkit for the movement of displaced people
 
 ##################
 #   Repository   #
@@ -11,7 +11,7 @@ site_description: Simulation toolkit for the movement of individuals
 repo_name: djgroen/flee
 repo_url: https://github.com/djgroen/flee
 
-site_author: Hamid Arabnejad
+site_author: Derek Groen
 docs_dir: docs/
 
 # Copyright
@@ -204,54 +204,99 @@ markdown_extensions:
 #   Page tree   #
 #################
 nav:
-  - Basic:
-    - Introduction: index.md
-    - Installation and Testing: Installation_and_Testing.md
-    - Simulation instance construction: Simulation_instance_construction.md
-    - Camp Capacity Explained: Camp_Capacity_Explained.md
-    - Types of location graphs: Types_of_location_graphs.md
-    - Simulation settings configuration (basic): Simulation_settings_basic.md
-    - Simulation instance execution : Simulation_instance_execution.md
-    - Output File Descriptions: Output_file_descriptions.md
-    - "FabFlee: Automated Flee-based simulation": FabFlee_Automated_Flee_based_simulation.md
-    - Input File Generation: Input_File_generator.md 
-    - Remote execution on a supercomputer : Remote_execution_on_a_supercomputer.md
-    - Simulation Construction for Dflee: Using_DFlee_For_Disaster_Driven_Displacement.md
-    - Data Considerations for DFlee: DFlee_Data_Files.md
-    - Literature / cite us : Flee_Literature.md
+  - Home: index.md
 
-  - Advanced:
-    - Simulation settings configuration (advanced): Simulation_settings_advanced.md
-    - "simsetting.yml — Complete Parameter Reference": Simulation_settings_reference.md
-    - Incorporating Food Security using IPC data : Food_Security_Mechanisms.md
-    - FLEE Ensemble Simulations – SWEEP Method Overview: Flee_Ensemble.md
-    - Sensitivity analysis of parameters using EasyVVUQ : Sensitivity_analysis_of_parameters_using_EasyVVUQ.md
-    - Multiscale Simulation instance construction : Multiscale_Simulation_instance_construction.md  
+  - Getting started:
+    - Overview: getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Quick start: getting-started/quick-start.md
+    - Running tests: getting-started/testing.md
 
-  - Code Reference:
-    - FLEE:
-       - Person: code_reference/flee/person.md
-       - Location: code_reference/flee/location.md
-       - Link: code_reference/flee/link.md
-       - Ecosystem: code_reference/flee/ecosystem.md
-       - Diagnostics: code_reference/flee/diagnostics.md
-       - InputGeography: code_reference/flee/inputGeography.md
-    - P-FLEE:
-       - Person: code_reference/pflee/person.md
-       - Location: code_reference/pflee/location.md
-       - Link: code_reference/pflee/link.md
-       - Ecosystem: code_reference/pflee/ecosystem.md
-    - multiscale-FLEE:
-       - CouplingInterface: code_reference/multiscale/coupling.md
-       - pmicro-FLEE:
-         - Person: code_reference/multiscale/pmicro_flee/person.md
-         - Location: code_reference/multiscale/pmicro_flee/location.md
-         - Link: code_reference/multiscale/pmicro_flee/link.md
-         - Link Weather Coupling : code_reference/multiscale/pmicro_flee/link_weather_coupling.md
-         - Ecosystem: code_reference/multiscale/pmicro_flee/ecosystem.md
-         - InputGeography: code_reference/multiscale/pmicro_flee/inputGeography.md
+  - Concepts:
+    - Overview: concepts/index.md
+    - How the model works: concepts/agent-based-model.md
+    - Location types: concepts/location-types.md
+    - Conflict vs disaster use cases: concepts/conflict-vs-disaster.md
 
+  - Conflict use case:
+    - Overview: conflict/index.md
+    - Data sources: conflict/data-sources.md
+    - Building locations.csv: conflict/locations.md
+    - Building routes.csv: conflict/routes.md
+    - Conflict schedule: conflict/conflict-schedule.md
+    - Camp data: conflict/camps.md
+    - Validation data: conflict/validation-data.md
+    - Input file generator: conflict/input-file-generator.md
 
-    - Contributing: contributing.md
-    - Credits : credits.md
+  - DFlee (disaster use case):
+    - Overview: dflee/index.md
+    - Getting started with DFlee: dflee/overview.md
+    - Data files: dflee/data-files.md
+    - Food security: dflee/food-security.md
+    - Building a DFlee scenario: dflee/construction.md
+
+  - Running simulations:
+    - Overview: running/index.md
+    - Running locally: running/local.md
+    - Settings — logging and spawning: running/settings-basic.md
+    - Settings — movement rules: running/settings-move.md
+    - Settings — optimisation: running/settings-optimisation.md
+    - Settings — full reference: running/settings-reference.md
+    - Output files: running/output.md
+
+  - Advanced topics:
+    - Overview: advanced/index.md
+    - Ensemble simulations: advanced/ensemble.md
+    - Multiscale simulations: advanced/multiscale.md
+    - Sensitivity analysis: advanced/sensitivity.md
+    - Camp capacity: advanced/camp-capacity.md
+
+  - FabFlee (HPC / automation):
+    - Overview: fabflee/index.md
+    - Setup: fabflee/setup.md
+    - Running locally with FabFlee: fabflee/running-local.md
+    - Building scenarios: fabflee/construction.md
+    - Validation: fabflee/validation.md
+    - Ensemble runs: fabflee/ensemble.md
+    - HPC / supercomputer: fabflee/hpc.md
+    - Sensitivity analysis: fabflee/sensitivity.md
+    - Multi-objective optimisation: fabflee/multiobjective.md
+    - Multiscale / coupled runs: fabflee/multiscale.md
+    - QCG Pilot Job: fabflee/qcg-pilot.md
+
+  - Developer guide:
+    - Overview: dev/index.md
+    - Contributing: dev/contributing.md
+    - Architecture: dev/architecture.md
+    - Testing: dev/testing.md
+    - Adding new features: dev/adding-features.md
+    - Roadmap: dev/roadmap.md
+
+  - Code reference:
+    - Overview: code-reference/index.md
+    - flee:
+      - Person: code_reference/flee/person.md
+      - Location: code_reference/flee/location.md
+      - Link: code_reference/flee/link.md
+      - Ecosystem: code_reference/flee/ecosystem.md
+      - Diagnostics: code_reference/flee/diagnostics.md
+      - InputGeography: code_reference/flee/inputGeography.md
+    - pflee (parallel):
+      - Person: code_reference/pflee/person.md
+      - Location: code_reference/pflee/location.md
+      - Link: code_reference/pflee/link.md
+      - Ecosystem: code_reference/pflee/ecosystem.md
+    - multiscale:
+      - Coupling interface: code_reference/multiscale/coupling.md
+      - Person: code_reference/multiscale/pmicro_flee/person.md
+      - Location: code_reference/multiscale/pmicro_flee/location.md
+      - Link: code_reference/multiscale/pmicro_flee/link.md
+      - Link weather coupling: code_reference/multiscale/pmicro_flee/link_weather_coupling.md
+      - Ecosystem: code_reference/multiscale/pmicro_flee/ecosystem.md
+      - InputGeography: code_reference/multiscale/pmicro_flee/inputGeography.md
+
+  - About:
+    - Credits: about/credits.md
+    - Literature and citing: about/literature.md
+    - Changelog: about/changelog.md
     - Publications: papers/papers.md

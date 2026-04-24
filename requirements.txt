@@ -2,6 +2,11 @@ networkx
 matplotlib
 pandas
 pytest
+# mpi4py must be built from source so it links against your system MPI library.
+# On Cray/Archer2, first run: export MPICC=cc
+# On Ubuntu/Debian, first run: sudo apt install libopenmpi-dev
+# On macOS, first run: brew install open-mpi
+--no-binary=mpi4py
 mpi4py
 numpy
 beartype
@@ -9,4 +14,7 @@ seaborn
 muscle3
 pyyaml
 setuptools
+# Only needed for ensemble runs with pj_type=qcg (e.g. pflee_ensemble on HPC).
+# On HPC systems without internet on compute nodes, install this on the login node first.
+qcg-pilotjob
 
