@@ -1,4 +1,4 @@
-::: flee.InputGeography:InputGeography
+::: flee.InputGeography.InputGeography
  	:docstring:
 
 

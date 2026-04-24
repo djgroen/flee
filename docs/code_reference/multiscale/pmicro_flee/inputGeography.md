@@ -1,4 +1,4 @@
-::: flee.micro_InputGeography:InputGeography
+::: flee.micro_InputGeography.InputGeography
  	:docstring:
 
 

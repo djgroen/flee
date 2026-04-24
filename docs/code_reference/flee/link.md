@@ -1,4 +1,4 @@
-::: flee.flee:Link
+::: flee.flee.Link
  	:docstring:
 
 

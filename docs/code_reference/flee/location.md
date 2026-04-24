@@ -1,3 +1,3 @@
 
-::: flee.flee:Location
+::: flee.flee.Location
  	:docstring: 	

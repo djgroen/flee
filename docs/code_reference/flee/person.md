@@ -1,5 +1,5 @@
 
-::: flee.flee:Person
+::: flee.flee.Person
  	:docstring:
 
 

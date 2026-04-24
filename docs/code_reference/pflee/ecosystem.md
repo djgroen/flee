@@ -1,5 +1,5 @@
 
-::: flee.pflee:Ecosystem
+::: flee.pflee.Ecosystem
  	:docstring:
 
 

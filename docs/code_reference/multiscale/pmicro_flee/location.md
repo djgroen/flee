@@ -1,5 +1,5 @@
 
-::: flee.pmicro_flee:Location
+::: flee.pmicro_flee.Location
  	:docstring:
 
 

@@ -1,5 +1,5 @@
 
-::: flee.pmicro_flee:Person
+::: flee.pmicro_flee.Person
 	:docstring:
 
 
