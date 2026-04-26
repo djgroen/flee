@@ -1,15 +1,20 @@
 """
-4-mode Decision Engine for FLEE dual-process model.
+4-mode Decision Engine for the FLEE dual-process (System 1 / System 2) model.
 
-Modes: original, s1_only, switch, blend
-Math from s1s2_model.py unchanged; factory pattern enables comparative runs.
+Modes: ``original``, ``sys1_only``, ``switch``, ``blend``.
+Day 7b renamed the cognitive mode string to ``sys1_only`` to remove the
+collision with sobol first-order index notation. Math from
+:mod:`flee.dual_process_model` unchanged; factory pattern enables
+comparative runs.
 """
 
-import random
 from abc import ABC, abstractmethod
 from typing import Tuple
 
-from flee.s1s2_model import compute_deliberation_weight, compute_s2_move_probability
+from flee.dual_process_model import (
+    compute_deliberation_weight,
+    compute_s2_move_probability,
+)
 
 
 class DecisionEngine(ABC):
@@ -20,24 +25,33 @@ class DecisionEngine(ABC):
         self.beta = beta
         self.kappa = kappa
 
+    # Legacy aliases preserved so old YAML configs and CSVs still resolve to
+    # the post-rename modes (sobol vs cognitive disambiguation, Day 7b).
+    # New callers should use the canonical 'sys1_only'/'sys2_only' names.
+    _MODE_ALIASES = {"s1_only": "sys1_only", "s2_only": "sys2_only"}  # sobol-cognitive back-compat
+
     @classmethod
     def create(cls, mode: str, config: dict) -> "DecisionEngine":
-        """Factory: valid modes are original, s1_only, switch, blend."""
+        """Factory: valid modes are original, sys1_only, switch, blend."""
+        mode = cls._MODE_ALIASES.get(mode, mode)
         params = config.get("s1s2_model_params", {})
         alpha = float(params.get("alpha", 2.0))
         beta = float(params.get("beta", 2.0))
         kappa = float(params.get("kappa", 5.0))
+        switch_threshold = float(params.get("switch_threshold", 0.5))
 
         if mode == "original":
             return OriginalFLEE(alpha=alpha, beta=beta, kappa=kappa)
-        elif mode == "s1_only":
-            return S1OnlyEngine(alpha=alpha, beta=beta, kappa=kappa)
+        elif mode == "sys1_only":
+            return Sys1OnlyEngine(alpha=alpha, beta=beta, kappa=kappa)
         elif mode == "switch":
-            return SwitchEngine(alpha=alpha, beta=beta, kappa=kappa)
+            return SwitchEngine(alpha=alpha, beta=beta, kappa=kappa, threshold=switch_threshold)
         elif mode == "blend":
             return BlendEngine(alpha=alpha, beta=beta, kappa=kappa)
         else:
-            raise ValueError(f"Invalid decision_mode: {mode}. Use: original, s1_only, switch, blend")
+            raise ValueError(
+                f"Invalid decision_mode: {mode}. "
+                "Use: original, sys1_only, switch, blend")
 
     @abstractmethod
     def compute_move_probability(
@@ -60,7 +74,7 @@ class DecisionEngine(ABC):
         experience_index: float,
         conflict_intensity: float,
     ) -> float:
-        """Blend S1 and S2 route weights."""
+        """Blend System-1 and System-2 route weights."""
         pass
 
     def _p_s2(self, experience_index: float, conflict_intensity: float) -> float:
@@ -77,7 +91,7 @@ class DecisionEngine(ABC):
 class OriginalFLEE(DecisionEngine):
     """
     Unmodified FLEE behavior. P_S2 forced to 0.
-    Uses existing movechance and selectRoute without any S1/S2 modification.
+    Uses existing movechance and selectRoute without any System-1/System-2 modification.
     This is the scientific baseline — the model as published before this work.
     """
 
@@ -102,11 +116,14 @@ class OriginalFLEE(DecisionEngine):
         return w_s1
 
 
-class S1OnlyEngine(DecisionEngine):
+class Sys1OnlyEngine(DecisionEngine):
     """
-    Dual-process module active but P_S2 forced to 0.
+    Dual-process module active but P_S2 forced to 0 (System 1 only).
     Should produce identical results to OriginalFLEE — this equivalence
     is itself a validation check. Any divergence indicates a bug.
+
+    Renamed from ``S1OnlyEngine`` in Day 7b. The legacy name is preserved
+    as a class alias below for back-compat with older test fixtures.
     """
 
     def compute_move_probability(
@@ -132,10 +149,15 @@ class S1OnlyEngine(DecisionEngine):
 
 class SwitchEngine(DecisionEngine):
     """
-    Bernoulli draw: u ~ U(0,1). If u < P_S2: pure S2. Else: pure S1.
-    Population expectation identical to BlendEngine.
-    Individual trajectories are all-or-nothing.
+    Threshold-based switch: if P_S2 >= threshold use System-2 (sigma), else
+    System-1 (movechance). Deterministic given P_S2 -- no Bernoulli draw.
+    High-deliberation agents use System 2, low-deliberation agents use System 1.
     """
+
+    def __init__(self, alpha: float = 2.0, beta: float = 2.0, kappa: float = 5.0,
+                 threshold: float = 0.5):
+        super().__init__(alpha=alpha, beta=beta, kappa=kappa)
+        self.threshold = threshold
 
     def compute_move_probability(
         self,
@@ -147,7 +169,7 @@ class SwitchEngine(DecisionEngine):
         distance_best: float,
     ) -> Tuple[float, float]:
         p = self._p_s2(experience_index, conflict_intensity)
-        if random.random() < p:
+        if p >= self.threshold:
             result = self._sigma(rad_here, rad_best, distance_best)
         else:
             result = movechance_s1
@@ -163,12 +185,12 @@ class SwitchEngine(DecisionEngine):
         conflict_intensity: float,
     ) -> float:
         p = self._p_s2(experience_index, conflict_intensity)
-        return w_s2 if random.random() < p else w_s1
+        return w_s2 if p >= self.threshold else w_s1
 
 
 class BlendEngine(DecisionEngine):
     """
-    Continuous mixture: P_move = (1-P_S2)*S1 + P_S2*sigma
+    Continuous mixture: P_move = (1-P_S2)*movechance + P_S2*sigma
     Current implementation in moving.py — refactored here.
     """
 
@@ -197,3 +219,7 @@ class BlendEngine(DecisionEngine):
     ) -> float:
         p = self._p_s2(experience_index, conflict_intensity)
         return (1.0 - p) * w_s1 + p * w_s2
+
+
+# Legacy alias kept for back-compat with old test fixtures (Day 7b rename).
+S1OnlyEngine = Sys1OnlyEngine

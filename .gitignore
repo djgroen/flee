@@ -13,6 +13,9 @@
 *_analysis/
 !cognition_results/
 
+# Standardized output (runscripts + figures)
+output/
+
 # Temporary files
 *.tmp
 *.temp

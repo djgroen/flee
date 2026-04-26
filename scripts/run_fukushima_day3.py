@@ -24,11 +24,15 @@ from flee import flee
 from flee import InputGeography
 from flee.SimulationSettings import SimulationSettings
 from flee.decision_engine import DecisionEngine
+from flee.conflict_potential import (
+    ConflictPotentialField,
+    _read_conflict_grid_csv,
+)
 
-MODE_ORDER = ["original", "s1_only", "switch", "blend"]
-PALETTE = {"original": "#888780", "s1_only": "#888780",
+MODE_ORDER = ["original", "sys1_only", "switch", "blend"]
+PALETTE = {"original": "#888780", "sys1_only": "#888780",
            "switch": "#BA7517", "blend": "#1D9E75"}
-LINESTYLE = {"original": "-", "s1_only": "--", "switch": "-", "blend": "-"}
+LINESTYLE = {"original": "-", "sys1_only": "--", "switch": "-", "blend": "-"}
 
 ZONES = {
     "inner": ["okuma", "futaba"],
@@ -153,7 +157,7 @@ def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa, seed):
         mode,
         {"s1s2_model_params": SimulationSettings.move_rules["s1s2_model_params"]},
     )
-    SimulationSettings.move_rules["s2_weight_override"] = None
+    SimulationSettings.move_rules["sys2_weight_override"] = None
 
     random.seed(seed)
     np.random.seed(seed)
@@ -166,6 +170,27 @@ def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa, seed):
     if Path(SimulationSettings.ConflictInputFile).exists():
         ig.ReadConflictInputCSV(SimulationSettings.ConflictInputFile)
     e, lm = ig.StoreInputGeographyInEcosystem(e)
+
+    # Day 5: precompute the conflict potential field and register it on
+    # SimulationSettings so moving.calculateMoveChance() can query it directly.
+    routes_csv = str(Path(input_dir) / "routes.csv")
+    conflicts_csv = str(Path(input_dir) / "conflicts.csv")
+    if Path(conflicts_csv).exists():
+        zones_grid, grid = _read_conflict_grid_csv(conflicts_csv)
+        awareness_s1 = int(SimulationSettings.move_rules.get("AwarenessLevel", 1))
+        potential = ConflictPotentialField.build(
+            conflict_grid=grid,
+            zones=zones_grid,
+            routes_path=routes_csv,
+            num_days=max(n_steps + 1, len(grid)),
+            awareness_s1=awareness_s1,
+        )
+        SimulationSettings.move_rules["potential_field"] = potential
+        print(f"  [potential_field] built {len(grid)} days × {len(zones_grid)} locations, "
+              f"awareness_s1={awareness_s1}, awareness_s2={potential.awareness_s2}")
+    else:
+        SimulationSettings.move_rules["potential_field"] = None
+        print("  [potential_field] not built (no conflicts.csv) — using 1-hop fallback")
 
     agents_added = distribute_agents_by_pop(e, lm, n_agents, seed)
 
@@ -205,7 +230,7 @@ def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa, seed):
             ep = getattr(loc, "endpoint", loc)
             loc_name = getattr(ep, "name", str(loc))
             loc_type = getattr(ep, "location_type", "town")
-            s2 = getattr(a, "s2_activation_prob", 0.0)
+            s2 = getattr(a, "sys2_activation_prob", 0.0)
             moved = getattr(a, "places_travelled", 0) > 1
             zone = loc_to_zone(loc_name)
             conflict = max(0.0, getattr(ep, "conflict", 0.0))
@@ -228,7 +253,7 @@ def run_one(input_dir, mode, n_agents, n_steps, alpha, beta, kappa, seed):
                 "timestep": t, "agent_id": aid, "location": loc_name,
                 "location_type": loc_type, "zone": zone,
                 "initial_zone": initial_zone.get(aid, zone),
-                "s2_weight": s2, "moved": moved,
+                "sys2_weight": s2, "moved": moved,
                 "conflict_intensity": conflict,
                 "decision_mode": mode,
             })
@@ -292,7 +317,7 @@ def fig_F2_ps2_by_zone(blend_df, out_dir, n_steps):
         zdf = blend_df[(blend_df["zone"] == zone)]
         if zdf.empty:
             continue
-        agg = zdf.groupby("timestep")["s2_weight"].agg(["mean", "std", "count"]).reset_index()
+        agg = zdf.groupby("timestep")["sys2_weight"].agg(["mean", "std", "count"]).reset_index()
         mask = agg["count"] >= 3
         t = agg.loc[mask, "timestep"].values
         m = agg.loc[mask, "mean"].values
@@ -303,7 +328,7 @@ def fig_F2_ps2_by_zone(blend_df, out_dir, n_steps):
     # Global active mean
     active = blend_df[blend_df["zone"] != "camp"]
     if not active.empty:
-        g = active.groupby("timestep")["s2_weight"].mean()
+        g = active.groupby("timestep")["sys2_weight"].mean()
         ax1.plot(g.index, g.values, color="black", ls="--", lw=0.8, alpha=0.6,
                  label="global active")
 
@@ -340,7 +365,7 @@ def fig_F3_mode_comparison(all_agents, out_dir, n_steps):
         mdf = all_agents[(all_agents["decision_mode"] == mode) & (all_agents["zone"] != "camp")]
         if mdf.empty:
             continue
-        agg = mdf.groupby("timestep")["s2_weight"].mean()
+        agg = mdf.groupby("timestep")["sys2_weight"].mean()
         ax1.plot(agg.index, agg.values, color=PALETTE[mode], ls=LINESTYLE[mode],
                  lw=1.5, label=mode.replace("_", " "))
 
@@ -349,8 +374,8 @@ def fig_F3_mode_comparison(all_agents, out_dir, n_steps):
     if day2_path.exists():
         d2 = pd.read_csv(day2_path)
         d2_blend = d2[d2["decision_mode"] == "blend"]
-        if "mean_s2_weight_active" in d2_blend.columns:
-            agg2 = d2_blend.groupby("timestep")["mean_s2_weight_active"].mean()
+        if "mean_sys2_weight_active" in d2_blend.columns:
+            agg2 = d2_blend.groupby("timestep")["mean_sys2_weight_active"].mean()
             ax1.plot(agg2.index, agg2.values, color="#cccccc", lw=0.8, ls="-",
                      alpha=0.5, label="Day 2 synthetic (linear)")
 
@@ -539,9 +564,9 @@ def run_diagnostics(all_agents, n_steps):
     if not camp_ok:
         all_pass = False
 
-    # Check 2: Mode separation (original == s1_only)
+    # Check 2: Mode separation (original == sys1_only)
     orig = all_agents[all_agents["decision_mode"] == "original"]
-    s1 = all_agents[all_agents["decision_mode"] == "s1_only"]
+    s1 = all_agents[all_agents["decision_mode"] == "sys1_only"]
     if not orig.empty and not s1.empty:
         dep_orig = orig.groupby("agent_id")["moved"].any()
         dep_s1 = s1.groupby("agent_id")["moved"].any()
@@ -576,7 +601,7 @@ def run_diagnostics(all_agents, n_steps):
     for zone in ["inner", "mid", "outer"]:
         zone_locs = set(ZONES[zone])
         zdf = t1_blend[t1_blend["location"].isin(zone_locs)]
-        zone_ps2[zone] = zdf["s2_weight"].mean() if not zdf.empty else float("nan")
+        zone_ps2[zone] = zdf["sys2_weight"].mean() if not zdf.empty else float("nan")
     o, m, i = zone_ps2.get("outer", 0), zone_ps2.get("mid", 0), zone_ps2.get("inner", 0)
     order_ok = (not np.isnan(o) and not np.isnan(m) and not np.isnan(i)
                 and o > m > i)
@@ -589,7 +614,7 @@ def run_diagnostics(all_agents, n_steps):
     mid_locs = set(ZONES["mid"])
     mid_active = blend[blend["location"].isin(mid_locs)]
     if not mid_active.empty:
-        by_t = mid_active.groupby("timestep")["s2_weight"].mean()
+        by_t = mid_active.groupby("timestep")["sys2_weight"].mean()
         if len(by_t) > 2:
             init_v = by_t.iloc[0]
             min_v = by_t.min()
@@ -609,7 +634,7 @@ def run_diagnostics(all_agents, n_steps):
         print("CHECK 5 Three-phase: SKIP (no mid-zone active agents)")
 
     # Check 6: No NaN in P_S2
-    nan_count = all_agents["s2_weight"].isna().sum()
+    nan_count = all_agents["sys2_weight"].isna().sum()
     nan_ok = nan_count == 0
     print(f"CHECK 6 No NaN in P_S2: {'PASS' if nan_ok else 'FAIL'} ({nan_count} NaN)")
     if not nan_ok:
@@ -654,7 +679,7 @@ def extract_qois(all_agents):
     mid_locs = set(ZONES["mid"])
     mid_active = blend[blend["location"].isin(mid_locs)]
     if not mid_active.empty:
-        by_t = mid_active.groupby("timestep")["s2_weight"].mean()
+        by_t = mid_active.groupby("timestep")["sys2_weight"].mean()
         init_ps2 = by_t.iloc[0] if len(by_t) > 0 else 0.315
         mid_ps2_trough = float(by_t.min())
         mid_ps2_dip = float(init_ps2 - mid_ps2_trough)

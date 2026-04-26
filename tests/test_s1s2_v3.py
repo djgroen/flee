@@ -1,14 +1,13 @@
-"""Unit tests for V3 dual-process model (s1s2_model.py)."""
+"""Unit tests for V3 dual-process model (flee.dual_process_model)."""
 
 import pytest
 import math
 import sys
 import os
 
-# Ensure project root is on path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from flee.s1s2_model import (
+from flee.dual_process_model import (
     PSI_MIN,
     compute_capacity,
     compute_opportunity,
@@ -189,24 +188,24 @@ class TestBlendedMoveProbability:
         """When P_S2 = 0, blended movechance = P_S1 (pure heuristic)."""
         p_s1 = 0.6
         sigma = 0.9
-        s2_weight = 0.0
-        blended = (1.0 - s2_weight) * p_s1 + s2_weight * sigma
+        sys2_weight = 0.0
+        blended = (1.0 - sys2_weight) * p_s1 + sys2_weight * sigma
         assert blended == pytest.approx(p_s1)
 
     def test_blend_at_ps2_one(self):
         """When P_S2 = 1, blended movechance = σ (pure deliberation)."""
         p_s1 = 0.6
         sigma = 0.9
-        s2_weight = 1.0
-        blended = (1.0 - s2_weight) * p_s1 + s2_weight * sigma
+        sys2_weight = 1.0
+        blended = (1.0 - sys2_weight) * p_s1 + sys2_weight * sigma
         assert blended == pytest.approx(sigma)
 
     def test_blend_intermediate(self):
         """Intermediate P_S2 gives weighted average."""
         p_s1 = 0.3
         sigma = 0.8
-        s2_weight = 0.4
-        blended = (1.0 - s2_weight) * p_s1 + s2_weight * sigma
+        sys2_weight = 0.4
+        blended = (1.0 - sys2_weight) * p_s1 + sys2_weight * sigma
         expected = 0.6 * 0.3 + 0.4 * 0.8  # = 0.18 + 0.32 = 0.50
         assert blended == pytest.approx(expected)
 
@@ -217,8 +216,8 @@ class TestBlendedMoveProbability:
         for _ in range(1000):
             p_s1 = random.random()
             sigma = random.random()
-            s2_weight = random.random()
-            blended = (1.0 - s2_weight) * p_s1 + s2_weight * sigma
+            sys2_weight = random.random()
+            blended = (1.0 - sys2_weight) * p_s1 + sys2_weight * sigma
             assert 0.0 <= blended <= 1.0
 
 
@@ -313,22 +312,22 @@ class TestIntegration:
             _make_mock_link(0.2, 2.0),
         ])
         agent = _make_mock_agent(loc)
-        movechance, s2_weight = moving.calculateMoveChance(agent, False, 0)
-        assert isinstance(s2_weight, float), f"s2_weight should be float, got {type(s2_weight)}"
-        assert not isinstance(s2_weight, bool), "s2_weight must NOT be a boolean"
-        assert 0.0 <= s2_weight <= 1.0
+        movechance, sys2_weight = moving.calculateMoveChance(agent, False, 0)
+        assert isinstance(sys2_weight, float), f"sys2_weight should be float, got {type(sys2_weight)}"
+        assert not isinstance(sys2_weight, bool), "sys2_weight must NOT be a boolean"
+        assert 0.0 <= sys2_weight <= 1.0
 
-    def test_camp_agent_gets_zero_s2_weight(self):
-        """Agents in camps should always get s2_weight = 0.0."""
+    def test_camp_agent_gets_zero_sys2_weight(self):
+        """Agents in camps should always get sys2_weight = 0.0."""
         from flee import moving
         _setup_simulation_settings(two_system=True)
         loc = _make_mock_location(conflict=0.5, camp=True)
         agent = _make_mock_agent(loc)
-        movechance, s2_weight = moving.calculateMoveChance(agent, False, 0)
-        assert s2_weight == 0.0
+        movechance, sys2_weight = moving.calculateMoveChance(agent, False, 0)
+        assert sys2_weight == 0.0
 
     def test_selectRoute_accepts_float(self):
-        """selectRoute must accept s2_weight as a float, not bool."""
+        """selectRoute must accept sys2_weight as a float, not bool."""
         from flee import moving
         from flee.SimulationSettings import SimulationSettings
         _setup_simulation_settings(two_system=True)
@@ -336,7 +335,7 @@ class TestIntegration:
         SimulationSettings.move_rules["AwarenessLevel"] = 0
         loc = _make_mock_location(conflict=0.5, links=[_make_mock_link(0.1, 1.0)])
         agent = _make_mock_agent(loc)
-        route = moving.selectRoute(agent, time=0, s2_weight=0.5)
+        route = moving.selectRoute(agent, time=0, sys2_weight=0.5)
         assert isinstance(route, list)
 
     def test_no_system2_active_boolean_in_codebase(self):
@@ -345,3 +344,149 @@ class TestIntegration:
         from flee import moving
         source = inspect.getsource(moving.calculateMoveChance)
         assert "system2_active" not in source, "system2_active boolean should be removed"
+
+
+# --- Conflict potential field tests (Day 5) ---
+
+
+def _write_routes_csv(tmp_path, rows):
+    """Helper: write a routes.csv-format file under tmp_path. ``rows`` is a list
+    of (name1, name2, distance_km) tuples."""
+    p = tmp_path / "routes.csv"
+    with open(p, "w") as fh:
+        fh.write('#"name1","name2","distance",forced_redirection\n')
+        for n1, n2, d in rows:
+            fh.write(f'"{n1}","{n2}",{d},0\n')
+    return str(p)
+
+
+class TestConflictPotentialField:
+    """Tests for flee/conflict_potential.py — Day 5 perception fix."""
+
+    def test_potential_field_fallback(self, tmp_path):
+        """Single location, no links — get() returns (c_here, 1.0)."""
+        from flee.conflict_potential import ConflictPotentialField
+        routes = _write_routes_csv(tmp_path, [])
+        field = ConflictPotentialField.build(
+            conflict_grid=[[0.7]],
+            zones=["A"],
+            routes_path=routes,
+            num_days=1,
+            awareness_s1=1,
+        )
+        c_best, d_best = field.get(0, "A", s2=False)
+        assert c_best == 0.7
+        assert d_best == 1.0
+
+    def test_potential_field_1hop(self, tmp_path):
+        """A→B with c(A)=0.8, c(B)=0.1, distance=10 km, awareness_s1=1.
+
+        System-1 lookup at A should find B as the best neighbour.
+        """
+        from flee.conflict_potential import ConflictPotentialField
+        routes = _write_routes_csv(tmp_path, [("A", "B", 10.0)])
+        field = ConflictPotentialField.build(
+            conflict_grid=[[0.8, 0.1]],
+            zones=["A", "B"],
+            routes_path=routes,
+            num_days=1,
+            awareness_s1=1,
+        )
+        c_best, d_best = field.get(0, "A", s2=False)
+        assert c_best == pytest.approx(0.1)
+        assert d_best == pytest.approx(10.0)
+
+    def test_potential_field_2hop(self, tmp_path):
+        """A→B→C with awareness_s1=1, awareness_s2=2.
+
+        System-1 (1 hop) at A finds the best of {A, B}.
+        System-2 (2 hops) at A reaches C; if c(C) is the global minimum, System-2 finds C.
+        """
+        from flee.conflict_potential import ConflictPotentialField
+        routes = _write_routes_csv(tmp_path, [
+            ("A", "B", 10.0),
+            ("B", "C", 5.0),
+        ])
+        field = ConflictPotentialField.build(
+            conflict_grid=[[0.9, 0.5, 0.05]],
+            zones=["A", "B", "C"],
+            routes_path=routes,
+            num_days=1,
+            awareness_s1=1,
+        )
+
+        c_s1, d_s1 = field.get(0, "A", s2=False)
+        assert c_s1 == pytest.approx(0.5)
+        assert d_s1 == pytest.approx(10.0)
+
+        c_s2, d_s2 = field.get(0, "A", s2=True)
+        assert c_s2 == pytest.approx(0.05)
+        assert d_s2 == pytest.approx(15.0)
+
+    def test_potential_field_unknown_location_fallback(self, tmp_path):
+        """Querying an unknown location returns the conservative (1.0, 1.0)."""
+        from flee.conflict_potential import ConflictPotentialField
+        routes = _write_routes_csv(tmp_path, [("A", "B", 10.0)])
+        field = ConflictPotentialField.build(
+            conflict_grid=[[0.5, 0.0]],
+            zones=["A", "B"],
+            routes_path=routes,
+            num_days=1,
+            awareness_s1=1,
+        )
+        c_best, d_best = field.get(0, "DoesNotExist", s2=False)
+        assert c_best == 1.0
+        assert d_best == 1.0
+
+
+@pytest.mark.integration
+class TestPerceptionLayerRemoved:
+    """Verify that the perception layer (Day 5) is fully removed from the path."""
+
+    def test_perception_layer_removed_from_moving(self):
+        """No reference to info_mode / perceived_conflict / get_perceived_radiation
+        should remain in flee/moving.py source."""
+        import inspect
+        from flee import moving
+        source = inspect.getsource(moving)
+        for forbidden in (
+            "info_mode",
+            "perceived_radiation",
+            "perceived_conflict",
+            "get_perceived_radiation",
+            "in_official_zone",
+            "official_zone_threat",
+        ):
+            assert forbidden not in source, (
+                f"'{forbidden}' should be removed from flee/moving.py"
+            )
+
+    def test_calculateMoveChance_no_potential_field(self):
+        """calculateMoveChance() must run with potential_field=None and fall
+        back to the legacy 1-hop scan without raising."""
+        from flee import moving
+        from flee.SimulationSettings import SimulationSettings
+
+        _setup_simulation_settings(two_system=True)
+        # Ensure no potential field is registered.
+        SimulationSettings.move_rules["potential_field"] = None
+
+        loc = _make_mock_location(
+            conflict=0.5,
+            links=[_make_mock_link(0.1, 5.0), _make_mock_link(0.7, 2.0)],
+        )
+        agent = _make_mock_agent(loc)
+
+        movechance, sys2_weight = moving.calculateMoveChance(agent, False, 0)
+        assert isinstance(movechance, float)
+        assert isinstance(sys2_weight, float)
+        assert 0.0 <= sys2_weight <= 1.0
+        assert 0.0 <= movechance <= 1.0
+
+    def test_perception_attrs_removed_from_agent(self):
+        """Agent class should no longer expose info_mode or in_official_zone."""
+        from flee import flee as flee_mod
+        # Inspect the __slots__ if defined; otherwise check the class dict.
+        slots = getattr(flee_mod.Person, "__slots__", ())
+        assert "info_mode" not in slots
+        assert "in_official_zone" not in slots

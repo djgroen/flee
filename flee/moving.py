@@ -8,20 +8,21 @@ from flee.SimulationSettings import SimulationSettings
 import flee.spawning as spawning
 import flee.demographics as demographics
 
-# Import S1/S2 V3 model (continuous blend: P_S2 = Ψ×Ω as blending weight)
+# Import dual-process (System 1 / System 2) V3 model: continuous blend with
+# P_S2 = Psi*Omega as blending weight. Module renamed in Day 7b so that
+# bare "S1" no longer collides with sobol first-order index notation.
+# The subscript S2 in P_S2 refers to System 2 cognition, NOT a sobol index.
 try:
-    from flee.s1s2_model import (
+    from flee.dual_process_model import (
         compute_deliberation_weight,
         compute_s2_move_probability,
         compute_opportunity,
-        get_perceived_radiation,
     )
 except ImportError as e:
     print(f"DEBUG: ImportError in moving.py: {e}", file=sys.stderr)
     compute_deliberation_weight = None
     compute_s2_move_probability = None
     compute_opportunity = None
-    get_perceived_radiation = None
 
 
 def _get_location_coords(loc):
@@ -35,7 +36,7 @@ def _get_location_coords(loc):
 
 def _get_radiation_at_location(loc, time: int, fallback: float) -> float:
     """
-    Get actual radiation [0,1] at location for S2 move evaluation.
+    Get actual radiation [0,1] at location for System 2 move evaluation.
     Uses: radiation_field (if loc has coords), else location.radiation/dose_rate, else fallback (conflict).
     """
     rf = SimulationSettings.move_rules.get("radiation_field")
@@ -45,6 +46,35 @@ def _get_radiation_at_location(loc, time: int, fallback: float) -> float:
             time_hours = SimulationSettings.move_rules.get("time_hours", float(time))
             return rf.get_dose_rate(coords[0], coords[1], time_hours)
     return getattr(loc, "radiation", getattr(loc, "dose_rate", fallback))
+
+
+def _lookup_potential(location, time: int, c_here: float, s2: bool = False):
+    """Return ``(c_best, d_best)`` for ``location`` at simulation day ``time``.
+
+    Queries the precomputed ``ConflictPotentialField`` registered on
+    ``SimulationSettings.move_rules['potential_field']`` if available.
+    Falls back to a 1-hop minimum-conflict scan over ``location.links`` when
+    no field is registered (e.g. unit tests, legacy callers).
+    """
+    field = SimulationSettings.move_rules.get("potential_field")
+    if field is not None:
+        try:
+            return field.get(int(time), getattr(location, "name", ""), s2=s2)
+        except Exception:
+            pass
+
+    # Legacy 1-hop fallback: minimum-conflict neighbour.
+    c_best = c_here
+    d_best = 1.0
+    links = getattr(location, "links", None) or []
+    if links:
+        best_link = min(
+            links,
+            key=lambda lnk: max(0.0, getattr(lnk.endpoint, "conflict", 0.0)),
+        )
+        c_best = max(0.0, getattr(best_link.endpoint, "conflict", 0.0))
+        d_best = max(1.0, best_link.get_distance())
+    return c_best, d_best
 
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
@@ -203,7 +233,7 @@ S2_OVERRIDES = {
 
 
 def _s2_route_context():
-    """Context manager: temporarily apply S2 routing params, restore on exit."""
+    """Context manager: temporarily apply System-2 routing params, restore on exit."""
     from contextlib import contextmanager
 
     @contextmanager
@@ -224,9 +254,9 @@ def _s2_route_context():
 def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
     """
     Calculates the probability that an agent will move this step.
-    Returns (blended_movechance, s2_weight) where s2_weight is in [0, 1].
+    Returns (blended_movechance, sys2_weight) where sys2_weight is in [0, 1].
     """
-    s2_weight = 0.0
+    sys2_weight = 0.0
     movechance = a.location.movechance
 
     # Standard FLEE: Population/Capacity scaling
@@ -269,114 +299,69 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
     if SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False):
         # Camps/safe zones: respect camp_movechance, no dual-process override
         if getattr(a.location, 'camp', False) or getattr(a.location, 'idpcamp', False):
+            a.sys2_activation_prob = 0.0  # ensure recorded correctly for analytics
             return a.location.movechance, 0.0
 
-        conflict = max(0.0, getattr(a.location, 'conflict', 0.0))
+        # Native FLEE conflict at current location is the sole input.
+        c_here = max(0.0, getattr(a.location, 'conflict', 0.0))
 
-        # Sync agent info state from location (zone registry updates locations each timestep)
-        a.in_official_zone = getattr(a.location, 'in_official_zone', False)
-
-        # Radiation-based S2 evaluation (nuclear case): get actual and perceived
-        radiation_field = SimulationSettings.move_rules.get("radiation_field")
-        time_hours = SimulationSettings.move_rules.get("time_hours", float(time))
-        if radiation_field is not None and _get_location_coords(a.location) is not None:
-            lat, lon = _get_location_coords(a.location)
-            actual_here = radiation_field.get_dose_rate(lat, lon, time_hours)
-        else:
-            actual_here = conflict
-        official_zone_threat = SimulationSettings.move_rules.get("official_zone_threat", 0.9)
-        info_mode = getattr(a, 'info_mode', 'official_zones')
-        perceived_here = (
-            get_perceived_radiation(actual_here, a.in_official_zone, official_zone_threat, info_mode)
-            if get_perceived_radiation else actual_here
-        )
-
-        # Official zone compliance: boost S1 movechance for in-zone agents
-        # Captures empirical pattern that ~98% of in-zone residents eventually complied at Fukushima
-        if a.in_official_zone and conflict > 0.3:
-            movechance = min(1.0, movechance * 1.5)
-        # Shadow evacuation: out-of-zone agents with high perceived threat also have elevated S1
-        elif not a.in_official_zone and perceived_here > 0.4:
-            movechance = min(1.0, movechance * 1.2)
-
-        # Optional override for comparison runs (s1_only=0, s2_only=1)
-        override = SimulationSettings.move_rules.get("s2_weight_override")
+        # Optional override for comparison runs (sys1_only -> 0, sys2_only -> 1)
+        override = SimulationSettings.move_rules.get("sys2_weight_override")
+        if override is None:
+            # Back-compat: legacy key name from pre-Day-7b YAML configs
+            override = SimulationSettings.move_rules.get("s2_weight_override")
         if override is not None:
-            s2_weight = float(override)
-            a.s2_activation_prob = s2_weight
-            if s2_weight <= 0.0:
+            sys2_weight = float(override)
+            a.sys2_activation_prob = sys2_weight
+            if sys2_weight <= 0.0:
                 return movechance, 0.0
-            if s2_weight >= 1.0 and compute_s2_move_probability:
-                def _perceived_at_endpoint(lnk):
-                    ep = lnk.endpoint
-                    if radiation_field is not None and _get_location_coords(ep) is not None:
-                        lat, lon = _get_location_coords(ep)
-                        act = radiation_field.get_dose_rate(lat, lon, time_hours)
-                    else:
-                        act = max(0.0, getattr(ep, 'conflict', 0.0))
-                    if get_perceived_radiation:
-                        return get_perceived_radiation(
-                            act, getattr(ep, 'in_official_zone', False),
-                            official_zone_threat, info_mode
-                        )
-                    return act
-                perceived_best = perceived_here
-                d_best = 1.0
-                if a.location.links:
-                    best_link = min(a.location.links, key=_perceived_at_endpoint)
-                    perceived_best = _perceived_at_endpoint(best_link)
-                    d_best = max(1.0, best_link.get_distance())
-                kappa = float(SimulationSettings.move_rules.get('s1s2_model_params', {}).get('kappa', 5.0))
-                sigma = compute_s2_move_probability(perceived_here, perceived_best, d_best, kappa)
+            if sys2_weight >= 1.0 and compute_s2_move_probability:
+                c_best, d_best = _lookup_potential(
+                    a.location, time, c_here, s2=True,
+                )
+                kappa = float(SimulationSettings.move_rules.get(
+                    's1s2_model_params', {}).get('kappa', 5.0))
+                sigma = compute_s2_move_probability(c_here, c_best, d_best, kappa)
                 blended = sigma
-                if conflict > 0.9:
+                if c_here > 0.9:
                     blended = max(blended, 0.95)
                 return blended, 1.0
 
         # Decision engine (blend/switch) — delegate to engine
         engine = SimulationSettings.move_rules.get("decision_engine")
         if engine is None:
-            # Lazy engine creation when decision_mode set but no YML loaded (e.g. run_synthetic)
+            # Lazy engine creation when decision_mode set but no YML loaded
+            # (e.g. run_synthetic)
             decision_mode = SimulationSettings.move_rules.get("decision_mode", "blend")
             if decision_mode and compute_deliberation_weight:
                 from flee.decision_engine import DecisionEngine
-                config = {"s1s2_model_params": SimulationSettings.move_rules.get("s1s2_model_params", {})}
+                config = {"s1s2_model_params":
+                          SimulationSettings.move_rules.get("s1s2_model_params", {})}
                 engine = DecisionEngine.create(decision_mode, config)
                 SimulationSettings.move_rules["decision_engine"] = engine
             else:
                 return movechance, 0.0
 
-        # Engine path: compute rad_best, distance_best then delegate
-        def _perceived_at_endpoint(lnk):
-            ep = lnk.endpoint
-            if radiation_field is not None and _get_location_coords(ep) is not None:
-                lat, lon = _get_location_coords(ep)
-                act = radiation_field.get_dose_rate(lat, lon, time_hours)
-            else:
-                act = max(0.0, getattr(ep, 'conflict', 0.0))
-            if get_perceived_radiation:
-                return get_perceived_radiation(
-                    act, getattr(ep, 'in_official_zone', False),
-                    official_zone_threat, info_mode
-                )
-            return act
-        perceived_best = perceived_here
-        d_best = 1.0
-        if a.location.links:
-            best_link = min(a.location.links, key=_perceived_at_endpoint)
-            perceived_best = _perceived_at_endpoint(best_link)
-            d_best = max(1.0, best_link.get_distance())
+        # Look up (c_best, d_best) from the potential field if available;
+        # otherwise fall back to the legacy 1-hop minimum-conflict lookup so
+        # tests and callers without a precomputed field still work.
+        # We don't yet know sys2_weight — use the deeper System-2 lookup whenever the
+        # agent could plausibly receive non-trivial deliberation weight; the
+        # engine then re-weights via P_S2.
+        c_best, d_best = _lookup_potential(
+            a.location, time, c_here, s2=True,
+        )
 
-        blended_movechance, s2_weight = engine.compute_move_probability(
+        blended_movechance, sys2_weight = engine.compute_move_probability(
             movechance_s1=movechance,
             experience_index=a.experience_index,
-            conflict_intensity=conflict,
-            rad_here=perceived_here,
-            rad_best=perceived_best,
+            conflict_intensity=c_here,
+            rad_here=c_here,
+            rad_best=c_best,
             distance_best=d_best,
         )
-        a.s2_activation_prob = s2_weight
-        return blended_movechance, s2_weight
+        a.sys2_activation_prob = sys2_weight
+        return blended_movechance, sys2_weight
 
     if a.location.town and ForceTownMove:
         return 1.0, 0.0
@@ -387,16 +372,16 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
 
 
 @check_args_type
-def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = False, s2_weight: float = 0.0):
-    """Select route using blended S1/S2 scoring when s2_weight > 0."""
+def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = False, sys2_weight: float = 0.0):
+    """Select route using blended System 1 / System 2 scoring when sys2_weight > 0."""
     if SimulationSettings.move_rules["AwarenessLevel"] == 0:
         linklen = len(a.location.links)
         return [np.random.randint(0, linklen)]
 
-    use_s2 = SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False) and s2_weight > 0.01
+    use_s2 = SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False) and sys2_weight > 0.01
 
     def _compute_routes_s1():
-        """Standard FLEE route scoring (S1)."""
+        """Standard FLEE route scoring (System 1, no deliberation)."""
         weights_s1, routes_s1 = [], []
         if SimulationSettings.move_rules["FixedRoutes"] is True:
             for l in a.location.routes.keys():
@@ -423,7 +408,7 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
         route = chooseFromWeights(weights=weights, routes=routes)
         return route if route is not None else []
 
-    # Blended S1/S2 path: compute both, then blend weights
+    # Blended System-1 / System-2 path: compute both, then blend weights
     s1_result = _compute_routes_s1()
     weights_s1, routes_s1 = s1_result
 
@@ -443,17 +428,17 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
                 routes_s2[i] = routes_s2[i][1:]
             weights_s2, routes_s2 = pruneRoutes(weights_s2, routes_s2)
 
-    route_to_s2_weight = {}
+    route_to_sys2_weight = {}
     for w, r in zip(weights_s2, routes_s2):
         key = tuple(r)
-        route_to_s2_weight[key] = w
+        route_to_sys2_weight[key] = w
 
     conflict_at_location = max(0.0, getattr(a.location, 'conflict', 0.0))
     engine = SimulationSettings.move_rules.get("decision_engine")
 
     blended_weights = []
     for w_s1, r in zip(weights_s1, routes_s1):
-        w_s2 = route_to_s2_weight.get(tuple(r), 0.0)
+        w_s2 = route_to_sys2_weight.get(tuple(r), 0.0)
         if engine is not None:
             w = engine.compute_destination_weight(
                 w_s1, w_s2,
@@ -461,7 +446,7 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
                 conflict_intensity=conflict_at_location,
             )
         else:
-            w = (1.0 - s2_weight) * w_s1 + s2_weight * w_s2
+            w = (1.0 - sys2_weight) * w_s1 + sys2_weight * w_s2
         blended_weights.append(w)
 
     s1_route_set = {tuple(r) for r in routes_s1}
@@ -476,7 +461,7 @@ def selectRoute(a, time: int, debug: bool = False, return_all_routes: bool = Fal
                     )
                 )
             else:
-                blended_weights.append(s2_weight * w)
+                blended_weights.append(sys2_weight * w)
             routes_s1.append(r)
 
     route = chooseFromWeights(weights=blended_weights, routes=routes_s1)

@@ -1,3 +1,16 @@
+# Network (wire to network_builder)
+network_type: "osm"   # osm|fully_connected|linear|ring|star
+network_cache_dir: "network_cache"
+network_max_radius_km: 80.0
+
+# Radiation field
+radiation_field_mode: "distance_decay"  # distance_decay|plume|none
+radiation_plume_file: ""
+radiation_max_dose_msv_hr: 100.0
+
+# Decision engine (existing keys for context)
+decision_mode: "blend"   # blend|switch
+
 log_levels:
   agent: 0 
   link: 0 
@@ -17,6 +30,7 @@ move_rules:
   conflict_movechance: 1.0
   camp_movechance: 0.001
   default_movechance: 0.3
+  waypoint_movechance: 0.95   # near-certain pass-through for junctions/checkpoints
   awareness_level: 1
   capacity_scaling: 1.0
   avoid_short_stints: False

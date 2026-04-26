@@ -302,10 +302,13 @@ class SimulationSettings:
         SimulationSettings.move_rules["FixedRoutes"] = bool(fetchss(dpr,"fixed_routes",False))
         print(f"INFO: Fixed Route Generation for Locations: {SimulationSettings.move_rules['FixedRoutes']}", file=sys.stderr)
 
-        # S1/S2 Dual-Process Decision Making
+        # System 1 / System 2 Dual-Process Decision Making
         SimulationSettings.move_rules["TwoSystemDecisionMaking"] = bool(fetchss(dpr, "two_system_decision_making", False))
 
-        # V3 Dual-Process Parameters (α, β, κ)
+        # V3 Dual-Process Parameters (alpha, beta, kappa). The dict key
+        # "s1s2_model_params" is preserved as a stable config interface;
+        # the compound token "s1s2" does not collide with bare sobol
+        # first-order index notation. See results/day7b/COLUMN_CHANGELOG.md.
         s1s2_config = fetchss(dpr, "s1s2_model", {})
         if not isinstance(s1s2_config, dict):
             s1s2_config = {}
@@ -314,11 +317,25 @@ class SimulationSettings:
             "beta": float(s1s2_config.get("beta", 2.0)),
             "kappa": float(s1s2_config.get("kappa", 5.0)),
         }
-        # Optional: force P_S2 for comparison runs (0=s1_only, 1=s2_only, None=compute normally)
-        SimulationSettings.move_rules["s2_weight_override"] = fetchss(dpr, "s2_weight_override", None)
+        # Optional: force P_S2 for comparison runs
+        # (0 -> sys1_only, 1 -> sys2_only, None -> compute normally).
+        # New canonical key is "sys2_weight_override"; legacy
+        # "s2_weight_override" is accepted for back-compat.
+        SimulationSettings.move_rules["sys2_weight_override"] = fetchss(
+            dpr, "sys2_weight_override",
+            fetchss(dpr, "s2_weight_override", None),
+        )
+        # Mirror under the legacy key so any external code still reading it
+        # continues to work after the rename.
+        SimulationSettings.move_rules["s2_weight_override"] = (
+            SimulationSettings.move_rules["sys2_weight_override"]
+        )
 
-        # Decision engine mode: original | s1_only | switch | blend
+        # Decision engine mode: original | sys1_only | switch | blend
         decision_mode = fetchss(dp, "decision_mode", fetchss(dpr, "decision_mode", "blend"))
+        # Back-compat alias: legacy mode strings -> new canonical names
+        _MODE_LEGACY = {"s1_only": "sys1_only", "s2_only": "sys2_only"}  # sobol-cognitive back-compat
+        decision_mode = _MODE_LEGACY.get(decision_mode, decision_mode)
         SimulationSettings.move_rules["decision_mode"] = decision_mode
         if SimulationSettings.move_rules["TwoSystemDecisionMaking"]:
             from flee.decision_engine import DecisionEngine

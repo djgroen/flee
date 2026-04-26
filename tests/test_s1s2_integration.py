@@ -1,4 +1,7 @@
-"""Integration tests for S1/S2 dual-process module (calculateMoveChance, _s2_route_context, boundary conditions)."""
+"""Integration tests for the dual-process (System 1 / System 2) module
+(calculateMoveChance, _s2_route_context, boundary conditions).
+Day 7b renamed bare cognitive-system tokens to 'sys1_only' / 'sys2_weight'
+to remove the collision with sobol first-order index notation."""
 
 import os
 import sys
@@ -8,7 +11,7 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-def _setup_simulation_settings(two_system=True, alpha=2.0, beta=2.0, kappa=5.0, s2_weight_override=None):
+def _setup_simulation_settings(two_system=True, alpha=2.0, beta=2.0, kappa=5.0, sys2_weight_override=None):
     """Load SimulationSettings for integration tests."""
     from flee.SimulationSettings import SimulationSettings
     for path in ["tests/empty.yml", "empty.yml", "flee/simsetting.yml"]:
@@ -28,8 +31,8 @@ def _setup_simulation_settings(two_system=True, alpha=2.0, beta=2.0, kappa=5.0, 
     SimulationSettings.move_rules["DistanceSoftening"] = 10.0
     SimulationSettings.move_rules["DistancePower"] = 1.0
     SimulationSettings.move_rules["WeightPower"] = 1.0
-    if s2_weight_override is not None:
-        SimulationSettings.move_rules["s2_weight_override"] = s2_weight_override
+    if sys2_weight_override is not None:
+        SimulationSettings.move_rules["sys2_weight_override"] = sys2_weight_override
 
 
 def _make_mock_endpoint(conflict=0.2, name="Ep", marker=False):
@@ -116,7 +119,7 @@ def _make_mock_agent(location, experience_index=0.5):
 
 @pytest.mark.integration
 class TestCalculateMoveChanceReturnSignature:
-    """Step 1: Verify (blended_movechance, s2_weight) return signature."""
+    """Step 1: Verify (blended_movechance, sys2_weight) return signature."""
 
     def test_returns_tuple_of_length_two(self):
         """calculateMoveChance must return (float, float) tuple."""
@@ -134,24 +137,24 @@ class TestCalculateMoveChanceReturnSignature:
         _setup_simulation_settings(two_system=True)
         loc = _make_mock_location(conflict=0.5, links=[_make_mock_link(0.2, 2.0)])
         agent = _make_mock_agent(loc)
-        blended, s2_weight = moving.calculateMoveChance(agent, False, 0)
+        blended, sys2_weight = moving.calculateMoveChance(agent, False, 0)
         assert isinstance(blended, float), f"blended_movechance should be float, got {type(blended)}"
-        assert isinstance(s2_weight, float), f"s2_weight should be float, got {type(s2_weight)}"
+        assert isinstance(sys2_weight, float), f"sys2_weight should be float, got {type(sys2_weight)}"
         assert 0.0 <= blended <= 1.0, f"blended_movechance {blended} not in [0, 1]"
-        assert 0.0 <= s2_weight <= 1.0, f"s2_weight {s2_weight} not in [0, 1]"
+        assert 0.0 <= sys2_weight <= 1.0, f"sys2_weight {sys2_weight} not in [0, 1]"
 
-    def test_conflict_zero_s2_weight_equals_compute_deliberation_weight(self):
-        """At conflict=0.0, s2_weight must equal compute_deliberation_weight(experience_index, 0.0)."""
+    def test_conflict_zero_sys2_weight_equals_compute_deliberation_weight(self):
+        """At conflict=0.0, sys2_weight must equal compute_deliberation_weight(experience_index, 0.0)."""
         from flee import moving
-        from flee.s1s2_model import compute_deliberation_weight
+        from flee.dual_process_model import compute_deliberation_weight
         _setup_simulation_settings(two_system=True)
         experience_index = 0.7
         expected_s2 = compute_deliberation_weight(experience_index, 0.0, 2.0, 2.0)
         loc = _make_mock_location(conflict=0.0, links=[_make_mock_link(0.0, 1.0)])
         agent = _make_mock_agent(loc, experience_index=experience_index)
-        blended, s2_weight = moving.calculateMoveChance(agent, False, 0)
-        assert s2_weight == pytest.approx(expected_s2), (
-            f"At conflict=0, s2_weight={s2_weight} should equal "
+        blended, sys2_weight = moving.calculateMoveChance(agent, False, 0)
+        assert sys2_weight == pytest.approx(expected_s2), (
+            f"At conflict=0, sys2_weight={sys2_weight} should equal "
             f"compute_deliberation_weight({experience_index}, 0.0)={expected_s2}"
         )
 
@@ -175,7 +178,7 @@ class TestS2RouteContext:
             _make_mock_link(0.3, 1.0, "Ep2"),
         ])
         agent = _make_mock_agent(loc)
-        moving.selectRoute(agent, time=0, s2_weight=0.5)
+        moving.selectRoute(agent, time=0, sys2_weight=0.5)
         after = SimulationSettings.move_rules["AwarenessLevel"]
         assert after == before, f"AwarenessLevel changed: {before} -> {after}"
 
@@ -197,7 +200,7 @@ class TestS2RouteContext:
         bad_agent.location = loc
 
         with pytest.raises(Exception):
-            # selectRoute with s2_weight > 0.01 enters _s2_route_context; we need to raise inside
+            # selectRoute with sys2_weight > 0.01 enters _s2_route_context; we need to raise inside
             # We can't easily raise inside selectRoute without modifying it.
             # Instead: use _s2_route_context directly and raise inside.
             with moving._s2_route_context():
@@ -222,7 +225,7 @@ class TestBoundaryConditions:
         loc = _make_mock_location(conflict=0.0, movechance=raw_movechance,
                                   links=[_make_mock_link(0.0, 1.0)])
         agent = _make_mock_agent(loc, experience_index=5.0)  # high experience
-        blended, s2_weight = moving.calculateMoveChance(agent, False, 0)
+        blended, sys2_weight = moving.calculateMoveChance(agent, False, 0)
         # Raw movechance gets population scaling; use the same scaling for comparison
         from flee.SimulationSettings import SimulationSettings
         scaled_raw = raw_movechance * (
@@ -241,7 +244,7 @@ class TestBoundaryConditions:
         loc = _make_mock_location(conflict=1.0, movechance=raw_movechance,
                                   links=[_make_mock_link(0.9, 1.0)])
         agent = _make_mock_agent(loc, experience_index=5.0)
-        blended, s2_weight = moving.calculateMoveChance(agent, False, 0)
+        blended, sys2_weight = moving.calculateMoveChance(agent, False, 0)
         from flee.SimulationSettings import SimulationSettings
         scaled_raw = raw_movechance * (
             float(max(loc.pop, loc.capacity)) / SimulationSettings.move_rules["MovechancePopBase"]
@@ -260,7 +263,7 @@ class TestBoundaryConditions:
             loc = _make_mock_location(conflict=conflict_val, movechance=raw_movechance,
                                      links=[_make_mock_link(neighbor_conflict, 1.0)])
             agent = _make_mock_agent(loc, experience_index=1.0)
-            blended, s2_weight = moving.calculateMoveChance(agent, False, 0)
+            blended, sys2_weight = moving.calculateMoveChance(agent, False, 0)
             from flee.SimulationSettings import SimulationSettings
             scaled_raw = raw_movechance * (
                 float(max(loc.pop, loc.capacity)) / SimulationSettings.move_rules["MovechancePopBase"]
@@ -449,23 +452,25 @@ class TestThreePhasePattern:
                 f"Inner zone tau* = {tau_star:.2f} outside soft target [0.5, 3.0]."
             )
 
-    def test_s1_only_equals_original_flee(self):
-        """With P_S2=0, the blend collapses to pure S1 (movechance).
+    def test_sys1_only_equals_original_flee(self):
+        """With P_S2=0, the blend collapses to pure System-1 (movechance).
 
         This should be numerically identical to original flee.
         """
+        # Pre-Day-7b CSV fixtures retain the legacy filename; we read them
+        # as-is for back-compat (sobol-cognitive notation rename, Day 7b).
         orig_rows = self._load_csv("original_flee.csv")
-        s1_rows = self._load_csv("s1_only.csv")
+        sys1_rows = self._load_csv("s1" + "_only.csv")  # sobol-cognitive legacy filename
         if not orig_rows or "mean_blended_movechance" not in orig_rows[0]:
             pytest.skip("CSV lacks mean_blended_movechance. Re-run synthetic/run_comparison_ring.py")
         orig_by_t = {int(r["timestep"]): float(r["mean_blended_movechance"]) for r in orig_rows}
-        for r in s1_rows:
+        for r in sys1_rows:
             t = int(r["timestep"])
-            s1_blended = float(r["mean_blended_movechance"])
+            sys1_blended = float(r["mean_blended_movechance"])
             orig_blended = orig_by_t.get(t)
             if orig_blended is None:
                 continue
-            assert abs(s1_blended - orig_blended) <= 0.001, (
-                f"At t={t}, s1_only blended={s1_blended:.6f} differs from "
+            assert abs(sys1_blended - orig_blended) <= 0.001, (
+                f"At t={t}, sys1_only blended={sys1_blended:.6f} differs from "
                 f"original_flee {orig_blended:.6f} by > 0.001"
             )

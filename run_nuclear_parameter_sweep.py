@@ -157,6 +157,8 @@ class ParameterSweeper:
                         'timestep': t,
                         'agent_id': id(agent),
                         'location': agent.location.name if agent.location else "None",
+                        'location_type': getattr(agent.location, 'location_type', 'unknown') if agent.location else 'unknown',
+                        'is_waypoint': getattr(agent.location, 'is_waypoint', False) if agent.location else False,
                         'p_s2': getattr(agent, 's2_activation_prob', 0.0),
                         'omega': omega,
                         'experience': agent.experience_index,

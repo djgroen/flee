@@ -170,6 +170,8 @@ def run_single_simulation(topology_name, config_file, variant_name, seed, output
                     "timestep": t,
                     "agent_id": id(agent),
                     "location": agent.location.name if agent.location else "None",
+                    "location_type": getattr(agent.location, "location_type", "unknown") if agent.location else "unknown",
+                    "is_waypoint": getattr(agent.location, "is_waypoint", False) if agent.location else False,
                     "p_s2": getattr(agent, "s2_activation_prob", 0.0),
                     "experience": agent.experience_index,
                     "conflict": conflict,

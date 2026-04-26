@@ -244,6 +244,8 @@ class InputGeography:
                 loc_list.append("blue")
             elif l[5].lower() == "forward":
                 loc_list.append("blue")
+            elif "waypoint" in l[5].lower():
+                loc_list.append("gray")
             else:
                 loc_list.append("black")
 
@@ -486,6 +488,14 @@ class InputGeography:
                 for i in range(8, len(loc)):
                     attributes[self.columns[i]] = loc[i]
 
+            if "waypoint" in location_type.lower():
+                if population > 0:
+                    print(
+                        "WARNING: waypoint {} has population {} (unusual; waypoints are typically pass-through only)".format(
+                            name, population
+                        ),
+                        file=sys.stderr,
+                    )
             if "camp" in location_type.lower():
                 lm[name] = e.addLocation(
                     name=name,

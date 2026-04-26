@@ -40,11 +40,9 @@ class Person:
         "attributes",
         "locations_visited",
         "route",
-        "s2_activation_prob",
+        "sys2_activation_prob",
         "_last_blended_movechance",
         "experience_index",
-        "info_mode",
-        "in_official_zone",
         "cumulative_dose_msv",
     ]
 
@@ -82,13 +80,10 @@ class Person:
         # Initialize attributes dictionary and ensure "connections" is set
         self.attributes = {"connections":0} | attributes
 
-        self.s2_activation_prob = 0.0  # V3: deliberation weight for diagnostics
+        self.sys2_activation_prob = 0.0  # V3: System-2 deliberation weight for diagnostics
         self._last_blended_movechance = 0.0  # for run_comparison_ring diagnostics
         self.experience_index = random.betavariate(2, 5)  # Heterogeneous capacity
 
-        # Information state for nuclear/radiation context
-        self.info_mode = attributes.get("info_mode", "official_zones")  # 'official_zones' | 'dosimeter' | 'social'
-        self.in_official_zone = False  # updated each timestep from zone registry (via location)
         self.cumulative_dose_msv = 0.0  # accumulated radiation dose (diagnostics)
 
         self.route = []
@@ -229,15 +224,15 @@ class Person:
                         self.home_location.DecrementNumAgents()
                     self.harvesting = False
         
-            # Calculate blended move chance (returns movechance, s2_weight as floats)
-            movechance, s2_weight = moving.calculateMoveChance(self, ForceTownMove, time)
+            # Calculate blended move chance (returns movechance, sys2_weight as floats)
+            movechance, sys2_weight = moving.calculateMoveChance(self, ForceTownMove, time)
             self._last_blended_movechance = movechance  # for diagnostics (e.g. run_comparison_ring)
 
             outcome = random.random()
 
             if outcome < movechance:
                 if len(self.route) == 0:
-                    self.route = moving.selectRoute(self, time=time, s2_weight=s2_weight)
+                    self.route = moving.selectRoute(self, time=time, sys2_weight=sys2_weight)
 
                 chosenDest = self.take_next_step(e)
                 if chosenDest:

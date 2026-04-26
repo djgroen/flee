@@ -30,7 +30,7 @@ from flee.SimulationSettings import SimulationSettings
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 INPUT_DIR = PROJECT_ROOT / "conflict_input" / "fukushima_2011"
 TARGETS_PATH = PROJECT_ROOT / "data" / "calibration_targets" / "fukushima_2011_targets.csv"
-RESULTS_DIR = PROJECT_ROOT / "results" / "fukushima"
+RESULTS_DIR = PROJECT_ROOT / "output" / "results" / "fukushima"
 
 # Scale factor for agent count (full pop ~138k would be slow)
 AGENT_SCALE = 0.02
