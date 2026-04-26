@@ -1,0 +1,57 @@
+{
+  "parameters": {
+    "cmc": 0.25,
+    "alpha": 2.0,
+    "beta": 2.0,
+    "kappa": 5.0
+  },
+  "scenario": "route6_closed",
+  "n_agents": 300,
+  "n_steps": 72,
+  "reps": 20,
+  "qois": {
+    "hayano_t4": {
+      "mean": 0.45,
+      "std": 0.048420957770887334,
+      "min": 0.3482142857142857,
+      "max": 0.5535714285714286,
+      "n": 20
+    },
+    "mid_ps2_dip": {
+      "mean": 0.3494622925017524,
+      "std": 0.01694256238042677,
+      "min": 0.3216289989570288,
+      "max": 0.3974319007863298,
+      "n": 20
+    },
+    "mid_ps2_trough": {
+      "mean": 0.12822730723094805,
+      "std": 0.016090843456264794,
+      "min": 0.07868078599050786,
+      "max": 0.14449195632003842,
+      "n": 20
+    },
+    "mid_ps2_recovery": {
+      "mean": 0.1127898013192653,
+      "std": 0.07399842348177282,
+      "min": 0.0,
+      "max": 0.34951134047453347,
+      "n": 20
+    },
+    "corridor_inland_pct": {
+      "mean": 0.34795957976990355,
+      "std": 0.05367316313659632,
+      "min": 0.25806451612903225,
+      "max": 0.5,
+      "n": 20
+    },
+    "blend_inner_t7": {
+      "mean": 0.28400000000000003,
+      "std": 0.1666512273550584,
+      "min": -0.12,
+      "max": 0.6399999999999999,
+      "n": 20
+    }
+  },
+  "purpose": "Establish reachable P_S2 process moments at CMC=0.25 (physical anchor from Hayano 2013) before setting Stage 2 v2 targets. The process targets derived from these means are model-internal calibration priors (three-phase prediction, main.tex S6.2), NOT direct empirical Fukushima measurements."
+}

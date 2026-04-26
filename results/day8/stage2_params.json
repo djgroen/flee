@@ -1,0 +1,54 @@
+{
+  "alpha_star": 1.5,
+  "beta_star": 1.0,
+  "kappa_star": 10.933333333333334,
+  "L2_min": 0.0006006907136352554,
+  "mid_ps2_dip_best": 0.2620475488045774,
+  "mid_ps2_trough_best": 0.1387051217195479,
+  "dip_residual": 0.012047548804577424,
+  "trough_residual": -0.011294878280452086,
+  "cmc_star": 0.11,
+  "fine_grid_axes": {
+    "alpha": [
+      1.2,
+      1.35,
+      1.5,
+      1.65,
+      1.8
+    ],
+    "beta": [
+      1.0,
+      1.05,
+      1.1,
+      1.15,
+      1.2
+    ],
+    "kappa": [
+      10.933333333333334,
+      12.3,
+      13.666666666666668,
+      15.033333333333335,
+      16.400000000000002
+    ]
+  },
+  "coarse_minimum": {
+    "alpha": 1.5,
+    "beta": 1.0,
+    "kappa": 13.666666666666668
+  },
+  "boundary_flags": {
+    "alpha": false,
+    "beta": true,
+    "kappa": true
+  },
+  "boundary_warning": "BOUNDARY SOLUTION on ['beta', 'kappa'] -- consider extending the fine grid; the reported point estimate is not a confident posterior.",
+  "scenario": "route6_closed",
+  "n_agents": 300,
+  "n_steps": 72,
+  "coarse_reps": 3,
+  "fine_reps": 5,
+  "targets": {
+    "mid_ps2_dip": 0.25,
+    "mid_ps2_trough": 0.15
+  }
+}

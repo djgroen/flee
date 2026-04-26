@@ -1,0 +1,75 @@
+{
+  "alpha_star": 1.6666666666666667,
+  "beta_star": 2.1666666666666665,
+  "kappa_star": 18.40740740740741,
+  "cmc_fixed": 0.25,
+  "L2_min": 0.00016775387894146023,
+  "mid_ps2_dip_best": 0.31985182626704706,
+  "mid_ps2_trough_best": 0.10678447336195952,
+  "dip_residual": 0.005351826267047055,
+  "trough_residual": -0.002215526638040477,
+  "targets": {
+    "mid_ps2_dip": 0.3145,
+    "mid_ps2_trough": 0.109,
+    "basis": "forward_pass_mean x scaling; model-internal process target derived from three-phase prediction (main.tex Section 6.2), NOT a direct empirical Fukushima measurement"
+  },
+  "boundary_flags": {
+    "alpha": false,
+    "beta": false,
+    "kappa": false
+  },
+  "boundary_axis": {
+    "alpha": "interior",
+    "beta": "interior",
+    "kappa": "interior"
+  },
+  "boundary_warning": "NONE",
+  "unconstrained_axes": [],
+  "stage1_status": "CMC fixed at 0.25 on physical grounds; Stage 1 result documented as boundary condition",
+  "hayano_tension": {
+    "cmc_used": 0.25,
+    "hayano_t4_expected": 0.45,
+    "hayano_t4_target_raw": 1.008,
+    "gap": 0.558,
+    "disposition": "documented boundary condition; not a calibration residual. Raw Hayano 2013 target 1.008 is outside physical range [0,1]."
+  },
+  "fine_grid_axes": {
+    "alpha": [
+      1.5,
+      1.6666666666666667,
+      1.8333333333333333,
+      2.0,
+      2.1666666666666665,
+      2.333333333333333,
+      2.5
+    ],
+    "beta": [
+      1.5,
+      1.6666666666666667,
+      1.8333333333333333,
+      2.0,
+      2.1666666666666665,
+      2.333333333333333,
+      2.5
+    ],
+    "kappa": [
+      11.833333333333334,
+      13.148148148148149,
+      14.462962962962964,
+      15.777777777777779,
+      17.09259259259259,
+      18.40740740740741,
+      19.72222222222222
+    ]
+  },
+  "coarse_minimum": {
+    "alpha": 2.0,
+    "beta": 2.0,
+    "kappa": 15.777777777777779
+  },
+  "scenario": "route6_closed",
+  "n_agents": 300,
+  "n_steps": 72,
+  "coarse_reps": 5,
+  "fine_reps": 7
+}

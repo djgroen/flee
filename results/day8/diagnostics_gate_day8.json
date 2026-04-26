@@ -1,0 +1,72 @@
+{
+  "all_passed": true,
+  "cmc_star": 0.11,
+  "alpha_star": 1.5,
+  "beta_star": 1.0,
+  "kappa_star": 10.933333333333334,
+  "hayano_tension_flag": true,
+  "hayano_tension_note": "CMC=0.110 produces hayano_t4=0.377; raw Hayano target 1.008 is outside physical range; gap = 0.631",
+  "checks": [
+    {
+      "label": "calibration artifacts present",
+      "status": "PASS",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "CMC* in [0.10, 0.50]",
+      "status": "PASS",
+      "passed": true,
+      "detail": "CMC* = 0.110"
+    },
+    {
+      "label": "hayano_t4 in [0.20, 0.40] (validation mean)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "hayano_t4 = 0.37723214285714285"
+    },
+    {
+      "label": "mid_ps2_dip in [0.15, 0.40] (alpha-anchor)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "mid_ps2_dip = 0.23401392716264705"
+    },
+    {
+      "label": "mid_ps2_trough in [0.05, 0.30] (beta-anchor)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "mid_ps2_trough = 0.16529579584790874"
+    },
+    {
+      "label": "blend_inner_t7 > 0 (dual-process earns its keep)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "blend_inner_t7 = 0.45999999999999996"
+    },
+    {
+      "label": "hayano_tension_flag documented with explicit text",
+      "status": "PASS",
+      "passed": true,
+      "detail": "flag=True note='CMC=0.110 produces hayano_t4=0.377; raw Hayano target 1.008 is outside physical ...'"
+    },
+    {
+      "label": "all six QoIs computed and stored",
+      "status": "PASS",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "stage2 boundary advisory",
+      "status": "WARN",
+      "passed": true,
+      "detail": "BOUNDARY SOLUTION on ['beta', 'kappa'] -- consider extending the fine grid; the reported point estimate is not a confident posterior."
+    },
+    {
+      "label": "pytest tests/ passes",
+      "status": "PASS",
+      "passed": true,
+      "detail": "see pytest_tail"
+    }
+  ],
+  "pytest_tail": "........................................ss.............................. [ 83%]\n..............                                                           [100%]\n84 passed, 2 skipped in 1.99s"
+}

@@ -1,0 +1,63 @@
+{
+  "hayano_t4": {
+    "mean": 0.37723214285714285,
+    "std": 0.057709464712477135,
+    "min": 0.2767857142857143,
+    "max": 0.49107142857142855,
+    "n": 20,
+    "target": 0.3
+  },
+  "mid_ps2_dip": {
+    "mean": 0.23401392716264705,
+    "std": 0.03718843423655166,
+    "min": 0.19439734843144432,
+    "max": 0.32646314657729536,
+    "n": 20,
+    "target": 0.25
+  },
+  "mid_ps2_trough": {
+    "mean": 0.16529579584790874,
+    "std": 0.03505935457663698,
+    "min": 0.10019778921234837,
+    "max": 0.20941341989012197,
+    "n": 20,
+    "target": 0.15
+  },
+  "mid_ps2_recovery": {
+    "mean": 0.08567559613224426,
+    "std": 0.04853964814279424,
+    "min": 0.021219202967264317,
+    "max": 0.1692204207481378,
+    "n": 20,
+    "target": null
+  },
+  "corridor_inland_pct": {
+    "mean": 0.35370536508907735,
+    "std": 0.04182394690925975,
+    "min": 0.23809523809523808,
+    "max": 0.4065934065934066,
+    "n": 20,
+    "target": 0.52
+  },
+  "blend_inner_t7": {
+    "mean": 0.45999999999999996,
+    "std": 0.12139539573337679,
+    "min": 0.24,
+    "max": 0.6799999999999999,
+    "n": 20,
+    "target": null
+  },
+  "blend_inner_t7_interpretation": "Sys2 vs Sys1-only inner-zone clearance difference; >0 = dual-process earns its keep",
+  "parameters_locked": {
+    "cmc": 0.11,
+    "alpha": 1.5,
+    "beta": 1.0,
+    "kappa": 10.933333333333334
+  },
+  "hayano_tension_flag": true,
+  "hayano_tension_note": "CMC=0.110 produces hayano_t4=0.377; raw Hayano target 1.008 is outside physical range; gap = 0.631",
+  "scenario": "route6_closed",
+  "n_agents": 300,
+  "n_steps": 72,
+  "reps": 20
+}

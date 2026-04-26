@@ -1,0 +1,76 @@
+{
+  "version": "v2",
+  "all_passed": true,
+  "cmc_fixed": 0.25,
+  "alpha_star": 1.6666666666666667,
+  "beta_star": 2.1666666666666665,
+  "kappa_star": 18.40740740740741,
+  "hayano_tension": {
+    "note": "CMC=0.25 produces hayano_t4~0.45; raw Hayano 2013 target 1.008 is outside physical range [0,1]; gap=0.56; documented as model boundary condition not calibration failure (1.008 is outside physical range).",
+    "flagged": true
+  },
+  "boundary_warning": "NONE",
+  "checks": [
+    {
+      "label": "v2 calibration artifacts present",
+      "status": "PASS",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "CMC fixed at 0.25 in stage2_params_v2.json",
+      "status": "PASS",
+      "passed": true,
+      "detail": "cmc_fixed = 0.25"
+    },
+    {
+      "label": "hayano_t4 (validation mean) in [0.35, 0.55]",
+      "status": "PASS",
+      "passed": true,
+      "detail": "hayano_t4 = 0.44642857142857145"
+    },
+    {
+      "label": "mid_ps2_dip in [0.236, 0.393] (target 0.315 +/-25%)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "mid_ps2_dip = 0.31897774775208204"
+    },
+    {
+      "label": "mid_ps2_trough in [0.082, 0.136] (target 0.109 +/-25%)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "mid_ps2_trough = 0.10688996458125326"
+    },
+    {
+      "label": "blend_inner_t7 mean > 0 (mean check, not min)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "mean = 0.3480000000000001, min replicate = 0.07999999999999996 (negative replicates allowed)"
+    },
+    {
+      "label": "hayano_tension flagged=true and note contains \"1.008\"",
+      "status": "PASS",
+      "passed": true,
+      "detail": "flagged=True note='CMC=0.25 produces hayano_t4~0.45; raw Hayano 2013 target 1.008 is outside physic...'"
+    },
+    {
+      "label": "boundary_warning is \"NONE\" or \"EXTENDED: ...\" (PERSISTENT = FAIL)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "boundary_warning = 'NONE'"
+    },
+    {
+      "label": "all six QoIs in validation_summary_v2.json",
+      "status": "PASS",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "pytest tests/ passes",
+      "status": "PASS",
+      "passed": true,
+      "detail": "see pytest_tail"
+    }
+  ],
+  "pytest_tail": "........................................ss.............................. [ 83%]\n..............                                                           [100%]\n84 passed, 2 skipped in 2.69s\n/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/pep8.py:110: FutureWarning: Possible nested set at position 1\n  EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')"
+}

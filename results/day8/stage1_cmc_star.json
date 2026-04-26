@@ -1,0 +1,22 @@
+{
+  "cmc_star": 0.11,
+  "L1_min": 0.005633586355925523,
+  "hayano_t4_best": 0.2875,
+  "corridor_inland_pct_best": 0.4390623209243213,
+  "hayano_residual": -0.012500000000000011,
+  "hayano_target_raw": 1.008,
+  "hayano_target_used": 0.3,
+  "corridor_residual": -0.08093767907567873,
+  "neutral_cognitive_params": {
+    "alpha": 2.0,
+    "beta": 3.0,
+    "kappa": 5.0
+  },
+  "scenario": "route6_closed",
+  "n_agents": 300,
+  "n_steps": 72,
+  "reps_per_grid_point": 5,
+  "grid_size": 41,
+  "hayano_tension_flag": true,
+  "hayano_tension_note": "CMC*=0.110 produces hayano_t4=0.287; raw Hayano target 1.008 is outside the physical [0,1] range; |sim - raw| gap = 0.721."
+}
