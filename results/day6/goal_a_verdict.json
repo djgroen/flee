@@ -1,0 +1,31 @@
+{
+  "kappa_values": [
+    12.0,
+    15.0,
+    18.407,
+    22.0,
+    28.0
+  ],
+  "reps_per_kappa": 15,
+  "sys1_baseline_reps": 15,
+  "sys1_inner_clearance_t7": 0.3973333333333334,
+  "corridor_inland_pct_range_pct": 4.144856955897553,
+  "path_length_range_pct": 2.5640522023522094,
+  "s2_signal_mean_range": [
+    0.010413691682752475,
+    0.010796373965230144
+  ],
+  "s2_signal_interpretation": "The post-hoc S2 signal proxy ranges over [0.0104, 0.0108] km^-1 across kappa values, indicating the real network provides a non-trivial spatial gradient for the dual-process layer to act on.",
+  "verdict": "ROUTING_FLAT",
+  "paper_language": "Routing QoIs (corridor fraction, path-length-at-arrival) varied 4.1% across kappa in [12, 28], consistent with Day 9's identification of a flat L2 surface. The operating point kappa = 18.4 is validated for routing predictions on the real OSM network.",
+  "scenario": "route6_closed",
+  "n_agents": 300,
+  "n_steps": 72,
+  "locked_params": {
+    "cmc": 0.25,
+    "alpha": 1.6666666666666667,
+    "beta": 2.1666666666666665,
+    "kappa_centre_locked": 18.40740740740741
+  },
+  "s2_signal_method": "post-hoc proxy: max over neighbours of (c_here - c_nb)/d_nb averaged over non-camp blend rows"
+}

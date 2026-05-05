@@ -1,0 +1,107 @@
+{
+  "all_passed": true,
+  "goal_a_verdict": "ROUTING_FLAT",
+  "goal_b_verdict": "SHARPENS",
+  "goal_c_verdict": "NO_MASKING",
+  "iitate_delta_pct": 0.7328921078921136,
+  "tomioka_inland_delta_pp": -9.867953228028604,
+  "checks": [
+    {
+      "label": "goal_a_verdict.json with valid verdict + paper_language",
+      "status": "PASS",
+      "passed": true,
+      "detail": "verdict = ROUTING_FLAT"
+    },
+    {
+      "label": "goal_b zone_discretization_verdict in {SHARPENS, WEAKENS, NEUTRAL}",
+      "status": "PASS",
+      "passed": true,
+      "detail": "verdict = SHARPENS"
+    },
+    {
+      "label": "goal_b verdict_basis field present",
+      "status": "PASS",
+      "passed": true,
+      "detail": "basis len = 217"
+    },
+    {
+      "label": "goal_b iitate_effect.methodological_note present",
+      "status": "PASS",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "goal_b routing differential documented (both scenarios)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "keys = ['official_zones', 'dosimeter_proxy', 'gap_pp']"
+    },
+    {
+      "label": "goal_b iitate_effect documented with delta_pct + interpretation",
+      "status": "PASS",
+      "passed": true,
+      "detail": "delta_pct = 0.7328921078921136"
+    },
+    {
+      "label": "goal_c masking_verdict valid + paper_language populated",
+      "status": "PASS",
+      "passed": true,
+      "detail": "verdict = NO_MASKING"
+    },
+    {
+      "label": "goal_c route_type_method = transit_based (...)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "method = transit_based (agent passed through kawauchi -> inland; minamisoma_north -> nort"
+    },
+    {
+      "label": "goal_c coastal_route_efficiency_check block present",
+      "status": "PASS",
+      "passed": true,
+      "detail": "keys = ['transit_coastal_path_km_mean_sys1', 'transit_coastal_path_km_mean_blend', 'transit_inland_path_km_mean_sys1', 'transit_inland_path_km_mean_blend', 'blend_prefers_shorter_route', 'interpretation']"
+    },
+    {
+      "label": "goal_c coastal_route_efficiency_check.blend_prefers_shorter_route (bool)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "value = True"
+    },
+    {
+      "label": "goal_c coastal_route_efficiency_check.interpretation populated",
+      "status": "PASS",
+      "passed": true,
+      "detail": "len = 484"
+    },
+    {
+      "label": "goal_c route_type_dest_delta preserved for audit",
+      "status": "PASS",
+      "passed": true,
+      "detail": "keys = ['namie_group', 'tomioka_group', 'okuma_group']"
+    },
+    {
+      "label": "goal_c tomioka_group blend_vs_s1_inland_delta recorded",
+      "status": "PASS",
+      "passed": true,
+      "detail": "delta = -9.867953228028604"
+    },
+    {
+      "label": "all 6 Day 6 figures present in figures/fukushima/day6/",
+      "status": "PASS",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "no modifications to flee/ tests/ qoi_definitions.py",
+      "status": "PASS",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "pytest tests/ passes (84 passed, 2 skipped)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "see pytest_tail"
+    }
+  ],
+  "pytest_tail": "........................................ss.............................. [ 83%]\n..............                                                           [100%]\n84 passed, 2 skipped in 1.90s\n/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/pep8.py:110: FutureWarning: Possible nested set at position 1\n  EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')"
+}

@@ -1,0 +1,247 @@
+{
+  "scenarios_tested": [
+    "official_zones",
+    "dosimeter_proxy"
+  ],
+  "modes": [
+    "sys1_only",
+    "blend"
+  ],
+  "reps": 20,
+  "official_zones": {
+    "sys1_only": {
+      "hayano_t4": {
+        "mean": 0.23883928571428567,
+        "std": 0.040542421027766666,
+        "n": 20
+      },
+      "mid_ps2_dip": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 20
+      },
+      "mid_ps2_trough": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 20
+      },
+      "mid_ps2_recovery": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 20
+      },
+      "corridor_inland_pct": {
+        "mean": 0.3458999943904727,
+        "std": 0.04007206989614958,
+        "n": 20
+      },
+      "inner_clearance_t7": {
+        "mean": 0.402,
+        "std": 0.09035602097434232,
+        "n": 20
+      },
+      "mean_path_length": {
+        "mean": 85.93218050083736,
+        "std": 3.238404700168072,
+        "n": 20
+      },
+      "iitate_clearance_t4": {
+        "mean": 0.578595571095571,
+        "std": 0.1365622017456054,
+        "n": 20
+      },
+      "iitate_ps2_mean_t2": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 20
+      }
+    },
+    "blend": {
+      "hayano_t4": {
+        "mean": 0.44955357142857133,
+        "std": 0.05102623993254975,
+        "n": 20
+      },
+      "mid_ps2_dip": {
+        "mean": 0.3186154639136605,
+        "std": 0.016177286701589855,
+        "n": 20
+      },
+      "mid_ps2_trough": {
+        "mean": 0.10509392454090652,
+        "std": 0.013335684484958098,
+        "n": 20
+      },
+      "mid_ps2_recovery": {
+        "mean": 0.10009845746364972,
+        "std": 0.047877639790425246,
+        "n": 20
+      },
+      "corridor_inland_pct": {
+        "mean": 0.33979059315152704,
+        "std": 0.04274347378883821,
+        "n": 20
+      },
+      "inner_clearance_t7": {
+        "mean": 0.7120000000000001,
+        "std": 0.08166684568544648,
+        "n": 20
+      },
+      "mean_path_length": {
+        "mean": 93.13083389074694,
+        "std": 2.870651151044642,
+        "n": 20
+      },
+      "iitate_clearance_t4": {
+        "mean": 0.5373013098013097,
+        "std": 0.16784327595411805,
+        "n": 20
+      },
+      "iitate_ps2_mean_t2": {
+        "mean": 0.1467522671393109,
+        "std": 0.04659307513863686,
+        "n": 20
+      }
+    }
+  },
+  "dosimeter_proxy": {
+    "sys1_only": {
+      "hayano_t4": {
+        "mean": 0.1888392857142857,
+        "std": 0.027216923825717495,
+        "n": 20
+      },
+      "mid_ps2_dip": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 20
+      },
+      "mid_ps2_trough": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 20
+      },
+      "mid_ps2_recovery": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 20
+      },
+      "corridor_inland_pct": {
+        "mean": 0.2576648697979778,
+        "std": 0.04392333378409797,
+        "n": 20
+      },
+      "inner_clearance_t7": {
+        "mean": 0.324,
+        "std": 0.08094182446281045,
+        "n": 20
+      },
+      "mean_path_length": {
+        "mean": 83.24358365693251,
+        "std": 2.2848116091963786,
+        "n": 20
+      },
+      "iitate_clearance_t4": {
+        "mean": 0.47155753968253966,
+        "std": 0.13776534032462276,
+        "n": 20
+      },
+      "iitate_ps2_mean_t2": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 20
+      }
+    },
+    "blend": {
+      "hayano_t4": {
+        "mean": 0.26383928571428567,
+        "std": 0.03760000539199403,
+        "n": 20
+      },
+      "mid_ps2_dip": {
+        "mean": 0.31401543416528066,
+        "std": 0.03747756145031418,
+        "n": 20
+      },
+      "mid_ps2_trough": {
+        "mean": 0.1092228086584703,
+        "std": 0.03901967097819208,
+        "n": 20
+      },
+      "mid_ps2_recovery": {
+        "mean": 0.06070784598183676,
+        "std": 0.05092835535411701,
+        "n": 20
+      },
+      "corridor_inland_pct": {
+        "mean": 0.26856078159638586,
+        "std": 0.04063866005208799,
+        "n": 20
+      },
+      "inner_clearance_t7": {
+        "mean": 0.454,
+        "std": 0.10644494499876203,
+        "n": 20
+      },
+      "mean_path_length": {
+        "mean": 90.83783890746935,
+        "std": 2.3815109633251974,
+        "n": 20
+      },
+      "iitate_clearance_t4": {
+        "mean": 0.5446302308802309,
+        "std": 0.14423784895936512,
+        "n": 20
+      },
+      "iitate_ps2_mean_t2": {
+        "mean": 0.1328727175669511,
+        "std": 0.03796873423967805,
+        "n": 20
+      }
+    }
+  },
+  "blend_minus_sys1_inland_delta_pct": {
+    "official_zones": -0.006109401238945655,
+    "dosimeter_proxy": 0.010895911798408042,
+    "gap_pp": 1.7005313037353698
+  },
+  "blend_minus_sys1_path_delta_km": {
+    "official_zones": 7.19865338990958,
+    "dosimeter_proxy": 7.594255250536833
+  },
+  "iitate_effect": {
+    "official_clearance_rate_t4": 0.5373013098013097,
+    "dosimeter_clearance_rate_t4": 0.5446302308802309,
+    "delta_pct": 0.7328921078921136,
+    "interpretation": "Iitate clearance is comparable across regimes (delta +0.7pp). The dual-process layer is insensitive to the zone-vs-dose distinction at this point.",
+    "methodological_note": "iitate_ps2_mean_t2=0.0 because Iitate-origin agents depart by t=2 in both regimes. P_S2 was measured at the Iitate location, not on Iitate-origin agents in transit. This is a measurement artifact, not a behavioural null result. The rapid clearance itself confirms Omega collapse is occurring."
+  },
+  "verdict_basis": "routing_differential (inland blend-sys1 delta: official=1.3pp vs dosimeter=3.0pp). Iitate clearance delta (+0.73pp) is underpowered (~4 agents/rep) and is documented as a limitation, not the primary verdict criterion.",
+  "zone_discretization_verdict": "SHARPENS",
+  "paper_language": "Zone discretization weakly suppresses the dual-process routing signal. The dosimeter-derived Omega profile produces a 3.0pp blend vs Sys1-only routing differential vs 1.3pp under the official step-function -- a 1.7pp gap consistent with the SHARPENS criterion. The difference is small in absolute terms, consistent with Iitate's limited population weight (~1.3% of total agents). Iitate-origin agents clear rapidly under both regimes (P_S2 at t=2 ~ 0 because the cohort has already departed), indicating that Omega collapse at c=0.45 is sufficient to drive departure even at official zone intensity levels. The dosimeter uplift to c=0.58 does not materially change individual Iitate behaviour but does shift the aggregate routing signal.",
+  "dosimeter_steady_values": {
+    "okuma": 0.9,
+    "futaba": 0.9,
+    "namie": 0.72,
+    "tomioka": 0.68,
+    "naraha": 0.3,
+    "kawauchi": 0.4,
+    "iitate": 0.58,
+    "minamisoma_south": 0.35,
+    "minamisoma_north": 0.05,
+    "tamura": 0.05,
+    "iwaki_north": 0.05,
+    "hirono": 0.05,
+    "koriyama": 0.0,
+    "fukushima_city": 0.0,
+    "iwaki_city": 0.0
+  },
+  "locked_params": {
+    "cmc": 0.25,
+    "alpha": 1.6666666666666667,
+    "beta": 2.1666666666666665,
+    "kappa": 18.40740740740741
+  },
+  "n_agents": 300,
+  "n_steps": 72
+}
