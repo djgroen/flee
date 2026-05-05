@@ -1,0 +1,69 @@
+{
+  "all_passed": true,
+  "kappa_verdict": "FLAT",
+  "stability_verdict": "MODERATE",
+  "consistency_check_passed": true,
+  "checks": [
+    {
+      "label": "kappa_verdict.json present with valid verdict field",
+      "status": "PASS",
+      "passed": true,
+      "detail": "verdict = FLAT"
+    },
+    {
+      "label": "flat_onset_kappa recorded (regardless of verdict)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "flat_onset_kappa = 12.0"
+    },
+    {
+      "label": "paper_language populated in kappa_verdict.json",
+      "status": "PASS",
+      "passed": true,
+      "detail": "len = 356"
+    },
+    {
+      "label": "cmc_robustness_verdict.json present with valid stability_verdict",
+      "status": "PASS",
+      "passed": true,
+      "detail": "stability_verdict = MODERATE"
+    },
+    {
+      "label": "consistency_check_passed = True",
+      "status": "PASS",
+      "passed": true,
+      "detail": "consistency_check_passed = True"
+    },
+    {
+      "label": "stability_verdict is STABLE or MODERATE (SENSITIVE = FAIL)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "stability_verdict = MODERATE"
+    },
+    {
+      "label": "paper_language populated in cmc_robustness_verdict.json",
+      "status": "PASS",
+      "passed": true,
+      "detail": "len = 238"
+    },
+    {
+      "label": "Task C skip-check (verdict=FLAT): no update needed",
+      "status": "PASS",
+      "passed": true,
+      "detail": "verdict != UPDATED, skipping day9_kappa_update check"
+    },
+    {
+      "label": "all Day 9 figures present in figures/fukushima/day9/",
+      "status": "PASS",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "pytest tests/ passes (84 passed, 2 skipped)",
+      "status": "PASS",
+      "passed": true,
+      "detail": "see pytest_tail"
+    }
+  ],
+  "pytest_tail": "........................................ss.............................. [ 83%]\n..............                                                           [100%]\n84 passed, 2 skipped in 1.74s\n/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/pep8.py:110: FutureWarning: Possible nested set at position 1\n  EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')"
+}
