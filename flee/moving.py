@@ -47,6 +47,10 @@ def getEndPointScore(agent, endpoint, time) -> float:
             if agent.attributes["gender"]=="male" and agent.attributes["age"]>14:
                 # Hypothesis that perceived safety does not affect routing decisions for teenage boys.
                 base = 1 
+    if SimulationSettings.move_rules["ElderlyAvoidHazards"]:
+        if agent.attributes["age"]>59:
+            # For elderly the safety of the destination is more important than for adults.
+            base = base*base
 
 
     if SimulationSettings.move_rules["StayCloseToHome"]:

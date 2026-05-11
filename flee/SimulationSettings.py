@@ -292,7 +292,7 @@ class SimulationSettings:
 
         # Flee 3.0 Prototyping conditionals (see design document)
         # TODO: embed these in a more flexible/powerful framework of conditionals
-        for a in ["ChildrenAvoidHazards", "BoysTakeRisk", "MatchCampReligion", "MatchCampEthnicity", "MatchTownEthnicity", "MatchConflictEthnicity"]:
+        for a in ["ChildrenAvoidHazards", "ElderlyAvoidHazards", "BoysTakeRisk", "MatchCampReligion", "MatchCampEthnicity", "MatchTownEthnicity", "MatchConflictEthnicity"]:
             SimulationSettings.move_rules[a] = bool(fetchss(dpr,a,False))
 
         SimulationSettings.move_rules["ReligionBaseRate"] = 1.0 / float(fetchss(dpr,"avg_religion_fraction", 0.25))

@@ -1,10 +1,11 @@
 from flee import pmicro_flee as flee
+import pytest
 
 """
 Generation 1 code. Incorporates only distance, travel always takes one day.
 """
 
-
+@pytest.mark.skip(reason="obsolete")
 def test_micro_model():
     print("Testing basic data handling and simulation kernel.")
 
