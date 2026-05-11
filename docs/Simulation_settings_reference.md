@@ -202,6 +202,7 @@ spawn_rules:
 | `stay_close_to_home` | bool | `False` | `True` | Adds a weight component favouring locations nearer to the agent's origin. |
 | `home_distance_power` | float | `0.5` | `0.0` | Power factor for home-proximity weighting (inverse sqrt by default). Only used when `stay_close_to_home: True`. |
 | `use_v1_rules` | bool | `False` | `True` | Use Flee v1 legacy movement rules. Overrides: `max_move_speed=200`, `camp_weight=2.0`, `conflict_weight=0.25`; disables `avoid_short_stints` and `start_on_foot`. For reproducing Flee v1 results only. |
+| `use_economic_pull` | bool | `False` | `True` | Agents are attracted more to foreign locations based on economic factors (`score *= (1 + trade_volume + hdi**2)`). |
 
 ### Agent-attribute conditionals (Flee 3.0)
 
@@ -211,6 +212,7 @@ All default to `False`. Requires appropriate attribute columns in `agents.csv`.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `ChildrenAvoidHazards` | bool | `False` | Child agents apply a safety preference weight when choosing routes |
+| `ElderlyAvoidHazards` | bool | `False` | Elderly agents apply a safety preference weight when choosing routes |
 | `BoysTakeRisk` | bool | `False` | Male child agents are more risk-tolerant than female child agents |
 | `MatchCampReligion` | bool | `False` | Agents prefer camp locations that match their own religion attribute |
 | `MatchCampEthnicity` | bool | `False` | Agents prefer camp locations that match their own ethnicity attribute |

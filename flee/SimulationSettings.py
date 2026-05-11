@@ -304,6 +304,9 @@ class SimulationSettings:
         # Enable / Disable System 2 logic
         SimulationSettings.move_rules["TwoSystemDecisionMaking"] = float(fetchss(dpr,"two_system_decision_making", False))
 
+        # Enable / Disable Economic Pull Factors
+        SimulationSettings.move_rules["UseEconomicPull"] = float(fetchss(dpr,"use_economic_pull", False))
+
         # Enable Farmer harvesting
         SimulationSettings.move_rules["HarvestMonths"] = fetchss(dpr, "harvest_months", [])
         if len(SimulationSettings.move_rules["HarvestMonths"]) > 0:
