@@ -212,6 +212,7 @@ All default to `False`. Requires appropriate attribute columns in `agents.csv`.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `ChildrenAvoidHazards` | bool | `False` | Child agents apply a safety preference weight when choosing routes |
+| `WomenAvoidHazards` | bool | `False` | Agents with "gender" attribute set to "female" apply a safety preference weight when choosing routes |
 | `ElderlyAvoidHazards` | bool | `False` | Elderly agents apply a safety preference weight when choosing routes |
 | `BoysTakeRisk` | bool | `False` | Male child agents are more risk-tolerant than female child agents |
 | `MatchCampReligion` | bool | `False` | Agents prefer camp locations that match their own religion attribute |

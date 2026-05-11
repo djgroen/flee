@@ -38,11 +38,14 @@ def getEndPointScore(agent, endpoint, time) -> float:
     # E.g. Conflict zones have lower scores, camps have higher scores.
     # Location effects like high/low GDP, food security or weather effects could later also alter this score.
 
+    avoid_enabled = False
+
     #["ChildrenAvoidHazards", "BoysTakeRisk", "MatchCampEthnicity", "MatchTownEthnicity", "MatchConflictEthnicity"]
     if SimulationSettings.move_rules["ChildrenAvoidHazards"]:
         if agent.attributes["age"]<19:
             # For children the safety of the destination is more important than for adults.
             base = base*base
+            avoid_enabled = True
         if SimulationSettings.move_rules["BoysTakeRisk"]:
             if agent.attributes["gender"]=="male" and agent.attributes["age"]>14:
                 # Hypothesis that perceived safety does not affect routing decisions for teenage boys.
@@ -51,6 +54,12 @@ def getEndPointScore(agent, endpoint, time) -> float:
         if agent.attributes["age"]>59:
             # For elderly the safety of the destination is more important than for adults.
             base = base*base
+            avoid_enabled = True
+    if SimulationSettings.move_rules["WomenAvoidHazards"]:
+        if agent.attributes["gender"] == "female":
+            if not avoid_enabled:
+                base = base*base
+                avoid_enabled = True #Added as safeguard in case we add more conditionals.
 
 
     if SimulationSettings.move_rules["StayCloseToHome"]:
