@@ -35,7 +35,7 @@ def updateLocationScore(time: int, loc) -> None:
     if loc.foreign is True:
         if SimulationSettings.move_rules["UseEconomicPull"]:
             # trade volume is in billions of $ import + export(). hdi = Human Development Index (0.0-1.0). 
-            score += score * (loc.attributes["trade_volume"] + loc.attributes["hdi"]**2)
+            score += score * (float(loc.attributes["trade_volume"]) + float(loc.attributes["hdi"])**2)
         score *= SimulationSettings.move_rules["ForeignWeight"] 
 
     elif SimulationSettings.move_rules["AvoidFoodDeprivedLocations"] and time > 0:
