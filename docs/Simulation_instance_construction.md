@@ -98,7 +98,7 @@ Currently, the population figures for each location will need to be collected an
 
 The `locations.csv` file contain information about all the locations in the location graph. Flee 3.0 supports four location types:
 
-* `conflict`: places where conflicts are taking place during the conflict. This type is not needed if you are loading in a `conflicts.csv` file or if you are using Flee for disaster displacement.
+* `conflict_zone`: places where conflicts are taking place during the conflict. This type is not needed if you are loading in a `conflicts.csv` file or if you are using Flee for disaster displacement.
 * `town`: places that are neither conflict zones nor camps. **NOTE: if you use a conflicts.csv input file, then town type locations can change into conflict type locations at runtime**.
 * `camp`: places where asylum seekers / unrecognized refugees are received and looked after.
 * `idpcamp`: places where internally displaced persons are received and looked after. **NOTE: this type is supported as of Flee 3.0**
