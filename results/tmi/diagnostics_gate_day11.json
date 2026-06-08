@@ -1,0 +1,121 @@
+{
+  "checks": [
+    {
+      "name": "tmi_empirical_data.json valid JSON",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "8 primary QoIs",
+      "status": "PASS",
+      "detail": "count=8"
+    },
+    {
+      "name": "15 location rows (12 towns + 3 camps)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "18 route rows (spec+1 split for New Cumberland)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "conflicts.csv present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "spatial uniformity (population nodes)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "c(t=10)==1.00",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "c(t=16)<=0.10",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "conflict_schedule omega_type",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "psi_initialization_note.txt",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "smoke CSV outputs exist",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "advisory-window mobility > t=5",
+      "status": "PASS",
+      "detail": "max(t=8..12)=0.5368 vs t=5=0.4763"
+    },
+    {
+      "name": "agents mostly in camps by t=20",
+      "status": "PASS",
+      "detail": "fraction=0.963"
+    },
+    {
+      "name": "figure day11_network_map_osm.png",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "figure day11_network_map_static.png",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "empirical G1_zeigler_paradox.png",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "empirical G2_stress_curves_omega.png",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "empirical G3_multi_panel_summary.png",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "empirical G4_model_comparison.png",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "empirical G5_education_zone_heatmap.png",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "empirical G6_destination_map.png",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "no forbidden hardcoded literals in figure script",
+      "status": "PASS",
+      "detail": "[]"
+    },
+    {
+      "name": "pytest tests/",
+      "status": "PASS",
+      "detail": "........................................ss.............................. [ 83%]\n..............                                                           [100%]\n84 passed, 2 skipped in 1.98s\n"
+    }
+  ],
+  "pass_count": 23,
+  "fail_count": 0
+}

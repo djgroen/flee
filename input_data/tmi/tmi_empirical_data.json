@@ -1,0 +1,683 @@
+{
+  "flee_model_qois_summary": {
+    "primary_qois": [
+      {
+        "name": "share_departed_peak_day",
+        "target": 0.54
+      },
+      {
+        "name": "return_within_three_weeks",
+        "target": 0.98
+      },
+      {
+        "name": "evacuation_rate_flat_inside_12mi",
+        "target": 0.39
+      },
+      {
+        "name": "median_evacuation_distance_miles_zeigler",
+        "target": 85.0
+      },
+      {
+        "name": "mean_evacuation_distance_miles_cutter",
+        "target": 111.6
+      },
+      {
+        "name": "directional_flow_nw_fraction",
+        "target": 0.5
+      },
+      {
+        "name": "inner_zone_departure_by_friday_fraction",
+        "target": 0.77
+      },
+      {
+        "name": "outer_zone_departure_by_friday_fraction",
+        "target": 0.33
+      }
+    ]
+  },
+  "conflict_schedule": {
+    "key_events": {
+      "t_10": {
+        "description": "Governor advisory spike",
+        "departure_fraction_surveys": [
+          0.54,
+          0.55
+        ]
+      },
+      "t_16": {
+        "description": "Carter visit; return window opens"
+      }
+    }
+  },
+  "evacuation_quarters": {
+    "hershey_official_shelter_households": 1,
+    "note": "Zeigler 1981; model Hershey as transit, not camp."
+  },
+  "evacuation_rate_by_distance": {
+    "source": "Zeigler 1981 Table III",
+    "discontinuity_mi": 12,
+    "data": [
+      {
+        "zone": "1-3 mi",
+        "rate_percent": 55,
+        "zone_group": "inner"
+      },
+      {
+        "zone": "4-6 mi",
+        "rate_percent": 56,
+        "zone_group": "inner"
+      },
+      {
+        "zone": "7-9 mi",
+        "rate_percent": 53,
+        "zone_group": "middle"
+      },
+      {
+        "zone": "10-12 mi",
+        "rate_percent": 47,
+        "zone_group": "middle"
+      },
+      {
+        "zone": "13-15 mi",
+        "rate_percent": 13,
+        "zone_group": "outer"
+      },
+      {
+        "zone": ">15 mi",
+        "rate_percent": 9,
+        "zone_group": "outer"
+      }
+    ]
+  },
+  "departure_timing": {
+    "friday_timestep": 10,
+    "footnote_interpolation": "Interpolated; only 0-6mi (77%) and >10mi (33%) are directly reported in Zeigler et al. 1981. Intermediate values are estimated.",
+    "zones_g1": [
+      {
+        "label": "1-3 mi",
+        "pct_by_friday": 77.0,
+        "interpolated": false,
+        "style": "inner"
+      },
+      {
+        "label": "4-6 mi",
+        "pct_by_friday": 77.0,
+        "interpolated": false,
+        "style": "inner"
+      },
+      {
+        "label": "7-9 mi",
+        "pct_by_friday": 60.0,
+        "interpolated": true,
+        "style": "middle"
+      },
+      {
+        "label": "10-12 mi",
+        "pct_by_friday": 45.0,
+        "interpolated": true,
+        "style": "middle"
+      },
+      {
+        "label": "13-15 mi",
+        "pct_by_friday": 20.0,
+        "interpolated": true,
+        "style": "outer"
+      },
+      {
+        "label": ">15 mi",
+        "pct_by_friday": 15.0,
+        "interpolated": true,
+        "style": "outer"
+      }
+    ],
+    "cumulative_departure_g3": {
+      "0-6mi": {
+        "points": [
+          {
+            "date": "1979-03-28",
+            "cumulative_pct": 10.0
+          },
+          {
+            "date": "1979-03-30",
+            "cumulative_pct": 77.0
+          },
+          {
+            "date": "1979-03-31",
+            "cumulative_pct": 95.0
+          },
+          {
+            "date": "1979-04-01",
+            "cumulative_pct": 100.0
+          }
+        ]
+      },
+      "7-12mi": {
+        "points": [
+          {
+            "date": "1979-03-28",
+            "cumulative_pct": 5.0
+          },
+          {
+            "date": "1979-03-30",
+            "cumulative_pct": 50.0
+          },
+          {
+            "date": "1979-03-31",
+            "cumulative_pct": 90.0
+          },
+          {
+            "date": "1979-04-02",
+            "cumulative_pct": 100.0
+          }
+        ],
+        "interpolated": true
+      },
+      ">12mi": {
+        "points": [
+          {
+            "date": "1979-03-28",
+            "cumulative_pct": 5.0
+          },
+          {
+            "date": "1979-03-30",
+            "cumulative_pct": 33.0
+          },
+          {
+            "date": "1979-04-01",
+            "cumulative_pct": 85.0
+          },
+          {
+            "date": "1979-04-03",
+            "cumulative_pct": 100.0
+          }
+        ]
+      }
+    }
+  },
+  "evacuation_rates_comparison": {
+    "zeigler_1981_table3": [
+      {
+        "zone": "1-3",
+        "rate_percent": 55
+      },
+      {
+        "zone": "4-6",
+        "rate_percent": 56
+      },
+      {
+        "zone": "7-9",
+        "rate_percent": 53
+      },
+      {
+        "zone": "10-12",
+        "rate_percent": 47
+      },
+      {
+        "zone": "13-15",
+        "rate_percent": 13
+      },
+      {
+        "zone": ">15",
+        "rate_percent": 9
+      }
+    ],
+    "cutter_1982_table2": [
+      {
+        "zone": "0-5",
+        "rate_percent": 52
+      },
+      {
+        "zone": "5-10",
+        "rate_percent": 48
+      },
+      {
+        "zone": "10-15",
+        "rate_percent": 35
+      },
+      {
+        "zone": "15-20",
+        "rate_percent": 18
+      },
+      {
+        "zone": ">20",
+        "rate_percent": 8
+      }
+    ]
+  },
+  "advisory_contrast": {
+    "pct_within_15mi_evacuated": 39,
+    "pct_officially_advised": 0.5
+  },
+  "stress_curves_g2": {
+    "threshold": 0.65,
+    "threshold_citation": "Zeigler 1981, p.13",
+    "evacuees": [
+      [
+        0,
+        0.15
+      ],
+      [
+        1,
+        0.25
+      ],
+      [
+        2,
+        0.35
+      ],
+      [
+        3,
+        0.45
+      ],
+      [
+        4,
+        0.4
+      ],
+      [
+        5,
+        0.42
+      ],
+      [
+        6,
+        0.48
+      ],
+      [
+        7,
+        0.52
+      ],
+      [
+        8,
+        0.62
+      ],
+      [
+        9,
+        0.78
+      ],
+      [
+        10,
+        0.85
+      ],
+      [
+        11,
+        0.7
+      ],
+      [
+        12,
+        0.55
+      ],
+      [
+        13,
+        0.48
+      ],
+      [
+        14,
+        0.4
+      ],
+      [
+        15,
+        0.3
+      ],
+      [
+        16,
+        0.18
+      ],
+      [
+        17,
+        0.12
+      ],
+      [
+        18,
+        0.08
+      ],
+      [
+        19,
+        0.05
+      ]
+    ],
+    "residual_population": [
+      [
+        0,
+        0.08
+      ],
+      [
+        1,
+        0.12
+      ],
+      [
+        2,
+        0.18
+      ],
+      [
+        3,
+        0.22
+      ],
+      [
+        4,
+        0.2
+      ],
+      [
+        5,
+        0.24
+      ],
+      [
+        6,
+        0.26
+      ],
+      [
+        7,
+        0.28
+      ],
+      [
+        8,
+        0.35
+      ],
+      [
+        9,
+        0.48
+      ],
+      [
+        10,
+        0.52
+      ],
+      [
+        11,
+        0.5
+      ],
+      [
+        12,
+        0.45
+      ],
+      [
+        13,
+        0.4
+      ],
+      [
+        14,
+        0.35
+      ],
+      [
+        15,
+        0.28
+      ],
+      [
+        16,
+        0.18
+      ],
+      [
+        17,
+        0.14
+      ],
+      [
+        18,
+        0.1
+      ],
+      [
+        19,
+        0.06
+      ]
+    ],
+    "event_markers": [
+      {
+        "t": 3,
+        "label": "Scranton reversal"
+      },
+      {
+        "t": 9,
+        "label": "NRC misreport"
+      },
+      {
+        "t": 10,
+        "label": "Governor's advisory\n\u2190 54% depart",
+        "emphasis": "red"
+      },
+      {
+        "t": 16,
+        "label": "Carter visits plant\n\u2190 return begins",
+        "emphasis": "green"
+      }
+    ]
+  },
+  "return_behavior": {
+    "weeks": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "cumulative_return_pct": [
+      0,
+      53,
+      90,
+      98,
+      100
+    ],
+    "carter_visit_date": "1979-04-01"
+  },
+  "cutter_age_evacuation_rates": {
+    "source": "Cutter 1982 Table 3",
+    "age_groups": [
+      "20-29",
+      "30-39",
+      "40-49",
+      "50-59",
+      "60+"
+    ],
+    "rates_percent": [
+      46.8,
+      43.5,
+      45.3,
+      14.3,
+      13.8
+    ]
+  },
+  "cutter_social_influence": {
+    "source": "Cutter 1982 Table 6",
+    "evacuees_neighbors_left_pct": 74,
+    "non_evacuees_neighbors_stayed_pct": 50,
+    "p_value_note": "0.000"
+  },
+  "reasons_for_evacuating": [
+    {
+      "reason": "Safety",
+      "percent": 91
+    },
+    {
+      "reason": "Gov+Utility conflict",
+      "percent": 48
+    },
+    {
+      "reason": "Utility conflict",
+      "percent": 26
+    },
+    {
+      "reason": "Govt conflict",
+      "percent": 24
+    },
+    {
+      "reason": "News media",
+      "percent": 20
+    },
+    {
+      "reason": "Everyone evacuating",
+      "percent": 7
+    }
+  ],
+  "reasons_for_not_evacuating": [
+    {
+      "reason": "No order",
+      "percent": 62
+    },
+    {
+      "reason": "Conflicting reports",
+      "percent": 42
+    },
+    {
+      "reason": "No reason",
+      "percent": 38
+    },
+    {
+      "reason": "Safe distance",
+      "percent": 31
+    },
+    {
+      "reason": "Fear looting",
+      "percent": 24
+    },
+    {
+      "reason": "No children",
+      "percent": 23
+    }
+  ],
+  "education_effect": {
+    "finding_rutgers_weak": {
+      "spatial_inconsistency": [
+        {
+          "zone_code": "I",
+          "zone": "0-5mi",
+          "chi_sq": 1.52,
+          "p_value": 0.75,
+          "gamma": 0.137
+        },
+        {
+          "zone_code": "II",
+          "zone": "5-10mi",
+          "chi_sq": 13.72,
+          "p_value": 0.003,
+          "gamma": 0.582
+        },
+        {
+          "zone_code": "III",
+          "zone": "10-15mi",
+          "chi_sq": 3.27,
+          "p_value": 0.351,
+          "gamma": 0.033
+        },
+        {
+          "zone_code": "IV",
+          "zone": "15-20mi",
+          "chi_sq": 11.54,
+          "p_value": 0.01,
+          "gamma": 0.647
+        }
+      ]
+    }
+  },
+  "johnson_zeigler_1986_panel": {
+    "r2": 0.21,
+    "reclassified_pct": 71,
+    "caption": "Predicts WHO evacuated (binary)\np\u00b2=0.21 \u00b7 71% reclassified\nStatic logistic model \u00b7 Cannot produce Zeigler paradox"
+  },
+  "flee_dual_process_panel": {
+    "caption": "Predicts WHERE agents go and HOW FAR\nZeigler paradox \u00b7 Return timing \u00b7 Shadow evacuation\nDynamic \u00b7 Agent-based"
+  },
+  "bridging_model_text": "COMPLEMENTARY, NOT COMPETING\nJZ1986: explains who left (demographics \u2192 binary decision)\nFLEE: explains where they went (cognitive architecture \u2192 trajectory)\nJZ1986 'evacuation-response threshold' (p.13) = CMC in FLEE\nThreshold variability across agents = \u03a8 distribution",
+  "destination_map_g6": {
+    "plant": {
+      "lat": 40.153,
+      "lon": -76.726
+    },
+    "flow_arrows": [
+      {
+        "direction": "NW",
+        "fraction_pct": 50,
+        "lw": 4.0
+      },
+      {
+        "direction": "SE",
+        "fraction_pct": 10,
+        "lw": 1.5
+      },
+      {
+        "direction": "NE",
+        "fraction_pct": 20,
+        "lw": 2.0
+      },
+      {
+        "direction": "SW",
+        "fraction_pct": 20,
+        "lw": 2.0
+      }
+    ],
+    "rings_mi": [
+      15,
+      45,
+      90
+    ],
+    "cities": [
+      {
+        "name": "Harrisburg",
+        "lat": 40.273,
+        "lon": -76.884,
+        "note": "transit only"
+      },
+      {
+        "name": "Middletown",
+        "lat": 40.2,
+        "lon": -76.73,
+        "note": "plant area"
+      },
+      {
+        "name": "Carlisle",
+        "lat": 40.202,
+        "lon": -77.188,
+        "note": ""
+      },
+      {
+        "name": "Hershey",
+        "lat": 40.286,
+        "lon": -76.65,
+        "note": "unused shelter"
+      },
+      {
+        "name": "State College",
+        "lat": 40.793,
+        "lon": -77.86,
+        "note": ""
+      },
+      {
+        "name": "Reading",
+        "lat": 40.336,
+        "lon": -75.927,
+        "note": ""
+      },
+      {
+        "name": "Philadelphia",
+        "lat": 39.953,
+        "lon": -75.164,
+        "note": ""
+      },
+      {
+        "name": "Baltimore",
+        "lat": 39.29,
+        "lon": -76.612,
+        "note": ""
+      },
+      {
+        "name": "Pittsburgh",
+        "lat": 40.441,
+        "lon": -79.99,
+        "note": ""
+      },
+      {
+        "name": "New York",
+        "lat": 40.713,
+        "lon": -74.006,
+        "note": ""
+      }
+    ],
+    "distance_estimates": [
+      {
+        "label": "85 mi (MSU, Zeigler 1981)",
+        "kind": "median"
+      },
+      {
+        "label": "100 mi (NRC, Flynn 1979)",
+        "kind": "median"
+      },
+      {
+        "label": "111.6 mi (Rutgers, Cutter 1982)",
+        "kind": "mean"
+      }
+    ]
+  }
+}

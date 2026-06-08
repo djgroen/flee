@@ -1,0 +1,40 @@
+{
+  "description": "TMI five-day information crisis schedule",
+  "omega_type": "spatially_uniform_temporally_volatile",
+  "fukushima_contrast": "Fukushima is spatially structured, temporally stable",
+  "timestep_hours": 6,
+  "n_timesteps": 20,
+  "peak_timestep": 10,
+  "peak_event": "Governor Thornburgh advisory + NRC misreport, March 30 12:30pm",
+  "peak_empirical_anchor": "54-55% of all evacuation units departed this day (3 surveys)",
+  "recovery_timestep": 16,
+  "recovery_event": "President Carter tours TMI plant, April 1",
+  "recovery_empirical_anchor": "98% return within 3 weeks begins here",
+  "sources": [
+    "Kemeny Commission 1979",
+    "Walker 2004",
+    "Zeigler et al. 1981"
+  ],
+  "c_values": [
+    0.0,
+    0.05,
+    0.15,
+    0.3,
+    0.2,
+    0.25,
+    0.2,
+    0.25,
+    0.35,
+    0.75,
+    1.0,
+    0.85,
+    0.55,
+    0.4,
+    0.3,
+    0.2,
+    0.1,
+    0.08,
+    0.05,
+    0.0
+  ]
+}

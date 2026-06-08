@@ -77,8 +77,10 @@ class Person:
         # current link.
         self.distance_travelled_on_link = 0
     
-        # Initialize attributes dictionary and ensure "connections" is set
-        self.attributes = {"connections":0} | attributes
+        # Initialize attributes dictionary with stable defaults used in diagnostics.
+        # "education" default keeps agent-output columns consistent when no
+        # demographics file provides the value.
+        self.attributes = {"connections": 0, "education": "unknown"} | attributes
 
         self.sys2_activation_prob = 0.0  # V3: System-2 deliberation weight for diagnostics
         self._last_blended_movechance = 0.0  # for run_comparison_ring diagnostics
@@ -106,6 +108,15 @@ class Person:
     def log_decision(self, decision_type: str, factors: dict, time: int) -> None:
         """No-op for V3; kept for API compatibility if external code calls it."""
         pass
+
+    @property
+    def s2_activation_prob(self) -> float:
+        """Back-compat alias for older scripts expecting s2_activation_prob."""
+        return self.sys2_activation_prob
+
+    @s2_activation_prob.setter
+    def s2_activation_prob(self, value: float) -> None:
+        self.sys2_activation_prob = value
 
     def calculate_cognitive_pressure(self, time: int) -> float:
         """No-op for V3; returns 0.0 for API compatibility (e.g. nuclear_evacuation_simulations)."""
