@@ -1,0 +1,4 @@
+zone,n_agents,n_arrived,arrival_fraction,mean_departure_t,path_min,path_p25,path_median,path_p75,path_max,path_mean
+inner,435,405,0.931,1.998,23.992,47.78,74.442,119.941,325.667,89.35
+middle,4020,3862,0.9607,1.491,3.459,3.459,49.315,96.466,435.859,63.746
+outer,5545,5438,0.9807,1.462,2.381,2.381,2.471,76.844,542.011,44.628

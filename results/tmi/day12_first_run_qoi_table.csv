@@ -1,0 +1,33 @@
+mode,qoi_name,model_mean,model_std,empirical_target,empirical_source,within_range
+original,total_evac_rate_20mi,0.31411,0.00357,0.21,derived 140k/663.5k (sanity),False
+original,evac_rate_inner,0.51494,0.03664,0.55,Zeigler 1981 Table III (1-6mi),True
+original,evac_rate_middle,0.73955,0.01531,0.5,Zeigler 1981 Table III (7-12mi),False
+original,evac_rate_outer,0.88025,0.01,0.16,Zeigler 1981 Table III (13+mi),False
+original,inner_departed_by_t10,0.29655,0.03032,0.77,Zeigler inner by Friday,False
+original,advisory_mobility_spike,-0.01645,0.01253,0.0,mobility(t10)>mobility(t5),False
+original,path_inner_lt_outer_km,35.28701,3.90575,0.0,Zeigler P3: inner<outer (gap<0),False
+original,camp_fill_of_evacuees,0.80974,0.00892,0.9,>=90% of departers in camps,False
+sys1_only,total_evac_rate_20mi,0.31411,0.00357,0.21,derived 140k/663.5k (sanity),False
+sys1_only,evac_rate_inner,0.51494,0.03664,0.55,Zeigler 1981 Table III (1-6mi),True
+sys1_only,evac_rate_middle,0.73955,0.01531,0.5,Zeigler 1981 Table III (7-12mi),False
+sys1_only,evac_rate_outer,0.88025,0.01,0.16,Zeigler 1981 Table III (13+mi),False
+sys1_only,inner_departed_by_t10,0.29655,0.03032,0.77,Zeigler inner by Friday,False
+sys1_only,advisory_mobility_spike,-0.01645,0.01253,0.0,mobility(t10)>mobility(t5),False
+sys1_only,path_inner_lt_outer_km,35.28701,3.90575,0.0,Zeigler P3: inner<outer (gap<0),False
+sys1_only,camp_fill_of_evacuees,0.80974,0.00892,0.9,>=90% of departers in camps,False
+switch,total_evac_rate_20mi,0.37007,0.0012,0.21,derived 140k/663.5k (sanity),False
+switch,evac_rate_inner,0.87356,0.02518,0.55,Zeigler 1981 Table III (1-6mi),False
+switch,evac_rate_middle,0.93706,0.00587,0.5,Zeigler 1981 Table III (7-12mi),False
+switch,evac_rate_outer,0.96844,0.00307,0.16,Zeigler 1981 Table III (13+mi),False
+switch,inner_departed_by_t10,0.78391,0.02944,0.77,Zeigler inner by Friday,True
+switch,advisory_mobility_spike,0.68625,0.01318,0.0,mobility(t10)>mobility(t5),True
+switch,path_inner_lt_outer_km,43.76178,4.32822,0.0,Zeigler P3: inner<outer (gap<0),False
+switch,camp_fill_of_evacuees,0.9518,0.00306,0.9,>=90% of departers in camps,True
+blend,total_evac_rate_20mi,0.37738,0.00157,0.21,derived 140k/663.5k (sanity),False
+blend,evac_rate_inner,0.93103,0.03084,0.55,Zeigler 1981 Table III (1-6mi),False
+blend,evac_rate_middle,0.9607,0.00482,0.5,Zeigler 1981 Table III (7-12mi),False
+blend,evac_rate_outer,0.9807,0.00259,0.16,Zeigler 1981 Table III (13+mi),False
+blend,inner_departed_by_t10,0.86667,0.05659,0.77,Zeigler inner by Friday,True
+blend,advisory_mobility_spike,0.59686,0.01473,0.0,mobility(t10)>mobility(t5),True
+blend,path_inner_lt_outer_km,44.80665,6.42946,0.0,Zeigler P3: inner<outer (gap<0),False
+blend,camp_fill_of_evacuees,0.9705,0.00404,0.9,>=90% of departers in camps,True

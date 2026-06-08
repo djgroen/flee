@@ -1,0 +1,16 @@
+{
+  "mixture_mode": "blend",
+  "advisory_t": 10,
+  "recovery_t": 16,
+  "tmi_zone_ps2_spread_t10": 0.0014577732774411292,
+  "tmi_zone_ps2_spread_max": 0.009258835812290677,
+  "fukushima_indicative_spread_day3": 0.1155793099083819,
+  "fukushima_comparison_basis": "Day-3 starting params (alpha=1.0,beta=2.0); parameter-matched (locked Day-10) comparison DEFERRED to Day 16",
+  "spread_ratio_tmi_over_fuk": 0.012612752910505225,
+  "zone_means_t10": {
+    "inner": 0.04581820450957323,
+    "middle": 0.04761271035173454,
+    "outer": 0.044041925167012164
+  },
+  "verdict_uniform": true
+}

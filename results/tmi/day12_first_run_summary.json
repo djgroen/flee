@@ -1,0 +1,27 @@
+{
+  "n_agents": 2000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "t_max": 19,
+  "frozen": {
+    "alpha": 1.6667,
+    "beta": 2.1667,
+    "kappa": 18.407,
+    "conflict_movechance": 0.25
+  },
+  "mixture_mode": "blend",
+  "total_evac_rate_20mi_mean": 0.37738,
+  "evac_rate_inner": 0.93103,
+  "evac_rate_middle": 0.9607,
+  "evac_rate_outer": 0.9807,
+  "mobility_t5": 0.3284743477504938,
+  "mobility_t10": 0.9253358129361752,
+  "path_inner_mean": 89.434265983887,
+  "path_outer_mean": 44.62761517009368,
+  "p4_shadow_evac_outer": 0.9807
+}

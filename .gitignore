@@ -74,6 +74,9 @@ Thumbs.db
 # TMI Day 11 inputs and small run artifacts
 !input_data/tmi/**/*.csv
 !input_data/tmi/**/*.json
+!results/tmi/day12_*.csv
+!results/tmi/day12_*.json
+!results/tmi/diagnostics_gate_day12.json
 !results/tmi/diagnostics_gate_day11.json
 !results/tmi/smoke_test/*.csv
 !figures/tmi/**/*.png

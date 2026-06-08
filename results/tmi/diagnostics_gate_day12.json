@@ -1,0 +1,94 @@
+{
+  "day11_inherited": {
+    "pass": 23,
+    "fail": 0
+  },
+  "day12_new_checks": [
+    {
+      "name": "24 OSM distances updated (orig preserved, >=1 differs)",
+      "status": "PASS",
+      "detail": "differs=18, backup=True"
+    },
+    {
+      "name": "25 QoI table (4 modes x >=6 QoIs, mean & std)",
+      "status": "PASS",
+      "detail": "modes=4, qois=8, mean&std=True"
+    },
+    {
+      "name": "26 total evac (mixture) in [15%,30%] of 20-mi pop",
+      "status": "FAIL",
+      "detail": "evac=0.377 OUT of [0.15,0.30] \u2014 frozen Fukushima CMC over-mobilises TMI (expected; Day 14 recalibration / Day 16)"
+    },
+    {
+      "name": "27 advisory mobility spike (mixture t10 > t5)",
+      "status": "PASS",
+      "detail": "t10=0.925 vs t5=0.328"
+    },
+    {
+      "name": "28 zone P_S2 spread LOW",
+      "status": "PASS",
+      "detail": "tmi=0.0015 < fukushima(day3 indicative)=0.1156"
+    },
+    {
+      "name": "29 Zeigler metric (arrival+departure+path by zone)",
+      "status": "PASS",
+      "detail": "zones=['inner', 'middle', 'outer'], cols_ok=True"
+    },
+    {
+      "name": "30 P_S2 figure generated",
+      "status": "PASS",
+      "detail": "day12_ps2_zones.png"
+    }
+  ],
+  "umbrella_check_list": [
+    {
+      "name": "Day 11 gate inherited (23 checks)",
+      "status": "PASS",
+      "detail": "pass=23 fail=0"
+    },
+    {
+      "name": "24 OSM distances updated (orig preserved, >=1 differs)",
+      "status": "PASS",
+      "detail": "differs=18, backup=True"
+    },
+    {
+      "name": "25 QoI table (4 modes x >=6 QoIs, mean & std)",
+      "status": "PASS",
+      "detail": "modes=4, qois=8, mean&std=True"
+    },
+    {
+      "name": "26 total evac (mixture) in [15%,30%] of 20-mi pop",
+      "status": "FAIL",
+      "detail": "evac=0.377 OUT of [0.15,0.30] \u2014 frozen Fukushima CMC over-mobilises TMI (expected; Day 14 recalibration / Day 16)"
+    },
+    {
+      "name": "27 advisory mobility spike (mixture t10 > t5)",
+      "status": "PASS",
+      "detail": "t10=0.925 vs t5=0.328"
+    },
+    {
+      "name": "28 zone P_S2 spread LOW",
+      "status": "PASS",
+      "detail": "tmi=0.0015 < fukushima(day3 indicative)=0.1156"
+    },
+    {
+      "name": "29 Zeigler metric (arrival+departure+path by zone)",
+      "status": "PASS",
+      "detail": "zones=['inner', 'middle', 'outer'], cols_ok=True"
+    },
+    {
+      "name": "30 P_S2 figure generated",
+      "status": "PASS",
+      "detail": "day12_ps2_zones.png"
+    }
+  ],
+  "new_pass": 6,
+  "new_fail": 1,
+  "total_checks": 30,
+  "total_pass": 29,
+  "total_fail": 1,
+  "verdict": "29/30 PASS",
+  "known_expected_failures": [
+    "26 total evac in [15,30]: frozen Fukushima CMC over-mobilises TMI (model evac 37.7%); expected cross-domain finding, addressed in Day 14 recalibration / Day 16 comparison."
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "mixture_mode": "blend",
+  "inner": {
+    "arrival_frac": 0.9310344827586207,
+    "mean_dep": 1.9977011494252874,
+    "path_min": 23.992,
+    "path_p25": 47.78,
+    "path_median": 74.442,
+    "path_p75": 119.941,
+    "path_max": 325.6670000000001,
+    "path_mean": 89.35043209876544
+  },
+  "outer": {
+    "arrival_frac": 0.9807033363390442,
+    "mean_dep": 1.4616771866546439,
+    "path_min": 2.381,
+    "path_p25": 2.381,
+    "path_median": 2.471,
+    "path_p75": 76.844,
+    "path_max": 542.0109999999999,
+    "path_mean": 44.628202831923495
+  },
+  "middle": {
+    "arrival_frac": 0.9606965174129353,
+    "mean_dep": 1.4907960199004975,
+    "path_min": 3.459,
+    "path_p25": 3.459,
+    "path_median": 49.315000000000005,
+    "path_p75": 96.46600000000001,
+    "path_max": 435.859,
+    "path_mean": 63.74552304505438
+  },
+  "departure_gap_inner_minus_outer": 0.5360239627706436,
+  "path_gap_inner_minus_outer_km": 44.72222926684194,
+  "signature_confirmed": false,
+  "p2_var_departure_by_psi_quintile": 0.021065960000000012,
+  "p2_var_departure_by_zone": 0.060569156161387576,
+  "p2_psi_is_primary_differentiator": false,
+  "note": "path-length-at-arrival is dominated by network topology (outer towns york/lancaster have ADJACENT camps; inner towns traverse multi-hop routes to harrisburg_camp). At frozen params the cognitive Zeigler gradient is not isolated \u2014 expected; Day 14 calibration may sharpen it."
+}
