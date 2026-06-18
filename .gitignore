@@ -97,3 +97,5 @@ Thumbs.db
 !results/tmi/day15_*.csv
 !results/tmi/day15_*.json
 !results/tmi/diagnostics_gate_day15.json
+
+reports/~$*
