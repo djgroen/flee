@@ -1,0 +1,94 @@
+==============================================================================
+Day 13 Pre-Flight Findings — TMI Sobol Sensitivity (4 factors: CMC, alpha, beta, kappa)
+FLEE Dual-Process Model | Phase 3: TMI Full Calibration
+==============================================================================
+Authoritative for all Day 13 tasks. alpha/beta/kappa are SWEPT here for
+identifiability; the Fukushima-locked values (1.6667/2.1667/18.407) remain the
+cross-domain transfer hypothesis. CMC is now a SWEPT factor (Day 12: CMC=0.25
+over-mobilises TMI, ~97% town evac vs ~21% empirical).
+
+------------------------------------------------------------------------------
+0.1  CAMPAIGN INFRASTRUCTURE (reuse, adapt — do not rebuild)
+------------------------------------------------------------------------------
+Day-7b campaign: scripts/run_sobol_day7b.py
+  - Sampler:  SALib.sample.sobol (Saltelli quasi-random).
+  - Analysis: SALib.analyze.sobol; raw['S1']/['ST'] remapped IMMEDIATELY to the
+              S_first / ST convention (raw['S1'] never touched downstream).
+  - Bootstrap CIs: sobol_analyze.analyze(num_resamples=1000, conf_level=0.95)
+              returns S_first_conf / ST_conf (half-width); CI = index +/- conf.
+  - Sanity gate: check_index_validity() — S_first>=0, ST<=1, CI-width warnings.
+  SALib version installed: 1.5.1.
+  Day 13 reuses the SALib analyze + S1->S_first remap + bootstrap pattern and
+  the index-validity gate; the simulation driver is swapped to the TMI
+  run_one (scripts/tmi_common_day12.py).
+
+  NOTE on sample-count convention: Day 7b used calc_second_order=False ->
+  total = N*(D+2). Day 13 follows THIS prompt's spec: calc_second_order=True ->
+  total = N*(2D+2) = N*10 for D=4 (gate #32). Verified with SALib 1.5.1:
+      N=64, calc_second_order=True  -> 640 rows  (= 64*10)  [USED]
+      N=64, calc_second_order=False -> 384 rows  (= 64*6)
+
+------------------------------------------------------------------------------
+0.2  CMC IN THE CAMPAIGN
+------------------------------------------------------------------------------
+Config key: YAML `conflict_movechance` -> SimulationSettings.move_rules
+            ["ConflictMoveChance"] in code.
+Applied AFTER ReadFromYML(): yes. tmi_common_day12.load_config() sets it
+post-ReadFromYML; Day 13 run_one() now takes an explicit `cmc` argument and
+assigns move_rules["ConflictMoveChance"] = cmc AFTER load_config(). Continuous,
+varied over [0.0, 0.30].
+
+------------------------------------------------------------------------------
+0.3  PANIC-CLAMP TOGGLE
+------------------------------------------------------------------------------
+Clamp = `conflict_intensity > 0.9  ->  movechance = max(movechance, 0.95)`.
+Locations:
+  - flee/decision_engine.py  BlendEngine.compute_move_probability  (mixture path)
+  - flee/decision_engine.py  SwitchEngine.compute_move_probability
+  - flee/moving.py           calculateMoveChance override path (sys2_only)
+No pre-existing flag. ADDED a config flag `enable_panic_clamp` (default True,
+so behaviour is UNCHANGED when absent — 84 tests unaffected):
+  - DecisionEngine.__init__(..., enable_panic_clamp: bool = True); honoured by
+    Blend/Switch engines; DecisionEngine.create() reads
+    config.get("enable_panic_clamp", True).
+  - moving.py override path reads
+    SimulationSettings.move_rules.get("enable_panic_clamp", True).
+Day 13 run_one() threads enable_panic_clamp into both the engine config and
+move_rules. Task C sets it False.
+
+------------------------------------------------------------------------------
+0.4  QoI EXTRACTORS
+------------------------------------------------------------------------------
+Reusable driver: scripts/tmi_common_day12.run_one(mode, n_agents, t_max, seed,
+alpha, beta, kappa) -> (agents_df, arrival_df, mobility_df). Day-12
+per_run_metrics() is monolithic; Day 13 reimplements TIERED QoIs (Task B) on the
+same dataframes, adding PRE-PEAK (t<=8, strictly before the t=10 clamp) variants
+that Day 12 did not need. Zone assignment (inner<=6 / middle<=12 / outer mi) is
+imported from tmi_common_day12.
+
+------------------------------------------------------------------------------
+0.5  BASE-SAMPLE CONVENTION + TIMING
+------------------------------------------------------------------------------
+"n" in Day 7b = SALib base sample N (n_samples), NOT total evaluations.
+Day 13: base N = 64 (power of two, recommended); calc_second_order=True ->
+        total samples = N*(2D+2) = 64*10 = 640.
+ABM noise control: each sample = MEAN QoI over 3 fixed seeds [0,1,2].
+        total model runs (clamp ON)  = 640 * 3 = 1920
+        total model runs (clamp OFF) = 640 * 3 = 1920   (Task C, same design)
+Peak timestep: t = 10 (c=1.0).
+c(t) > 0.9: ONLY at t = 10 (c[8]=0.35, c[9]=0.75, c[11]=0.85). The clamp fires
+        on a single timestep — so "fraction departed by t=8" is safely pre-clamp,
+        and only QoIs measured at/after t=10 are clamp-exposed.
+
+------------------------------------------------------------------------------
+RUN CONFIGURATION
+------------------------------------------------------------------------------
+  mode            = blend (full mixture; only mode where alpha/beta/kappa act)
+  network         = input_data/tmi (OSM distances from Day 12)
+  t_max           = 19 (= T_SCHED)
+  factors/bounds  = CMC[0.0,0.30], alpha[0.5,5.0], beta[1.0,10.0], kappa[1.0,20.0]
+  sampler         = Saltelli, N=64, calc_second_order=True -> 640 samples
+  seeds/sample    = [0,1,2] (mean QoI)
+  bootstrap       = 1000 resamples, 95% CI
+  n_agents        = 800 (Sobol scale; QoI stability via 3-seed mean)
+==============================================================================

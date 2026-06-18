@@ -1,0 +1,77 @@
+{
+  "problem": {
+    "num_vars": 4,
+    "names": [
+      "cmc",
+      "alpha",
+      "beta",
+      "kappa"
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.3
+      ],
+      [
+        0.5,
+        5.0
+      ],
+      [
+        1.0,
+        10.0
+      ],
+      [
+        1.0,
+        20.0
+      ]
+    ],
+    "sample_scaled": true
+  },
+  "n_base": 64,
+  "is_power_of_two": true,
+  "calc_second_order": true,
+  "total_samples": 640,
+  "total_samples_formula": "N*(2D+2)=N*10",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "seeds_per_sample": 3,
+  "total_runs_clamp_on": 1920,
+  "total_runs_clamp_off": 1920,
+  "n_agents": 1000,
+  "mode": "blend",
+  "t_max": 19,
+  "peak_t": 10,
+  "pre_peak_t": 8,
+  "shadow_mi": 15.0,
+  "qoi_tiers": {
+    "frac_by_t8": 1,
+    "median_departure": 1,
+    "peak_ps2": 1,
+    "zone_ps2_spread_t10": 1,
+    "gap_median_departure": 2,
+    "gap_frac_by_t8": 2,
+    "total_evac": 3,
+    "shadow_evac": 3
+  },
+  "factor_ranges": {
+    "cmc": [
+      0.0,
+      0.3
+    ],
+    "alpha": [
+      0.5,
+      5.0
+    ],
+    "beta": [
+      1.0,
+      10.0
+    ],
+    "kappa": [
+      1.0,
+      20.0
+    ]
+  }
+}

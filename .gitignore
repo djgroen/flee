@@ -80,3 +80,8 @@ Thumbs.db
 !results/tmi/diagnostics_gate_day11.json
 !results/tmi/smoke_test/*.csv
 !figures/tmi/**/*.png
+
+# TMI Day 13 Sobol sensitivity artifacts
+!results/tmi/day13_*.csv
+!results/tmi/day13_*.json
+!results/tmi/diagnostics_gate_day13.json

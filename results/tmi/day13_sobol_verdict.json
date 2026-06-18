@@ -1,0 +1,69 @@
+{
+  "cmc": {
+    "status": "identifiable",
+    "best_tier1_ST": 0.7832,
+    "best_tier1_qoi": "frac_by_t8",
+    "carriers": [
+      [
+        "frac_by_t8",
+        0.783
+      ],
+      [
+        "median_departure",
+        0.758
+      ]
+    ],
+    "total_evac_ST_clamp_on": 0.6112,
+    "total_evac_ST_clamp_off": 0.7766,
+    "clamp_dependent_on_total_evac": true
+  },
+  "alpha": {
+    "status": "identifiable",
+    "best_tier1_ST": 1.0037,
+    "best_tier1_qoi": "peak_ps2",
+    "carriers": [
+      [
+        "frac_by_t8",
+        0.118
+      ],
+      [
+        "median_departure",
+        0.27
+      ],
+      [
+        "peak_ps2",
+        1.004
+      ]
+    ],
+    "total_evac_ST_clamp_on": 0.135,
+    "total_evac_ST_clamp_off": 0.0645,
+    "clamp_dependent_on_total_evac": false
+  },
+  "beta": {
+    "status": "identifiable",
+    "best_tier1_ST": 0.1644,
+    "best_tier1_qoi": "frac_by_t8",
+    "carriers": [
+      [
+        "frac_by_t8",
+        0.164
+      ],
+      [
+        "median_departure",
+        0.161
+      ]
+    ],
+    "total_evac_ST_clamp_on": 0.2552,
+    "total_evac_ST_clamp_off": 0.1595,
+    "clamp_dependent_on_total_evac": false
+  },
+  "kappa": {
+    "status": "flat",
+    "best_tier1_ST": 0.0146,
+    "best_tier1_qoi": "median_departure",
+    "carriers": [],
+    "total_evac_ST_clamp_on": 0.0343,
+    "total_evac_ST_clamp_off": 0.0065,
+    "clamp_dependent_on_total_evac": false
+  }
+}

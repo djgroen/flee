@@ -165,8 +165,13 @@ def _build_potential_field(n_steps):
 
 
 def run_one(mode, n_agents, t_max, seed,
-            alpha=FROZEN_ALPHA, beta=FROZEN_BETA, kappa=FROZEN_KAPPA):
+            alpha=FROZEN_ALPHA, beta=FROZEN_BETA, kappa=FROZEN_KAPPA,
+            cmc=FROZEN_CMC, enable_panic_clamp=True):
     """Run a single TMI simulation in one decision mode.
+
+    ``cmc`` overrides ConflictMoveChance AFTER ReadFromYML (Day 13 swept factor).
+    ``enable_panic_clamp`` toggles the conflict>0.9 -> movechance>=0.95 clamp
+    (Day 13 Task C disables it). Both default to the Day-12 frozen behaviour.
 
     Returns (agents_df, arrival_df, mobility_df).
       agents_df : per (timestep, agent) — location, zone, initial_zone,
@@ -178,6 +183,9 @@ def run_one(mode, n_agents, t_max, seed,
     """
     locinfo = load_locations()
     load_config()
+    # CMC swept factor: override AFTER load_config()/ReadFromYML (Day 13.0.2).
+    SimulationSettings.move_rules["ConflictMoveChance"] = float(cmc)
+    SimulationSettings.move_rules["enable_panic_clamp"] = bool(enable_panic_clamp)
     SimulationSettings.ConflictInputFile = str(TMI / "conflicts.csv")
     SimulationSettings.move_rules["TwoSystemDecisionMaking"] = (mode != "original")
     SimulationSettings.move_rules["decision_mode"] = mode
@@ -185,7 +193,8 @@ def run_one(mode, n_agents, t_max, seed,
         "alpha": alpha, "beta": beta, "kappa": kappa,
     }
     SimulationSettings.move_rules["decision_engine"] = DecisionEngine.create(
-        mode, {"s1s2_model_params": SimulationSettings.move_rules["s1s2_model_params"]},
+        mode, {"s1s2_model_params": SimulationSettings.move_rules["s1s2_model_params"],
+               "enable_panic_clamp": bool(enable_panic_clamp)},
     )
     SimulationSettings.move_rules["sys2_weight_override"] = None
 

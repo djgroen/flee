@@ -20,10 +20,15 @@ from flee.dual_process_model import (
 class DecisionEngine(ABC):
     """Abstract base for all decision modes."""
 
-    def __init__(self, alpha: float = 2.0, beta: float = 2.0, kappa: float = 5.0):
+    def __init__(self, alpha: float = 2.0, beta: float = 2.0, kappa: float = 5.0,
+                 enable_panic_clamp: bool = True):
         self.alpha = alpha
         self.beta = beta
         self.kappa = kappa
+        # Panic clamp: conflict_intensity > 0.9 -> movechance >= 0.95.
+        # Default True preserves published behaviour; Day 13 Task C disables it
+        # to expose parameter-driven (vs clamp-driven) mobilisation.
+        self.enable_panic_clamp = enable_panic_clamp
 
     # Legacy aliases preserved so old YAML configs and CSVs still resolve to
     # the post-rename modes (sobol vs cognitive disambiguation, Day 7b).
@@ -39,15 +44,21 @@ class DecisionEngine(ABC):
         beta = float(params.get("beta", 2.0))
         kappa = float(params.get("kappa", 5.0))
         switch_threshold = float(params.get("switch_threshold", 0.5))
+        enable_panic_clamp = bool(config.get("enable_panic_clamp", True))
 
         if mode == "original":
-            return OriginalFLEE(alpha=alpha, beta=beta, kappa=kappa)
+            return OriginalFLEE(alpha=alpha, beta=beta, kappa=kappa,
+                                enable_panic_clamp=enable_panic_clamp)
         elif mode == "sys1_only":
-            return Sys1OnlyEngine(alpha=alpha, beta=beta, kappa=kappa)
+            return Sys1OnlyEngine(alpha=alpha, beta=beta, kappa=kappa,
+                                  enable_panic_clamp=enable_panic_clamp)
         elif mode == "switch":
-            return SwitchEngine(alpha=alpha, beta=beta, kappa=kappa, threshold=switch_threshold)
+            return SwitchEngine(alpha=alpha, beta=beta, kappa=kappa,
+                                threshold=switch_threshold,
+                                enable_panic_clamp=enable_panic_clamp)
         elif mode == "blend":
-            return BlendEngine(alpha=alpha, beta=beta, kappa=kappa)
+            return BlendEngine(alpha=alpha, beta=beta, kappa=kappa,
+                               enable_panic_clamp=enable_panic_clamp)
         else:
             raise ValueError(
                 f"Invalid decision_mode: {mode}. "
@@ -155,8 +166,9 @@ class SwitchEngine(DecisionEngine):
     """
 
     def __init__(self, alpha: float = 2.0, beta: float = 2.0, kappa: float = 5.0,
-                 threshold: float = 0.5):
-        super().__init__(alpha=alpha, beta=beta, kappa=kappa)
+                 threshold: float = 0.5, enable_panic_clamp: bool = True):
+        super().__init__(alpha=alpha, beta=beta, kappa=kappa,
+                         enable_panic_clamp=enable_panic_clamp)
         self.threshold = threshold
 
     def compute_move_probability(
@@ -173,7 +185,7 @@ class SwitchEngine(DecisionEngine):
             result = self._sigma(rad_here, rad_best, distance_best)
         else:
             result = movechance_s1
-        if conflict_intensity > 0.9:
+        if self.enable_panic_clamp and conflict_intensity > 0.9:
             result = max(result, 0.95)
         return (min(1.0, result), p)
 
@@ -206,7 +218,7 @@ class BlendEngine(DecisionEngine):
         p = self._p_s2(experience_index, conflict_intensity)
         s = self._sigma(rad_here, rad_best, distance_best)
         blended = (1.0 - p) * movechance_s1 + p * s
-        if conflict_intensity > 0.9:
+        if self.enable_panic_clamp and conflict_intensity > 0.9:
             blended = max(blended, 0.95)
         return (min(1.0, blended), p)
 

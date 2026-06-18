@@ -1,0 +1,17 @@
+qoi,clamp,variance_flag,sum_S_first,sum_S_first_ok,all_S_first_le_ST,any_neg_S_first,min_S_first
+frac_by_t8,on,ok,0.8278822311031084,True,True,False,0.0047854157408746475
+median_departure,on,ok,0.6904700955064975,True,True,False,-0.0028295757006419424
+peak_ps2,on,ok,1.0277094511214129,True,True,False,0.004180109584492284
+zone_ps2_spread_t10,on,LOW_VARIANCE,0.6855160000263747,True,True,False,0.02948541646924617
+gap_median_departure,on,ok,0.46172521678584344,True,True,False,-0.03769806186813743
+gap_frac_by_t8,on,ok,0.9728653872735629,True,True,False,0.0010697536572015329
+total_evac,on,LOW_VARIANCE,0.8883844125443592,True,True,False,0.014729442246901042
+shadow_evac,on,LOW_VARIANCE,0.8830241804899722,True,True,False,0.002402737845988405
+frac_by_t8,off,ok,0.8278822311031084,True,True,False,0.0047854157408746475
+median_departure,off,ok,0.9427747107305117,True,True,False,0.013408362579633307
+peak_ps2,off,ok,1.000894218926586,True,True,False,0.0011516511844091033
+zone_ps2_spread_t10,off,LOW_VARIANCE,0.7956956229941788,True,True,False,-0.006530130132239023
+gap_median_departure,off,ok,0.654545669182119,True,True,False,-0.02806760732973482
+gap_frac_by_t8,off,ok,0.9728653872735629,True,True,False,0.0010697536572015329
+total_evac,off,ok,0.9491755245253644,True,True,False,0.014639650943898281
+shadow_evac,off,ok,1.0147149094051817,True,True,False,0.040258023971053505

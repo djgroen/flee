@@ -323,7 +323,7 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
                     's1s2_model_params', {}).get('kappa', 5.0))
                 sigma = compute_s2_move_probability(c_here, c_best, d_best, kappa)
                 blended = sigma
-                if c_here > 0.9:
+                if SimulationSettings.move_rules.get("enable_panic_clamp", True) and c_here > 0.9:
                     blended = max(blended, 0.95)
                 return blended, 1.0
 
@@ -336,7 +336,9 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
             if decision_mode and compute_deliberation_weight:
                 from flee.decision_engine import DecisionEngine
                 config = {"s1s2_model_params":
-                          SimulationSettings.move_rules.get("s1s2_model_params", {})}
+                          SimulationSettings.move_rules.get("s1s2_model_params", {}),
+                          "enable_panic_clamp":
+                          SimulationSettings.move_rules.get("enable_panic_clamp", True)}
                 engine = DecisionEngine.create(decision_mode, config)
                 SimulationSettings.move_rules["decision_engine"] = engine
             else:

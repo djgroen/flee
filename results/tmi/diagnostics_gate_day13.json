@@ -1,0 +1,96 @@
+{
+  "day12_inherited": {
+    "pass": 29,
+    "fail": 1,
+    "expected_fail": 1,
+    "ok_modulo_expected": true
+  },
+  "day13_new_checks": [
+    {
+      "name": "31 CMC included as 4th factor",
+      "status": "PASS",
+      "detail": "factors=['cmc', 'alpha', 'beta', 'kappa'] (CMC maps to conflict_movechance)"
+    },
+    {
+      "name": "32 Saltelli sample count correct (N*10, N power of two)",
+      "status": "PASS",
+      "detail": "N=64 (power_of_two=True) total=640 expect=640"
+    },
+    {
+      "name": "33 Seed averaging applied (3 seeds/sample)",
+      "status": "PASS",
+      "detail": "seeds/sample min=3 max=3"
+    },
+    {
+      "name": "34 Sobol indices + CIs computed (clamp on & off)",
+      "status": "PASS",
+      "detail": "clamps=['off', 'on'] cols_ok=True"
+    },
+    {
+      "name": "35 Sanity checks evaluated (S_first<=ST, sum S_first<=1 per QoI)",
+      "status": "PASS",
+      "detail": "S_first>ST viol=0, sumS_first>1 viol=0, neg S_first QoIs=0"
+    },
+    {
+      "name": "36 LOW_VARIANCE QoIs flagged (saturated total_evac/shadow_evac)",
+      "status": "PASS",
+      "detail": "flagged=['shadow_evac', 'total_evac']"
+    },
+    {
+      "name": "37 Sobol indices figure generated",
+      "status": "PASS",
+      "detail": "day13_sobol_indices.png"
+    }
+  ],
+  "umbrella_check_list": [
+    {
+      "name": "Day 12 gate inherited (30 checks)",
+      "status": "PASS",
+      "detail": "pass=29 fail=1 (expected_fail=1)"
+    },
+    {
+      "name": "31 CMC included as 4th factor",
+      "status": "PASS",
+      "detail": "factors=['cmc', 'alpha', 'beta', 'kappa'] (CMC maps to conflict_movechance)"
+    },
+    {
+      "name": "32 Saltelli sample count correct (N*10, N power of two)",
+      "status": "PASS",
+      "detail": "N=64 (power_of_two=True) total=640 expect=640"
+    },
+    {
+      "name": "33 Seed averaging applied (3 seeds/sample)",
+      "status": "PASS",
+      "detail": "seeds/sample min=3 max=3"
+    },
+    {
+      "name": "34 Sobol indices + CIs computed (clamp on & off)",
+      "status": "PASS",
+      "detail": "clamps=['off', 'on'] cols_ok=True"
+    },
+    {
+      "name": "35 Sanity checks evaluated (S_first<=ST, sum S_first<=1 per QoI)",
+      "status": "PASS",
+      "detail": "S_first>ST viol=0, sumS_first>1 viol=0, neg S_first QoIs=0"
+    },
+    {
+      "name": "36 LOW_VARIANCE QoIs flagged (saturated total_evac/shadow_evac)",
+      "status": "PASS",
+      "detail": "flagged=['shadow_evac', 'total_evac']"
+    },
+    {
+      "name": "37 Sobol indices figure generated",
+      "status": "PASS",
+      "detail": "day13_sobol_indices.png"
+    }
+  ],
+  "new_pass": 7,
+  "new_fail": 0,
+  "total_checks": 37,
+  "total_pass": 36,
+  "total_fail": 1,
+  "verdict": "36/37 PASS (1 documented expected fail inherited)",
+  "inherited_expected_failures": [
+    "26 total evac in [15,30]: frozen Fukushima CMC over-mobilises TMI (model evac 37.7%); expected cross-domain finding, addressed in Day 14 recalibration / Day 16 comparison."
+  ]
+}
