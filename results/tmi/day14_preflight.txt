@@ -1,0 +1,148 @@
+==============================================================================
+Day 14 Pre-Flight Findings — TMI CMC Full Calibration (+ panic-clamp decision)
+FLEE Dual-Process Model | Phase 3: TMI Full Calibration
+==============================================================================
+Authoritative for all Day 14 tasks. alpha/beta/kappa are LOCKED at the
+Fukushima transfer values (1.6667 / 2.1667 / 18.407). CMC is the SINGLE free
+parameter to calibrate today, together with a decision on the panic clamp
+(the two interact). Do NOT retune alpha/beta/kappa (gate check 38).
+
+------------------------------------------------------------------------------
+0.1  DAY 13 ARTIFACTS PRESENT  (verified)
+------------------------------------------------------------------------------
+results/tmi/day13_sobol_indices.csv   : present (66 rows, clamp on+off)
+results/tmi/day13_sobol_verdict.json  : present
+Day 13 CMC verdict (from day13_sobol_verdict.json):
+  cmc status            = identifiable
+  best Tier-1 ST        = 0.7832 on frac_by_t8 (carrier QoI); median_departure ST=0.758
+  total_evac ST clamp ON  = 0.6112   (variance_flag = LOW_VARIANCE)
+  total_evac ST clamp OFF = 0.7766   (variance_flag = ok)
+  clamp_dependent_on_total_evac = TRUE
+Reference (prompt): clamp-on/off total-evac ST = 0.61 / 0.78 -> CONFIRMED.
+kappa status = flat (best ST=0.0146); NOT retuned (consistent with Day 13).
+
+------------------------------------------------------------------------------
+0.2  CLAMP LEVER  (verified end-to-end)
+------------------------------------------------------------------------------
+Flag `enable_panic_clamp` (default True; behaviour unchanged when absent ->
+84 model tests stay green):
+  - flee/decision_engine.py: DecisionEngine.__init__(..., enable_panic_clamp=True);
+    honoured in BlendEngine (line ~221) and SwitchEngine (line ~188);
+    DecisionEngine.create() reads config.get("enable_panic_clamp", True) (line 47).
+  - flee/moving.py: override path reads move_rules.get("enable_panic_clamp", True)
+    (lines ~326, ~340).
+  - scripts/tmi_common_day12.run_one(..., enable_panic_clamp=True) threads it into
+    BOTH the engine config and move_rules["enable_panic_clamp"].
+Clamp rule: conflict_intensity > 0.9  ->  movechance = max(movechance, 0.95).
+TMI conflict schedule c(t): only t=10 has c=1.0 (>0.9); c[9]=0.75, c[11]=0.85.
+So the clamp fires on a SINGLE timestep (t=10) but, because TMI's spike is
+spatially UNIFORM (conflicts.csv: identical c for all 12 towns), it fires
+population-wide -> a town-blind 0.95 movechance floor.
+
+------------------------------------------------------------------------------
+0.3  LOCKED PARAMETERS + CMC APPLICATION  (verified)
+------------------------------------------------------------------------------
+alpha/beta/kappa held fixed while CMC varies: run_one() takes explicit
+alpha/beta/kappa/cmc; today they are pinned to FROZEN_ALPHA/BETA/KAPPA.
+conflict_movechance is applied AFTER ReadFromYML(): tmi_common_day12.run_one
+sets SimulationSettings.move_rules["ConflictMoveChance"] = cmc AFTER load_config()
+(which itself calls ReadFromYML). Verified (Day 13.0.2 fix-sequence).
+CMC -> town movechance: towns become conflict zones at t=1 (AddNewConflictZones);
+flee.py sets location.movechance = ConflictMoveChance for conflict zones; the
+blend then uses movechance_s1 = CMC. Engine blend:
+  P_move = (1-P_S2)*CMC + P_S2*sigma ,  P_S2 = Psi(x;alpha)*Omega(c;beta) ,
+  sigma = logistic(kappa*(c_here - c_best)/d_best).
+
+------------------------------------------------------------------------------
+0.4  CALIBRATION TARGETS  (from tmi_empirical_data.json)  + tolerances
+------------------------------------------------------------------------------
+PRIMARY (CMC drives these):
+  (1) Total evacuation rate, 20-mi population ........ ~0.21   tol +/-0.05  band [0.15,0.30]
+        Denominator = agents with origin <= 20 mi (excludes lancaster 23.6mi,
+        carlisle 24.6mi which lie outside the 20-mi region).
+  (2) Evacuation rate by distance band (Zeigler 1981 Table III):
+        inner  (1-6 mi)   ........ 0.55  (1-3:55, 4-6:56)            tol +/-0.07
+        middle (7-12 mi)  ........ 0.50  (7-9:53, 10-12:47)          tol +/-0.07
+        outer  (13-20 mi) ........ 0.16  (13-15:13, >15:9; prompt 14-18)  tol +/-0.05
+CHECK:
+  (3) Departure-timing spike: fraction of inner-zone departed by t=10 ..> 0.77
+        (Zeigler: 0-6mi = 77% by Friday/t=10; directly reported, not interpolated)
+DIRECTIONAL CHECK:
+  (4) Timing-based Zeigler differential:
+        gap = median_departure(outer) - median_departure(inner)  > 0
+        (outer departs later than inner)
+SOURCE CAVEATS (recorded, per prompt):
+  - Zeigler median evacuation DISTANCE 85mi and the 0.36-style ratios are visual
+    estimates from MSU figures; treat distance signature as DIRECTIONAL only.
+  - Advised-population conflict: advisory_contrast says only 0.5% officially
+    advised yet 39% within 15mi evacuated -> the "advised" denominator is
+    ambiguous; we calibrate to the OBSERVED evacuation rates, not the advisory.
+  - departure_timing intermediate zone values are interpolated; only inner (77%)
+    and >10mi (33%) are directly reported.
+
+------------------------------------------------------------------------------
+0.5  TOPOLOGY FOR THE PATH FIX  (camp-adjacency confound, quantified)
+------------------------------------------------------------------------------
+Zone field source: derived in tmi_common_day12.load_locations() by haversine
+distance from each town (locations.csv gps_x/gps_y) to the plant (-76.726,40.153):
+inner <= 6 mi, 6 < middle <= 12 mi, outer > 12 mi. (locations.csv location_type
+column distinguishes town/forward/camp only; zones are distance-derived.)
+Camp nodes: harrisburg_camp, lancaster_camp, york_camp.
+
+  town            zone    dist_mi  nearest_camp     net_km  hops
+  middletown      inner       3.3  harrisburg_camp   24.0    2
+  goldsboro       inner       3.3  harrisburg_camp   27.0    2
+  royalton        inner       2.5  harrisburg_camp   26.5    3
+  elizabethtown   middle      6.5  lancaster_camp    34.6    2
+  hershey         middle     10.0  harrisburg_camp   26.4    2
+  harrisburg      middle     11.8  harrisburg_camp    3.5    1
+  steelton        middle      7.9  harrisburg_camp   19.5    3
+  new_cumberland  middle      9.3  harrisburg_camp   10.5    2
+  york            outer      13.2  york_camp          2.5    1
+  lancaster       outer      23.6  lancaster_camp     2.4    1
+  carlisle        outer      24.6  harrisburg_camp   40.2    2
+  lebanon         outer      20.0  harrisburg_camp   45.9    2
+
+CONFOUND: the big OUTER towns york (2.5 km, 1 hop) and lancaster (2.4 km, 1 hop)
+sit DIRECTLY beside a camp, while every INNER town is 24-27 km / 2-3 hops from
+the nearest camp. Path-length-at-arrival therefore reads BACKWARDS (outer short,
+inner long) — the opposite of the real Zeigler signature (far evacuees travel
+farther). This corrupts BOTH the distance-based Zeigler read (Task F target) AND,
+via the System-2 gradient toward the zero-conflict camp, the outer-zone evac RATE
+(it inflates outer mobilisation). Recorded here as the smoking gun for Task F.
+
+------------------------------------------------------------------------------
+0.6  CALIBRATION INFRASTRUCTURE  (reuse)
+------------------------------------------------------------------------------
+Day-8 Stage-1 grid: scripts/run_calibration_day8.py (stage1(): CMC linspace +
+reps + per-grid-point mean + argmin misfit). Day-9 robustness: scripts/
+run_robustness_day9.py (task_b(): perturb CMC +/- neighbourhood, ROBUST/
+MODERATE/SENSITIVE verdict by drift thresholds; CMC was MODERATE at Fukushima).
+Day 14 reuses these PATTERNS but swaps the driver to the TMI run_one
+(tmi_common_day12.run_one), blend mode, t_max = T_SCHED = 19, alpha/beta/kappa
+LOCKED. Shared QoI + run helpers live in run_tmi_day14_calibration.py and are
+imported by the diagnostic / decide / robustness / plot scripts (Day8->Day9
+reuse style).
+
+------------------------------------------------------------------------------
+0.7  TOTAL-EVAC QoI DENOMINATOR (must match check 26 for the flip to be valid)
+------------------------------------------------------------------------------
+The established check-26 QoI (run_tmi_day12_first_run.per_run_metrics) is:
+    total_evac_rate_20mi = evac_frac_town * town_pop / POP_20MI
+where evac_frac_town = (modelled town agents that reached a camp) / (all agents),
+town_pop = 258000 (sum of all 12 town pops), POP_20MI = 663500. The model only
+represents ~258k of the 20-mi region's 663.5k residents as MOBILE town agents;
+the QoI scales the modelled evac fraction by that population ratio (~0.389). Day
+14 reuses this EXACT definition so check 41 is the precise flip of check 26.
+(Zone evac rates are plain fractions of zone agents, compared directly to the
+Zeigler 0.55/0.50/0.16 percentages.)
+
+EXPECTATION: Day-13 clamp-OFF evals show total_evac is CMC-identifiable (ST=0.78).
+At the locked beta the modelled evac FRACTION floors near ~0.54 at CMC~0 (clamp
+OFF); scaled by 0.389 that is ~0.21 -> in the [0.15,0.30] band. The System-2
+term (P_S2*sigma, ~0.5 under TMI's uniform threat) supplies that floor even at
+CMC=0 (control: ORIGINAL mode, P_S2=0, CMC=0 gives evac_frac 0.16). The OPEN
+QUESTION at preflight is whether the per-ZONE gradient also matches; the camp-
+adjacency confound (0.5) is expected to inflate the outer zone. Guardrail: if the
+SCALED total cannot enter [0.15,0.30] under either clamp state, STOP & REPORT.
+==============================================================================

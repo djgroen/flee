@@ -1,0 +1,42 @@
+{
+  "domain": "TMI",
+  "clamp_decision": "disable",
+  "enable_panic_clamp": false,
+  "tmi_cmc_locked": 0.0,
+  "cmc_lock_kind": "lower-boundary solution (misfit monotone increasing in CMC); CMC~0 => TMI mobilisation is System-2 deliberation-driven, not System-1 panic-flight",
+  "fukushima_cmc": 0.25,
+  "ratio_tmi_over_fukushima": 0.0,
+  "lower_than_fukushima": true,
+  "alpha": 1.6667,
+  "beta": 2.1667,
+  "kappa": 18.407,
+  "alpha_beta_kappa_status": "LOCKED (Fukushima transfer; not retuned)",
+  "best_fit": {
+    "total_evac": 0.26527143933685,
+    "evac_inner": 0.3850971386337239,
+    "evac_middle": 0.5034125580382924,
+    "evac_outer": 0.6041427247025943,
+    "frac_inner_by_t10": 0.7045454545454545,
+    "zeigler_gap": -0.7,
+    "misfit": 0.2275222911517615
+  },
+  "empirical_targets": {
+    "total_evac": 0.21,
+    "band": [
+      0.15,
+      0.3
+    ],
+    "zones": {
+      "inner": 0.55,
+      "middle": 0.5,
+      "outer": 0.16
+    },
+    "frac_inner_by_t10_min": 0.77
+  },
+  "calibration_status": "OK_TOTAL_EVAC_IN_BAND",
+  "total_evac_in_band": true,
+  "check_26_flips": true,
+  "total_evac_definition": "evac_frac_town * town_pop(258000) / POP_20MI(663500) -- Day-12 convention, so check 41 is the exact flip of check 26",
+  "zone_caveat": "Zone evac gradient is INVERTED at the locked CMC (inner 0.39 < middle 0.50 < outer 0.60; empirical 0.55>0.50>0.16). Cause: camp-adjacency confound (Task F) + System-2 gradient to adjacent zero-conflict camps. Total-evac band check passes; zone-level fit does not. Flagged for Day-15 topology fix / theory paper (conflict-dependent CMC). alpha/beta/kappa stay LOCKED.",
+  "guardrail_note": "Total evac IN BAND at the locked CMC; check 26 flips to PASS."
+}

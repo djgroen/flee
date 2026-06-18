@@ -85,3 +85,8 @@ Thumbs.db
 !results/tmi/day13_*.csv
 !results/tmi/day13_*.json
 !results/tmi/diagnostics_gate_day13.json
+
+# TMI Day 14 CMC calibration + clamp decision artifacts
+!results/tmi/day14_*.csv
+!results/tmi/day14_*.json
+!results/tmi/diagnostics_gate_day14.json

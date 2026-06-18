@@ -1,0 +1,35 @@
+{
+  "locked_cmc": 0.0,
+  "neighbourhood": [
+    0.0,
+    0.025,
+    0.05
+  ],
+  "one_sided": true,
+  "robustness_verdict": "MODERATE",
+  "max_relative_change": 0.1711106934131183,
+  "relative_change_by_qoi": {
+    "total_evac": 0.08003518029903263,
+    "evac_inner": 0.10009993817268054,
+    "evac_middle": 0.1711106934131183,
+    "evac_outer": 0.09473931002518259
+  },
+  "p1_uniform_ps2_holds": true,
+  "zone_ps2_spread_t10": 0.0017784826165339455,
+  "peak_ps2": 0.4212071609417555,
+  "peak_ps2_plausible": true,
+  "kappa_check": {
+    "kappas": [
+      10.0,
+      18.407,
+      30.0
+    ],
+    "total_evac": [
+      0.2603978899773926,
+      0.259490580256217,
+      0.2662305953278071
+    ],
+    "span": 0.006740015071590055,
+    "flat": true
+  }
+}

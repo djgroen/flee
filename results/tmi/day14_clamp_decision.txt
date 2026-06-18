@@ -1,0 +1,70 @@
+==============================================================================
+Day 14 Task C -- PANIC-CLAMP DECISION (TMI)
+FLEE Dual-Process Model | Phase 3: TMI Full Calibration
+==============================================================================
+
+VERDICT: DISABLE the panic clamp for the TMI information regime.
+
+Three-criteria comparison (from day14_calibration_grid.csv; blend mode,
+alpha/beta/kappa LOCKED at 1.6667/2.1667/18.407, 5 seeds):
+
+  criterion                                    clamp ON              clamp OFF
+  --------------------------------------------------------------------------
+  1. identifiable (evac~CMC)             NO  span=0.018         YES span=0.082
+     reachable evac range                   [0.36,0.38]            [0.27,0.35]
+  2. best-fit CMC*                                 0.00                   0.00
+     best-fit misfit                             0.8427                 0.2275
+     best-fit total_evac                      0.362 OUT               0.265 IN
+     zone inner/mid/out                  0.86/0.89/0.92         0.39/0.50/0.60
+     zone match all (tol)                         False                  False
+  3. Zeigler timing gap>0                      -0.90 no               -0.70 no
+  (empirical targets: total 0.21, band (0.15, 0.3); zones inner/mid/out 0.55/0.5/0.16)
+
+REGIME JUSTIFICATION (the reason; misfit is the confirmation):
+  The clamp (conflict_intensity > 0.9 -> movechance >= 0.95) was tuned for
+  Fukushima, whose hazard is a LOCALISED SPATIAL spike: only the inner zone
+  crosses the threshold, so a near-certain-flight floor is physically right
+  THERE. TMI's threat is UNIFORM and information-driven (conflicts.csv gives
+  every town the same c(t); only t=10 exceeds 0.9). The clamp therefore fires
+  POPULATION-WIDE, imposing a town-blind 0.95 movechance on all 12 towns at
+  the advisory spike. That is the wrong physics for an information regime, and
+  it is exactly why (criterion 1) total evac becomes flat & saturated near the
+  ceiling under clamp ON (range [0.36,0.38],
+  span 0.018) -- CMC is unidentifiable on the evac level. With the
+  clamp OFF, CMC recovers its identifiability (span 0.082; Day 13
+  total-evac ST 0.61 -> 0.78). DISABLE is regime-correct AND restores
+  calibratability.
+
+RETUNE vs DISABLE: a threshold retune (e.g. firing only above a SPATIAL
+  conflict-gradient, not a uniform level) would also avoid the population-wide
+  floor, but at TMI there is NO spatial gradient to key off -- the spike is
+  uniform -- so any level-based threshold either fires everywhere or nowhere.
+  DISABLE is therefore the clean choice for this regime (no representative
+  threshold exists).
+
+ZONE-RATE CAVEAT (honest -- the total-evac flip is not the whole story):
+  At the locked CMC the zone evac rates are inner/mid/out 0.39/0.50/0.60 vs empirical 0.55/0.5/0.16: MIDDLE matches, but the OUTER zone is far too
+  high and the INNER too low -- the zone GRADIENT is INVERTED. Cause: the
+  camp-adjacency confound (Task F) -- the big outer towns york/lancaster sit
+  ~1 hop / ~2.5 km from a camp, so the System-2 gradient toward the adjacent
+  zero-conflict camp pushes outer sigma -> 1. CMC cannot fix this (it is
+  topology/S2-driven, and alpha/beta/kappa are LOCKED). The total-evac BAND
+  check passes; the zone-level fit does not. Flagged for Day 15 (Task F
+  topology fix) and the theory paper (conflict-dependent CMC).
+
+HEADLINE: total evac at the locked CMC + clamp state = 0.265 -> IN BAND (0.15, 0.3). The
+  Day-12/13 check 26 (total evac in [15,30]%) FLIPS to PASS. Calibration
+  succeeds on its PRIMARY driver (total evac); zone-level fit is partial
+  (see caveat above).
+
+LOCKED CONFIGURATION (Task D):
+  clamp           = OFF (disabled for the information regime)
+  TMI CMC*        = 0.00  (misfit-minimising solution under clamp OFF; lower boundary)
+  Fukushima CMC   = 0.25 (locked)   ratio TMI/Fukushima = 0.00
+  lower than Fukushima? YES (strongly consistent with the central hypothesis: TMI's information-driven,
+                          voluntary/partial evacuation implies a much lower
+                          physical CMC than Fukushima's strongly-urged one.
+                          CMC ~ 0 means TMI mobilisation is System-2
+                          deliberation-driven, not System-1 panic-flight.)
+  alpha/beta/kappa = 1.6667/2.1667/18.407 (UNCHANGED -- not retuned)
+==============================================================================

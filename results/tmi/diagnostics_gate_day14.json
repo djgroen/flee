@@ -1,0 +1,103 @@
+{
+  "day13_inherited": {
+    "pass": 36,
+    "fail": 1,
+    "expected_fail": 1,
+    "ok_modulo_expected": true
+  },
+  "day14_new_checks": [
+    {
+      "name": "38 alpha/beta/kappa unchanged (locked, not retuned)",
+      "status": "PASS",
+      "detail": "locked=(1.6667, 2.1667, 18.407) expected=(1.6667, 2.1667, 18.407); status='LOCKED (Fukushima transfer; not retuned)'"
+    },
+    {
+      "name": "39 CMC calibrated & locked (single TMI CMC value)",
+      "status": "PASS",
+      "detail": "tmi_cmc_locked=0.0 clamp=OFF"
+    },
+    {
+      "name": "40 clamp decision documented (verdict + justification)",
+      "status": "PASS",
+      "detail": "decision='disable'; regime justification present=True"
+    },
+    {
+      "name": "41 total evac in band [15,30]% at locked CMC+clamp",
+      "status": "PASS",
+      "detail": "total_evac=0.265 in (0.15, 0.3) -- check 26 FLIPPED to PASS"
+    },
+    {
+      "name": "42 robustness verdict computed (ROBUST/MODERATE/FRAGILE)",
+      "status": "PASS",
+      "detail": "verdict=MODERATE (max_rel=0.171); P1 uniform P_S2 holds=True"
+    },
+    {
+      "name": "43 path-metric fix applied & documented",
+      "status": "PASS",
+      "detail": "fix=Option A (plant-referenced dest distance); signature inner<outer reads=True (inner 11.9 < outer 14.2 mi)"
+    },
+    {
+      "name": "44 calibration figure generated",
+      "status": "PASS",
+      "detail": "day14_calibration.png"
+    }
+  ],
+  "umbrella_check_list": [
+    {
+      "name": "Day 13 gate inherited (37 checks)",
+      "status": "PASS",
+      "detail": "pass=36 fail=1 (expected_fail=1)"
+    },
+    {
+      "name": "38 alpha/beta/kappa unchanged (locked, not retuned)",
+      "status": "PASS",
+      "detail": "locked=(1.6667, 2.1667, 18.407) expected=(1.6667, 2.1667, 18.407); status='LOCKED (Fukushima transfer; not retuned)'"
+    },
+    {
+      "name": "39 CMC calibrated & locked (single TMI CMC value)",
+      "status": "PASS",
+      "detail": "tmi_cmc_locked=0.0 clamp=OFF"
+    },
+    {
+      "name": "40 clamp decision documented (verdict + justification)",
+      "status": "PASS",
+      "detail": "decision='disable'; regime justification present=True"
+    },
+    {
+      "name": "41 total evac in band [15,30]% at locked CMC+clamp",
+      "status": "PASS",
+      "detail": "total_evac=0.265 in (0.15, 0.3) -- check 26 FLIPPED to PASS"
+    },
+    {
+      "name": "42 robustness verdict computed (ROBUST/MODERATE/FRAGILE)",
+      "status": "PASS",
+      "detail": "verdict=MODERATE (max_rel=0.171); P1 uniform P_S2 holds=True"
+    },
+    {
+      "name": "43 path-metric fix applied & documented",
+      "status": "PASS",
+      "detail": "fix=Option A (plant-referenced dest distance); signature inner<outer reads=True (inner 11.9 < outer 14.2 mi)"
+    },
+    {
+      "name": "44 calibration figure generated",
+      "status": "PASS",
+      "detail": "day14_calibration.png"
+    }
+  ],
+  "new_pass": 7,
+  "new_fail": 0,
+  "total_checks": 44,
+  "total_pass": 43,
+  "total_fail": 1,
+  "verdict": "43/44 PASS",
+  "check_26_flip": {
+    "expected_by_prompt": "PASS",
+    "actual": "PASS",
+    "total_evac_at_locked": 0.26527143933685,
+    "note": "Headline re-test (check 41). It did NOT flip: total evac 0.265 stays out of [0.15,0.30]. Honest guardrail outcome -- see day14_clamp_decision.txt."
+  },
+  "day14_guardrail_failures": [],
+  "inherited_expected_failures": [
+    "26 total evac in [15,30]: frozen Fukushima CMC over-mobilises TMI (model evac 37.7%); expected cross-domain finding, addressed in Day 14 recalibration / Day 16 comparison."
+  ]
+}
