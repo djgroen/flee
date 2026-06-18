@@ -94,7 +94,7 @@
     "expected_by_prompt": "PASS",
     "actual": "PASS",
     "total_evac_at_locked": 0.26527143933685,
-    "note": "Headline re-test (check 41). It did NOT flip: total evac 0.265 stays out of [0.15,0.30]. Honest guardrail outcome -- see day14_clamp_decision.txt."
+    "note": "Headline re-test (check 41). It FLIPPED to PASS: total evac 0.265 is in [0.15,0.30] at the locked CMC + clamp OFF (Day-12 check 26 was FAIL at the frozen Fukushima CMC). See day14_clamp_decision.txt."
   },
   "day14_guardrail_failures": [],
   "inherited_expected_failures": [

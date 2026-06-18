@@ -184,9 +184,15 @@ def main() -> None:
             "expected_by_prompt": "PASS",
             "actual": "PASS" if c41 else "FAIL (did NOT flip)",
             "total_evac_at_locked": tot,
-            "note": ("Headline re-test (check 41). It did NOT flip: total evac "
-                     f"{tot:.3f} stays out of [0.15,0.30]. Honest guardrail "
-                     "outcome -- see day14_clamp_decision.txt."),
+            "note": (
+                (f"Headline re-test (check 41). It FLIPPED to PASS: total evac "
+                 f"{tot:.3f} is in [0.15,0.30] at the locked CMC + clamp OFF "
+                 "(Day-12 check 26 was FAIL at the frozen Fukushima CMC). See "
+                 "day14_clamp_decision.txt.")
+                if c41 else
+                (f"Headline re-test (check 41). It did NOT flip: total evac "
+                 f"{tot:.3f} stays out of [0.15,0.30]. Honest guardrail "
+                 "outcome -- see day14_clamp_decision.txt.")),
         },
         "day14_guardrail_failures": guardrail_failures,
         "inherited_expected_failures": d13.get("inherited_expected_failures", []),
