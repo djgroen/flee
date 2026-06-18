@@ -90,3 +90,10 @@ Thumbs.db
 !results/tmi/day14_*.csv
 !results/tmi/day14_*.json
 !results/tmi/diagnostics_gate_day14.json
+
+# TMI Day 15 validation: v2 network + re-fit + return + signatures
+!input_data/tmi_v2/**/*.csv
+!input_data/tmi_v2/**/*.json
+!results/tmi/day15_*.csv
+!results/tmi/day15_*.json
+!results/tmi/diagnostics_gate_day15.json

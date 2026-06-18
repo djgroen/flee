@@ -1,0 +1,11 @@
+Psi operationalization: Option B (Day 11)
+
+Option B uses the same experience_index distribution as standard FLEE / Fukushima
+initialization (Beta(2, 5) in Person.__init__), assigned independently per agent
+without distance-based or zone-based structure.
+
+Rationale: if the Zeigler paradox (early short-distance departures near the plant vs
+later long-distance travel from the outer zone) emerges without baking spatial Psi
+into initialization, that is stronger evidence for the dual-process mechanism.
+
+A distance-stratified Psi sensitivity is deferred to Day 14.

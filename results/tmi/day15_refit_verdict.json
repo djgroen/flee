@@ -1,0 +1,33 @@
+{
+  "system1_spec_locked": "conflict_dependent",
+  "form": "P_S1 = base + (cmax - base) * c   (flee flag cmc_conflict_dependent)",
+  "lock_base": 0.05,
+  "lock_cmax": 0.5,
+  "constant_cmc_refit": {
+    "note": "constant CMC re-fits POSITIVE on v2 (Day-14's 0.00 was a topology artifact) but produces a CONSTANT departure hazard -> departures front-load; cannot make a Friday spike. See day15_refit.csv. This triggered the Task-B2 fallback."
+  },
+  "total_evac": 0.1514948003014318,
+  "evac_inner": 0.3181818181818182,
+  "evac_middle": 0.4264499505467517,
+  "evac_outer": 0.3874982424227391,
+  "frac_inner_by_t10": 0.9545454545454544,
+  "departure_peak_t": 1.0,
+  "frac_dep_during_recovery": 0.0128324307383938,
+  "checkpoint_b2": {
+    "a_total_in_band": true,
+    "b_inversion_removed": true,
+    "b_strict_order_inner_ge_mid_ge_outer": false,
+    "c1_friday_spike_inner_by_t10_gt_077": true,
+    "c2_no_omega_recovery_evac": true,
+    "c3_strict_first_departure_peak_t10": false,
+    "primary_met": true
+  },
+  "findings": [
+    "Topology fix (v2) removes the camp-adjacency inversion: outer is no longer the highest-evacuating zone.",
+    "On v2 the constant CMC re-fits POSITIVE -- the Day-14 CMC=0.00 was a topology artifact, confirmed.",
+    "Constant CMC cannot produce the Friday spike (constant hazard); the conflict-dependent System-1 form is required and is locked.",
+    "The conflict-dependent form concentrates System-1 flight at the advisory and yields NO evacuation during Omega-recovery (post-Carter).",
+    "A clean inner>middle>outer gradient does NOT emerge: TMI's conflict schedule is spatially UNIFORM, so the only zonal lever is network position (hub proximity), which puts the hub-zone (middle) highest. Reproducing inner>outer needs a proximity-to-plant THREAT gradient in the conflict input -- flagged for the theory paper / Day 16.",
+    "The strict first-departure PEAK stays early because the System-2 deliberation channel (P_S2 high during the calm, sigma~0.5 toward the zero-conflict distant camps) drives diffuse pre-advisory drift; this is fixed by LOCKED alpha/beta/kappa and is a model finding, not a CMC issue."
+  ]
+}

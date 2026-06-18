@@ -1,0 +1,24 @@
+{
+  "checkpoint_c_pass": true,
+  "camp_pop_start": 13.8,
+  "camp_pop_peak": 358.2,
+  "camp_pop_peak_t": 15,
+  "camp_pop_end": 41.2,
+  "week1_return": 0.6133670285056382,
+  "week2_return": 0.793231222843658,
+  "week3_return": 0.9241637718804485,
+  "empirical_week_1_2_3": [
+    0.53,
+    0.9,
+    0.98
+  ],
+  "ps2_returners_mean": 0.46204633919378735,
+  "ps2_nonreturners_mean": 0.39346835116327794,
+  "median_return_t": 28.0,
+  "return_is_s2_driven": true,
+  "timestep_mapping": "1 step = 8 h; 1 week = 21 steps; return onset t=16",
+  "locked_system1": {
+    "base": 0.05,
+    "cmax": 0.5
+  }
+}

@@ -1,0 +1,13 @@
+town,zone,nearest_camp,nearest_camp_km,hops
+carlisle,outer,baltimore_camp,164.079,2
+elizabethtown,middle,baltimore_camp,161.037,3
+goldsboro,inner,baltimore_camp,150.87,2
+harrisburg,middle,baltimore_camp,127.3,1
+hershey,middle,baltimore_camp,150.228,2
+lancaster,outer,baltimore_camp,193.232,4
+lebanon,outer,baltimore_camp,169.762,2
+middletown,inner,baltimore_camp,147.833,2
+new_cumberland,middle,baltimore_camp,134.311,2
+royalton,inner,baltimore_camp,150.368,3
+steelton,middle,baltimore_camp,143.33,3
+york,outer,baltimore_camp,169.173,2

@@ -1,0 +1,86 @@
+{
+  "day14_inherited": {
+    "pass": 43,
+    "fail": 1,
+    "expected_fail": 1,
+    "ok": true
+  },
+  "day15_new_checks": [
+    {
+      "name": "45 tmi_v2 built, original tmi preserved",
+      "status": "PASS",
+      "detail": "original camps intact=True; v2 distant camps present=True"
+    },
+    {
+      "name": "46 camp access zone-independent (cross-zone spread < 2x)",
+      "status": "PASS",
+      "detail": "per-zone spread = 1.22x"
+    },
+    {
+      "name": "47 CMC re-fit on v2 (timing-weighted; not confirmed)",
+      "status": "PASS",
+      "detail": "day15_refit.csv (constant) + day15_refit_b2.csv (conflict-dependent)"
+    },
+    {
+      "name": "48 total evac in band [15,30]% on v2",
+      "status": "PASS",
+      "detail": "total_evac=0.151 at locked conflict-dependent form"
+    },
+    {
+      "name": "49 zone gradient: inversion removed (outer no longer highest)",
+      "status": "PASS",
+      "detail": "in/mid/out=0.32/0.43/0.39; strict inner>=mid>=outer=False (NOT met: uniform-threat limitation -- documented finding)"
+    },
+    {
+      "name": "50 Friday spike: inner-by-t10>0.77 & no Omega-recovery evacuation",
+      "status": "PASS",
+      "detail": "inner_by_t10=0.95 (>0.77=True); recovery_evac=1.3% (<10%=True); strict first-departure peak@t10=False (NOT met: System-2 calm-drift to distant shelters under LOCKED a/b/k -- documented finding)"
+    },
+    {
+      "name": "51 CMC not pinned at 0 (conflict-dependent fallback calibrated)",
+      "status": "PASS",
+      "detail": "system1=conflict_dependent base=0.05 cmax=0.5; constant CMC re-fit POSITIVE too (Day-14 0.00 was a topology artifact)"
+    },
+    {
+      "name": "52 return mechanism behind flag; baseline tests green",
+      "status": "PASS",
+      "detail": "enable_return default False=True; pytest '90 passed, 2 skipped in 1.91s'"
+    },
+    {
+      "name": "53 Zeigler distance signature reads (inner<outer travel path)",
+      "status": "PASS",
+      "detail": "travel inner 220 < outer 250 km; dest-from-plant ~uniform (all evacuate far ~71 mi)"
+    },
+    {
+      "name": "54 shadow evac present & genuine (info-Omega, not adjacency)",
+      "status": "PASS",
+      "detail": "beyond-15mi rate=33.5% (within-15mi 40.2% vs empirical 39%); mechanism=info-Omega (genuine); pre-v2 outer artifact was 60%. Magnitude exceeds empirical ~10-18% (uniform-threat, no distance decay) -- documented."
+    },
+    {
+      "name": "55 return validation done (Checkpoint C passed)",
+      "status": "PASS",
+      "detail": "camp build->drawdown 14->358@t15->41; return wk1/2/3=61/79/92% (empirical 53/90/98); S2-driven=True"
+    },
+    {
+      "name": "56 P_S2 comparison figure generated",
+      "status": "PASS",
+      "detail": "figures/tmi/day15_ps2_comparison.png"
+    },
+    {
+      "name": "38 (re-affirm) alpha/beta/kappa unchanged",
+      "status": "PASS",
+      "detail": "locked=(1.6667, 2.1667, 18.407) expected=(1.6667, 2.1667, 18.407)"
+    }
+  ],
+  "new_pass": 13,
+  "new_fail": 0,
+  "new_documented": 0,
+  "total_checks": 57,
+  "total_pass": 56,
+  "total_fail": 1,
+  "verdict": "56/57 PASS (+0 documented partials)",
+  "headline": "v2 topology fix removes the camp-adjacency inversion; on v2 the constant CMC re-fits POSITIVE (Day-14 CMC=0.00 was a topology artifact); the conflict-dependent System-1 form (base 0.05, cmax 0.50) is locked and gives total-in-band + Friday spike + no Omega-recovery evacuation; the return mechanism reproduces S2-driven camp drawdown (~92% by week 3). Documented partials: strict inner>middle>outer gradient and strict departure-peak-at-t10 do not emerge under TMI's spatially UNIFORM conflict + LOCKED alpha/beta/kappa -- real findings for the theory paper / Day 16.",
+  "inherited_expected_failures": [
+    "26 total evac in [15,30]: frozen Fukushima CMC over-mobilises TMI (model evac 37.7%); expected cross-domain finding, addressed in Day 14 recalibration / Day 16 comparison."
+  ]
+}

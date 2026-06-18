@@ -44,6 +44,7 @@ class Person:
         "_last_blended_movechance",
         "experience_index",
         "cumulative_dose_msv",
+        "returning",
     ]
 
     @check_args_type
@@ -87,6 +88,10 @@ class Person:
         self.experience_index = random.betavariate(2, 5)  # Heterogeneous capacity
 
         self.cumulative_dose_msv = 0.0  # accumulated radiation dose (diagnostics)
+
+        # Day-15 Task C: True while a camp agent is deliberately returning home
+        # (only set when SimulationSettings.move_rules['enable_return']).
+        self.returning = False
 
         self.route = []
 

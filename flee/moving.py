@@ -76,6 +76,36 @@ def _lookup_potential(location, time: int, c_here: float, s2: bool = False):
         d_best = max(1.0, best_link.get_distance())
     return c_best, d_best
 
+def _compute_return_movechance(a, time) -> Tuple[float, float]:
+    """Day-15 Task C: S2-driven probability that a camp agent returns home.
+
+    Returns (return_movechance, p_s2). Zero unless ``enable_return`` is set, the
+    return window has opened (time >= return_start_t, i.e. the Carter visit), and
+    the agent's HOME conflict has recovered below ``return_conflict_threshold``.
+    The hazard scales with the deliberative weight P_S2 = Psi(x) * Omega(c_home):
+    return is a deliberate, post-reassurance decision, not panic.
+    """
+    home = getattr(a, "home_location", None)
+    if home is None:
+        return 0.0, 0.0
+    start = int(SimulationSettings.move_rules.get("return_start_t", 16))
+    if time < start:
+        return 0.0, 0.0
+    c_home = max(0.0, getattr(home, "conflict", 0.0))
+    thr = float(SimulationSettings.move_rules.get("return_conflict_threshold", 0.15))
+    if c_home > thr:
+        return 0.0, 0.0
+    if compute_deliberation_weight is None:
+        return 0.0, 0.0
+    params = SimulationSettings.move_rules.get("s1s2_model_params", {})
+    alpha = float(params.get("alpha", 2.0))
+    beta = float(params.get("beta", 2.0))
+    p_s2 = compute_deliberation_weight(
+        float(getattr(a, "experience_index", 0.0)), c_home, alpha, beta)
+    rate = float(SimulationSettings.move_rules.get("return_rate", 0.5))
+    return min(1.0, rate * p_s2), p_s2
+
+
 if os.getenv("FLEE_TYPE_CHECK") is not None and os.environ["FLEE_TYPE_CHECK"].lower() == "true":
     from beartype import beartype as check_args_type
 else:
@@ -99,6 +129,27 @@ def getEndPointScore(agent, endpoint, time) -> float:
         base (float): score for the endpoint
     """
     base = endpoint.getScore(0)
+
+    # Day-15 Task C: when an agent is deliberately returning home, steer scoring
+    # toward home and away from camps so it walks back hop-by-hop (behind flag).
+    if (SimulationSettings.move_rules.get("enable_return", False)
+            and getattr(agent, "returning", False)):
+        home = getattr(agent, "home_location", None)
+        if home is not None:
+            home_name = getattr(home, "name", None)
+            ep_name = getattr(endpoint, "name", None)
+            if getattr(endpoint, "camp", False):
+                base *= 0.001            # do not move (further) into camps
+            elif ep_name is not None and ep_name == home_name:
+                base *= 1000.0           # strong pull to the home node
+            else:
+                try:
+                    d_home = endpoint.calculateDistance(home)
+                except Exception:
+                    d_home = None
+                if d_home is not None:
+                    base *= 1.0 / (1.0 + float(d_home))
+            return base
 
     if SimulationSettings.move_rules["ChildrenAvoidHazards"]:
         if agent.attributes["age"]<19:
@@ -297,13 +348,53 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
             movechance *= flood_forecast_movechance
 
     if SimulationSettings.move_rules.get("TwoSystemDecisionMaking", False):
-        # Camps/safe zones: respect camp_movechance, no dual-process override
+        # Camps/safe zones: respect camp_movechance, no dual-process override.
         if getattr(a.location, 'camp', False) or getattr(a.location, 'idpcamp', False):
             a.sys2_activation_prob = 0.0  # ensure recorded correctly for analytics
+            # Day-15 Task C: S2-driven return (behind enable_return, default off).
+            # A camp agent re-evaluates each step; once its HOME conflict has
+            # recovered (c_home low) and the deliberative weight P_S2 is high
+            # (Omega recovered), it leaves the camp and heads home with a
+            # probability driven by P_S2 -- the same sigma machinery in reverse
+            # (safety-per-distance now favours home). 98% return = deliberate,
+            # post-reassurance behaviour, not panic.
+            if SimulationSettings.move_rules.get("enable_return", False):
+                return_mc, return_ps2 = _compute_return_movechance(a, time)
+                if return_mc > 0.0:
+                    a.returning = True
+                    a.sys2_activation_prob = return_ps2
+                    return return_mc, return_ps2
+                a.returning = False
             return a.location.movechance, 0.0
+
+        # Day-15 Task C: a returning agent that has reached its home town settles
+        # (it deliberated its way back; it does not re-evacuate into the calm).
+        if (SimulationSettings.move_rules.get("enable_return", False)
+                and getattr(a, "returning", False)):
+            home = getattr(a, "home_location", None)
+            if home is not None and getattr(a.location, "name", None) == getattr(
+                    home, "name", None):
+                a.returning = False
+                a.sys2_activation_prob = 0.0
+                return 0.0, 0.0
 
         # Native FLEE conflict at current location is the sole input.
         c_here = max(0.0, getattr(a.location, 'conflict', 0.0))
+
+        # Day-15 Task B2: conflict-dependent System-1 move chance (behind flag,
+        # default off so prior days / the 84 model tests are unaffected).
+        #   P_S1 = CMC_base + (CMC_max - CMC_base) * f(c),   f(c) = c  (monotone)
+        # The constant System-1 movechance produces a CONSTANT departure hazard,
+        # so departures front-load into the calm rather than concentrating at the
+        # threat spike. Making P_S1 rise with local conflict lets prompt flight at
+        # the advisory emerge endogenously from System 1 -- without a constant
+        # baseline and without the population-wide panic clamp (removed Day 14).
+        if SimulationSettings.move_rules.get("cmc_conflict_dependent", False):
+            cmc_base = float(SimulationSettings.move_rules.get(
+                "ConflictMoveChance", movechance))
+            cmc_max = float(SimulationSettings.move_rules.get(
+                "conflict_movechance_max", cmc_base))
+            movechance = cmc_base + (cmc_max - cmc_base) * min(1.0, max(0.0, c_here))
 
         # Optional override for comparison runs (sys1_only -> 0, sys2_only -> 1)
         override = SimulationSettings.move_rules.get("sys2_weight_override")

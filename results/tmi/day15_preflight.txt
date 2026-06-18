@@ -1,0 +1,155 @@
+==============================================================================
+TMI Day 15 — Pre-Flight  (Validation: topology fix, CMC re-fit, return mechanism)
+FLEE Dual-Process Model · Phase 3 · Columbia Climate School / CCSR
+==============================================================================
+Baseline model tests at start of day: 84 passed, 2 skipped (pytest tests/).
+Any flag added today must keep this green at its DEFAULT (False).
+
+------------------------------------------------------------------------------
+0.1  LOCKED PARAMETERS (inputs) and the PROVISIONAL CMC (to be re-fit)
+------------------------------------------------------------------------------
+From results/tmi/day14_locked_params.json:
+  alpha = 1.6667   beta = 2.1667   kappa = 18.407      -> LOCKED (Fukushima
+        transfer; do NOT retune -- Day-16 cross-domain test depends on it).
+  clamp = OFF (enable_panic_clamp=False)               -> input for today.
+  CMC   = 0.00                                          -> PROVISIONAL.
+
+CMC=0.00 is treated as a TOPOLOGY ARTIFACT, NOT an estimate. Day-14's misfit was
+dominated by topology-inflated outer over-evacuation (sigma-driven, camp
+adjacency); to keep TOTAL evac in band the optimiser drove CMC to the floor,
+which removed the Friday departure spike (inner-by-t10 70% vs target >77%) and
+produced a wrong-signed timing Zeigler. CMC is the System-1 term in
+   P_move = (1-P_S2)*CMC + P_S2*sigma
+and at the Friday conflict peak (c=1.0) Omega=exp(-beta*c) collapses, so
+P_S2 -> ~0 and (1-P_S2) -> 1: the term (1-P_S2)*CMC is MAXIMAL exactly at the
+threat peak. CMC is therefore the mechanism for prompt flight on Friday. It must
+be RE-FIT on v2 with departure timing as a PRIMARY objective (Task B); 0.00 is a
+starting point to be replaced, not confirmed.
+
+------------------------------------------------------------------------------
+0.2  CURRENT NETWORK (input_data/tmi/) and the ADJACENCY CONFOUND
+------------------------------------------------------------------------------
+Camps (locations.csv, type=camp) and their single town link (routes.csv, km):
+  harrisburg_camp (-76.870, 40.285)   <- harrisburg          3.459 km  (1 hop)
+  lancaster_camp  (-76.292, 40.025)   <- lancaster           2.381 km  (1 hop)
+  york_camp       (-76.714, 39.948)   <- york                2.471 km  (1 hop)
+Zone field source: derived in scripts/tmi_common_day12.load_locations() from
+haversine miles to the plant (-76.726, 40.153): inner<=6, 6<middle<=12, outer>12.
+
+Per-zone nearest-camp on the CURRENT network (results/tmi/day14_zeigler_pathfix.csv):
+  zone    nearest_camp_net_km   hops    median network path at arrival (km)
+  inner        25.85            2.33          47.78
+  middle       18.88            2.00          17.48
+  outer        22.75            1.50           2.47   <-- adjacency confound
+The confound is TOWN-LEVEL and population-weighted: the two big OUTER towns,
+york (pop 45k) and lancaster (pop 54k), sit ~1 hop / ~2.4 km from their own
+camp, while the dense INNER cluster (middletown/royalton/goldsboro) must traverse
+the whole graph to harrisburg_camp. Result (Day-14): outer evac 0.60 >> inner
+0.39 (Blocker 1, inverted gradient).
+
+Real evacuation geography (tmi_empirical_data.json -> destination_map_g6):
+  median destination 85 mi (Zeigler), 100 mi (Flynn), mean 111.6 mi (Cutter).
+  flow: NW 50% (State College dir), NE 20%, SW 20%, SE 10%.
+  Harrisburg is explicitly "transit only" (the natural funnel hub).
+TARGET for v2: camps at a comparable, ZONE-INDEPENDENT distance ~60-110 mi out,
+NOT adjacent to specific towns.
+
+------------------------------------------------------------------------------
+0.3  RETURN-MECHANISM SURFACE (Task C insertion points)
+------------------------------------------------------------------------------
+- Person has `home_location` (flee/flee.py __slots__, set at construction).
+- flee/flee.py Person.evolve(): draws random()<movechance, then selectRoute()
+  and take_next_step(). One-way today: camp agents never leave because...
+- flee/moving.py calculateMoveChance(): for camp/idpcamp agents it returns
+  (a.location.movechance, 0.0) and camp_movechance=0.0 -> agents stay. This is
+  the cleanest insertion point: behind enable_return, give camp agents a
+  RETURN movechance when (a) home conflict has recovered and (b) P_S2 is high
+  (deliberative). Return is S2-driven (the theoretical claim).
+- Homeward routing: flee/moving.py getEndPointScore() / selectRoute() choose by
+  endpoint score (camps + low conflict favoured). For a `returning` agent we bias
+  the score toward home (closer-to-home endpoints up-weighted, camps penalised).
+  Add a `returning` slot to Person (default False).
+- Horizon: conflicts.csv already DECAYS to 0 by t=19 (t10=1.0 peak -> t16=0.10
+  Carter -> t19=0.00). Omega=exp(-beta*c) recovers to 1 by t19, so P_S2 recovers
+  and return can be S2-driven in the t>=16 window. For the 3-week return curve we
+  EXTEND the schedule past T_SCHED with c~0 (return phase). Timestep->real-time:
+  simsetting_tmi.yml says 1 step = 6 h; the event spacing (t10 Fri 03-30 ->
+  t16 Sun 04-01) is ~8 h/step. We adopt 8 h/step for the return phase (21 days ~=
+  63 steps) and document it; week-k boundaries computed from that mapping.
+- Guardrail: enable_return defaults False; 84 tests must stay green; add focused
+  return tests.
+
+------------------------------------------------------------------------------
+0.4  EMPIRICAL TARGETS (tmi_empirical_data.json)
+------------------------------------------------------------------------------
+Zone evac rate (Zeigler 1981 Table III, grouped to inner/middle/outer):
+  inner (1-6 mi)  ~0.55   middle (7-12 mi) ~0.50   outer (>12 mi) ~0.16
+  (band used for total evac, 20-mi pop: [0.15, 0.30], ~21%.)
+Departure timing (Friday t=10 spike):
+  inner-zone fraction departed by Friday  > 0.77  (PRIMARY today)
+  outer-zone fraction departed by Friday  ~ 0.33
+  departure distribution peaked at t=10 (advisory), NOT during Omega-recovery.
+Zeigler distance signature: inner travels SHORTER, outer travels FARTHER
+  (directional; report travel-path AND plant-referenced dest distance separately).
+Shadow evacuation: beyond-15-mi evac present and GENUINE (info-driven uniform
+  Omega collapse), not the camp-adjacency artifact. Empirical >15 mi ~9-13%
+  (Zeigler), advisory_contrast: 39% within-15mi evacuated vs 0.5% officially
+  advised (the "shadow"/over-response signature).
+Return curve (return_behavior): week 0/1/2/3/4 = 0/53/90/98/100 %.
+  Carter visit 1979-04-01 (t=16) opens the return window; return is S2-driven.
+Source caveats: intermediate zone timing values are interpolated (only 0-6mi=77%
+  and >10mi=33% directly reported); median-distance estimates vary 85-111.6 mi.
+
+------------------------------------------------------------------------------
+0.5  FUKUSHIMA P_S2 REFERENCE (Task F)
+------------------------------------------------------------------------------
+No committed Fukushima zone-P_S2 trajectory CSV exists in results/fukushima/.
+Task F therefore renders the Fukushima reference from the model directly
+(P_S2 = Psi(x;alpha) * Omega(c;beta) on a SPATIAL conflict gradient: inner high,
+outer low -- Fukushima's localised radiological plume) using the LOCKED
+alpha/beta, clearly LABELLED as a parameter-based reference. A parameter-matched,
+simulation-derived Fukushima spread is flagged as a Day-16 item. The qualitative
+contrast is the payoff: TMI = spatially UNIFORM, temporally VOLATILE (uniform
+advisory); Fukushima = spatially GRADED, temporally STABLE (plume gradient).
+
+------------------------------------------------------------------------------
+0.6  v2 TOPOLOGY DESIGN (Task A) and why it is zone-independent
+------------------------------------------------------------------------------
+Build input_data/tmi_v2/ (original tmi/ untouched). Replace the three ADJACENT
+camps with three DISTANT directional shelters at real destination cities
+(destination_map_g6), each reachable ONLY through the Harrisburg transit hub:
+  statecollege_camp (40.793, -77.860)  NW  (~75 mi from plant; 50% flow dir)
+  philadelphia_camp (39.953, -75.164)  SE  (~84 mi)
+  baltimore_camp    (39.290, -76.612)  S   (~60 mi)
+Routes: keep all town-town OSM links; DROP the 3 adjacent camp links; ADD
+  harrisburg -> {statecollege,philadelphia,baltimore}_camp at OSM road-km
+  (OSRM, scripts/update_tmi_routes_osm_day12 method; haversine*1.3 fallback).
+Rationale: every town reaches a camp via town -> ... -> harrisburg -> camp. The
+camp leg (~100-150 km) is the SAME for all towns; the town->harrisburg leg
+(inner ~10-25 km, outer ~40-66 km) is small relative to it, so nearest-camp
+distance is dominated by the common long leg (cross-zone spread well under 2x;
+Checkpoint A). The residual gradient (inner closer to the hub than outer) is the
+PHYSICAL direction (inner travels less, outer more) and should yield inner >=
+outer evac WITHOUT the adjacency inflation -- i.e. it removes the inversion.
+HONEST EXPECTATION: with conflict UNIFORM across towns (conflicts.csv identical
+columns), the model has no spatial THREAT gradient; the only zonal lever is
+hub distance. So v2 should REMOVE the inversion (outer no longer >> inner) and
+give inner>=middle>~outer via hub proximity; a strong inner>>outer gradient may
+not fully emerge (uniform-threat limitation). Per the guardrail, if the gradient
+does not fully correct, that is a real finding (not purely topological) and is
+reported, not forced. Network path length (distance_travelled) becomes a clean
+Zeigler travel-distance metric in v2 (inner<outer), while plant-referenced dest
+displacement is ~uniform (all evacuate far ~60-84 mi -> matches the 85-mi median).
+
+------------------------------------------------------------------------------
+0.7  INFRA TO REUSE
+------------------------------------------------------------------------------
+- scripts/tmi_common_day12.run_one: simulation driver (alpha/beta/kappa/cmc/
+  clamp args). Day-15 needs a v2-aware variant (network dir = tmi_v2) + timing
+  QoIs + optional return horizon -> scripts/tmi_common_day15.py.
+- scripts/run_tmi_day14_calibration.py: grid + misfit pattern (extend with the
+  PRIMARY timing terms for Task B).
+- scripts/update_tmi_routes_osm_day12.py: OSRM road-km for the new camp legs.
+- scripts/run_diagnostics_gate_day14.py: gate-inheritance pattern (Day-15 gate
+  inherits Day-14 on the ORIGINAL network; new checks 45-56 on v2).
+==============================================================================

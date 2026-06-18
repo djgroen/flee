@@ -1,0 +1,45 @@
+# TMI Day 11 — smoke test & network load (sys1-only: dual-process off)
+# 1 timestep = 6 hours; max_move_speed ≈ 20 km/h × 6 h
+log_levels:
+  agent: 0
+  link: 0
+  camp: 0
+  conflict: 0
+  init: 0
+  granularity: location
+
+spawn_rules:
+  take_from_population: false
+  insert_day0: false
+  empty_camps_on_day0: false
+  conflict_zone_spawning_only: false
+  average_social_connectivity: 3.0
+  camps_are_sicks: false
+
+move_rules:
+  max_move_speed: 600.0
+  max_walk_speed: 35.0
+  foreign_weight: 1.0
+  camp_weight: 2.0
+  conflict_weight: 0.2
+  conflict_movechance: 0.55
+  camp_movechance: 0.0
+  default_movechance: 0.45
+  waypoint_movechance: 0.95
+  awareness_level: 1
+  capacity_scaling: 1.0
+  avoid_short_stints: false
+  start_on_foot: false
+  weight_power: 1.0
+  pruning_threshold: 1.0
+  movechance_pop_base: 10000.0
+  movechance_pop_scale_factor: 0.0
+  softening: 10.0
+  fixed_routes: false
+  two_system_decision_making: false
+  decision_mode: sys1_only
+
+optimisations:
+  hasten: 1
+
+conflict_input_file: conflicts.csv

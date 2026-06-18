@@ -1,0 +1,57 @@
+{
+  "domain": "TMI",
+  "network": "input_data/tmi_v2 (zone-independent camps; original tmi/ untouched)",
+  "supersedes": "day14_locked_params.json (CMC=0.00 was a topology artifact)",
+  "alpha": 1.6667,
+  "beta": 2.1667,
+  "kappa": 18.407,
+  "alpha_beta_kappa_status": "LOCKED (Fukushima transfer; not retuned -- Day-16 depends on it)",
+  "enable_panic_clamp": false,
+  "system1_specification": "conflict_dependent",
+  "system1_form": "P_S1 = cmc_base + (cmc_max - cmc_base) * c   (flee flag cmc_conflict_dependent=True)",
+  "cmc_base": 0.05,
+  "cmc_max": 0.50,
+  "constant_cmc_note": "On v2 a CONSTANT CMC re-fits POSITIVE (best ~0.30, total in band) -- confirming Day-14's CMC=0.00 was a topology artifact, NOT a real estimate. But a constant CMC produces a constant departure hazard and cannot make the Friday spike, so the conflict-dependent System-1 form was triggered (Task B2) and locked.",
+  "fukushima_cmc": 0.25,
+  "cross_domain_note": "TMI System-1 is now a conflict-dependent form (base 0.05, max 0.50) vs Fukushima's constant CMC=0.25 + panic clamp. Day-16 must compare the two System-1 SPECIFICATIONS on equal footing, not a single scalar.",
+  "checkpoint_b2": {
+    "total_evac": 0.151,
+    "evac_inner": 0.32,
+    "evac_middle": 0.43,
+    "evac_outer": 0.39,
+    "frac_inner_by_t10": 0.95,
+    "frac_dep_during_recovery": 0.013,
+    "a_total_in_band": true,
+    "b_inversion_removed": true,
+    "b_strict_inner_ge_mid_ge_outer": false,
+    "c1_friday_spike": true,
+    "c2_no_omega_recovery_evac": true,
+    "c3_strict_first_departure_peak_t10": false,
+    "primary_met": true
+  },
+  "return_mechanism": {
+    "enable_return_default": false,
+    "checkpoint_c_pass": true,
+    "camp_pop_start_peak_end": [14, 358, 41],
+    "camp_pop_peak_t": 15,
+    "return_curve_week_1_2_3": [0.61, 0.79, 0.92],
+    "empirical_week_1_2_3": [0.53, 0.90, 0.98],
+    "return_is_s2_driven": true
+  },
+  "empirical_targets": {
+    "total_evac": 0.21,
+    "band": [0.15, 0.30],
+    "zones": {"inner": 0.55, "middle": 0.50, "outer": 0.16},
+    "frac_inner_by_t10_min": 0.77,
+    "return_week_1_2_3": [0.53, 0.90, 0.98]
+  },
+  "documented_findings": [
+    "Topology fix (v2) removes the camp-adjacency inversion: outer is no longer the highest-evacuating zone.",
+    "Constant CMC re-fits POSITIVE on v2 -> Day-14 CMC=0.00 was a topology artifact (confirmed).",
+    "Constant CMC cannot produce the Friday spike; conflict-dependent System-1 is required and locked.",
+    "Conflict-dependent form: total in band, Friday spike (inner-by-t10=0.95), and NO Omega-recovery evacuation.",
+    "Clean inner>middle>outer gradient does NOT emerge: TMI conflict is spatially UNIFORM, so the only zonal lever is network/hub position (puts hub-zone 'middle' highest). A proximity-to-plant THREAT gradient is needed -- flagged for theory paper / Day 16.",
+    "Strict first-departure peak stays early: the System-2 deliberation channel (P_S2 high in the calm, sigma~0.5 toward zero-conflict distant shelters) drives diffuse pre-advisory drift under LOCKED alpha/beta/kappa. A model finding, not a CMC issue.",
+    "Return mechanism (enable_return) reproduces camp build-up then S2-driven drawdown after the Carter visit (t16); ~92% returned by week 3 vs empirical 98%."
+  ]
+}

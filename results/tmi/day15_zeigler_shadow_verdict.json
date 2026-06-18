@@ -1,0 +1,33 @@
+{
+  "zeigler_timing_inner_earlier": false,
+  "zeigler_distance_travel_inner_lt_outer": true,
+  "zeigler_distance_dest_inner_lt_outer": true,
+  "zones": {
+    "inner": {
+      "median_dep_t": 3.1,
+      "frac_by_t10": 0.9545454545454545,
+      "evac_rate": 0.3181818181818182,
+      "travel_path_km": 220.15453391941392,
+      "dest_dist_from_plant_mi": 70.56806880326788
+    },
+    "middle": {
+      "median_dep_t": 3.0,
+      "frac_by_t10": 0.9278606965174129,
+      "evac_rate": 0.43980099502487563,
+      "travel_path_km": 208.9794489627694,
+      "dest_dist_from_plant_mi": 71.16698873478003
+    },
+    "outer": {
+      "median_dep_t": 3.0,
+      "frac_by_t10": 0.9552346570397111,
+      "evac_rate": 0.35884476534296034,
+      "travel_path_km": 249.8823925061732,
+      "dest_dist_from_plant_mi": 71.48944108765699
+    }
+  },
+  "shadow_beyond_15mi_rate": 0.33470611258503186,
+  "within_15mi_rate": 0.40239607116819204,
+  "shadow_mechanism": "info-Omega (genuine)",
+  "prev2_outer_artifact": 0.6,
+  "interpretation": "Distance paradox reads on travel-path length (inner travels less to the common far shelters); plant-referenced destination distance is ~uniform because on v2 ALL zones evacuate to comparably distant camps (~60-84 mi) -- consistent with the empirical 85-mi median destination. Timing separation is weak: the uniform advisory + System-2 calm-drift flatten zone timing differences (documented Task-B2 finding)."
+}

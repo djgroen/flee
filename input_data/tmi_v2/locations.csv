@@ -1,0 +1,16 @@
+#name,region,country,gps_x,gps_y,location_type,conflict_date,pop/cap
+middletown,Dauphin,USA,-76.730,40.200,town,-1,9000
+goldsboro,York,USA,-76.787,40.140,town,-1,1100
+royalton,Dauphin,USA,-76.718,40.188,town,-1,1200
+elizabethtown,Lancaster,USA,-76.602,40.152,town,-1,8500
+hershey,Dauphin,USA,-76.650,40.286,forward,-1,14000
+harrisburg,Dauphin,USA,-76.884,40.273,town,-1,68000
+steelton,Dauphin,USA,-76.834,40.232,town,-1,6200
+new_cumberland,Cumberland,USA,-76.868,40.232,town,-1,7000
+york,York,USA,-76.728,39.962,town,-1,45000
+lancaster,Lancaster,USA,-76.306,40.038,town,-1,54000
+carlisle,Cumberland,USA,-77.188,40.202,town,-1,19000
+lebanon,Lebanon,USA,-76.437,40.340,town,-1,25000
+statecollege_camp,PA,USA,-77.86,40.793,camp,-1,200000
+philadelphia_camp,PA,USA,-75.164,39.953,camp,-1,200000
+baltimore_camp,PA,USA,-76.612,39.29,camp,-1,200000
