@@ -1,0 +1,48 @@
+MULTI-SEED VERIFICATION STATISTICS (Prompt 4b, Task 2)
+========================================================================
+Seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] (n=12)   rho=2.0 (placeholder)
+Locked: alpha=1.6667, beta=2.1667, kappa=18.407
+
+(1) REDUCTION  max|dcumfrac| (dual_process[sys1_only] vs pop_ratio)
+    deterministic mode (seed-independent by construction):
+        ring  : 0.0010
+        star  : 0.0010
+        linear: 0.0010
+    stochastic dual vs deterministic pop_ratio (binomial noise): mean=0.0047  SD=0.0025  range=[0.0015, 0.0106]  (n=36)
+    => deterministic reduction is exact & seed-invariant; stochastic noise is small.
+
+(2) DEPLETION  (sum spawned <= initial_pop must hold in 100% of seeds)
+    violations: 0 / 36 runs  (none)
+    cum_fraction across all runs: mean=1.0000  SD=0.0000  range=[1.0000, 1.0000]  (n=36)
+
+(3) PSI-ORDERING gap (mean exp early - late), moderate ring c=0.2
+    mean=0.0388  SD=0.0040  range=[0.0318, 0.0440]  (n=12)
+    seeds with gap <= 0: 0 / 12   per-seed: [0.0395, 0.0432, 0.0414, 0.0343, 0.0318, 0.0343, 0.044, 0.0415, 0.0353, 0.0425, 0.0377, 0.04]
+    (Prompt-4 reported single-seed gap 0.287-0.246 = +0.041)
+
+(4) SCALE-INVARIANCE  cum_fraction across hasten in {1,4,8}, per topology
+    ring  : h1=0.8705 h4=0.8675 h8=0.8702  |d(1,4)|=0.0030 |d(1,8)|=0.0003 |d(4,8)|=0.0026
+    star  : h1=0.8705 h4=0.8675 h8=0.8702  |d(1,4)|=0.0030 |d(1,8)|=0.0003 |d(4,8)|=0.0026
+    linear: h1=0.8705 h4=0.8675 h8=0.8702  |d(1,4)|=0.0030 |d(1,8)|=0.0003 |d(4,8)|=0.0026
+    (all |diff| within seed noise; fraction QoI is population-normalised)
+
+(5) GRADIENT-ATTRIBUTION corr(spawn_step, experience) per steepness (NOT averaged into one number)
+    steepness |        blend (mean+/-SD)         |     sys1_only (mean+/-SD)
+      s=0.00   | -0.1207 +/- 0.0093  [-0.134,-0.105] | -0.0026 +/- 0.0091  [-0.021,+0.010]
+      s=0.04   | -0.1240 +/- 0.0121  [-0.143,-0.107] | +0.0011 +/- 0.0097  [-0.014,+0.021]
+      s=0.08   | -0.1336 +/- 0.0089  [-0.149,-0.121] | -0.0042 +/- 0.0110  [-0.022,+0.014]
+
+    Is the ~-0.12 blend correlation stable across steepness & seeds?
+      blend mean corr by steepness: [-0.1207, -0.124, -0.1336]  (spread across steepness = 0.0129)
+      => The sign and rough magnitude are STABLE (always clearly negative, ~-0.10 to -0.14);
+         it does NOT flip or collapse to 0 at any steepness/seed. sys1_only stays ~0.
+      Figure: /Users/mjp38/GitHub/flee-1/results/spawn/verify/corr_vs_steepness.png
+
+------------------------------------------------------------------------
+HEADLINE STABILITY VERDICT:
+  (1) reduction exact (det) / small noise (stoch): OK
+  (2) depletion sum<=pop violations: 0 (need 0): OK
+  (3) Psi gap > 0 in 12/12 seeds: OK
+  (4) scale-invariance within noise: OK
+  (5) blend Psi-corr stably negative, sys1_only ~0: OK
+  Raw arrays -> verify/multiseed_raw.npz (consumed by Task 3).

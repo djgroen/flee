@@ -1,0 +1,36 @@
+DECISION-DRIVEN SPAWNING — SYNTHETIC-EQUIVALENCE TESTS (Day-16 Task 4)
+========================================================================
+Topologies: ring, star, linear   |   rho=2.0 (PLACEHOLDER, uncalibrated)
+Locked: alpha=1.6667, beta=2.1667, kappa=18.407
+
+[PASS] 1. REDUCTION (dual_process[sys1_only, const lambda] == pop_ratio) [BLOCKER]
+  lambda_S1=0.5507 (const via sys1_only), matched pop_ratio rate dpcd=1.3767
+    ring  : pop_ratio cumfrac=0.9998  dual_process=1.0000  max|dcumfrac|=0.0010
+    star  : pop_ratio cumfrac=0.9998  dual_process=1.0000  max|dcumfrac|=0.0010
+    linear: pop_ratio cumfrac=0.9998  dual_process=1.0000  max|dcumfrac|=0.0010
+  worst max|dcumfrac| across topologies = 0.0010 (threshold 0.03)
+
+[PASS] 2. DEPLETION CORRECTNESS (sum<=pop, saturates, no negatives) [BLOCKER]
+    ring  : spawned=9000/9000 (<=pop:True) monotone:True saturates:True pop>=0:True n_b>=0:True
+    star  : spawned=9000/9000 (<=pop:True) monotone:True saturates:True pop>=0:True n_b>=0:True
+    linear: spawned=9000/9000 (<=pop:True) monotone:True saturates:True pop>=0:True n_b>=0:True
+
+[PASS] 3. PSI-ORDERING (early-spawned Psi > late-spawned Psi)
+    ring, c=0.2: mean experience early(<=t6)=0.2869 vs late=0.2455
+    => mean Psi early=0.4421 > late=0.4022: True
+    (early departers carry higher Psi as high-P_S2 bins deplete first)
+
+[PASS] 4. SPIKE (departure spike co-timed with square pulse)
+    ring, pulse t[6..10] c=0.7: peak spawn at t=6
+    departures in pulse=11986, in calm=0, frac_in_pulse=1.000
+    spawns/day=[0, 0, 0, 0, 0, 0, 9028, 2252, 539, 135, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+[PASS] 5. SCALE-INVARIANCE (fraction QoIs invariant to hasten)
+    ring  : cum_fraction hasten=1: 0.8711  hasten=4: 0.8658  |diff|=0.0054 (thr 0.02)
+    star  : cum_fraction hasten=1: 0.8711  hasten=4: 0.8658  |diff|=0.0054 (thr 0.02)
+    linear: cum_fraction hasten=1: 0.8711  hasten=4: 0.8658  |diff|=0.0054 (thr 0.02)
+
+------------------------------------------------------------------------
+SUMMARY: (P) 1. REDUCTION  (P) 2. DEPLETION CORRECTNESS  (P) 3. PSI-ORDERING  (P) 4. SPIKE  (P) 5. SCALE-INVARIANCE
+BLOCKERS (reduction + depletion): PASS
+ALL TESTS: PASS

@@ -1,0 +1,47 @@
+FORMAL STATISTICAL TESTS — Psi-ordering / crossover (Prompt 4b, Task 3)
+==========================================================================
+Gradient chain SafeZone-10-inner-40-middle-40-outer, pop=3000/zone, 20 steps.
+modes: blend vs sys1_only; steepness [0.0, 0.04, 0.08]; seeds [0, 1, 2, 3, 4]; permutations=1000. rho=2.0.
+Total per-agent records: 266565
+
+(1) PERMUTATION TEST on the early-vs-late mean-experience gap
+    H0: spawn-order carries no information about experience (labels exchangeable).
+    Two-sided empirical p = (#|null gap| >= |obs| + 1)/(N_perm + 1).
+    Pooled over seeds within each (mode, steepness) cell:
+      mode       steepness | observed gap | null SD  | p-value
+      blend      s=0.00    |   +0.0266    | 0.0015  | 0.0010  ***
+      blend      s=0.04    |   +0.0273    | 0.0015  | 0.0010  ***
+      blend      s=0.08    |   +0.0268    | 0.0015  | 0.0010  ***
+      sys1_only  s=0.00    |   -0.0016    | 0.0014  | 0.2807
+      sys1_only  s=0.04    |   +0.0014    | 0.0014  | 0.3117
+      sys1_only  s=0.08    |   -0.0005    | 0.0015  | 0.7493
+    => blend: highly significant negative-order gap (early=higher Psi) at every
+       steepness (p<0.001, i.e. 0/1000 permutations reach it). sys1_only: NOT
+       significant (p large) — the bare gradient carries no experience ordering.
+
+(2) INTERACTION TEST (nested-model F / OLS)
+    Model (predictors standardized): experience ~ 1 + step + mode + steep + step:mode + step:steep
+    Key term = step:mode  (does MODE change the departure-order -> experience
+    relationship, beyond the gradient's step:steep effect?).
+      n = 266565 agents;  full-model params = 6;  error df = 266559
+      step:mode coefficient (standardized) = -0.0243  (SE 0.0007)
+      t = -37.091,  two-sided p = 2.276e-300
+      nested-model F(1, 266559) = 1375.77,  p = 2.276e-300
+      effect size: delta R^2 = 0.0051,  partial eta^2 = 0.0051
+      (full R^2 = 0.0077, reduced R^2 = 0.0026)
+
+    Reference coefficients (standardized, full model):
+      intercept=+0.2856  step=-0.0001  mode=-0.0047  steep=+0.0001  step:mode=-0.0243  step:steep=-0.0001
+
+    INTERPRETATION: the step:mode interaction is the statistic that actually
+    supports 'architecture sets the structure, not just the gradient'. A large,
+    highly significant negative step:mode term means the (departure-order ->
+    experience) slope is present under blend and absent/near-zero under sys1_only,
+    over and above any gradient-driven timing (step:steep). The step:steep term
+    captures the purely gradient-driven timing that BOTH modes share.
+
+--------------------------------------------------------------------------
+VERDICT: The Psi-ordering is statistically real (permutation p<0.001 in blend at
+every steepness; null-mode sys1_only n.s.) and MODE-DEPENDENT (significant
+step:mode interaction), which is the formal support for the architectural claim.
+Effect sizes are reported above; p-values alone are not the basis for the claim.

@@ -1,0 +1,12 @@
+NON-BREAKING FINGERPRINT  [label=current]
+================================================================
+(B) LEGACY conflict_spawn_mode trajectories (fixed ring, seed=0, 20 steps):
+    constant  : n_agents= 3600  traj_md5=703c989a455cf16f57f8736474e5eb6a  ConflictMoveChance=1.0  enable_panic_clamp=None
+    pop_ratio : n_agents= 2322  traj_md5=cab30ffdb27d702ece6ce1c4a983c7fb  ConflictMoveChance=1.0  enable_panic_clamp=None
+    poisson   : n_agents= 3613  traj_md5=b3f726fa73ea2436dfab4885f196e5b0  ConflictMoveChance=1.0  enable_panic_clamp=None
+
+(A) ACTUAL Fukushima config (alpha=1.0,beta=2.0,kappa=5.0,seed=42):
+    agent_history: n=568428  md5=68770a8f5ea5cb56cc4b05ff8194ae35
+    trajectory:    steps=201  md5=ba88e953f18f1a9bd3c0701527907c6c
+    sample row(step9): 9,0.159782,0.026667,0.388474
+    ConflictMoveChance=0.25  enable_panic_clamp=None

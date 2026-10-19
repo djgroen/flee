@@ -1,0 +1,83 @@
+DECISION-DRIVEN SPAWNING — PRE-FLIGHT (Phase 3.5, day16_mechanism_spec)
+========================================================================
+Branch: feature/dual-process-experiments   Repo: mjpuma/flee-1
+Verdict: ALL SIX INTEGRATION POINTS MATCH THE SPEC ASSUMPTIONS — GO TO BUILD.
+
+Locked cognitive params (results/tmi/day15_locked_params.json):
+  alpha = 1.6667, beta = 2.1667, kappa = 18.407, Psi_min = 0.1  (LOCKED both domains)
+  rho   = NEW free parameter (System-1 threat-sensitivity); NO locked value yet.
+          Synthetic tests below use placeholder rho = 2.0 (labelled).
+
+------------------------------------------------------------------------
+1. SPAWN ENTRY POINT — CONFIRMED
+   flee/spawning.py:108  spawn_daily_displaced(e, t, d)
+   Per-location loop:            line 132  for i in range(0, len(e.locations))
+   Conflict-origin guard:        line 135  if e.locations[i].conflict > 0.0
+   conflict_spawn_mode branches: line 138 "constant", 143 "pop_ratio", 146 "poisson"
+   pop_ratio formula (line 144):
+       num_spawned = int(displaced_per_conflict_day * location.pop * location.conflict)
+   -> This is the structural analog for the new "dual_process" mode: a per-location,
+      per-day count derived from pop x (a rate). The new mode replaces the flat rate
+      with a per-experience-bin hazard h_{i,b}.
+
+2. DEPLETION PATH — CONFIRMED
+   flee/flee.py:1887  addAgent(location, attributes)
+     line 1899-1901  if TakeFromPopulation: if location.pop > 0: location.pop -= 1
+     line 1908       location.numAgentsSpawned += 1
+   TakeFromPopulation is per-config: SimulationSettings.py:132
+       spawn_rules["TakeFromPopulation"] = bool(take_from_population)   [default False]
+   conflict_input/fukushima_2011/simsetting.yml: take_from_population: True  (verified).
+   -> Depletion + spawn-count tracking are exactly the hooks the new mode needs.
+      Guard at 1900 (pop>0) prevents negative pop; the new mode additionally keeps
+      per-bin counts n_b >= 0 (k_b <= n_b by construction).
+
+3. SIGMA SOURCE — CONFIRMED (O(1), no per-agent traversal)
+   flee/conflict_potential.py:253  ConflictPotentialField.get(day, location_name, s2=True)
+       -> returns (c_best, d_best) via a nested dict lookup (table[day][name]) = O(1).
+   Registered on SimulationSettings.move_rules['potential_field'] and reachable inside
+   the spawn loop via flee/moving.py:51 _lookup_potential(location, time, c_here, s2=True),
+   which falls back to a 1-hop min-conflict neighbour scan when no field is registered
+   (used by the synthetic tests, where each origin links directly to a safe camp).
+   sigma_i = compute_s2_move_probability(c_i, c_best, d_best, kappa)
+             (dual_process_model.py:49; logistic argument already clamped to +/-20).
+
+4. EXPERIENCE — CONFIRMED
+   flee/flee.py:88  Person.__init__ draws experience_index = random.betavariate(2, 5)
+   (unconditional). The new mode does NOT modify Person: it assigns experience per
+   spawned agent from the location's experience bin by setting
+   e.agents[-1].experience_index = x_b immediately after addAgent (mode-scoped only).
+   Bins reproduce the Beta(2,5) shape (Task 2.4).
+
+5. RUN-LOOP ORDERING — CONFIRMED: spawn BEFORE evolve
+   runscripts/run.py:73  spawn_daily_displaced(e, t, d)
+   runscripts/run.py:78  e.evolve()
+   (Same order in runscripts/run_par.py:77/82, flee/config_template/run.py:67/73,
+    flee/runscripts/run_par.py, and tests/*.) An agent that departs on day t therefore
+    begins transiting on day t. Spike-timing test (4.4) relies on this ordering — OK.
+   NOTE: run_nuclear_parameter_sweep.py pre-places agents and calls only evolve() (no
+    spawner); it is a legacy sweep harness, not the spawn path. The new synthetic tests
+    call spawn_daily_displaced() then evolve() explicitly, matching run.py.
+
+6. CLAMP & CMC — CONFIRMED disable-able per-mode
+   Panic clamp:  flee/moving.py:417
+       if move_rules.get("enable_panic_clamp", True) and c_here > 0.9: blended = max(blended, 0.95)
+     (also threaded through decision_engine config at moving.py:431-432).
+   Conflict-dependent CMC: flee/moving.py:392-397 behind flag cmc_conflict_dependent
+       movechance = cmc_base + (cmc_max - cmc_base) * min(1, max(0, c_here))
+   Both are flag-gated, so the new mode sets (mode-scoped, once per run, with a log):
+       move_rules["ConflictMoveChance"]  = 1.0     (transit no longer throttled)
+       move_rules["enable_panic_clamp"]  = False   (near-total inner flight must EMERGE
+                                                     from lambda_S1 saturation, not a clamp)
+   No other mode is touched: these are set only while conflict_spawn_mode == "dual_process".
+
+------------------------------------------------------------------------
+NON-BREAKING PLAN
+   - New 4th value conflict_spawn_mode == "dual_process" (constant|poisson|pop_ratio unchanged).
+   - New spawn_rules keys (all optional, defaulted): dual_process_rho (2.0),
+     dual_process_bins (8), dual_process_deterministic (False), dual_process_enable_return (False).
+   - lambda_S1 added to dual_process_model.py (only new cognitive function).
+   - Bin/hazard helpers in NEW module flee/spawn_dynamics.py (no edits to Person / cognitive core).
+   - Fraction QoI (cumulative_spawned / initial_pop) computed in the test harness, not the model.
+   - hasten / PopulationScaleDownFactor (SimulationSettings.py:406; InputGeography.py:452)
+     left untouched; scale-invariance verified in Task 4.5.
+   Existing configs and defaults are byte-for-byte unchanged unless spawn_mode == dual_process.

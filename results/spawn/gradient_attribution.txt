@@ -1,0 +1,40 @@
+DECISION-DRIVEN SPAWNING — GRADIENT-ATTRIBUTION TEST (Day-16 Task 5)
+========================================================================
+3-zone chain  SafeZone-10-inner-40-middle-40-outer   pop=3000/zone, 20 steps, seeds=[0, 1, 2]
+rho=2.0 (PLACEHOLDER)  locked alpha=1.6667, beta=2.1667, kappa=18.407
+conflict gradient: c_inner=0.12+s, c_mid=0.12, c_outer=0.12-s
+
+(A) GRADIENT-DRIVEN — zone evacuation-rate gradient magnitude (inner - outer):
+    steepness s |   blend inner/mid/outer   grad |  sys1_only inner/mid/outer  grad
+      s=0.00    | 1.000/0.999/0.999  +0.001 | 0.993/0.991/0.992  +0.000
+      s=0.04    | 1.000/0.999/0.997  +0.003 | 0.998/0.993/0.960  +0.039
+      s=0.08    | 1.000/0.999/0.993  +0.007 | 1.000/0.991/0.867  +0.133
+    => Both modes' zone gradient scales with steepness: the threat gradient
+       sets the LEVEL (magnitude) of the zonal evacuation-rate differences.
+
+(B) ARCHITECTURE-DRIVEN — Psi-ordering corr(spawn_step, experience):
+    (negative => early departers carry HIGHER Psi; a bare gradient, which ignores
+     experience in its hazard, gives ~0)
+    steepness s |   blend corr   |  sys1_only corr
+      s=0.00    |   -0.1176    |    -0.0030
+      s=0.04    |   -0.1213    |    +0.0023
+      s=0.08    |   -0.1322    |    -0.0021
+
+    Departure timing (mean spawn step by zone):
+    steepness s |        blend inner/mid/outer      |     sys1_only inner/mid/outer
+      s=0.00    |   2.12/2.24/2.23           |   3.51/3.55/3.51
+      s=0.04    |   1.73/2.33/2.70           |   2.62/3.52/4.92
+      s=0.08    |   1.50/2.25/3.11           |   2.03/3.55/6.33
+
+------------------------------------------------------------------------
+VERDICT (honest):
+  * Gradient sets the level:   evac-gradient rises with steepness in BOTH modes: True
+  * Architecture sets structure: blend shows Psi-ordering (corr<-0.02 at every s): True
+  * Gradient-only baseline is Psi-flat (|corr|<0.02 at every s):                   True
+
+  RESULT: The dual-process layer EARNS its place — blend reproduces the Psi-ordering
+  (early departers = higher Psi) that the bare threat gradient cannot, while the zonal
+  evacuation magnitude is gradient-driven in both. Threat gradient sets the level; the
+  architecture sets the structure.
+
+Figure: /Users/mjp38/GitHub/flee-1/results/spawn/gradient_attribution.png / .pdf

@@ -1,0 +1,82 @@
+NON-BREAKING GUARANTEE — TRAJECTORY-LEVEL VERIFICATION (Prompt 4b, Task 5)
+================================================================================
+Claim under test: legacy-mode BEHAVIOUR is byte-for-byte unchanged by Prompt 4,
+not merely that aggregate tests still pass. Only a zero-line diff is a pass.
+
+--------------------------------------------------------------------------------
+(0) SOURCE-LEVEL EVIDENCE (necessary condition, airtight)
+--------------------------------------------------------------------------------
+`git diff HEAD --numstat` for the two modified model files:
+    31   0   flee/dual_process_model.py     (31 insertions, 0 deletions)
+    120  0   flee/spawning.py               (120 insertions, 0 deletions)
+Both changes are PURELY ADDITIVE (zero deleted/modified lines). Inspection of the
+hunks confirms:
+  - dual_process_model.py: one NEW function (compute_s1_departure_intensity) + one
+    new __all__ entry. No existing function touched.
+  - spawning.py: new helpers (reset_dual_process_state, _configure_dual_process_mode_once,
+    _spawn_dual_process) + two guarded insertions inside spawn_daily_displaced:
+        (a) `if conflict_spawn_mode == "dual_process": _configure_dual_process_mode_once()`
+        (b) `elif conflict_spawn_mode == "dual_process": ...` branch
+    The constant / pop_ratio / poisson branches are textually identical to HEAD.
+flee/spawn_dynamics.py is a NEW untracked file, imported LAZILY only inside the
+dual_process code paths, so it is never touched by legacy modes.
+=> Legacy code text is unchanged; a runtime behaviour change is impossible unless
+   the new guarded branches execute (they cannot for non-dual_process modes).
+
+--------------------------------------------------------------------------------
+(1) RUNTIME TRAJECTORY DIFF (sufficient condition, dynamic)
+--------------------------------------------------------------------------------
+Method: a single self-contained fingerprint driver (scripts/spawn/verify_nonbreaking.py)
+was run TWICE with identical seeds:
+  * current : post-Prompt-4 working tree.
+  * head    : an ISOLATED export of the HEAD `flee` package (spawning.py &
+              dual_process_model.py reverted via `git show HEAD:`, spawn_dynamics.py
+              removed), loaded via FLEE_SRC without modifying the working tree.
+It fingerprints FULL per-agent trajectories (not summary QoIs):
+
+  (A) the ACTUAL Fukushima config (runscripts/run_fukushima.run_simulation,
+      alpha=1.0, beta=2.0, kappa=5.0, seed=42): md5 of the entire 568,428-row
+      agent_history dataframe + md5 of the 201-step trajectory.
+  (B) the three legacy conflict_spawn_mode branches (constant, poisson, pop_ratio)
+      on a fixed ring ecosystem (seed=0, 20 steps): md5 of every agent's
+      (origin, spawn_step, experience, arrival_step).
+
+RESULT — current vs head fingerprints (diff of the two files, ignoring only the
+[label=...] header line):
+
+    ZERO-LINE DIFF (identical).
+
+Per-line confirmation (both runs):
+  constant  : n=3600  traj_md5=703c989a455cf16f57f8736474e5eb6a
+  pop_ratio : n=2322  traj_md5=cab30ffdb27d702ece6ce1c4a983c7fb
+  poisson   : n=3613  traj_md5=b3f726fa73ea2436dfab4885f196e5b0
+  Fukushima agent_history: n=568428  md5=0d1b77760c619976dec4f2e46d643d25
+  Fukushima trajectory:    steps=201  md5=049dcc802c2caacdb9180f0362f7261c
+
+--------------------------------------------------------------------------------
+(2) RUNTIME CONFIG VALUES (Task 5.2) — actual loaded values, pre AND post
+--------------------------------------------------------------------------------
+Values of the two settings the dual_process override touches, as loaded at runtime
+for each legacy path (identical under current and HEAD code):
+
+  legacy modes (empty.yml defaults):  ConflictMoveChance = 1.0   enable_panic_clamp = None
+  Fukushima config (simsetting.yml):  ConflictMoveChance = 0.25  enable_panic_clamp = None
+
+Interpretation: the dual_process override (_configure_dual_process_mode_once, which
+would set ConflictMoveChance=1.0 and enable_panic_clamp=False) is NEVER invoked for
+legacy modes — it is guarded by `conflict_spawn_mode == "dual_process"`. The legacy
+values come straight from the loaded YAML and are provably unchanged. (Note: the
+empty.yml default for ConflictMoveChance happens to also be 1.0, but this value is
+loaded from YAML, not set by the dual_process path — confirmed by the Fukushima run
+retaining its own 0.25 and by enable_panic_clamp staying None rather than False.)
+
+--------------------------------------------------------------------------------
+VERDICT: PASS. Zero-line trajectory diff for all three legacy modes AND the actual
+Fukushima config; source diff is purely additive (0 deletions); the panic-clamp /
+ConflictMoveChance overrides are proven inactive for legacy modes at runtime.
+
+CAVEAT carried from Task 0 (F1): the reset of dual_process module-globals is only
+done by the test harness, not production run.py. This does not affect legacy modes
+(they never populate those globals) nor a single dual_process run, but a Day-18
+calibration LOOP running many dual_process evaluations in one process must call
+spawning.reset_dual_process_state() per evaluation. Flagged for a follow-up fix.

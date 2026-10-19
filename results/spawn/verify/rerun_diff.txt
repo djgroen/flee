@@ -1,0 +1,39 @@
+INDEPENDENT RERUN & DIFF (Prompt 4b, Task 1)
+================================================================================
+Procedure: backed up the original results/spawn/{synthetic,gradient_attribution}.txt
+to verify/_orig_*.txt, then re-ran scripts/spawn/test_synthetic.py and
+scripts/spawn/test_gradient_attribution.py from the same checkout and diffed.
+
+--------------------------------------------------------------------------------
+(A) SAME-SEED REPRODUCIBILITY (exact)
+--------------------------------------------------------------------------------
+The tests use fixed internal seeds (test_synthetic: per-test seeds 0-3;
+test_gradient_attribution: SEEDS=[0,1,2]). Re-running must reproduce byte-for-byte.
+
+  diff _orig_synthetic.txt   results/spawn/synthetic.txt            -> IDENTICAL (0 lines differ)
+  diff _orig_gradient.txt    results/spawn/gradient_attribution.txt -> IDENTICAL (0 lines differ)
+
+RESULT: EXACT match on the same seeds. All Prompt-4 headline numbers reproduce
+byte-for-byte (reduction max|dcumfrac|=0.0010; depletion 9000/9000 all topologies;
+Psi gap 0.287 vs 0.246; spike frac_in_pulse=1.000; scale |diff|=0.0054; gradient
+blend Psi-corr ~ -0.117/-0.121/-0.132 vs sys1_only ~ 0).
+
+--------------------------------------------------------------------------------
+(B) MATCH IN KIND (different seeds, same qualitative pattern)
+--------------------------------------------------------------------------------
+Quick 3-alternate-seed check of the Psi-ordering experience gap (early - late) on
+the moderate-threat ring (c=0.2, rho=2.0), the same configuration as synthetic
+test 3 (original seed=2 gap = 0.287 - 0.246 = +0.041):
+
+  alt seed 7: gap = +0.0415
+  alt seed 8: gap = +0.0353
+  alt seed 9: gap = +0.0425
+
+RESULT: MATCHES IN KIND. Every alternate seed gives a positive gap of the same
+sign and comparable magnitude (~+0.035 to +0.043) as the reported seed. The
+effect is not a lucky single-seed artifact. Full distributional statistics
+(mean/SD/range over >=10 seeds, and the correlation-vs-steepness curves with
+error bars) are quantified in Task 2 (multiseed_stats.txt).
+
+CONCLUSION: Task 1 passes on both criteria — exact same-seed reproduction and
+qualitative reproduction across independent seeds.

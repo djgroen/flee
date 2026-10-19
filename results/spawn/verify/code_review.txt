@@ -1,0 +1,156 @@
+DECISION-DRIVEN SPAWNING — COLD CODE REVIEW (Prompt 4b, Task 0)
+================================================================================
+Reviewer stance: fresh PR review of flee/spawn_dynamics.py + the flee/spawning.py
+diff, treating every Prompt-4 claim as unverified. Read-only; no patches here.
+
+Files reviewed:
+  flee/spawn_dynamics.py            (124 lines, new)
+  flee/spawning.py                  (new: lines 22-127, 239-266; rest unchanged)
+
+================================================================================
+Q1. Is the [0,1] clamp on h_{i,b} applied to the BLENDED sum, or could either
+    term individually exceed [0,1] and be silently absorbed?
+
+ANSWER: Clamp is applied to the blended h AFTER the sum. Exact lines
+(flee/spawn_dynamics.py:112-113):
+
+    112:    h = (1.0 - p_s2) * lambda1 + p_s2 * sigma
+    113:    return min(1.0, max(0.0, h))
+
+The clamp is DEFENSIVE, not load-bearing, for valid parameters:
+  - Psi(x;alpha) = 0.1 + 0.9(1-exp(-alpha*x)) in [0.1, 1)      (dual_process_model.py:28)
+  - Omega(c;beta) = exp(-beta*c) in (0, 1]                      (dual_process_model.py:40)
+  => p_s2 = Psi*Omega in [0, 1)
+  - lambda1 = 1 - exp(-rho*c) in [0, 1)                         (compute_s1_departure_intensity)
+  - sigma  = logistic(.) in (0, 1)                             (compute_s2_move_probability)
+  Since (1-p_s2) and p_s2 are non-negative weights that sum to 1, h is a CONVEX
+  COMBINATION of two values already in [0,1] => h in [0,1] before clamping.
+  Neither term can individually exceed [0,1] under valid alpha/beta/rho, so
+  nothing is silently absorbed. (Verified numerically at the parameter bounds in
+  Task 4.2.) The only way to defeat this is a p_s2_override outside [0,1], which
+  is caller-controlled and not used by any test/config.
+  VERDICT: correct; matches spec ("clamped to [0,1]").
+
+--------------------------------------------------------------------------------
+Q2. Is P_S2(x_b) recomputed fresh from current c_i each timestep, or cached
+    per-bin in a way that could go stale as conflict evolves?
+
+ANSWER: Recomputed FRESH every timestep. Exact lines:
+  - c_i read fresh from the live location each call (flee/spawning.py:78):
+        78:    c_i = max(0.0, float(loc.conflict))
+  - sigma and lambda1 recomputed from current c_i each call (spawning.py:92-94).
+  - p_s2 recomputed inside bin_hazard each call (spawn_dynamics.py:110-111):
+        110:    else:
+        111:        p_s2 = compute_deliberation_weight(x_b, c_i, alpha, beta)
+  The ONLY cached quantities are (a) the bin SHAPE x_b (time-invariant by design;
+  _bin_shape_cache, spawn_dynamics.py:32,46-54) and (b) the bin COUNTS n_b (which
+  are SUPPOSED to persist — see Q3). No P_S2 value is cached.
+  VERDICT: correct; no staleness as conflict evolves.
+
+--------------------------------------------------------------------------------
+Q3. Are Psi bins initialized exactly once per location, or is there a path where
+    they could be reset/reinitialized on a later timestep?
+
+ANSWER: Initialized exactly once per location per run. Path:
+  - get_pool (spawn_dynamics.py:70-74) initialises ONLY if the name is absent:
+        72:    if name not in _pools:
+        73:        init_pool(name, pop, nbins)
+  - _spawn_dual_process calls get_pool(loc.name, int(loc.pop), nbins) every step
+    (spawning.py:103), but on later steps the name IS present, so the `pop`
+    argument is ignored and NO re-init occurs.
+  - Depletion is monotone: b[1] = n_b - k with k = min(k, n_b) >= 0
+    (spawning.py:115,125) => n_b never increases and never goes below 0.
+  Whole-pool reset happens ONLY via reset_pools() (spawn_dynamics.py:38-40),
+  called by reset_dual_process_state() at RUN START. Within a run, bins persist
+  and deplete monotonically, so the "residual mean Psi falls over time" claim is
+  structurally supported.
+  VERDICT: correct within a run. SEE FINDING F1 below for a cross-run caveat.
+
+--------------------------------------------------------------------------------
+Q4. Walk the enable_return / return-composition path (Task 2.5). Does a returning
+    agent correctly re-enter its home bin count, or could double-count / loss occur?
+
+ANSWER + FINDING F2 (must surface): return_to_pool IS DEFINED but NEVER CALLED.
+  - Definition: spawn_dynamics.py:116-123. In isolation it is correct: it finds
+    the nearest bin by |x_b - x| and increments that bin's count by 1.
+  - A repo-wide search for `return_to_pool(` finds ZERO call sites. The
+    enable_return re-entry described in Task 2.5 is therefore NOT WIRED into the
+    simulation: with dual_process + enable_return, returning agents are handled by
+    the existing moving.py return mechanism and are NOT put back into the pool, so
+    the reservoir is not replenished (returned residents are not re-eligible to
+    re-spawn if threat recurs).
+  - Because it is never called, there is NO runtime double-counting or agent loss
+    today. But two latent hazards exist IF it is wired later:
+      (a) no conservation cap — it can push pool_total above the original pop;
+      (b) no accompanying decrement of `agents` shown here (caller's job).
+  - NO TEST covers this path (confirmed: no test references return_to_pool).
+  STATUS: This is a DOCUMENTED DEFERRAL, not a regression — Prompt 4 explicitly
+  stated "full return wiring is deferred; single-crisis nuclear runs simply
+  settle." It is flagged here as UNIMPLEMENTED + UNTESTED for Task 2.5, to be
+  wired (with a conservation test) in a follow-up prompt before any
+  protracted-conflict / return-enabled use.
+
+--------------------------------------------------------------------------------
+Q5. Does the deterministic-rounding Binomial fallback ever trigger for realistic
+    Fukushima-scale populations, or only tiny synthetic cases?
+
+ANSWER: It triggers ONLY when explicitly requested via a config flag; it is NOT a
+population-size-dependent automatic fallback. Exact lines (spawning.py:84,111-114):
+    84:    deterministic = bool(sr.get("dual_process_deterministic", False))
+   111:    if deterministic:
+   112:        k = int(round(n_b * h))
+   113:    else:
+   114:        k = int(np.random.binomial(n_b, h))
+  - Default is False => Binomial is ALWAYS used, regardless of population or hazard.
+  - deterministic=True only in scripts/spawn/test_synthetic.py::test_reduction
+    (spawn_harness call with deterministic=True) for exact pop_ratio comparison.
+  - The realistic Fukushima config (conflict_input/fukushima_2011/simsetting.yml)
+    does not set dual_process_deterministic, so the fallback NEVER triggers there.
+  VERDICT: correct and intentional (opt-in determinism for reproducible tests);
+  it is a config flag, not a small-population auto-fallback. No threshold exists.
+
+================================================================================
+ADDITIONAL FINDINGS (not among Q1-Q5, surfaced during the cold read)
+================================================================================
+F1 [HIGH — latent, does NOT affect current tests] Cross-run module-global leakage.
+   _pools and __dual_process_configured are module-level globals
+   (spawn_dynamics.py:35; spawning.py:24). reset_dual_process_state() is called
+   ONLY by the test harness (scripts/spawn/spawn_harness.py:59). It is NOT called
+   by any production driver (runscripts/run.py, run_par.py, config_template/*).
+   - Single run per process: SAFE (globals start clean at import).
+   - MULTIPLE dual_process runs in one process WITHOUT an explicit reset (exactly
+     what a Day-18 calibration loop does): the reservoir from run N-1 leaks into
+     run N (already depleted => under-spawning), and _configure_dual_process_mode_once
+     silently no-ops (config log suppressed; ConflictMoveChance/clamp still set from
+     the earlier run, so behaviour is correct but unlogged).
+   ACTION (follow-up prompt, NOT patched here): the Day-18 fitting harness MUST call
+   spawning.reset_dual_process_state() at the start of EVERY model evaluation, or the
+   reset should be hooked into Ecosystem construction. This is pre-registered as a
+   required step in day18_preregistration.md.
+
+F2 [MEDIUM] return_to_pool unwired + untested — see Q4.
+
+F3 [LOW] Pool sizing assumes location.pop at first-spawn equals the true origin pop.
+   get_pool is seeded with int(loc.pop) on the FIRST dual_process spawn (spawning.py:103).
+   If any other spawn source (day-0 refugees, a second driver) depletes loc.pop BEFORE
+   the first dual_process spawn, the reservoir under-counts. In the nuclear single-source
+   configs this cannot happen (dual_process is the only spawner and conflict onset defines
+   t of first spawn), but it is an implicit precondition worth noting for mixed configs.
+
+F4 [INFO] bin_hazard's int(b[1]) truncation (spawning.py:107): counts are stored as
+   integer-valued floats (init at 66; depletion at 125 keeps them integer), so int() is
+   exact. return_to_pool adds 1.0 (still integer-valued). No fractional drift today.
+
+================================================================================
+GO / NO-GO for Task 1
+================================================================================
+No bug was found that corrupts the numbers under verification (all current tests
+reset per run and use single-source spawning). F1 and F2 are latent/deferred issues
+that do NOT invalidate Prompt-4's reported results but MUST be addressed before
+Day-18 (F1) and before any return-enabled use (F2). Proceeding to Task 1.
+
+COAUTHOR REVIEW NOTE (not automatable): Groen or Suleimenova should independently
+read the flee/spawning.py diff (esp. lines 60-127, 239-266) and confirm the
+integration points (addAgent depletion, _lookup_potential for sigma, spawn-before-
+evolve ordering) match their understanding of the Flee codebase. Cursor/Claude
+cannot substitute for this human coauthor check.
