@@ -376,6 +376,15 @@ def calculateMoveChance(a, ForceTownMove: bool, time) -> Tuple[float, float]:
                     home, "name", None):
                 a.returning = False
                 a.sys2_activation_prob = 0.0
+                # Task 2.5 (F2 fix): hand the settled agent back to its origin
+                # reservoir so the dual_process spawner can re-eligibilise it if
+                # conflict recurs there. Without this, a returning agent vanishes
+                # from the spawner's bookkeeping even though it is physically
+                # home again (see results/spawn/verify/README.md finding F2).
+                if SimulationSettings.spawn_rules.get("conflict_spawn_mode") == "dual_process":
+                    import flee.spawn_dynamics as sd
+                    nbins = int(SimulationSettings.spawn_rules.get("dual_process_bins", 8))
+                    sd.return_to_pool(home.name, float(getattr(a, "experience_index", 0.0)), nbins)
                 return 0.0, 0.0
 
         # Native FLEE conflict at current location is the sole input.
